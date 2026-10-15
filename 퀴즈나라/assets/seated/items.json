@@ -1,0 +1,278 @@
+[
+ {
+  "sex": "m",
+  "slot": "top",
+  "item": "top:hood",
+  "sheet": "assets/pose-references/floor-sit-m-item-top-hood-2026-10-14.webp"
+ },
+ {
+  "sex": "m",
+  "slot": "top",
+  "item": "top:vest",
+  "sheet": "assets/pose-references/floor-sit-m-item-top-vest-2026-10-14.webp"
+ },
+ {
+  "sex": "m",
+  "slot": "top",
+  "item": "top:cardi",
+  "sheet": "assets/pose-references/floor-sit-m-item-top-cardi-2026-10-14.webp"
+ },
+ {
+  "sex": "m",
+  "slot": "top",
+  "item": "top:jacket",
+  "sheet": "assets/pose-references/floor-sit-m-item-top-jacket-2026-10-14.webp"
+ },
+ {
+  "sex": "m",
+  "slot": "top",
+  "item": "top:knit",
+  "sheet": "assets/pose-references/floor-sit-m-item-top-knit-2026-10-14.webp"
+ },
+ {
+  "sex": "f",
+  "slot": "top",
+  "item": "top:hood",
+  "sheet": "assets/pose-references/floor-sit-f-item-top-hood-2026-10-14.webp"
+ },
+ {
+  "sex": "f",
+  "slot": "top",
+  "item": "top:shirt",
+  "sheet": "assets/pose-references/floor-sit-f-item-top-shirt-2026-10-14.webp"
+ },
+ {
+  "sex": "f",
+  "slot": "top",
+  "item": "top:vest",
+  "sheet": "assets/pose-references/floor-sit-f-item-top-vest-2026-10-15.webp"
+ },
+ {
+  "sex": "f",
+  "slot": "top",
+  "item": "top:cardi",
+  "sheet": "assets/pose-references/floor-sit-f-item-top-cardi-2026-10-15.webp"
+ },
+ {
+  "sex": "f",
+  "slot": "top",
+  "item": "top:sailor",
+  "sheet": "assets/pose-references/floor-sit-f-item-top-sailor-2026-10-15.webp"
+ },
+ {
+  "sex": "f",
+  "slot": "top",
+  "item": "top:jacket",
+  "sheet": "assets/pose-references/floor-sit-f-item-top-jacket-2026-10-15.webp"
+ },
+ {
+  "sex": "f",
+  "slot": "top",
+  "item": "top:knit",
+  "sheet": "assets/pose-references/floor-sit-f-item-top-knit-2026-10-15.webp"
+ },
+ {
+  "sex": "f",
+  "slot": "top",
+  "item": "top:tank",
+  "sheet": "assets/pose-references/floor-sit-f-item-top-tank-2026-10-15.webp"
+ },
+ {
+  "sex": "f",
+  "slot": "bottom",
+  "item": "bottom:legging",
+  "sheet": "assets/pose-references/floor-sit-f-item-bottom-legging-2026-10-15.webp"
+ },
+ {
+  "sex": "f",
+  "slot": "bottom",
+  "item": "bottom:tutu",
+  "sheet": "assets/pose-references/floor-sit-f-item-bottom-tutu-2026-10-15.webp"
+ },
+ {
+  "sex": "f",
+  "slot": "bottom",
+  "item": "bottom:cargo",
+  "sheet": "assets/pose-references/floor-sit-f-item-bottom-cargo-2026-10-15.webp"
+ },
+ {
+  "sex": "f",
+  "slot": "bottom",
+  "item": "bottom:star_skirt",
+  "sheet": "assets/pose-references/floor-sit-f-item-bottom-star_skirt-2026-10-15.webp"
+ },
+ {
+  "sex": "m",
+  "slot": "shoes",
+  "item": "shoes:dress",
+  "sheet": "assets/pose-references/floor-sit-m-item-shoes-dress-2026-10-15.webp"
+ },
+ {
+  "sex": "m",
+  "slot": "shoes",
+  "item": "shoes:boots",
+  "sheet": "assets/pose-references/floor-sit-m-item-shoes-boots-2026-10-15.webp"
+ },
+ {
+  "sex": "m",
+  "slot": "shoes",
+  "item": "shoes:sandal",
+  "sheet": "assets/pose-references/floor-sit-m-item-shoes-sandal-2026-10-15.webp"
+ },
+ {
+  "sex": "m",
+  "slot": "shoes",
+  "item": "shoes:hitop",
+  "sheet": "assets/pose-references/floor-sit-m-item-shoes-hitop-2026-10-15.webp"
+ },
+ {
+  "sex": "m",
+  "slot": "shoes",
+  "item": "shoes:rain",
+  "sheet": "assets/pose-references/floor-sit-m-item-shoes-rain-2026-10-15.webp"
+ },
+ {
+  "sex": "m",
+  "slot": "shoes",
+  "item": "shoes:wing_shoes",
+  "sheet": "assets/pose-references/floor-sit-m-item-shoes-wing_shoes-2026-10-15.webp"
+ },
+ {
+  "sex": "f",
+  "slot": "shoes",
+  "item": "shoes:dress",
+  "sheet": "assets/pose-references/floor-sit-f-item-shoes-dress-2026-10-15.webp"
+ },
+ {
+  "sex": "f",
+  "slot": "shoes",
+  "item": "shoes:boots",
+  "sheet": "assets/pose-references/floor-sit-f-item-shoes-boots-2026-10-15.webp"
+ },
+ {
+  "sex": "f",
+  "slot": "shoes",
+  "item": "shoes:sandal",
+  "sheet": "assets/pose-references/floor-sit-f-item-shoes-sandal-2026-10-15.webp"
+ },
+ {
+  "sex": "f",
+  "slot": "shoes",
+  "item": "shoes:hitop",
+  "sheet": "assets/pose-references/floor-sit-f-item-shoes-hitop-2026-10-15.webp"
+ },
+ {
+  "sex": "f",
+  "slot": "shoes",
+  "item": "shoes:ballet",
+  "sheet": "assets/pose-references/floor-sit-f-item-shoes-ballet-2026-10-15.webp"
+ },
+ {
+  "sex": "f",
+  "slot": "shoes",
+  "item": "shoes:slipper",
+  "sheet": "assets/pose-references/floor-sit-f-item-shoes-slipper-2026-10-15.webp"
+ },
+ {
+  "sex": "f",
+  "slot": "shoes",
+  "item": "shoes:wing_shoes",
+  "sheet": "assets/pose-references/floor-sit-f-item-shoes-wing_shoes-2026-10-15.webp"
+ },
+ {
+  "sex": "m",
+  "slot": "outfit",
+  "item": "outfit:overall",
+  "sheet": "assets/pose-references/floor-sit-m-item-outfit-overall-2026-10-15.webp"
+ },
+ {
+  "sex": "m",
+  "slot": "outfit",
+  "item": "outfit:space",
+  "sheet": "assets/pose-references/floor-sit-m-item-outfit-space-2026-10-15.webp"
+ },
+ {
+  "sex": "m",
+  "slot": "outfit",
+  "item": "outfit:hanbok",
+  "sheet": "assets/pose-references/floor-sit-m-item-outfit-hanbok-2026-10-15.webp"
+ },
+ {
+  "sex": "f",
+  "slot": "outfit",
+  "item": "outfit:dress",
+  "sheet": "assets/pose-references/floor-sit-f-item-outfit-dress-2026-10-15.webp"
+ },
+ {
+  "sex": "f",
+  "slot": "outfit",
+  "item": "outfit:robe",
+  "sheet": "assets/pose-references/floor-sit-f-item-outfit-robe-2026-10-15.webp"
+ },
+ {
+  "sex": "f",
+  "slot": "outfit",
+  "item": "outfit:overall",
+  "sheet": "assets/pose-references/floor-sit-f-item-outfit-overall-2026-10-15.webp"
+ },
+ {
+  "sex": "f",
+  "slot": "outfit",
+  "item": "outfit:space",
+  "sheet": "assets/pose-references/floor-sit-f-item-outfit-space-2026-10-15.webp"
+ },
+ {
+  "sex": "m",
+  "slot": "shoes",
+  "item": "shoes:slipper",
+  "sheet": "assets/pose-references/floor-sit-m-item-shoes-slipper-2026-10-15.webp"
+ },
+ {
+  "sex": "f",
+  "slot": "bottom",
+  "item": "bottom:pleat",
+  "sheet": "assets/pose-references/floor-sit-f-item-bottom-pleat-2026-10-15.webp"
+ },
+ {
+  "sex": "f",
+  "slot": "shoes",
+  "item": "shoes:rain",
+  "sheet": "assets/pose-references/floor-sit-f-item-shoes-rain-2026-10-15.webp"
+ },
+ {
+  "sex": "m",
+  "slot": "bottom",
+  "item": "bottom:track",
+  "sheet": "assets/pose-references/floor-sit-m-item-bottom-track-2026-10-15.webp"
+ },
+ {
+  "sex": "m",
+  "slot": "top",
+  "item": "top:shirt",
+  "sheet": "assets/pose-references/floor-sit-m-item-top-shirt-2026-10-14.webp"
+ },
+ {
+  "sex": "f",
+  "slot": "bottom",
+  "item": "bottom:track",
+  "sheet": "assets/pose-references/floor-sit-f-item-bottom-track-2026-10-15.webp"
+ },
+ {
+  "sex": "f",
+  "slot": "bottom",
+  "item": "bottom:jean_skirt",
+  "sheet": "assets/pose-references/floor-sit-f-item-bottom-jean_skirt-2026-10-15.webp"
+ },
+ {
+  "sex": "m",
+  "slot": "bottom",
+  "item": "bottom:cargo",
+  "sheet": "assets/pose-references/floor-sit-m-item-bottom-cargo-2026-10-15.webp"
+ },
+ {
+  "sex": "f",
+  "slot": "outfit",
+  "item": "outfit:hanbok",
+  "sheet": "assets/pose-references/floor-sit-f-item-outfit-hanbok-2026-10-15.webp"
+ }
+]

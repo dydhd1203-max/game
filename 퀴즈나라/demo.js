@@ -70,104 +70,32 @@
     game.initFB();
     const role=params.get('role')||'student';
     game.setBank?.(bank);
-    if(role==='host'||role==='teacher'){
-      game.enterTeacher();
-      if(role==='host'){
-        // Only the hidden demo iframe hosts the older quiz-stage preview.
-        // Production teachers use the three classroom-management tabs.
-        window.hostPanel(document.getElementById('tBody'));
-        let advance=null,botClock=null,scheduled=[];
-        const bots=[{key:'preview_mint',name:'민트 · 체험 친구',team:'A',sex:'f',hair:'long:9',top:'dress:4',expression:'bright:0'},
-          {key:'preview_star',name:'별이 · 체험 친구',team:'B',sex:'m',hair:'short:1',top:'shirt:10',bottom:'jeans:11',expression:'sparkle:0'},
-          {key:'preview_yuri',name:'유리 · 체험 친구',team:'B',sex:'f',hair:'twin:6',top:'hood:6',expression:'happy:0'}];
-        addEventListener('message',async event=>{
-          if(event.origin!==location.origin||event.data?.type!=='qp-demo-start')return;
-          clearInterval(advance);
-          clearInterval(botClock);scheduled.forEach(clearTimeout);scheduled=[];
-          await db.ref('quiz/room').remove();
-          const mode=event.data.mode;
-          const teacher=game.getHost();
-          if(!teacher)return;
-          await teacher.open(mode,mode==='ox'?'demo_ox':'demo_quiz',mode==='cross'?8:5,mode==='cross'?180:mode==='ox'?12:20,mode==='cross'?'동물':null);
-          for(const bot of bots){
-            const av=Object.assign(game.newAvatar(bot.sex),bot,{sk:0,bottom:bot.bottom||'skirt:7',shoes:'sneaker:8',pet:'',bg:'',frame:''});
-            await db.ref('quiz/users/'+bot.key).set({name:bot.name,av,gold:0,owned:{},stat:{}});
-            await db.ref('quiz/room/p/'+bot.key).set({name:bot.name,av,team:bot.team,sc:0,ok:0,online:true});
-          }
-          setTimeout(()=>teacher.start(),1100);
-          let seen='',crossStep=0,lastCross=0;
-          const sendBot=async(bot,v,n)=>{
-            const m=teacher.meta;if(!m||m.phase!=='ask'||Date.now()>=m.tEnd)return;
-            const data={session:m.session,qi:m.qi,by:bot.key,v,t:Date.now()};if(n!=null)data.n=n;
-            await db.ref('quiz/room/try').push().set(data);
-          };
-          botClock=setInterval(()=>{
-            const m=teacher.meta;if(!m||m.phase!=='ask')return;
-            if(m.mode==='cross'){
-              if(Date.now()-lastCross<6500)return;lastCross=Date.now();
-              const puzzle=buildCross(topicWords(m.topic),m.seed,m.count),word=puzzle?.w[crossStep++];
-              if(word){sendBot(bots[0],word.a,word.n);sendBot(bots[1],word.a,word.n);}return;
-            }
-            const round=m.session+'_'+m.qi;if(round===seen)return;seen=round;
-            const question=pickQs(m.setId,m.seed,m.count,m.mode==='ox')[m.qi];
-            bots.forEach((bot,i)=>scheduled.push(setTimeout(async()=>{
-              if(teacher.meta?.session!==m.session||teacher.meta?.qi!==m.qi||teacher.meta?.phase!=='ask')return;
-              if(m.mode==='quiz')sendBot(bot,i===2?'한 번 더 생각 중':String(question.a).split('/')[0]);
-              else{
-                const v=i===2?(question.a==='O'?'X':'O'):question.a;
-                await db.ref('quiz/room').transaction(room=>{
-                  if(!room||room.meta.session!==m.session||room.meta.qi!==m.qi||room.meta.phase!=='ask')return;
-                  room.ans=room.ans||{};room.ans[bot.key]={v,t:Date.now()};
-                  Object.assign(room.p[bot.key],{ox:v==='O'?0:1,ansAt:Date.now(),px:.2+i*.26,py:.35+i*.2});return room;
-                });
-              }
-            },3200+i*1800)));
-          },400);
-          advance=setInterval(()=>{
-            const next=document.getElementById('hNext');
-            if(next)next.click();
-            const end=document.getElementById('hEnd');
-            if(end&&!next)end.click();
-          },4000);
-        });
+    // role=admin (or the older role=teacher) logs in the demo operator account 선생님 and shows the 운영자 tab.
+    const admin=role==='admin'||role==='teacher';
+    if(admin)await game.enterAdmin();
+    else{
+      const name=params.get('user')||'하늘';
+      const key='demo_'+name;
+      let user=(await db.ref('quiz/users/'+key).once()).val();
+      if(!user){
+        const av=game.newAvatar('f');
+        Object.assign(av,{sk:0,hair:'bob:1',top:'hood:7',bottom:'skirt:7',shoes:'sneaker:8',expression:'soft:0',pet:'cat:8',bg:'garden:4',frame:'garden:2',effect:'angel:0'});
+        user={name,gold:1200,av,owned:{'expression:soft:0':1,'top:hood:7':1,'pet:cat:8':1,'bg:garden:4':1,'frame:garden:2':1,'effect:angel:0':1},stat:{solved:0,correct:0},day:{}};
+        await db.ref('quiz/users/'+key).set(user);
       }
-      return;
+      game.enterUser(key,user);
     }
-    const name=params.get('user')||'하늘';
-    const key='demo_'+name;
-    let user=(await db.ref('quiz/users/'+key).once()).val();
-    if(!user){
-      const av=game.newAvatar('f');
-      Object.assign(av,{sk:0,hair:'bob:1',top:'hood:7',bottom:'skirt:7',shoes:'sneaker:8',expression:'soft:0',pet:'cat:8',bg:'garden:4',frame:'garden:2',effect:'angel:0'});
-      user={name,gold:1200,av,owned:{'expression:soft:0':1,'top:hood:7':1,'pet:cat:8':1,'bg:garden:4':1,'frame:garden:2':1,'effect:angel:0':1},stat:{solved:0,correct:0},day:{}};
-      await db.ref('quiz/users/'+key).set(user);
-    }
-    game.enterUser(key,user);
     const toolbar=document.createElement('div');
     toolbar.className='qp-demo-toolbar';
-    toolbar.innerHTML='<strong>체험 모드</strong><button data-mode="quiz">빠른 퀴즈</button><button data-mode="ox">OX</button><button data-mode="cross">팀 퍼즐</button><button data-shop>꾸미기</button><button data-hide aria-label="체험 메뉴 접기">⌄</button><small>체험 데이터는 이 브라우저에만 저장돼요</small>';
+    toolbar.innerHTML='<strong>체험 모드</strong><button data-quizquiz>QUIZQUIZ</button><button data-shop>꾸미기</button><button data-hide aria-label="체험 메뉴 접기">⌄</button><small>체험 데이터는 이 브라우저에만 저장돼요</small>';
     const style=document.createElement('style');
     style.textContent='.qp-demo-toolbar{position:fixed;right:14px;bottom:12px;z-index:900;display:flex;gap:5px;align-items:center;flex-wrap:wrap;max-width:480px;padding:9px 12px;border:1px solid #d5c5e9;border-radius:15px;background:#fffaf1f5;box-shadow:0 5px 18px #41306020;font-size:11px;color:#675779}.qp-demo-toolbar button{padding:7px 10px;border-radius:9px;background:#ece2ff;font-weight:800;font-size:11px}.qp-demo-toolbar small{width:100%;color:#8c8499;font-size:10px}.qp-demo-toolbar.collapsed [data-mode],.qp-demo-toolbar.collapsed [data-shop],.qp-demo-toolbar.collapsed small{display:none}@media(max-width:600px){.qp-demo-toolbar{max-width:calc(100vw - 20px);right:10px;bottom:6px;padding:6px}}';
     document.head.appendChild(style);document.body.appendChild(toolbar);
     function collapse(){toolbar.classList.add('collapsed');toolbar.querySelector('[data-hide]').textContent='메뉴 열기';}
     toolbar.querySelector('[data-hide]').onclick=()=>{toolbar.classList.toggle('collapsed');toolbar.querySelector('[data-hide]').textContent=toolbar.classList.contains('collapsed')?'메뉴 열기':'접기';};
     toolbar.querySelector('[data-shop]').onclick=()=>{collapse();game.go('shop');};
-    document.addEventListener('click',event=>{if(event.target.closest('#mShop,#mLive,#tbShop'))collapse();},true);
-    let host=null;
-    const createHost=()=>{
-      host=document.createElement('iframe');host.hidden=true;host.setAttribute('aria-hidden','true');
-      const url=new URL(location.href);url.searchParams.set('role','host');url.searchParams.delete('user');
-      host.src=url.href;document.body.appendChild(host);
-      return new Promise(resolve=>host.onload=()=>resolve());
-    };
-    for(const b of toolbar.querySelectorAll('[data-mode]'))b.onclick=async()=>{
-      b.disabled=true;
-      if(!host)await createHost();
-      collapse();
-      game.go('live');
-      host.contentWindow.postMessage({type:'qp-demo-start',mode:b.dataset.mode},location.origin);
-      setTimeout(()=>{b.disabled=false;},1200);
-    };
+    toolbar.querySelector('[data-quizquiz]').onclick=()=>{collapse();game.go('quizquiz');};
+    document.addEventListener('click',event=>{if(event.target.closest('#mShop,#mQuiz,#tbShop,#tbQuiz'))collapse();},true);
     if(params.get('avatar')==='foundation'&&['campus','playground','village','forestgarden','treehouse','skyisland','picnicpark','autumnpark','camp','adventure'].includes(params.get('screen'))){
       const started=performance.now();
       try{
@@ -179,8 +107,7 @@
       }catch(error){console.warn(error);window.QPGame.toast?.(error.message);}
     }
     if(params.get('avatar')!=='foundation'&&['campus','playground','village','forestgarden','treehouse','skyisland','picnicpark','autumnpark','camp','adventure'].includes(params.get('screen')))game.go(params.get('screen'));
-    const requestedScene=params.get('scene');
-    if(['quiz','ox','cross'].includes(requestedScene))await toolbar.querySelector('[data-mode="'+requestedScene+'"]').onclick();
+    if(admin&&params.get('screen')==='teacher')game.go('teacher');
     window.addEventListener('beforeunload',()=>{channel?.close();});
   });
 })();

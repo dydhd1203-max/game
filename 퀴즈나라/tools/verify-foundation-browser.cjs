@@ -1,21 +1,36 @@
 'use strict';
 // Isolated demo only. Geometry checks never substitute for art review.
+// Stage 3 (WP7): the motion loop also runs for every garment record (the
+// index's, and the in-page alias records registered through the studio's
+// api.registerGarment), node counts come from tools/foundation-matrix.cjs
+// (NODE_TABLE by class signature), and rendered states are compared on
+// screenshots (an svg serialised into an <img> cannot load its external
+// hrefs: the head, hair and body art).
 const {chromium}=require('playwright'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
+const H=require('./verify-harness.cjs'),M=require('./foundation-matrix.cjs'),L=require('./foundation-garment-lib.cjs');
 const base=process.env.QUIZ_PREVIEW_URL||'http://127.0.0.1:4173/',out=process.env.QUIZ_VERIFICATION_OUTPUT||path.resolve(__dirname,'../검증/기준몸');
 fs.mkdirSync(out,{recursive:true});const report={errors:[],checks:[],screenshots:[],productionFirebase:false};let browser;
 const wait=ms=>new Promise(r=>setTimeout(r,ms));
+// Expected node counts per class signature and sex (the male reference head short:1 adds its 6 neck-cut clip nodes).
+const NODES=Object.fromEntries(Object.entries(M.NODE_TABLE).map(([k,v])=>[k,v.total]));
 (async()=>{
  browser=await chromium.launch({headless:true,executablePath:process.env.QUIZ_BROWSER_EXECUTABLE||'/usr/bin/chromium'});
  const context=await browser.newContext({viewport:{width:1366,height:950}});
  await context.route('**/www.gstatic.com/firebasejs/**',r=>r.fulfill({body:'/* demo only */'}));
  await context.route(/firebaseio\.com|firebasedatabase\.app/,r=>{report.errors.push('unexpected Firebase request');return r.abort();});
  const p=await context.newPage();p.on('pageerror',e=>report.errors.push(e.message));
+ // Screenshot differ, called from page code: a clip of the page as PNG, and the count of pixels
+ // differing by more than 12 levels in any channel between two such shots.
+ await p.exposeFunction('__qpShot',async clip=>(await p.screenshot({clip,animations:'disabled',caret:'hide'})).toString('base64'));
+ await p.exposeFunction('__qpDiff',(a,b)=>{const A=H.png.decode(Buffer.from(a,'base64')),B=H.png.decode(Buffer.from(b,'base64'));let n=0;for(let i=0;i<A.data.length;i+=4)if(Math.max(...[0,1,2,3].map(k=>Math.abs(A.data[i+k]-B.data[i+k])))>12)n++;return n;});
  await p.goto(new URL('avatar-standard.html',base).href);await p.waitForFunction(()=>window.QPFoundationStudio,null,{timeout:60000});
- report.render=await p.evaluate(()=>{
+ report.render=await p.evaluate(NODES=>{
   const api=QPFoundationStudio.api,host=document.createElement('div');document.body.append(host);let samples=0;
   const check=(v,message)=>{if(!v)throw Error(message);};
   for(const sex of ['m','f'])for(const sk of [0,1,2,3,4])for(const size of [280,120]){
    host.innerHTML=api.render({sex,sk},size);const svg=host.firstElementChild;api.apply(svg,{time:0});const count=svg.querySelectorAll('*').length;
+   // The node table (tools/foundation-matrix.cjs) by the svg's class signature; the default heads are the reference heads.
+   check(count===NODES[svg.dataset.foundationClass]?.[sex],'node count '+count+' is the node table\'s '+NODES[svg.dataset.foundationClass]?.[sex]+' for '+svg.dataset.foundationClass+' '+sex);
    for(const direction of ['front','left','right','back'])for(const action of ['idle','walk','run','floor-sit','sit','jump','wave','climb'])for(let frame=0;frame<12;frame++){
     api.apply(svg,{direction,action:action==='wave'?'idle':action,gesture:action==='wave'?'wave':'',gestureProgress:frame/11,phase:frame/12,time:frame/30,grounded:action!=='jump',showBones:frame===5});
     check(svg.querySelectorAll('*').length===count,'motion must not duplicate body nodes');
@@ -43,16 +58,55 @@ const wait=ms=>new Promise(r=>setTimeout(r,ms));
    api.reset(svg);const initial=geometry();api.destroy(svg);api.apply(svg,{action:'idle',direction:'front',time:0});check(svg.querySelectorAll('*').length===count,'remount duplicated nodes');check(geometry()===initial,'reset/remount changes visible geometry');api.destroy(svg);
   }
   host.remove();return{samples,sexes:2,skinTones:5,sizes:[280,120],directions:4,actions:8};
- });report.checks.push('7680 rendered motion samples; owned parts, original head clips, reset/remount');
+ },NODES);report.checks.push('7680 rendered motion samples; node counts from the node table; owned parts, original head clips, reset/remount');
+ // Every garment record (stage 3): the index's records and the in-page alias records (hue-rotated
+ // copies of the basic pieces, registered through the studio's api.registerGarment), each worn in its
+ // slot of the sex's basic outfit: the same motion loop at 280 px (tones 0 and 4), node counts from the
+ // node table by class signature, finite geometry, every outfit node labelled with its slot's record,
+ // static render = apply(idle, front, 0), reset/remount.
+ report.registered=await L.registerInStudio(p,{});
+ assert(Object.values(report.registered).every(s=>typeof s==='object'&&Object.values(s).every(v=>v==='ready')),'alias records registered through the studio: '+JSON.stringify(report.registered));
+ // Records outside the starter set load on demand (their first render is
+ // 'pending' until the atlas is in): every listed record is loaded first.
+ await p.evaluate(()=>{const G=QPFoundationStudio.runtime.QPFoundationGarments;return Promise.all(QPFoundationStudio.garments().flatMap(r=>r.sexes.map(sex=>G.ensure([r.id],sex))));});
+ report.records=await p.evaluate(NODES=>{
+  const api=QPFoundationStudio.api,G=QPFoundationStudio.runtime.QPFoundationGarments,host=document.createElement('div');document.body.append(host);const rows=[];
+  const check=(v,message)=>{if(!v)throw Error(message);},slotOf=part=>/^(shirt|underarm|sleeve)/.test(part)?'top':part==='shorts-hip'?'bottom':/^shoe/.test(part)?'shoes':null;
+  const norm=svg=>{const c=svg.cloneNode(true);c.removeAttribute('data-foundation-static');c.removeAttribute('data-foundation-static-defs');return c.outerHTML.split(svg.dataset.foundationId).join('qpf-X');};
+  for(const r of QPFoundationStudio.garments())for(const sex of r.sexes)for(const sk of [0,4]){
+   const set=Object.fromEntries(G.SLOTS.map((slot,i)=>[slot,G.starter(sex)[i]]));set[r.slot]=r.id;
+   const av={sex,sk,foundationGarments:set},where=JSON.stringify({id:r.id,sex,sk});
+   host.innerHTML=api.render(av,280)+api.render(av,280);const [still,svg]=host.children,count=still.querySelectorAll('*').length,want=NODES[still.dataset.foundationClass]?.[sex];
+   check(still.dataset.foundationStatic==='idle-front'&&still.dataset.foundationGarments===G.SLOTS.map(s=>set[s]).join('|')&&!still.dataset.foundationFallback,'record static render dressed in its garments '+where+' '+JSON.stringify({...still.dataset}));
+   check(count===want,'record node count '+count+' = node table '+want+' ('+still.dataset.foundationClass+') '+where);
+   api.apply(svg,api.staticPose);check(norm(still)===norm(svg),'record static render = apply(idle, front, 0) '+where);
+   let samples=0;
+   for(const direction of ['front','left','right','back'])for(const action of ['idle','walk','run','floor-sit','sit','jump','wave','climb'])for(let frame=0;frame<12;frame++){
+    api.apply(svg,{direction,action:action==='wave'?'idle':action,gesture:action==='wave'?'wave':'',gestureProgress:frame/11,phase:frame/12,time:frame/30,grounded:action!=='jump',seatMode:action==='sit'?'desk':action==='floor-sit'?'floor':undefined});
+    check(svg.querySelectorAll('*').length===count,'record motion changes the node set '+where);
+    check([...svg.querySelectorAll('*')].every(e=>[...e.attributes].every(a=>/href$/.test(a.name)||!/NaN|Infinity/.test(a.value))),'record non-finite geometry '+where+' '+direction+' '+action+' '+frame);
+    for(const e of svg.querySelectorAll('[data-outfit-part]'))check(e.dataset.outfitGarment===set[slotOf(e.dataset.outfitPart)],'outfit node labelled with its slot\'s record '+where+' '+e.dataset.outfitPart+'='+e.dataset.outfitGarment);
+    samples++;}
+   const geometry=()=>JSON.stringify([...svg.querySelector('[data-foundation-body]').querySelectorAll('*')].map(n=>[n.tagName,n.getAttribute('d'),n.getAttribute('transform'),n.style.display,n.style.opacity]));
+   api.reset(svg);const initial=geometry();api.destroy(svg);api.apply(svg,{action:'idle',direction:'front',time:0});check(svg.querySelectorAll('*').length===count&&geometry()===initial,'record reset/remount '+where);
+   api.destroy(svg);api.destroy(still);rows.push({id:r.id,source:r.source,sex,sk,nodes:count,samples});
+  }
+  host.remove();return rows;
+ },NODES);
+ report.checks.push('garment records: '+[...new Set(report.records.map(r=>r.id))].join(', ')+' × their sexes × tones 0/4: '+report.records.reduce((s,r)=>s+r.samples,0)+' motion samples, node table counts, labels, static = apply(idle), reset/remount');
  // D13 static render: shop preview, profile, lists and results never call
  // apply(). The render() string alone must show the posed idle front body,
  // be the same DOM as apply(idle, front, time 0), keep the node set later
  // applies use, cost nothing per frame, and repaint once late art arrives.
- report.staticRender=await p.evaluate(async()=>{
+ report.staticRender=await p.evaluate(async NODES=>{
   const api=QPFoundationStudio.api,w=document.getElementById('runtime').contentWindow,host=w.document.createElement('div');w.document.body.append(host);
   const check=(v,message)=>{if(!v)throw Error(message);},frame=()=>new Promise(r=>requestAnimationFrame(r));
   const norm=svg=>{const c=svg.cloneNode(true);c.removeAttribute('data-foundation-static');c.removeAttribute('data-foundation-static-defs');return c.outerHTML.split(svg.dataset.foundationId).join('qpf-X');};
-  async function differ(a,b){const draw=async svg=>{const c=svg.cloneNode(true);c.setAttribute('width',192);c.setAttribute('height',372);const im=new Image(),u=URL.createObjectURL(new Blob([new XMLSerializer().serializeToString(c)],{type:'image/svg+xml'}));im.src=u;await im.decode();const canvas=document.createElement('canvas');canvas.width=192;canvas.height=372;const x=canvas.getContext('2d');x.drawImage(im,0,0);URL.revokeObjectURL(u);return x.getImageData(0,0,192,372).data;};const p=await draw(a),q=await draw(b);let n=0;for(let i=0;i<p.length;i+=4)if(Math.max(...[0,1,2,3].map(k=>Math.abs(p[i+k]-q[i+k])))>12)n++;return n;}
+  // Screenshot-based (an svg serialised into an <img> cannot load its external hrefs): each svg is
+  // copied into one fixed spot of the studio page, 192×372, and shot there (both at the same place).
+  async function differ(a,b){const box=document.createElement('div');box.style.cssText='position:fixed;left:0;top:0;width:192px;height:372px;z-index:2147483647;background:#fff;overflow:hidden';document.body.append(box);
+   const shot=async svg=>{const c=document.importNode(svg,true);c.setAttribute('width',192);c.setAttribute('height',372);c.style.cssText='position:absolute;left:0;top:0';box.replaceChildren(c);await Promise.all([...c.querySelectorAll('image')].map(im=>{const i=new Image();i.src=im.getAttribute('href')||'';return i.decode().catch(()=>{});}));await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));return window.__qpShot({x:0,y:0,width:192,height:372});};
+   try{const p=await shot(a),q=await shot(b);return await window.__qpDiff(p,q);}finally{box.remove();}}
   const shown=svg=>[...svg.querySelectorAll('[data-foundation-head-view]')].filter(h=>h.style.display!=='none').map(h=>h.dataset.foundationHeadView);
   let cases=0;
   for(const sex of ['m','f'])for(const sk of [0,4])for(const size of [280,46])for(const outfit of ['basic','body']){
@@ -62,7 +116,7 @@ const wait=ms=>new Promise(r=>setTimeout(r,ms));
    check(still.querySelectorAll('[data-foundation-skin-paint]').length===5,'static painted neck, arms and legs '+where);
    check(still.querySelectorAll('[data-outfit-part]:not([data-outfit-part^="underarm"])').length===(outfit==='basic'?6:0),'static garments '+where);
    check(still.dataset.qpxPose==='idle'&&still.dataset.qpxView==='front','static pose data '+where);
-   const nodes=still.querySelectorAll('*').length;api.apply(live,api.staticPose);
+   const nodes=still.querySelectorAll('*').length;const cls=still.dataset.foundationOutfit==='body'?'none|none|none':still.dataset.foundationClass;check(nodes===NODES[cls]?.[sex],'static node count '+nodes+' = node table '+NODES[cls]?.[sex]+' ('+cls+') '+where);api.apply(live,api.staticPose);
    check(norm(still)===norm(live),'static render differs from apply(idle, front, 0) '+where);
    check(live.querySelectorAll('*').length===nodes,'mounting a static render changes the node set '+where);
    // A controller that only prepares keeps the static pose visible.
@@ -89,7 +143,7 @@ const wait=ms=>new Promise(r=>setTimeout(r,ms));
   check(!api.render({sex:'f',sk:2,hair:'long:3'},120).includes('data-foundation-static="pending"'),'a pending render is not cached');
   api.destroy(pending);host.remove();
   return{cases,crowd:{avatars:30,renderMs:+renderMs.toFixed(1),mountMs:+mountMs.toFixed(1),mutationsIn20Frames:mutations,chars:html.length}};
- });report.checks.push('static render: posed idle front body without apply, same DOM as apply(idle,front,0), stable nodes, prepare/reset, 30 static avatars without per-frame work, pending art repaint');
+ },NODES);report.checks.push('static render: posed idle front body without apply, same DOM as apply(idle,front,0), stable nodes, prepare/reset, 30 static avatars without per-frame work, pending art repaint');
  // Painted-image pool (added 2026-10-09, round 3 performance). Round 2 kept
  // first-in-first-out lists (768 limbs, 200 sleeves, 160 shorts) smaller
  // than a mixed map crowd's working set, so 30 mixed avatars re-drew about

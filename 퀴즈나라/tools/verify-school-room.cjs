@@ -19,7 +19,7 @@ const executablePath = process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH
   || process.env.QUIZ_BROWSER_EXECUTABLE
   || (fs.existsSync('/usr/bin/chromium') ? '/usr/bin/chromium' : undefined);
 const checks = [], errors = [], missing = [], screenshots = [], seatResults = [];
-let browser, host, a, b, phase = 'startup';
+let browser, a, b, phase = 'startup';
 fs.mkdirSync(output, { recursive: true });
 function pass(name, detail) {
   checks.push({ name, ...(detail === undefined ? {} : { detail }) });
@@ -30,7 +30,8 @@ async function state(page) { return page.evaluate(() => QPGame.getCampus()?.getS
 async function rendered(page) {
   await page.evaluate(async () => {
     await document.fonts.ready;
-    await Promise.all([...document.images].map(image => image.decode().catch(() => {})));
+    // decode() of some lazily painted images never settles in headless Chrome; cap the wait.
+    await Promise.race([Promise.all([...document.images].map(image => image.decode().catch(() => {}))), new Promise(resolve => setTimeout(resolve, 3000))]);
     await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
   });
 }
@@ -41,7 +42,7 @@ async function screenshot(page, name) {
 }
 async function seatGeometry(page, seatId) {
   return page.evaluate(async seatId => {
-    const svg = document.querySelector('.sr-actor.is-me .sr-avatar>svg'), copy = svg.cloneNode(true);
+    const svg = document.querySelector('.sr-actor.is-me .sr-avatar>svg:not(.sr-avatar-ambient)'), copy = svg.cloneNode(true);
     const selected = copy.querySelector('[data-qpx-back-head]');
     if (!selected) throw new Error('The seated avatar must have real illustrated back-head artwork');
     for (const leaf of copy.querySelectorAll('path,ellipse,rect,image,polygon,line,polyline,circle')) {
@@ -77,7 +78,7 @@ async function seatGeometry(page, seatId) {
 }
 async function soles(page) {
   return page.evaluate(async () => {
-    const svg = document.querySelector('.sr-actor.is-me .sr-avatar>svg'), bounds = svg.getBoundingClientRect(), result = [];
+    const svg = document.querySelector('.sr-actor.is-me .sr-avatar>svg:not(.sr-avatar-ambient)'), bounds = svg.getBoundingClientRect(), result = [];
     for (const side of ['left', 'right']) {
       const selector = '.qps-foot[data-qps-foot-side="' + side + '"]';
       const original = svg.querySelector(selector); if (!original) throw new Error('A complete ' + side + ' shoe is required');
@@ -103,6 +104,11 @@ async function soles(page) {
     }
     return result;
   });
+}
+async function enterCampus(page) {
+  await page.waitForFunction(() => !!QPGame.getMe());
+  await page.evaluate(() => QPGame.go('campus'));
+  await campus(page);
 }
 async function campus(page) {
   await page.waitForFunction(() => !!QPGame.getCampus());
@@ -194,58 +200,8 @@ async function openBoard(page) {
   await walkTo(page, board.approach || {x:board.x,y:board.y});
   await focusWorld(page);
   await page.keyboard.press('KeyE');
-  await page.waitForSelector('#modal.school-room-board-modal.on');
-  await page.waitForSelector('#campusBoardHub .class-hub');
+  await page.waitForSelector('.qq-root #qqCreate');
 }
-async function readSession(id) { return host.evaluate(id => QPClassroom.read(QPDemo.db, id), id); }
-async function waitPlayer(page, id, uid, predicate) {
-  await page.waitForFunction(({ id, uid, predicate }) => {
-    const tree = JSON.parse(localStorage.getItem(QPDemo.storageKey) || '{}');
-    const player = tree.quiz?.classrooms?.[id]?.players?.[uid];
-    return !!player && (0, eval)('(' + predicate + ')')(player);
-  }, { id, uid, predicate: predicate.toString() });
-}
-async function publishFixtures() {
-  await host.locator('[data-t="make"]').click();
-  await host.locator('[data-class-mode="round"]').click();
-  await host.locator('[data-class-new]').click();
-  await host.locator('[data-field="title"]').fill('교실 칠판 연결 검수');
-  for (const [question, answer] of [['물이 얼면 무엇이 될까요?', '얼음'], ['봄 다음 계절은?', '여름']]) {
-    await host.locator('[data-add="short"]').first().click();
-    await host.locator('textarea[data-field="q"]').fill(question);
-    await host.locator('input[data-field="a"]').fill(answer);
-  }
-  await host.locator('[data-action="save"]').click();
-  await host.waitForFunction(() => document.querySelector('[data-save-state]')?.textContent.includes('모든 변경'));
-  const setId = await host.evaluate(async () => Object.entries((await QPDemo.db.ref('quiz/bank').once()).val())
-    .find(([, set]) => set.title === '교실 칠판 연결 검수')?.[0]);
-  assert(setId, 'The actual teacher editor must save a question set');
-  await host.locator('[data-action="next"]').click();
-  await host.locator('[name="title"]').fill('칠판 · 실시간 수업');
-  await host.locator('[name="timer"]').selectOption('300');
-  await host.locator('.qpc-form [type="submit"]').click();
-  await host.waitForSelector('.qpc-dashboard');
-  const liveId = await host.evaluate(async () => (await QPDemo.db.ref('quiz/classroomActive').once()).val());
-  await host.locator('[data-t="quizzes"]').click();
-  const row = host.locator('[data-quiz="' + setId + '"]');
-  await row.locator('[data-quiz-mode]').selectOption('round');
-  await row.locator('[data-launch="solo"]').click();
-  await host.locator('[name="title"]').fill('칠판 · 혼자 풀기');
-  await host.locator('[name="timer"]').selectOption('300');
-  await host.locator('.qpc-form [type="submit"]').click();
-  await host.waitForSelector('.qpc-dashboard');
-  const soloId = await host.evaluate(async () => Object.entries((await QPDemo.db.ref('quiz/classrooms').once()).val())
-    .find(([, room]) => room.title === '칠판 · 혼자 풀기')?.[0]);
-  assert(liveId && soloId && liveId !== soloId);
-  pass('A teacher authors, saves and publishes both activities through the production UI', { liveId, soloId });
-  return { liveId, soloId };
-}
-async function showHost(id) {
-  await host.locator('[data-t="classroom"]').click();
-  await host.locator('[data-session="' + id + '"]').click();
-  await host.waitForSelector('.qpc-dashboard');
-}
-
 async function run() {
   browser = await chromium.launch({ headless: true, ...(executablePath ? { executablePath } : {}) });
   // The local adapter intentionally shares one storage partition. These are
@@ -266,12 +222,10 @@ async function run() {
     await page.evaluate(() => document.fonts.ready);
     return page;
   };
-  host = await open({ role: 'teacher' });
-  await host.waitForSelector('.teacher-library');
-  const fixtures = await publishFixtures();
   a = await open({ user: '교실검수하늘' });
   b = await open({ user: '교실검수민트' });
-  await campus(a); await campus(b);
+  // Students enter the village; the classroom is reached by its portal (here: the same go() the portal uses).
+  await enterCampus(a); await enterCampus(b);
   if (await a.locator('.qp-demo-toolbar [data-hide]').isVisible()) await a.locator('.qp-demo-toolbar [data-hide]').click();
   if (await b.locator('.qp-demo-toolbar [data-hide]').isVisible()) await b.locator('.qp-demo-toolbar [data-hide]').click();
   const aid = await a.evaluate(() => QPGame.getMe().k), bid = await b.evaluate(() => QPGame.getMe().k);
@@ -291,11 +245,11 @@ async function run() {
 
   phase = 'genuine keyboard and side artwork';
   await hold(a, 'ArrowLeft', 300);
-  assert.equal(await a.locator('.sr-actor.is-me .sr-avatar>svg').getAttribute('data-qpx-view'), 'profile');
-  assert.equal(await a.locator('.sr-actor.is-me .sr-avatar>svg').getAttribute('data-qpx-view-facing'), 'left');
+  assert.equal(await a.locator('.sr-actor.is-me .sr-avatar>svg:not(.sr-avatar-ambient)').getAttribute('data-qpx-view'), 'profile');
+  assert.equal(await a.locator('.sr-actor.is-me .sr-avatar>svg:not(.sr-avatar-ambient)').getAttribute('data-qpx-view-facing'), 'left');
   await screenshot(a, '02-왼쪽옆모습-1366');
   await hold(a, 'ArrowRight', 300);
-  assert.equal(await a.locator('.sr-actor.is-me .sr-avatar>svg').getAttribute('data-qpx-view-facing'), 'right');
+  assert.equal(await a.locator('.sr-actor.is-me .sr-avatar>svg:not(.sr-avatar-ambient)').getAttribute('data-qpx-view-facing'), 'right');
   await screenshot(a, '03-오른쪽옆모습-1366');
   pass('Real left and right keys use the illustrated one-eye profile and attached clothes');
 
@@ -322,13 +276,13 @@ async function run() {
     const reached = await walkTo(a, seat.approach);
     await focusWorld(a); await a.keyboard.press('KeyC');
     await a.waitForFunction(id => QPGame.getCampus().getState().seatId === id, seat.id);
-    await a.waitForFunction(() => document.querySelector('.sr-actor.is-me .sr-avatar>svg')?.dataset.qpxPose === 'sit');
+    await a.waitForFunction(() => document.querySelector('.sr-actor.is-me .sr-avatar>svg:not(.sr-avatar-ambient)')?.dataset.qpxPose === 'sit');
     const seated = await state(a);
     assert.equal(seated.pose, 'sit'); assert.equal(seated.moving, false);
     assert.equal(seated.direction, 'back', 'Every student chair must face the board');
-    assert.equal(await a.locator('.sr-actor.is-me .sr-avatar>svg').getAttribute('data-qpx-pose'), 'sit');
-    assert.equal(await a.locator('.sr-actor.is-me .sr-avatar>svg').getAttribute('data-qpx-view'), 'back');
-    assert.equal(await a.locator('.sr-actor.is-me .sr-avatar>svg').getAttribute('data-qpx-back-eye-count'), '0');
+    assert.equal(await a.locator('.sr-actor.is-me .sr-avatar>svg:not(.sr-avatar-ambient)').getAttribute('data-qpx-pose'), 'sit');
+    assert.equal(await a.locator('.sr-actor.is-me .sr-avatar>svg:not(.sr-avatar-ambient)').getAttribute('data-qpx-view'), 'back');
+    assert.equal(await a.locator('.sr-actor.is-me .sr-avatar>svg:not(.sr-avatar-ambient)').getAttribute('data-qpx-back-eye-count'), '0');
     if (seatResults.length === 0) {
       await screenshot(a, '04-실제로앉기-1366');
       const geometry = await seatGeometry(a, seat.id);
@@ -383,17 +337,17 @@ async function run() {
     ['right', 'ArrowRight', 'button'], ['back', 'ArrowUp', 'C']]) {
     await hold(a, key, 100);
     await a.waitForFunction(() => QPGame.getCampus().getState().pose === 'idle'
-      && document.querySelector('.sr-actor.is-me .sr-avatar>svg')?.dataset.qpxPose === 'idle');
+      && document.querySelector('.sr-actor.is-me .sr-avatar>svg:not(.sr-avatar-ambient)')?.dataset.qpxPose === 'idle');
     const floorBefore = await state(a);
     const standingSoles = await soles(a);
     assert.equal(floorBefore.direction, direction);
     if (via === 'button') await a.keyboard.press('KeyC');
     else { await focusWorld(a); await a.keyboard.press('KeyC'); }
     await a.waitForFunction(() => QPGame.getCampus().getState().pose === 'sit-floor');
-    await a.waitForFunction(() => document.querySelector('.sr-actor.is-me .sr-avatar>svg')?.dataset.qpxPose === 'floor-sit');
+    await a.waitForFunction(() => document.querySelector('.sr-actor.is-me .sr-avatar>svg:not(.sr-avatar-ambient)')?.dataset.qpxPose === 'floor-sit');
     assert.equal((await state(a)).seatId, null, 'Sitting on the floor must not acquire a student chair');
-    assert.equal(await a.locator('.sr-actor.is-me .sr-avatar>svg').getAttribute('data-qpx-pose'), 'floor-sit');
-    const actualView = await a.locator('.sr-actor.is-me .sr-avatar>svg').getAttribute('data-qpx-view');
+    assert.equal(await a.locator('.sr-actor.is-me .sr-avatar>svg:not(.sr-avatar-ambient)').getAttribute('data-qpx-pose'), 'floor-sit');
+    const actualView = await a.locator('.sr-actor.is-me .sr-avatar>svg:not(.sr-avatar-ambient)').getAttribute('data-qpx-view');
     assert.equal(actualView, ['left', 'right'].includes(direction) ? 'profile' : direction);
     const sittingSoles = await soles(a);
     for (const foot of sittingSoles) {
@@ -416,7 +370,7 @@ async function run() {
   await focusWorld(a); await a.keyboard.press('KeyC');
   await hold(a, 'ArrowRight', 150);
   await a.waitForFunction(() => QPGame.getCampus().getState().pose === 'idle'
-    && document.querySelector('.sr-actor.is-me .sr-avatar>svg')?.dataset.qpxPose === 'idle');
+    && document.querySelector('.sr-actor.is-me .sr-avatar>svg:not(.sr-avatar-ambient)')?.dataset.qpxPose === 'idle');
   assert.equal((await state(a)).pose, 'idle', 'Walking must stand up from the floor first');
   assert((await state(a)).x > beforeFloorWalk.x + 3, 'Standing up must permit actual walking');
   assert.equal((await state(a)).seatId, null);
@@ -435,30 +389,18 @@ async function run() {
   await screenshot(a, '07-복도끝-1366');
   pass('Real click routes connect the group room, classroom and whole corridor with camera follow');
 
-  phase = 'board proximity and modal pause';
+  phase = 'board proximity opens the QUIZQUIZ lobby';
   await focusWorld(a); await a.keyboard.press('KeyE');
-  assert.equal(await a.locator('#modal.school-room-board-modal.on').count(), 0);
-  await openBoard(a);
-  assert.equal(await a.locator('#campusBoardHub [data-session="' + fixtures.liveId + '"]').count(), 1);
-  assert.equal(await a.locator('#campusBoardHub [data-session="' + fixtures.soloId + '"]').count(), 1);
-  const paused = await state(a);
-  await a.keyboard.press('ArrowLeft'); await a.keyboard.press('KeyE');
-  assert.equal((await state(a)).x, paused.x); assert.equal((await state(a)).y, paused.y);
-  await screenshot(a, '05-칠판-수업과퀴즈-1366');
-  await a.locator('#campusBoardClose').click();
-  await focusWorld(a); await hold(a, 'ArrowRight', 200);
-  assert((await state(a)).x > paused.x, 'Closing the board must restore real input');
-  pass('Only proximity opens the board; published lessons show and modal controls pause walking');
-
-  phase = 'live quiz and checkpoint return';
-  await openBoard(a); const checkpoint = await state(a);
+  assert.equal(await a.locator('.qq-root').count(), 0, 'E away from the board must not open the lobby');
+  await walkTo(a, (await a.evaluate(() => QPSchoolRoomScene.get())).interactables.find(item => item.type === 'board').approach);
+  const checkpoint = await state(a);
   // Keep readonly references to the real retired controllers to observe
   // teardown. They are never patched or called to move a student.
   await a.evaluate(() => {
     window.__schoolRoomRetired = { world: QPGame.getCampus(), presence: QPGame.getCampusPresence() };
   });
-  await a.locator('#campusBoardHub [data-session="' + fixtures.liveId + '"]').click();
-  await a.waitForSelector('.class-lobby');
+  await openBoard(a);
+  assert.equal(await a.locator('#modal.on').count(), 0, 'The board no longer opens a lesson modal');
   assert.equal(await a.evaluate(() => QPGame.getCampus()), null);
   assert.equal(await a.evaluate(() => QPGame.getCampusPresence()), null);
   await b.waitForFunction(uid => !document.querySelector('.sr-actor[data-uid="' + CSS.escape(uid) + '"]'), aid);
@@ -474,51 +416,19 @@ async function run() {
     return !(await QPDemo.db.ref(old.path + '/' + old.connectionId).once()).exists();
   });
   assert(disconnected, 'The old connection must be removed when leaving the classroom');
-  pass('Leaving the classroom destroys input and subscriptions and removes only that student connection');
-  await showHost(fixtures.liveId); await host.locator('[data-action="start"]').click();
-  await a.waitForSelector('[data-round-answer] .qpq-short-input');
-  await a.locator('[data-round-answer] .qpq-short-input').fill('얼음');
-  await a.locator('[data-round-answer] .qpq-short-input').press('Enter');
-  await waitPlayer(a, fixtures.liveId, aid, player => player.answers?.[0]?.pending === true);
-  await host.locator('[data-action="reveal"]').click();
-  await waitPlayer(a, fixtures.liveId, aid, player => player.score === 100);
-  await screenshot(a, '06-칠판에서실시간수업-1366');
+  await screenshot(a, '05-칠판-QUIZQUIZ로비-1366');
   await a.locator('#tbBack').click(); await campus(a);
   const restored = await state(a);
   assert(Math.hypot(restored.x - checkpoint.x, restored.y - checkpoint.y) < 20);
-  await openBoard(a); await a.locator('#campusBoardHub [data-session="' + fixtures.liveId + '"]').click();
-  await a.waitForSelector('.class-student');
-  assert.equal((await readSession(fixtures.liveId)).players[aid].score, 100);
-  await a.locator('#tbBack').click(); await campus(a);
-  pass('The board enters a teacher live quiz, grades a real answer and returns to the saved classroom position');
+  await b.waitForFunction(() => document.querySelectorAll('.sr-actor').length === 2);
+  pass('Only proximity uses the board; E opens the QUIZQUIZ lobby, leaving destroys input/subscriptions, and 뒤로 returns to the saved classroom spot');
 
-  phase = 'solo quiz progress and cleanup';
-  await openBoard(a); await a.locator('#campusBoardHub [data-session="' + fixtures.soloId + '"]').click();
-  await a.waitForSelector('[data-round-answer] .qpq-short-input');
-  await a.locator('[data-round-answer] .qpq-short-input').fill('얼음');
-  await a.locator('[data-round-answer] .qpq-short-input').press('Enter');
-  await waitPlayer(a, fixtures.soloId, aid, player => player.score === 100);
-  await a.locator('#tbBack').click(); await campus(a);
-  await openBoard(a); await a.locator('#campusBoardHub [data-session="' + fixtures.soloId + '"]').click();
-  await a.waitForSelector('.class-student');
-  assert.equal((await readSession(fixtures.soloId)).players[aid].score, 100);
-  assert.equal((await readSession(fixtures.liveId)).players[aid].score, 100);
-  await a.locator('#tbBack').click(); await campus(a);
-  pass('Solo activity keeps its answer and score separately when returning through the classroom');
-
-  phase = 'direct lesson link and old route redirects';
-  const direct = await open({ user: '교실검수직접참가', classroom: fixtures.liveId });
-  await direct.waitForSelector('.class-student');
-  assert.equal(await direct.evaluate(() => QPGame.getCampus()), null,
-    'A specific teacher lesson link must retain its direct entry');
-  await direct.locator('#tbBack').click(); await campus(direct);
-  await direct.locator('[data-tool="exit"]').click();
-  await direct.waitForSelector('.class-hub');
-  await direct.locator('#tbBack').click(); await campus(direct);
-  for (const retired of ['village', 'tailor']) {
-    await direct.evaluate(retired => QPGame.go(retired), retired); await campus(direct);
-    assert.equal(await direct.locator('[data-village-zone],.village-world,.village-shop').count(), 0);
-  }
+  phase = 'old lesson link and old route redirects';
+  const direct = await open({ user: '교실검수직접참가', classroom: 'old_lesson_link' });
+  await direct.waitForFunction(() => !!QPGame.getMe() && !!QPGame.getVillage());
+  assert.equal(await direct.locator('.class-student,.class-hub,.classroom-student-body').count(), 0,
+    'Old ?classroom= links no longer open a lesson');
+  await direct.evaluate(() => QPGame.go('tailor')); await campus(direct);
   // Explicit navigation exercises production disconnect. The demo adapter's
   // onDisconnect hook is a no-op, so closing an active page is not a server
   // disconnect simulation and would leave a fixture until the presence TTL.
@@ -526,11 +436,11 @@ async function run() {
   await direct.waitForFunction(() => !QPGame.getCampus() && !QPGame.getCampusPresence());
   await b.waitForFunction(() => document.querySelectorAll('.sr-actor').length === 2);
   await direct.close();
-  pass('Specific teacher links still enter quizzes directly; old map names redirect to the new classroom');
+  pass('Old lesson links enter the village; the retired tailor route redirects to the classroom');
 
   phase = 'desktop wider render and entry persistence';
   const wide = await open({ user: '교실검수큰화면' }, { width: 1920, height: 1080 });
-  await campus(wide);
+  await enterCampus(wide);
   if (await wide.locator('.qp-demo-toolbar [data-hide]').isVisible()) await wide.locator('.qp-demo-toolbar [data-hide]').click();
   const wideCoverage = await coverage(wide);
   await wide.setViewportSize({ width:1366, height:768 }); await rendered(wide);
@@ -550,15 +460,14 @@ async function run() {
   await wide.waitForFunction(id => QPGame.getCampus().getState().seatId === id, scene.seats[14].id);
   await screenshot(wide, '11-실제로앉기-1920');
   await wide.keyboard.press('KeyC');
-  await openBoard(wide); await screenshot(wide, '12-칠판-1920');
-  await wide.locator('#campusBoardClose').click();
+  await openBoard(wide); await screenshot(wide, '12-칠판-QUIZQUIZ로비-1920');
+  await wide.locator('#tbBack').click(); await campus(wide);
   await wide.locator('#tbProfile').click();
   await wide.waitForFunction(() => !QPGame.getCampus() && !QPGame.getCampusPresence());
   await wide.close();
-  await a.reload(); await campus(a); await rendered(a);
-  assert.equal((await readSession(fixtures.soloId)).players[aid].score, 100);
-  pass('Desktop 1366 and 1920 renders fit; reload preserves saved quiz progress');
-  assert.deepEqual(errors, [], 'No page error in classroom/quiz/return');
+  await a.reload(); await enterCampus(a); await rendered(a);
+  pass('Desktop 1366 and 1920 renders fit; the classroom reloads cleanly');
+  assert.deepEqual(errors, [], 'No page error in classroom/QUIZQUIZ/return');
   assert.deepEqual(missing, [], 'No missing runtime source request');
 }
 

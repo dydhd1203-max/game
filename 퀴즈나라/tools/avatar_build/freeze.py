@@ -27,7 +27,8 @@ TEMPLATE_PATH = os.path.join(ROOT, 'assets', 'garment-template', 'template-sheet
 SHEET_PATH = os.path.join(ROOT, 'assets', 'avatar-reference-candidates', 'body-study-2026-10-04.png')
 RAW_PATH = os.path.join(ROOT, '기준캐릭터-조사', 'ref', 'measure-raw.json')
 
-BODY_PNGS = ('sd-foundation-ref-arms.png', 'sd-foundation-ref-legs.png', 'sd-foundation-ref-neck.png')
+BODY_PNGS = ('sd-foundation-ref-arms.png', 'sd-foundation-ref-legs.png', 'sd-foundation-ref-neck.png',
+             'sd-foundation-ref-legs-under.png')  # legs run on under pipeline shoes (2026-10-15)
 LEGACY_PNGS = ('sd-foundation-ref-shirt.png', 'sd-foundation-ref-sleeves.png', 'sd-foundation-ref-shorts.png',
                'sd-foundation-ref-shoes.png')
 DATA_JS = 'sd-foundation-ref-data.js'

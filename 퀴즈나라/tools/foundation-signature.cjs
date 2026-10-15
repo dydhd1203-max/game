@@ -50,7 +50,7 @@
 const fs=require('node:fs'),path=require('node:path'),zlib=require('node:zlib'),assert=require('node:assert/strict');
 const M=require('./foundation-matrix.cjs'),H=require('./verify-harness.cjs');
 const ROOT=path.resolve(__dirname,'..');
-const RENAMED=['data-foundation-garments','data-foundation-fallback','data-foundation-class','data-outfit-garment'];
+const RENAMED=['data-foundation-garments','data-foundation-fallback','data-foundation-class','data-foundation-items','data-outfit-garment'];
 const LABELS=['data-outfit-source','data-sleeve-art'];
 const BG='#dfe6ee';
 

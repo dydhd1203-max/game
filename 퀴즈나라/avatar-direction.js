@@ -18,6 +18,15 @@
     m:{0:{profile:'M14.25 25.7Q15.6 26.4 18.55 26.67Q18.2 27.6 18.5 28.3L18.7 29.4H12.55V28Q13.45 27.6 13.75 26.65Z',back:'M14.35 26.75Q15.4 26.45 16.1 26.62Q17 26.42 17.5 26.73Q17.7 27.55 18.5 28.15L18.6 29.4H12.7V28.05Q13.9 27.35 14.35 26.75Z'}},
     f:{1:{profile:'M15.85 25.55Q16.3 25.85 17.12 26.02Q16.9 26.8 17.25 27.45Q17.7 27.9 18.3 28.05L18.45 29.4H12.65V27.85Q14.85 27.25 15.4 26.8Q15.9 26.2 15.85 25.55Z'}}
   };
+  // Paint room around the 32x40 head frame (units): wide and tall hair at
+  // the fixed head size (fitScale) reaches past the frame.
+  const DIR_MARGIN={x:4,top:8},FRAME_ATTR=' x="'+(-DIR_MARGIN.x)+'" y="'+(-DIR_MARGIN.top)+'" width="'+(32+2*DIR_MARGIN.x)+'" height="'+(40+DIR_MARGIN.top)+'"';
+  // The scale `want`, shrunk only as far as the painting (w x h px, anchor
+  // ax, ay placed at units X, Y) must to stay inside the frame and DIR_MARGIN.
+  function fitScale(want,ax,ay,w,h,X,Y){
+    const left=X+DIR_MARGIN.x-.25,right=32-X+DIR_MARGIN.x-.25,up=Y+DIR_MARGIN.top-.25;
+    return Math.min(want,left/Math.max(1,ax),right/Math.max(1,w-ax),up/Math.max(1,ay));
+  }
   function trimNeck(ctx,sex,tile,view){const cut=neckCuts[sex]?.[tile]?.[view];if(!cut)return;ctx.save();ctx.scale(12,12);ctx.globalCompositeOperation='destination-out';ctx.fill(new Path2D(cut));ctx.restore();}
   const atlas={ready:false,backReady:false,columns:4,rows:3,style:'illustrated-profile',sourceDimensions:{},backSourceDimensions:{},normalizationCount:0,backNormalizationCount:0,cacheHits:0};
   let serial=0;
@@ -95,8 +104,17 @@
       const [x,y,w,h]=sheet.rects[tile],canvas=document.createElement('canvas');canvas.width=w+6;canvas.height=h+6;
       const ctx=canvas.getContext('2d',{willReadFrequently:true});ctx.drawImage(img,x-3,y-3,w+6,h+6,0,0,w+6,h+6);
       const data=ctx.getImageData(0,0,w+6,h+6).data,stats=inspect(data,w+6,h+6),neck=sheet.necks[tile].map(v=>v+3);
-      const scale=25.8/(w+6),ox=16-neck[0]*scale,oy=28.65-neck[1]*scale;
-      out.push({...stats,data,w:w+6,h:h+6,geometry:{scale,x:ox,y:oy},neck});
+      out.push({...stats,data,w:w+6,h:h+6,legacy:25.8/(w+6),neck});
+    }
+    // One head size per sex (2026-10-15 user report: the head size jumped
+    // with the hair style). The fit above (25.8 units for the painting's whole
+    // width) shrank wide hair; the painted faces of a sheet share one size
+    // (eye to neck within about 5 %), so every head takes the default head's
+    // scale (f bob, m short: unchanged), shrunk only to stay in DIR_MARGIN.
+    const base=out[sex==='m'?0:1];
+    for(const f of out){
+      const scale=f===base?f.legacy:fitScale(base.legacy,f.neck[0],f.neck[1],f.w,f.h,16,28.65);
+      f.geometry={scale,x:16-f.neck[0]*scale,y:28.65-f.neck[1]*scale};
     }
     frames.set(sex,out);
   }
@@ -108,8 +126,13 @@
       const ctx=canvas.getContext('2d',{willReadFrequently:true});ctx.drawImage(img,sx-3,sy-3,w+6,h+6,0,0,w+6,h+6);
       const data=ctx.getImageData(0,0,w+6,h+6).data;
       const anchor=sheet.anchors?sheet.anchors[tile].map((v,i)=>v-(i?sy:sx)+3):[(w+6)/2,h+1];
-      const scale=Math.min(28.6/(w+6),24/Math.max(1,anchor[1]-3));
-      out.push({data,w:w+6,h:h+6,anchor,geometry:{scale,x:16-anchor[0]*scale,y:28.75-anchor[1]*scale}});
+      out.push({data,w:w+6,h:h+6,anchor,legacy:Math.min(28.6/(w+6),24/Math.max(1,anchor[1]-3))});
+    }
+    // One head size per sex, as in load() (the back fit shrank wide and tall hair).
+    const base=out[sex==='m'?0:1];
+    for(const f of out){
+      const scale=f===base?f.legacy:fitScale(base.legacy,f.anchor[0],f.anchor[1],f.w,f.h,16,28.75);
+      f.geometry={scale,x:16-f.anchor[0]*scale,y:28.75-f.anchor[1]*scale};
     }
     backFrames.set(sex,out);
   }
@@ -127,8 +150,8 @@
       else if(r>g*1.025&&g>b*.98&&r>24){const lum=r*.25+g*.59+b*.16,gain=lum/102,shine=Math.max(0,lum-160)*.38;col=dye.map(v=>clamp(Math.round(v*gain+shine)));}
       d[i]=col[0];d[i+1]=col[1];d[i+2]=col[2];d[i+3]=source[i+3];
     }
-    ctx.putImageData(out,0,0);const target=document.createElement('canvas');target.width=SIZE;target.height=HEIGHT;
-    const paint=target.getContext('2d'),m=frame.geometry;paint.imageSmoothingEnabled=true;paint.imageSmoothingQuality='high';paint.drawImage(canvas,m.x*12,m.y*12,frame.w*m.scale*12,frame.h*m.scale*12);
+    ctx.putImageData(out,0,0);const target=document.createElement('canvas');target.width=SIZE+DIR_MARGIN.x*24;target.height=HEIGHT+DIR_MARGIN.top*12;
+    const paint=target.getContext('2d'),m=frame.geometry;paint.translate(DIR_MARGIN.x*12,DIR_MARGIN.top*12);paint.imageSmoothingEnabled=true;paint.imageSmoothingQuality='high';paint.drawImage(canvas,m.x*12,m.y*12,frame.w*m.scale*12,frame.h*m.scale*12);
     trimNeck(paint,sex,tile,'back');
     const result=target.toDataURL('image/png');atlas.backNormalizationCount++;if(backCache.size>=160)backCache.delete(backCache.keys().next().value);backCache.set(key,result);return result;
   }
@@ -171,7 +194,7 @@
       d[i]=col[0];d[i+1]=col[1];d[i+2]=col[2];d[i+3]=source[i+3];
     }
     ctx.putImageData(out,0,0);const patch=preparePatch(frame,d),m=frame.geometry;
-    const normal=source=>{const canvas=document.createElement('canvas');canvas.width=SIZE;canvas.height=HEIGHT;const paint=canvas.getContext('2d');paint.imageSmoothingEnabled=true;paint.imageSmoothingQuality='high';paint.drawImage(source,m.x*12,m.y*12,frame.w*m.scale*12,frame.h*m.scale*12);
+    const normal=source=>{const canvas=document.createElement('canvas');canvas.width=SIZE+DIR_MARGIN.x*24;canvas.height=HEIGHT+DIR_MARGIN.top*12;const paint=canvas.getContext('2d');paint.translate(DIR_MARGIN.x*12,DIR_MARGIN.top*12);paint.imageSmoothingEnabled=true;paint.imageSmoothingQuality='high';paint.drawImage(source,m.x*12,m.y*12,frame.w*m.scale*12,frame.h*m.scale*12);
       // The source portrait includes an outlined neck stump. The articulated
       // body owns the lower neck/collar; retaining both creates a second rim.
       // Only this measured lower-neck aperture is removed, after normalization.
@@ -190,11 +213,11 @@
   function headParts(r){
     if(!atlas.ready||r.painted)return;
     const m=metadata(r.svg),art=painting(m.sex,m.tile,m.color,m.skin,m.expression);if(!art)return;
-    const image=()=>node('image',{href:art.open,x:0,y:0,width:32,height:40,preserveAspectRatio:'none'});
+    const image=()=>node('image',{href:art.open,x:-DIR_MARGIN.x,y:-DIR_MARGIN.top,width:32+2*DIR_MARGIN.x,height:40+DIR_MARGIN.top,preserveAspectRatio:'none'});
     r.front.append(image());r.back.append(image());r.anchors={eye:art.eye};
     data(r.front,'qpxProfileEyeX',art.eye[0]);data(r.front,'qpxProfileEyeY',art.eye[1]);
     for(const part of['half','closed']){const blink=node('g',{class:'qpx-blink-'+part,'data-qpx-profile-eye':part});
-      const cover=node('g');cover.append(node('image',{href:art.patch,x:0,y:0,width:32,height:40,preserveAspectRatio:'none'}));
+      const cover=node('g');cover.append(node('image',{href:art.patch,x:-DIR_MARGIN.x,y:-DIR_MARGIN.top,width:32+2*DIR_MARGIN.x,height:40+DIR_MARGIN.top,preserveAspectRatio:'none'}));
       if(part==='half'){const id=r.uid+'-half',clip=node('clipPath',{id,clipPathUnits:'userSpaceOnUse'});clip.append(node('rect',{x:0,y:0,width:32,height:art.eye[1]+.3}));r.defs.append(clip);cover.setAttribute('clip-path','url(#'+id+')');}
       blink.append(cover);const [x,y]=art.eye,w=Math.max(1.1,art.width);blink.append(node('path',{d:'M'+(x-w)+' '+(y+.45)+'Q'+x+' '+(y+(part==='half'?1.1:m.expression==='happy'?-1:1.5))+' '+(x+w)+' '+(y+.45),fill:'none',stroke:'#493638','stroke-width':'.28','stroke-linecap':'round'}));if(m.expression==='wink'&&part==='closed')blink.style.setProperty('opacity','1','important');r.front.append(blink);
     }
@@ -219,7 +242,7 @@
   function rearParts(r){
     if(!atlas.backReady||r.rearPainted)return;
     const m=metadata(r.svg),art=backPainting(m.sex,m.tile,m.color,m.skin);if(!art)return;
-    r.rear.append(node('image',{href:art,x:0,y:0,width:32,height:40,preserveAspectRatio:'none','data-qpx-back-hair':hair[m.sex][m.tile]}));
+    r.rear.append(node('image',{href:art,x:-DIR_MARGIN.x,y:-DIR_MARGIN.top,width:32+2*DIR_MARGIN.x,height:40+DIR_MARGIN.top,preserveAspectRatio:'none','data-qpx-back-hair':hair[m.sex][m.tile]}));
     // A back view has no frontal facial jewelry, lenses or eye expressions.
     // Keep the wearer's hat and ear jewelry on the original attachment axes.
     if(!window.QPAvatarAccessoryDirection)for(const el of r.frontOriginals){const category=el.dataset.qpxHeadAccessory;if(!['hat','ear'].includes(category))continue;const copy=el.cloneNode(true);data(copy,'qpxBackAccessory',category);r.rear.append(copy);}
@@ -396,12 +419,12 @@
   function headMarkup(svg,view){
     const m=metadata(svg);
     if(view==='back'){
-      const art=backPainting(m.sex,m.tile,m.color,m.skin);return art?'<image href="'+art+'" x="0" y="0" width="32" height="40"/>':'';
+      const art=backPainting(m.sex,m.tile,m.color,m.skin);return art?'<image href="'+art+'"'+FRAME_ATTR+'/>':'';
     }
     const art=painting(m.sex,m.tile,m.color,m.skin,m.expression);if(!art)return '';
     const [x,y]=art.eye,w=Math.max(1.1,art.width);
-    return '<image href="'+art.open+'" x="0" y="0" width="32" height="40"/>'+
-      '<g class="qpx-blink-closed"><image href="'+art.patch+'" x="0" y="0" width="32" height="40"/><path d="M'+(x-w)+' '+(y+.45)+'Q'+x+' '+(y+1.5)+' '+(x+w)+' '+(y+.45)+'" fill="none" stroke="#493638" stroke-width=".28" stroke-linecap="round"/></g>';
+    return '<image href="'+art.open+'"'+FRAME_ATTR+'/>'+
+      '<g class="qpx-blink-closed"><image href="'+art.patch+'"'+FRAME_ATTR+'/><path d="M'+(x-w)+' '+(y+.45)+'Q'+x+' '+(y+1.5)+' '+(x+w)+' '+(y+.45)+'" fill="none" stroke="#493638" stroke-width=".28" stroke-linecap="round"/></g>';
   }
   window.QPAvatarDirection=Object.freeze({atlas,prepare,apply,reset,destroy,headMarkup,compactArm});
   Promise.all([load('f'),load('m')]).then(()=>{atlas.ready=true;for(const r of mounted)if(r.svg.isConnected)headParts(r);if(atlas.backReady||atlas.backError)mounted.clear();window.dispatchEvent(new CustomEvent('qp-avatar-direction-ready'));}).catch(error=>{atlas.error=String(error?.message||error);if(atlas.backReady||atlas.backError)mounted.clear();window.dispatchEvent(new CustomEvent('qp-avatar-direction-error'));console.warn('옆모습 원화가 아직 준비되지 않아 정면 아바타를 유지합니다.',error);});

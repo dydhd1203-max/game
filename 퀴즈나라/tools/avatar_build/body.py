@@ -33,6 +33,7 @@ SRC = os.path.join(ROOT, 'assets/avatar-reference-candidates/body-study-2026-10-
 ASSETS = os.path.join(ROOT, 'assets')
 LAYERS = ('shirt', 'sleeves', 'shorts', 'shoes', 'arms', 'legs', 'neck')
 BODY_LAYERS = ('arms', 'legs', 'neck')
+LEG_UNDER_SHOE = 8  # px the legs run on under the basic shoe (user decision 2026-10-15; = avatar-foundation-skin.js)
 DATA_NAME = 'sd-foundation-ref-data.js'
 
 _BODY_MODE = None
@@ -208,6 +209,36 @@ def derive(key, f):
     cuff_top = (r['cuffs']['one']['y0'] + 2) if view == 'right' else min(c['y0'] for c in r['cuffs'].values()) + 12
     k = 17.5 / (front_floor - COLLAR_Y[sex])
     return dict(center=round(float(center), 2), neck=(round(float(center), 2), COLLAR_Y[sex]), floor=floor, k=k, joints=joints, cuff_top=cuff_top)
+
+
+def legs_under_shoes(legs, shoes):
+    """The legs run on LEG_UNDER_SHOE px under the shoe (user decision
+    2026-10-15): a shoe whose opening is a little lower than the basic one
+    (a loafer) shows skin there, not the leg painting's cut end
+    (SHOE_LOW_OPENING). In each figure, a column whose lowest leg pixel sits
+    right on the shoe's opaque paint (the sheet's 252/255) has its lowest
+    clean leg row copied down over that paint only. Runs in place on a copy
+    of the finished legs layer (sd-foundation-ref-legs-under.png): the legs
+    layer and the basic outfit stay as they are."""
+    for x0, y0, x1, y1 in CELLS.values():
+        la = legs[y0:y1, x0:x1, 3]
+        lc = legs[y0:y1, x0:x1, :3]
+        solid = shoes[y0:y1, x0:x1, 3] >= 250
+        h = y1 - y0
+        for x in range(x1 - x0):
+            rows = np.nonzero(la[:, x] > 127)[0]
+            if len(rows) < 6:
+                continue
+            end = int(rows.max())
+            full = rows[(rows >= end - 6) & (la[rows, x] >= 242)]
+            if not len(full) or end + 1 >= h or not solid[end + 1, x]:
+                continue
+            src = int(full.max()) - 1
+            for yy in range(end + 1, min(h, end + 1 + LEG_UNDER_SHOE)):
+                if not solid[yy, x]:
+                    break
+                lc[yy, x] = lc[src, x]
+                la[yy, x] = la[src, x]
 
 
 def figures():
@@ -720,10 +751,17 @@ def build(out_dir, debug_dir=None, trace=None):
     for idx, L in enumerate(trio):
         take = empty & (total >= 5) & (best == idx)
         L[take] = np.concatenate([sheet[take][:, :3], np.full((take.sum(), 1), 255.0)], -1)
+    # sd-foundation-ref-legs-under.png: the legs with their run under the
+    # shoe, a separate layer drawn only under pipeline shoes (avatar-
+    # foundation-skin.js LEG_UNDER_SHOE); the legs layer, its rects and radii
+    # stay those of the visible legs, so the basic outfit is unchanged.
+    rects = {key: rects_for(layers, CELLS[key], f) for key, f in figs.items()}
+    layers['legs-under'] = layers['legs'].copy()
+    legs_under_shoes(layers['legs-under'], layers['shoes'])
     for name, L in layers.items():
         Image.fromarray(L.astype(np.uint8)).save(os.path.join(out_dir, 'sd-foundation-ref-' + name + '.png'), optimize=True)
     for key, f in figs.items():
-        meta[key]['rects'] = rects_for(layers, CELLS[key], f)
+        meta[key]['rects'] = rects[key]
         meta[key]['radii'] = radii[key]
     data = {'source': 'assets/avatar-reference-candidates/body-study-2026-10-04.png', 'figures': meta}
     with open(os.path.join(out_dir, DATA_NAME), 'w') as fh:

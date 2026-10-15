@@ -1,0 +1,1188 @@
+##### title
+3단계 옷·머리 제작 틀과 파이프라인 (통합안): 고정 몸 위에서 '바뀐 것만' 잘라 넣기, 기록으로 움직이는 체험 런타임, 기존 머리 24개 자동 맞춤
+##### koreanSummary
+3단계에서 받게 되시는 것
+- 옷 만들기 도구 한 벌: 지금 쓰는 그림 틀(기준 캐릭터 시트), 상품마다 옷만 그린 참고 그림, 한국어·영어 프롬프트를 명령 하나로 만들어 드립니다.
+- 자동 파이프라인: ChatGPT 그림을 올리면 여섯 그림을 고정된 기준 몸에 자동으로 맞춥니다. 그다음 바뀐 옷만 잘라 내고, 소매·밑단·깃·신발 높이와 다른 옷이 바뀌지 않았는지 검사합니다. 실패하면 어느 그림의 어디가 왜 틀렸는지 표시한 그림과, ChatGPT에 그대로 붙여 넣을 한 문장을 드립니다.
+- 체험 주소와 기준 캐릭터 화면에서 상품마다 옷을 바꿔 입혀 볼 수 있습니다. 모든 동작·4방향·피부 5종·120/280px 검수 그림도 함께 드립니다.
+- 이미 만들어 주신 '단정한 셔츠·카라 셔츠' 시트로 파이프라인을 실제로 돌려 결과를 보여 드립니다(체험 화면에서만).
+- 기존 머리 24개는 그림을 그대로 두고, 목 자르기·머리카락 사이 피부색·얼굴 크기를 머리마다 자동으로 맞춥니다(전후 비교를 보여 드립니다). 새 머리를 만들 틀과 프롬프트도 준비합니다.
+- 기본 옷의 남은 결함(어두운 피부의 밝은 띠, 여자 옷깃 홈, 소매 끝 잘림)은 비교 그림을 보시고 승인하시면 생성 규칙으로 고칩니다.
+- 학생 화면은 그대로입니다. 작업 브랜치에 올린 뒤 확인을 받고 main에 합칩니다.
+
+4단계에서 하실 일
+- 시범 상품 top:shirt:10: 3단계 시험을 통과하면 그 시트를 그대로 씁니다. 문제가 있으면 제가 드리는 그림 2장과 프롬프트로 ChatGPT에서 다시 만들어 주세요. 새 대화를 열고, 그림 첨부 → 프롬프트 붙여 넣기 → 원본 크기로 내려받기 → 이 대화에 올리기 순서이며 약 2분 걸립니다.
+- 실패 보고가 나오면 함께 드리는 한 문장을 같은 ChatGPT 대화에 붙여 넣어 다시 받으시면 됩니다.
+- 체험 화면에서 상점과 지도의 모습을 보시고 상품 전환을 승인해 주세요.
+##### approach
+BASE AND GRAFTS
+- Base: plan-runtime. It was judge 1's winner and has the highest combined correctness/verifiability/risk score. It brings the R0 render-signature identity gate, foundation-only hair and the strongest student guard.
+- From plan-production: the existing v1 template and user loop (design-reference image, about 2 minutes per sheet, one copy-ready retry sentence per failure code), registration with a colour objective, and three-way U/T/B change segmentation, all calibrated on the real ChatGPT sheet.
+- From plan-pipeline: frozen build artifacts, DP seams inside frozen bands, a per-sheet skin model with a skin strip and an outline-ridge rule, class limits explained by body coverage, a synthetic negative suite with expected message ids, the magenta seam-gap probe, the tone-0/4 differential, and half resolution only for avatars at 120 px or smaller.
+- Hair: the hair design, kept foundation-only and extended so the new-hairstyle template reuses the garment registration code.
+
+REPO STATE THE TASK TEXT MISSED (verified)
+Commits 8752830, 914c7ef and 50f1af8 already hold:
+- the v1 template assets/garment-template/template-sheet.png: 1629x1086, the reference sheet on white with 90 px side margins, sha 09b4a736…, within 0.5/255 of the reference composite;
+- the garment-only design reference ref-shirt-10-design.png, added after the user saw ChatGPT copy the old body;
+- the v1 prompt 옷그림-프롬프트.md;
+- a real ChatGPT sheet, assets/garment-sources/top-shirt-10-chatgpt-2026-10-09.webp: 1536x1024 RGB, sha 64f7804b….
+Measured on that sheet: after one global scale of 1629/1536, every figure fits within 0.6 px and 0.15% scale. The stable-region colour difference has median 2.25 and p95 6.0. Only the tops changed, but the shorts print is re-rendered in up to 15% of its pixels.
+Stage 3 keeps the v1 kit and makes it reproducible. The real sheet is a read-only calibration and acceptance fixture: it is built only into 검증/, shown only in the studio and demo, and never committed as runtime art. Shop wiring and approval stay in stage 4, and whether to reuse this sheet there is a user ask.
+
+FIVE PARTS
+1. Frozen body.
+- These stay byte- and value-identical: assets/sd-foundation-ref-data.js (body fields), sd-foundation-ref-arms/legs/neck.png, and SPEC/SPEC_F in avatar-foundation.js. check-source hash-guards them.
+- derive() never runs on a garment. A body change needs --allow-body-change plus user approval.
+- One-time frozen build artifacts feed every garment build: owner map; zones (armhole S/A seams, sleeve and foot envelopes, hem/neck/opening/sole bands, waist cover line); hair-occlusion mask; class limits derived from body coverage and runtime constants.
+2. Garment build = 'what changed against the frozen reference'.
+- Each figure of the upload U is registered onto the frozen grid. U is then compared with the template T and with B: the frozen body plus the other basic slots, i.e. what shows when the product slot is empty.
+- Only the product's own pixels are taken from the upload. Nothing else is ever reused, because ChatGPT re-renders every pixel.
+- These replace every palette heuristic, and every value the runtime measures today: per-sheet colour models, a skin strip gated by frozen skin zones, DP seams inside frozen bands, frozen ownership zones for the part split, rule-based hidden-cloth rebuild, and offline metadata.
+3. Data-driven demo runtime.
+- Garment records are keyed 'cat:shape' (ci stays a legacy token). Atlases are cropped per sex and loaded lazily.
+- Garment ids go into every template, atlas, pool, cache and DOM key. Fallback is per slot, with an explicit reason.
+- The basic outfit becomes the first three records (top:tee, bottom:shorts, shoes:sneaker). They are packed losslessly and flagged legacy: their raised sleeve, underarm, edge tone and side span are still computed by today's code, now keyed by garment id. The refactor is therefore gated on R0 identity over the whole motion matrix.
+- Pipeline records carry the same data precomputed.
+- Only after the pipeline rebuilds the basic outfit (user-approved, reviewed diff) are these deleted: the legacy heuristics, the 4 full-sheet garment PNGs, and the garment code in build-reference-body.py.
+4. Hair.
+- The 24 paintings stay byte-exact. They are converted offline into foundation-owned layers (skin, features, hair-front, hair-back, no neck), with landmark face scale, an automatic neck cut and one skin formula (the body's toneMatrix).
+- That makes 'no-neck head + front/back hair layers' the single runtime model.
+- New hairstyles reuse it: a shared base head plus a 'change only the hair' template, run through the same registration code as garments.
+- avatar-pixel.js and avatar-direction.js are never edited, not even behind flags.
+5. Students unchanged.
+- Every new path runs only behind QPDemo + ?avatar=foundation, or in the studio.
+- index.html gets inert script tags and an edit inside the existing demo gate (normalise with avatarForSex first). avatar-image.js gets one new prefix route.
+- A guard compares the old renderer's strings, normal-URL screens, the network log and protected-file hashes against a worktree of the pre-stage-3 commit.
+
+FATAL FLAWS FIXED
+(a) plan-pipeline's redundant 1536 template, transparent-background request and missing design reference → the v1 kit is kept, with a white background only.
+(b) Basic-relative ±3/4 px limits that would reject the real sheet (female hem +4..+6 px, male V-neck to y=289) → limits come from body coverage and runtime constants, calibrated on the real sheet.
+(c) WP2 tolerance vs WP3 zero-diff contradiction → the legacy path until the rebuild.
+(d) plan-production's raised-sleeve ordering gap → the same legacy path.
+(e) No new-hair template work package → H5.
+(f) No skin strip and a weak refactor gate → a per-sheet skin model and the R0 signature gate.
+##### template
+FILES (assets/garment-template/, tooling only, never deployed)
+1. template-sheet.png: image 1, kept byte-identical.
+- It is the approved reference sheet on white, with 90 px side margins: 1629x1086 = 3:2. Top row boy, bottom row girl; columns front, right-facing side, back. Each figure wears the basic outfit.
+- tools/garment/make-template.py regenerates it and asserts pixel equality and sha 09b4a736…. It is never hand-edited.
+- No guide marks, grid, text or coloured zones. ChatGPT repaints everything it sees: marks would come back inside the garment or shift the figures.
+- The unchanged heads, arms, legs and shoes are the registration marks. The basic garment is the visual ruler for sleeve, hem, collar and shoe heights.
+2. ref-<cat>-<shape>-<ci>-design.png: image 2. The product's garment-only design reference (male left, female right), with no body.
+- Made by tools/garment/design-ref.cjs: a read-only, headless ?demo=1 render of the current shop art through QPClothes.surface. It generalises scratch tpl/shirtonly.cjs.
+- It carries the fixed colour, print, collar and cuffs onto the v2 body (아바타-제작기준.md:169).
+- No body is shown, because ChatGPT copied the old awkward arms and low shorts (914c7ef).
+- ref-shirt-10-design.png exists. The tool must reproduce it, or replace it with a recorded reason.
+3. products.json: per product.
+- Fields: names per sex, KO/EN design notes, class (top/short-sleeve | bottom/shorts | shoes/low), sexes, mirrorSafe, fixed colour hex per sex.
+- The worker fills it from the catalogue and the design reference; the user only reviews it.
+- Colours are checked against the live shop.
+4. 프롬프트.md replaces 옷그림-프롬프트.md. It holds the frame plus the class rule lines. `node tools/garment/prompt.cjs top:shirt:10` prints the filled KO and EN prompts and writes image 2.
+5. 작업자-안내도.png: a dimmed overlay with Korean labels, for the worker and the guide only. It is never given to ChatGPT.
+- Generated by tools/garment/guide-overlay.py from tools/garment/frozen/limits.json.
+- It shows the parts that never change, the sleeve-end band, hem band and overlap, the collar and neckline limits, the shorts cuff band, the shoe opening and sole line, and the female-back 단발에 가려지는 깃 zone.
+
+PROMPT FRAME (KO; this is v1, which produced the good real sheet, generalised; the EN version mirrors it)
+"첫 번째 그림은 게임 캐릭터 설정 시트입니다. 윗줄은 남자아이, 아랫줄은 여자아이이고, 왼쪽부터 앞모습, 오른쪽을 보는 옆모습, 뒷모습입니다. 두 번째 그림은 새로 입힐 {부위} 디자인입니다(왼쪽 남자아이, 오른쪽 여자아이). 색·모양·장식만 참고하고 몸과 그림체는 첫 번째 그림을 따릅니다. 첫 번째 그림의 두 아이에게 {부위}만 바꿔 입혀 주세요. - 남자아이: {남 설명} - 여자아이: {여 설명}
+꼭 지켜 주세요.
+1. 얼굴, 머리 모양, 몸 크기와 비율, 자세, 팔·다리 위치, {그대로 둘 부위}는 첫 번째 그림과 똑같이 둡니다.
+2. 여섯 그림의 위치·크기·간격을 그대로 둡니다. 자르거나 옮기지 않습니다.
+3. {종류별 길이 규칙}
+4. 앞·옆·뒤가 같은 옷으로 보이게 그립니다. {뒷모습 규칙}
+5. 그림체(부드러운 채색, 외곽선 굵기, 명암)는 첫 번째 그림과 같게 합니다.
+6. 배경은 아무것도 없는 흰색입니다. 그림자·글자·테두리를 넣지 않고, 옷에도 글자·로고를 넣지 않습니다.
+7. 가로로 긴 그림 한 장으로 주세요."
+
+Class rule lines:
+- 반팔 상의: '소매 끝은 지금 반팔 소매와 같은 높이(팔꿈치 위), 밑단은 지금 티셔츠 밑단 높이로 반바지 허리를 덮게, 목둘레는 지금 옷깃보다 높이지도 깊게 파지도 않습니다.'
+- 반바지: '허리는 윗옷 밑단 안에 숨기고, 바짓단은 지금 반바지 끝 높이(무릎 위), 두 다리로 나뉘게(치마처럼 잇지 않음).'
+- 낮은 신발: '입구는 지금 신발 높이(복사뼈 아래), 밑창은 지금 바닥선, 두 발 모두 보이게, 부츠처럼 높게 만들지 않습니다.'
+- Single-sex product: '남자아이(또는 여자아이) 옷은 바꾸지 않습니다.'
+- Non-mirror-safe designs: the notes ask for decorations that still look right when mirrored, and no lettering.
+
+HOW THE USER USES IT (about 2 minutes)
+① Start a new ChatGPT chat for each product.
+② Attach template-sheet.png first and the design reference second.
+③ Paste the prompt.
+④ Download the result with ChatGPT's download button, at original size (PNG preferred; WebP or JPEG accepted).
+⑤ Upload it in our chat.
+The worker then stores it byte-exact as assets/garment-sources/<cat>-<shape>-<ci>-chatgpt-<date>.<ext>, with its sha256 and prompt in the README row, and runs `python3 tools/garment/build-garment.py <cat:shape> --sheet <file>`. On failure the user gets the annotated report and ONE Korean sentence to paste into the same ChatGPT chat.
+
+WHY CHATGPT CAN FOLLOW IT
+- The template is OpenAI image generation's own earlier output, so its style, proportions and layout are in-distribution.
+- 'Change only X' is a local edit with explicit invariants.
+- The 3:2 canvas matches the model's 1536x1024 landscape output, so the only expected global change is a uniform scale (×0.9429).
+- Lengths are stated relative to the visible current garment, not as numbers.
+- The design reference fixes colours and details.
+- Evidence: the first real attempt held all six figures within 0.6 px, and only the tops changed.
+- Resolution: about 15.4 sheet px per body unit, against 8.46 screen px per unit at the 280 px shop size, i.e. 1.8× oversampled.
+##### registration
+Shared module tools/avatar_build/register.py with matte.py, also used by the hair pipeline. Numpy and PIL only; scipy and OpenCV are absent. All geometry is in frozen sheet px: the 1448x1086 grid, CELLS, COLLAR_Y 264/786.
+
+STEPS
+1. Input.
+- PNG, WebP or JPEG.
+- Long side must be ≥1200 px, else SIZE_SMALL ('ChatGPT 내려받기 버튼으로 원본 크기를 올려 주세요').
+- The source is stored byte-exact with its sha256 before anything else.
+2. Matte.
+- If ≥5% of pixels are transparent, use the alpha. A periodic two-tone checkerboard → BACKGROUND.
+- Otherwise the 12 px border median must be ≥240 with std ≤6, else BACKGROUND.
+- Foreground = pixels not border-connected to near-white (scanline flood fill; the drawn outline is the barrier). This keeps white collars and cuffs; the threeway prototype lost the female white collar with a per-pixel whiteness test.
+- Dark pixels below the frozen floor +3 px that are not in the template → SHADOW.
+- Foreground components outside the figure boxes (+30 px): >400 px → FOREIGN_MARK; 40–400 px are removed with a warning.
+3. Layout.
+- Projection bands must give exactly 2 rows × 3 columns of figures (LAYOUT_COUNT; crops and missing figures land here).
+- Rows must be ordered male, then female (LAYOUT_ORDER).
+- The side view must correlate better with the template profile than with its mirror (LAYOUT_MIRROR).
+4. Global initialisation from the six boxes (head top, soles). The expected scale is 1536/1629.
+5. Per-figure similarity fit: s, dx, dy; no rotation or shear, because a pose change is rejected, never warped away.
+- Coarse to fine: s ±3%, shift ±16 px, steps 1 px → 0.1 px.
+- Objective: robust Lab error with lightness weight .7, gradient-weighted, on the STABLE mask = template foreground below collar+10, minus the product slot's frozen zone dilated 12 px. For a top: forearms/hands, legs, shoes and the shorts below the hem band. For shorts: torso above the hem band, arms, shins, shoes. For shoes: everything above the ankle band.
+- This colour objective gives ≤0.6 px on the real sheet; the silhouette-only fit gave up to 2.4 px. Silhouette IoU is still computed as a diagnostic.
+6. Diagnostics.
+- A free affine fit: |rotation| >1.5° or |sx/sy−1| >2% → SQUASH (a square or squashed output).
+- Each figure's scale against the six-figure median: ≤3% is absorbed; 3–6% gives warning W_SCALE; >6% → FIGURE_SCALE.
+7. One resample into sheet space per cell: PIL resize with a sub-pixel box (exact scale + translate) and Lanczos, giving a 1448x1086 RGBA plus the matte alpha. There is no second resample anywhere.
+8. Drift checks.
+- Stable-region ΔE: median ≤4 and p95 ≤10 (real sheet 2.25 / 6.0), else BODY_DRIFT.
+- Stable silhouette IoU ≥.93. Real sheet .961–.971 under the silhouette fit; squash negative .62–.81.
+- Part residual shift (±8 px search) for each forearm+hand, shin and shoe, and the torso/shorts outline for a shoes product: ≤1.5 px pass; 1.5–3 px warning; >3 px → POSE_ARM / POSE_LEG, naming figure and part. Prototype baseline 1–3 px; 8 px drift reads 8 px.
+- Head/hair shift: report only, since heads are discarded. Hair covering more garment than the frozen hair-occlusion mask (+150 px per figure) → HAIR_OVER_GARMENT.
+- Other slots changed: after a per-sheet linear tone fit on stable pixels, the share of each non-product slot with blurred ΔE >10 must stay within: shorts .30, shoes .20, legs .05, arms .10 (real maxima .15 / .05 / 0 / .04). A median colour shift ΔE >8 also counts. Either → OTHER_SLOT_CHANGED('반바지'/'신발'/'윗옷').
+- Single-sex products: the untouched row is checked the same way → SINGLE_SEX_CHANGED.
+9. Class geometry, measured after segmentation. Limits live in tools/garment/frozen/limits.json and are generated from frozen body data and runtime constants, not from basic ±px.
+- Top:
+  - Sleeve opening inside the record's sleeve box and ≥.3 u above the elbow → else SLEEVE_LONG.
+  - Opening not above the arms layer's clean-skin start (the arm layer carries basic-cuff scraps above it) → else SLEEVE_SHORT.
+  - Hem ≥ the bottom's frozen waist cover line + .24 u (seated breathing .14 + .10) → else HEM_HIGH.
+  - Hem ≤ hip row + .25 u → else HEM_LOW.
+  - Collar top no more than .1 u above the basic collar outline → else COLLAR_HIGH. The browser checks the female FRONT_HAIR_CLIP margin ≥.10 at the nod peak.
+  - Exposed neckline skin must lie inside the neck layer's opaque art (alpha>200), eroded 1 px → else NECK_OPEN. The real male V reaches y=289, exactly the layer's end.
+- Shorts:
+  - Cuff not above shorts_bottom −8 (copied thigh rows) → else SHORTS_SHORT.
+  - Cuff ≤ knee −7 px (floor-sit tubes end .42 before the knee) → else SHORTS_LONG.
+  - Waist hidden under the hem → else WAIST_VISIBLE.
+  - Legs separated at x=16 → else SKIRT_LIKE.
+- Shoes:
+  - Sole within ±2 px of the frozen floor → else SOLE_OFF_FLOOR.
+  - Shoe top covers the leg layer's end and stays ≥ ankle −20 px → else SHOE_LOW_OPENING / SHOE_HIGH.
+  - Both feet present → else SHOE_MISSING.
+- All:
+  - Main cloth colour agrees across the three views within ΔE ≤8 → else VIEW_INCONSISTENT.
+  - Main colour vs the shop colour ΔE >15 → COLOUR_OFF, a warning only, never auto-recoloured.
+  - Garment pixels of skin hue left after the strip → UNTINTED_SKIN.
+
+CALIBRATION
+Thresholds are provisional. They are calibrated on four inputs: the identity input, the template at 1536 WebP q80, the synthetic set, and the real shirt:10 sheet. Every limit must pass the basic outfit with ≥2 px margin, pass the real sheet, and fail its negative control. A limit is never loosened so far that a negative passes. Each later real sheet re-checks the calibration.
+
+ACCEPTANCE TESTS (tools/garment/test_register.py)
+- template-sheet.png as the upload: |dx|, |dy| ≤.1 px and |s−1| ≤5e-4.
+- Template at 1536x1024 WebP q80: joint error ≤1 px.
+- Real sheet: ≤0.6 px and ≤0.2% from the global fit; no OTHER_SLOT_CHANGED.
+- Drift variants: s .97/1.03, ±10 px, one figure +2% / +5 px, 1024² padded input, JPEG q70, WebP q60. Each recovered within .3 px.
+- ≤60 s per sheet.
+
+FEEDBACK TO THE USER (tools/garment/report.py → 검증/옷/<id>/등록-보고.png + 보고.json + 보고.md, sent in chat)
+- Per figure: the registered upload under the frozen body outline (cyan), OK parts in green, failing parts outlined in red with the measured offset and Korean labels.
+- Pass: '통과 (6/6)', the registration numbers, and an idle 4-view preview of both sexes at 280 px, marked 배포 전.
+- Fail: '다시 요청이 필요해요 (6개 중 n개 통과)', 1–3 Korean bullets naming figure and part, and ONE copy-ready ChatGPT sentence per code. All text comes from tools/garment/messages.json, which the guide reproduces. Examples:
+  - POSE_ARM: '여자아이 옆모습의 팔 위치가 바뀌었어요. 옷 말고는 첫 번째 그림과 똑같이 두고 다시 그려 주세요.'
+  - OTHER_SLOT_CHANGED: '반바지도 바뀌었어요. 반바지와 신발은 첫 번째 그림 그대로 두고 윗옷만 바꿔 주세요.'
+  - SLEEVE_LONG: '소매 끝을 첫 번째 그림의 반팔 소매 끝 높이로 올려 주세요.'
+  - BACKGROUND / SHADOW / FOREIGN_MARK: '배경·그림자·글자 없이 흰 바탕으로 다시 그려 주세요.'
+  - SQUASH: '그림 비율을 바꾸지 말고 가로로 긴 그림 그대로 주세요.'
+  - LAYOUT_*: '여섯 그림이 모두, 잘리지 않고 같은 자리에 보이게 다시 그려 주세요.'
+- Optional per-figure best-of: figures from two passing uploads of the same product may be combined only if the cross-view colour check holds and the worker has viewed them. This is a user ask.
+##### segmentation
+Modules: tools/garment/segment.py, seam.py, fill.py, metadata.py, pack.py and build-garment.py. They run on the registered sheet-space image. No fixed palette is used anywhere.
+
+INPUTS
+- U: the registered upload.
+- T: the template, i.e. the reference on white.
+- B: a composite of the frozen layers EXCEPT the product slot. It holds the body (neck extended under the collar, arms into the sleeves, legs into the shorts), the other basic slots and the reference head, with B_alpha.
+- O: the frozen owner map. It was made once from the ORIGINAL 7 layers and is stored in tools/garment/frozen/, so a later rebuild of the basic outfit never shifts it.
+- zones.json, the hair-occlusion mask and limits.json.
+
+1. CHANGE MAP. D_T and D_B are window-min Lab distances (r = 2 px, absorbing sub-pixel drift, lightness weight .7), median-filtered. τ = max(7, p95 of stable D_T + 1), with hysteresis at τ/2.
+
+2. COLOUR MODELS learned from THIS sheet (numpy k-means plus Gaussian NLL):
+- skin, k=3: from eroded visible forearm/hand/shin/neck pixels away from the product envelope. Shaded skin is included; classify()'s rule misses the shaded cuff band.
+- product, k=4 (covers prints): from changed pixels deep inside the envelope.
+- neighbouring unchanged slots: from their eroded zones.
+- hair: from the template's hair near the collar.
+
+3. LABELLING per pixel. This is plan-production's rule with plan-pipeline's gates.
+- Unchanged (D_T < τ) → owner O. It is product only if O is a product part, which keeps a new shirt's cream collar or cuffs when they match the old ones.
+- Changed, matching B, B_alpha > .5 → the body or another slot shows through. Accepted only when all of these hold: within 24 px of the old garment/body boundary; 4-connected to unchanged body pixels; on body parts that have painted art there. Exposure where there is no body art feeds HEM_HIGH, NECK_OPEN or SHOE_LOW_OPENING.
+- Changed, not matching B, inside the product's allowance zone (its frozen zone dilated 20 px; never above the collar −6 or into the head) → product.
+- Changed outside the zone → foreign, which feeds OTHER_SLOT_CHANGED.
+- Skin gate: inside the frozen body skin zones (dilated 4 px), the skin-model winner is skin, never garment. This kept a skin-coloured synthetic top at IoU .92–.96.
+- Line-art rule: dark ridges within 2 px of a frozen body outline that lie outside the product interior belong to the body.
+- Unchanged reference hair lying on the garment (female bob tips, back collar) is a hole, rebuilt in step 6.
+
+4. BOUNDARIES by DP seams (seam.py): a smoothness-constrained path inside frozen bands. Cost = colour log-likelihood ratio + an outline-ridge term (the drawn line between cloth and skin separates cream from skin) + a distance prior to the basic boundary.
+- hem: product vs bottom. Columns covered by the hand are excluded (profile tails).
+- armhole: torso vs sleeve, front and back, in a band around the frozen S/A seam.
+- cuff/opening: sleeve vs skin, in the upper-arm frame.
+- collar: cloth vs neck skin.
+- shorts opening: cloth vs thigh.
+- shoe top: shoe vs ankle.
+The prototype hem seam came within 0–2 px of the median.
+
+5. PART SPLIT by frozen ownership, without colour.
+- Front/back sleeve = garment outside the torso side line from the frozen shoulder-top S to the armpit A (S and A are frozen body data).
+- Profile sleeve = garment inside the upper-arm capsule (frozen joints and radii), grown outward along the arm normals to the sleeve's own painted outline, at most 3.5 u.
+- Shoes = the garment component in each frozen foot zone, split at the centre in front/back. The profile has one drawing, as today.
+- Bottom = one piece, with the centre seam at body x=16.
+
+6. HIDDEN CLOTH. Hole = frozen occluders at rest ∩ the slot's target silhouette.
+- Occluders: arm/hand over the torso and shorts; the new sleeve over the torso cap; reference hair over the collar/shoulders; the basic hem over a new bottom's waist.
+- Targets:
+  - front/back torso: side_outline continued from the NEW painted side contour up to the shoulder;
+  - side views: edge_cover generalised to the hem and the front/back edges under the arm;
+  - bottom: extended up to the frozen waist cover line (harmonic continuation), so any compliant top overlaps it;
+  - under the female bob: occlusion mask ∩ the frozen basic shirt alpha, rebuilt as plain cloth, with the percentage reported.
+- Fill: rebuild_cloth (harmonic shading + exemplar detail, prints excluded by print_mask relative to the garment's own median), then outline_profile/draw_outline on the new edges. Exemplar and harmonic run only inside the product's cells, to keep a build under 3 min.
+
+7. POST RULES.
+- Skin strip: garment pixels with high skin likelihood inside the arm/leg/neck zones are dropped, revealing the already-filled body layer. This fixes the pale bands.
+- Seam fade 6 px from the frozen seam; cuff crisp 22 px; prints kept opaque.
+- Pin-hole closing, clean_edges, drop_specks.
+- Alpha: known-background unmixing against the measured white for the outer silhouette, alpha = |U−W|/|F−W|. Ownership cuts get 4× supersampled coverage.
+
+8. METADATA (metadata.py), computed offline:
+- Sleeve: cuff (t along the resting upper arm) and opening polyline. This replaces cuff_top.
+- Sleeve box: the actual extent in the sleeve frame + .15 u. Today's basic reaches 4.11–4.21 u against the fixed 4.0 edge.
+- Raised-sleeve art: geometric removal of the inner strip below the cuff top, inward of the cuff's inner end. This replaces the green/cream test.
+- Underarm per side: edge polyline, inset, line/cloth colours, under profile and cuff, from the shirtSide algorithm ported to Python.
+- Hem and collar polylines.
+- SEAT {cut, apex, cuff, rise}: apex and cut/cuff from the shorts mask outlines. rise uses a new rule fitted on the cuff band's own upper outline (the prototype's rise was off 4–7 px). The hand table stays as regression truth for the basic outfit.
+- SIDE_SEAT {cut, cuff} plus the opaque span at cut−1, which replaces the runtime rowSpan read.
+- edgeTone, waistTop, cuffAlong (today .81), and the shoe ankle/opening/sole rows.
+
+9. OUTPUT: one cropped atlas per sex, a record JS, and an index entry. Debug overlays, the label map and a parts sheet go to 검증/옷/<id>/.
+
+KEPT FROM build-reference-body.py
+Moved into tools/avatar_build/common.py and cloth.py. The nested closures (garment_prints, edge_cover, side_outline, outline_profile, draw_outline) are de-nested into explicit-argument functions, proven by a byte-identical rerun. Moved items: box_blur, fill_colors, edge_band, local_mean, lum_of, hue_chroma, print_mask, harmonic, inner_distance, exemplar, rebuild_cloth, the seam fade, pin-hole closing, clean_edges, drop_specks, small_islands, connected, largest, dilate, bbox, rects_for.
+The body build stays: FIGURES joints via derive() and RAW, CELLS, COLLAR_Y, limb extension, neck build, nape, radii_for. It runs only to reproduce the frozen body.
+
+RETIRED FOR GARMENTS
+- derive() for joints.
+- The per-garment FIGURES polylines: cut, hem, shorts_bottom, shoe_top, sleeves, torso_fill, shorts_fill, erase.
+- classify() and the colour rules: cream/green/blue, 'blue means shorts' at the hem, collar_cream, flower_heart, line_red, the armish/warm/white scrap tests, the brown-hair threshold.
+- The runtime raisedSleeve classifier.
+These stay only for the legacy basic until WP11, then live in git history only.
+##### dataModel
+FROZEN BODY (unchanged through WP10)
+- assets/sd-foundation-ref-data.js (global QPFoundationReferenceData) stays byte-identical, so rigFor() and skin.js do not change.
+- Body fields: view, sex, center, k, neck, floor, joints {shoulder, elbow, wrist, hip, knee, ankle, hand_end}, radii, rects.arm/leg/neck. f-back neck is null: it borrows the male neck painting.
+- tools/garment/frozen/frozen-body.json records those values plus sha256 of: the data file; sd-foundation-ref-arms/legs/neck.png; SPEC/SPEC_F, read through avatar-foundation.js module.exports.
+- check-source asserts this; build-garment refuses to run on a mismatch; build-reference-body.py writes body outputs only with --allow-body-change (user approval).
+- The garment fields (cuff_top, rects.shirt/sleeve/shorts/shoe) become LEGACY. Only pack-basic.py and the legacy runtime path read them.
+- WP11 rewrites the file body-only, with the same global and field-equal values (test).
+- Build-only frozen artifacts live in tools/garment/frozen/ and are not deployed: owner-map.png, zones.json (armhole S/A per side, sleeve and foot envelopes, hem/neck/opening/sole bands, waist cover line, skin zones), cover-torso.png, cover-bottom.png, hair-occlusion.png, limits.json.
+
+GARMENT RECORD
+- Schema tools/garment/schema.json, validated in node by tools/garment/schema.cjs, called from check-source. Records are generated, never hand-edited.
+- Data file assets/sd-garment-<cat>-<shape>.js calls QPFoundationGarments.define({...}).
+- Atlases: assets/sd-garment-<cat>-<shape>-<m|f>.png. Names are flat because avatar-image.js keys 'assets/'+basename. Each is one cropped atlas per sex, so only the worn sex decodes.
+- Top level:
+  - schema:1; id:'top:shirt'; slot:'top'|'bottom'|'onepiece'|'shoes'; slots:['top'] (onepiece = ['top','bottom']).
+  - class, runtime-supported: 'top/short-sleeve' | 'bottom/shorts' | 'shoes/low'.
+  - class, schema only (runtime:false → fallback 'class'): 'top/long-sleeve' | 'top/sleeveless' | 'bottom/trousers' | 'bottom/skirt' | 'onepiece/dress' | 'shoes/boots' | 'shoes/sandals'.
+  - status: 'candidate' | 'approved' | 'retired'.
+  - legacy: true only for the packed basic until WP11.
+  - catalog: {m:{item:'top:shirt:10', name:'단정한 셔츠', colour:'#82ace1', legacyIds:[]}, f:{item:'top:shirt:10', name:'카라 셔츠', colour:'#f2dfbd'}}.
+  - mirrorSafe: {m, f}.
+  - source: {sheet, sha256, template, templateSha, designRef, promptId, registration (per figure: s, dx, dy, residual, stableIoU, dE), builder: 'tools/garment/build-garment.py@<commit>', date}.
+  - checks: {codes, warnings, overlap, collarMargin, hiddenRebuiltPct}.
+- Per sex, sexes.<m|f> = {atlas, size, figures.<front|right|back>}. Each figure holds:
+  - top: torso {rect [x,y,w,h] in sheet px, at [ax,ay] in atlas px}; sleeves [{rect, at, raisedAt, cuff, opening [[w,t]…], box [x0,y0,w,h] in sleeve-frame units}] (2 in front/back, 1 in profile); underarm [{edge, hem, cap, inset, cloth, line, under {t0, w}, cuff}]; hem [[x,y]…]; collar [[x,y]…].
+  - bottom: rect, at, waistTop, edgeTone, cuffAlong; seat {cut, apex, cuff, rise} in front/back; sideSeat {cut, cuff, span} in profile.
+  - shoes: [{rect, at, ankle [x,y], opening, sole}].
+- A slot record carries only its own parts.
+- Placement stays in frozen sheet px, so local()/collar() and the neck anchor are unchanged.
+- Reserved and empty in stage 3: forearmSleeve, shin, skirt, shaft, skinParts, seated pictures {floor-front, floor-back, floor-side, desk}, and figures.left (used instead of mirroring when present).
+
+INDEX (registry data)
+- assets/sd-garments-index.js, generated deterministically and sorted by tools/garment/build-index.cjs. check-source fails if it is stale; on a merge conflict, rerun the tool.
+- QPFoundationGarmentIndex = {schema:1, records, catalogue, starter, runtimeClasses}:
+  - records: 'top:tee' → {slot, class, status, legacy, sha256, files {data, m, f, bundle:'assets/avatar-file-data-garment-top-tee.js'}};
+  - catalogue: {'m:top:tee':'top:tee', 'f:top:tee':'top:tee', 'm:bottom:shorts':'bottom:shorts', 'f:bottom:shorts':'bottom:shorts', 'm:shoes:sneaker':'shoes:sneaker', 'f:shoes:sneaker':'shoes:sneaker'};
+  - starter: {m: {top, bottom, shoes}, f: {…}};
+  - runtimeClasses.
+
+REGISTRY: avatar-foundation-garments.js → window.QPFoundationGarments.
+- define(record).
+- resolve(av) on the avatarForSex-normalised av → {set: {top, bottom, shoes}, fallback: {slot: reason}}.
+- ensure(ids, sex), ready(ids, sex), get(id, sex), key(set) → 'top:tee|bottom:shorts|shoes:sneaker'.
+- register(record, images): test-only, honoured only under session=foundation-studio or the verifiers.
+- Fallback reasons:
+  - todo: not converted;
+  - class: the class is not runtime-supported;
+  - outfit: one-piece not converted, or the empty bottom of dress/robe/overall, which shows the basic shorts in the demo;
+  - error: atlas failed to load; the starter is kept and no exception is thrown;
+  - candidate: status candidate outside the studio.
+
+CATALOGUE MAPPING
+- Lookup is by (sex, cat, shape). ci is ignored for lookup and kept for ownership.
+- Catalogue IDs, hasStyle prefixes, STARTER, prices, CURATED_COLOURS and shape keys are untouched. Login normalisation is untouched, so nothing new is written to Firebase.
+- Stage-3 demo mapping (confirmation is a user ask):
+  - male top:tee:5 '도토리 반팔' and female top:tee:3 → 'top:tee';
+  - bottom:shorts:9 (m) and bottom:shorts:5 (f) → 'bottom:shorts';
+  - shoes:sneaker:8 (both) → 'shoes:sneaker';
+  - top:shirt:10 → 'top:shirt' (candidate, 검증/ only in stage 3);
+  - male default bottom:jeans:5 → fallback todo.
+- Validated in a headless ?demo=1 page through QPGame.getCatalog() and QPClothes.colorFor (tools/verify-garment-catalog.cjs), never by re-parsing index.html.
+
+BASIC OUTFIT = THE FIRST RECORDS
+- WP2: tools/garment/pack-basic.py crops today's 4 garment layers losslessly into the three records, with:
+  - legacy:true;
+  - SEAT/SIDE_SEAT copied from avatar-foundation-outfit.js;
+  - sleeve cuff = (cuff_top − shoulder_y)·k;
+  - box [-4,-4,8,8];
+  - PNG chunks IHDR/IDAT/IEND only, like the originals.
+- WP11 rebuilds them through the pipeline (legacy:false, data metadata, per-record box) after user approval. pack-basic.py and the full-sheet PNGs are then deleted.
+
+HAIR DATA: assets/sd-hair-data.js and assets/sd-hair-<sex>-<shape>.png (schema in the hair field).
+##### runtime
+Everything here is reached only through QPDemo + ?avatar=foundation, or the studio's session=foundation-studio. The students' QPAvatar path is untouched.
+
+1. avatar-foundation-garments.js (new, about 4 KB, inert until used)
+- Registry and loader. sd-garments-index.js is injected lazily on the first foundation load; the auto-load trigger keeps outfit.js L29-31's condition. Then each record's data JS is injected and that sex's atlas loads through QPAvatarImage.load, which is file://-bundle safe.
+- Keeps a ready/error state per (id, sex) and readiness promises.
+- Refuses runtime:false classes with a demo console warning.
+- Exposes the test-only register().
+- Script tag goes after avatar-foundation-skin.js and before avatar-foundation-outfit.js.
+
+2. avatar-foundation-outfit.js
+- Removed: the `files` map, the full-sheet `images` and the global atlas. atlas.ready stays as a compat alias meaning 'index and both sexes' starter records are ready'.
+- Keys: one helper gk(gid, …) builds every key, so a verifier mutation can strip the id in one place.
+- part(gid, sex, view, piece, i): crops from the per-sex atlas at `at`; places with local(F, rect, F.neck, collar) exactly as today.
+- sleeveTexture:
+  - pool key gains the top id;
+  - legacy: 256 px canvas, ±4 u, cuff from (cuff_top − shoulder)·k, for identity;
+  - data path: canvas = record box at 32 px/unit (no cuff clipping), cuff from the record;
+  - raised art: legacy runs today's raisedSleeve() keyed by gid; data path uses the raisedAt atlas rect.
+- shortsTexture:
+  - key gains the bottom id and the lap-shoe id (the side floor seat bakes the worn shoe);
+  - seatedShorts/sideFloorShorts read seat/sideSeat from the record. In WP3 the SEAT and SIDE_SEAT constants move into the packed records;
+  - edgeTone and rowSpan: legacy keeps the runtime reads, keyed by gid; data path reads record.edgeTone and sideSeat.span;
+  - the SIDE_THIGH constants stay as class-level defaults.
+- shirtSide: legacy runs today's getImageData code, keyed `${gid}|${sex}${view}`; data path reads record.underarm, with no pixel reads. underCache and sideCache keys gain the gid.
+- paint(): dedupe key includes the gid. Every outfit node gets data-outfit-garment.
+- prepare(): creates exactly today's node set for the class signature short-sleeve|shorts|low: shirt, hip, 2 underarm fills and lines, 2 sleeve groups with images and arm-skin clips, 2 shoes. Totals stay 198 (m) / 192 (f).
+- mounted remembers the set. apply() on an svg whose data-foundation-garments differ calls destroy()+prepare(), never mid-motion, so a switch equals a fresh render.
+- apply(): sets data-foundation-outfit='dressed' (was 'basic'), data-foundation-garments and data-foundation-fallback. The arm skin clip uses the record's cuff; fit.legs.cuff uses record.cuffAlong; inspect() gains the ids.
+
+3. avatar-foundation.js (about 20 lines in WP3)
+- render():
+  - mode 'body' | 'dressed';
+  - garments resolved from the av it receives;
+  - template key = heads.key + '\n' + mode + '\n' + key(set), so all unconverted items share one template;
+  - outfit.load(ids).
+- template(): writes the data attributes. pending = any needed atlas not ready: the avatar stays hidden and is not cached, so there is no starter flash. repaintWhenReady(ids) waits for ensure(ids).
+- The L1052 gate becomes foundationOutfit!=='body'.
+- rigFor is unchanged.
+- WP9: headCache becomes an LRU of 64 (it is unbounded today, about 0.92 MB per head).
+- H3: headViews is replaced by QPFoundationHead (see hair).
+
+4. avatar-foundation-skin.js: untouched in WP3. In H3 it exports toneMatrix() and tint(), and head skin reuses the same filter.
+
+5. Shared files
+- index.html:
+  - one inert script tag;
+  - inside the existing gate: `return QPAvatarFoundation.render(avatarForSex(av||newAvatar()),size)`. This is a pure render that never writes, and it fixes raw-av callers such as legacy 'long:9' or 'dress:4' from ranking, fashion and quiz cards;
+  - readiness uses QPFoundationGarments.ready(starter) instead of QPFoundationOutfit.atlas.ready. The old head atlases stay in the gate until H3 removes them;
+  - the normal branch at :2373 and verify-economy's markers stay byte-identical.
+- avatar-image.js: keys matching /^assets\/sd-garment-([a-z0-9-]+)-(m|f)\.png$/ count as originals and route to assets/avatar-file-data-garment-$1.js (global QPAvatarGarmentFileData). A unit test proves every existing key routes exactly as before.
+- tools/build-avatar-file-data.cjs: per-product bundles come from the index, each asserted ≤25 MiB. The foundation bundle keeps only the arms/legs/neck PNGs. The original 24.13 MiB bundle is untouched.
+- tools/deployment-files.cjs: `...require('./garment-files.cjs')`, plus hair files after H3.
+- check-source: validates schema, index freshness, file existence, bundle freshness and the frozen-body hash.
+- The four full-sheet garment PNGs leave the runtime lists, bundle and allowlist in WP3. They stay in the repo only as pack/round-trip inputs until WP11 deletes them.
+
+6. Memory (WP9)
+- Pool budget stays 40/24 MiB.
+- Decoded outfit art drops from 4 full sheets (about 25 MB) to about 1–2 MB per garment pair.
+- The per-record sleeve box ends clipping.
+- Sleeves stay at 32 px/unit for everyone. Only if the measured 30-avatar mixed crowd exceeds the budget is a 16 px/unit sleeve/shorts raster prepared for avatars rendered at ≤120 px (data-foundation-lod from render size). It needs the user's approval after a 280/120 comparison.
+- The 48-template cap is measured with garment URLs (about 175 KB per template).
+
+7. Per-motion garment contract (also in the guide). Pictures are keyed only by quantised pose plus garment ids.
+- idle: rigid torso; sleeves pinned in 2° steps; standing shorts mesh; shoes rigid at the ankle.
+- walk/run: 24 drawn poses; sleeves turn with the arm group; profile lean; GROUND_TILT.
+- jump, wave, happy, climb: raised-sleeve art plus underarm (raisedAt, underarm data, cuff).
+- nod: knee dip in the shorts. The female collar stays ≥.10 below FRONT_HAIR_CLIP at the peak.
+- floor-sit: seat rows plus edge; front shoes go 'under'; the side view paints the lap shoe into the shorts.
+- desk: front, a cuff band smile; back, the seat only; profile, the desk mesh.
+- Seated breathing moves the chest .14, hence the overlap ≥.24.
+- Node-count rule: tools/foundation-matrix.cjs keys the expected count by class signature. The count is constant across all motions and gestures and equal for every garment with the same signature. A future class adds its nodes in prepare() with display:none and gets a table entry.
+
+8. Studio (avatar-standard.html/js/css)
+- Selectors per sex for top, bottom, shoes, hair, skin tone and expression, filled from the index.
+- A garment-only toggle and a '아직 옮기지 않음' badge.
+- A dynamic header and shareable URL parameters.
+- The iframe src becomes ./index.html?demo=1&session=foundation-studio, so the studio works over file://.
+- QPFoundationStudio gains mount, garments, setOutfit and registerGarment(record, baseUrl) for the verifiers.
+##### hair
+This implements decision 3, foundation-only.
+
+CURRENT STATE (verified in code)
+- headViews() (avatar-foundation.js:774-781) renders heads through the OLD renderer (QPAvatar.render + QPAvatarDirection.headMarkup). The 24 paintings therefore arrive as 384x480 canvas-recoloured data URLs: about 920 KB of a 1.155 MB template string.
+- Neck cuts exist only for short and bob (HEAD_NECK_CUT :26-33, the referenceHead branch). FRONT/BACK_HAIR_CLIP was traced on the bob and is applied to all 12 female styles.
+- Face size follows the hair extent, giving a spread of about .85–1.13.
+- Head skin uses a canvas formula that differs from the body's toneMatrix.
+- Any edit to avatar-pixel.js or avatar-direction.js changes the students' avatar, so they are NOT touched, not even behind flags.
+
+1. OFFLINE CONVERSION (H2: tools/hair/build-heads.py + heads-spec.json, numpy+PIL, helpers from tools/avatar_build)
+- The six sd-heads atlases are read byte-exact, with their sha recorded.
+- Each of the 72 paintings (24 styles × front/profile/back) is classified once into:
+  - skin: face, ears with the fold, nape, scalp between strands, shaved skin, blush;
+  - hair: including the cream highlights and the hair's own outline;
+  - eyes, as connected components seeded at the irises (never rectangles), with an iris sub-mask;
+  - mouth; brows;
+  - stubble: a skin+hair mix with alpha, for fade/undercut;
+  - neck stub (removed); background.
+- Rules:
+  - skin = warm components seeded at the face, ear and nape landmarks AND the strict ratio g/r>.70, b/g>.80 (skin measures about .85/.91; highlights .62–.68/.73–.79);
+  - hair = hair-ramp pixels connected to the main mass, so bang tips over the eyes stay hair;
+  - ink goes to the adjacent mass;
+  - enclosed islands under 12 px become hair;
+  - a 2 px boundary band is unmixed over a filled skin surface.
+- Zone hints are spec polygons, never PNG edits.
+- Aliases follow today's renderer mapping, so every key shows the painting students see.
+- The 4 unsold female cells are converted too.
+
+2. ONE SKIN FORMULA
+- Build time: head skin is remapped onto the reference sheet's skin ramp: out = c_sheet(L) + (p − c_paint(L)). Blush, the ear fold and brushwork are kept; the painting-wide pink/grey cast goes. This also fixes the grey skin behind the female side ear.
+- Runtime: the body's toneMatrix filter is applied to head skin in all three views. QPFoundationSkin exports toneMatrix() and tint(). The filter is created in template defs before foundationStaticDefs is counted.
+- Head assets no longer depend on the skin tone.
+
+3. FACE SCALE
+Per style × view, a similarity (uniform scale + translation) maps detected landmarks onto the reference tile's in head-native units. References: m short, f bob.
+- Front: irises, chin, jaw sides, ears. Eye-to-chin has weight .6 and eye spacing .4. Eye midpoint → x=16, chin → y=28.
+- Profile: iris, chin, ear centre, nose. This replaces the hand-measured necks[].
+- Back: ear span and nape hairline when visible. Otherwise the silhouette is matched to the style's registered front × the reference back/front ratio.
+Reference tiles stay identity (|s−1| ≤.002), so VIEW_HEAD, HEAD_SCALE, BOW_FACE, JAW and the neck painting stay valid. Residuals must be within ±3% or flagged. Female long, hime, curly, part and braid disagree by 5–7% between the two measures; eye-to-chin wins. The predicted visible change goes to the user as a before/after sheet.
+
+4. NECK CUT (from H1's head-frame.json)
+- Front:
+  - stub = skin+rim below the registered jaw inside the neck corridor;
+  - per-hairstyle split for both sexes: over the jaw, jaw contour +.05; elsewhere, envelope −.10; back layer = split −.30;
+  - this replaces the bob-traced FRONT/BACK_HAIR_CLIP, the male y≥28.2 rectangle, BACK_HAIR_NECK_CUT and HAIR_POINTS.
+- Profile:
+  - the stub is removed;
+  - a NEW hair-back layer below the collar/nape row is drawn behind the body and the near arm;
+  - a .25 u nape underlap closes the run/jump nape gap.
+- Back:
+  - skin below collar −.3 that connects to the nape is removed;
+  - short strands are cut at collar +.05 along their own pixels;
+  - long hair hangs over the back as now.
+- Acceptance: regenerating bob reproduces the approved path within ±.08 and keeps its .40 (nod peak) and .68 (idle) margins.
+
+5. RUNTIME (H3: avatar-foundation-head.js, used only by avatar-foundation.js)
+- Each view is built from <image href='assets/sd-hair-*.png'> slices: no canvas, no data URLs, no bundle needed.
+- Hair dye: an feColorMatrix + feComponentTransfer port of tonal(), with error ≤2/255. Iris filter port; 8 expression stencils ported; blink classes in avatar-foundation.css.
+- The head cache is bounded and the template string is ≤100 KB.
+- The crown band of the front bow keeps the whole hair-front layer, so long bangs never shear.
+- Legacy keys and colours (demo bots) resolve through the generated alias table and the dye filter.
+- The demo gate stops waiting for the old head atlases.
+
+6. DEFECTS FIXED, each with a probe
+- the neck stub with a dark rim on 22 profile/back heads;
+- fade/undercut temples;
+- dyed ears;
+- crown highlights painted as skin on all 24 backs;
+- undyed eye-box bang tips (female long, twin, hime, braid);
+- the female side nape gap;
+- grey specks;
+- profile long hair over the near shoulder;
+- face-size spread;
+- dyed ink outlines;
+- face lighter and pinker than the body;
+- the double neck cut on male short.
+
+7. NEW-HAIRSTYLE TEMPLATE (H5): 'no-neck head + front/back hair layers'
+- Model: the 24 are already converted into this model, so new styles use the same runtime. Each is a shared BASE HEAD per sex plus that style's hair-front/hair-back layers (origin:'sheet', base:'m'|'f'), so faces are identical by construction.
+- BASE HEAD: the converted reference tile's skin and features. The skull above the hairline is completed by rule (a superellipse through the temple/skull contour to the reference crown height, sheet skin ramp, soft top-left light, face-contour ink). Brows are drawn by rule from the eye landmarks. No neck. The user approves it once.
+- TEMPLATE: assets/hair-template/머리-그림틀-<m|f>.png.
+  - 1536x1024, white, three 512x1024 cells: front | right side | back.
+  - Each cell shows the reference style (m short, f bob) on the base head, on the frozen neck and the basic tee's collar and shoulders down to mid-chest.
+  - Rendered by the runtime itself (studio, idle, tone 0, 갈색, bright) at 11 px per head unit.
+  - No marks, guides or text, for the same reason as garments.
+- PROMPT (assets/hair-template/프롬프트.md, KO+EN), in substance: 'in all three views change ONLY the hairstyle to [description]. Keep the face, eyes, mouth, ears, skin, neck, collar and shoulders, and every position and size. Same brown colour and style. In the front and side views, hair below the chin passes behind the neck and shoulders; in the back view it may hang over the back. Stay inside each third. White background, no shadow or text. One landscape image.'
+- BUILD: tools/hair/build-hairstyle.py.
+  - Registration through the shared register.py: layout 1×3; stable mask = face below the brows + neck + collar/shoulders.
+  - Three-way U/T/B, with B = base head + neck + collar, no hair.
+  - Hair = changed pixels not matching B and connected to the hair mass, plus unchanged reference-hair pixels.
+  - Face and skin are never taken from the upload.
+  - Luminance is normalised to the reference ramp, since dye uses L.
+  - Split by the same per-style rules. Scalp gaps stay transparent, so the shared skin shows.
+- PROOF WITHOUT A REAL SHEET:
+  - T1: existing converted styles (f long, twin, braid; m wolf, spiky, fade) re-rendered on the template → hair-alpha IoU ≥.97 per view, ΔE mean ≤3;
+  - T2: drift s .96–1.04, ±15 px → RMS ≤1.5 px;
+  - T3: hue ±12°, brightness ±8%;
+  - T4: JPEG q70 and blur .7 → IoU ≥.93;
+  - T5: another face pasted in → false hair in the face ≤.5%;
+  - T6: the body-study sheet's real ChatGPT heads, as a robustness demo;
+  - negatives: T7 head moved or missing; T8 pink hair (warning); T9 neck or collar redrawn or covered; T10 hair crossing cells. Each comes with a Korean message.
+- One synthetic style runs the full matrix in the studio only. Nothing is sold before stage 5.
+
+8. CHECKS (H4)
+- Idle: 24 + base + synthetic × 4 directions × 5 tones × 갈색/검정/분홍/백발. Pose matrix: walk, run lean, jump, nod peak, wave, happy, climb, floor, desk.
+- Probes:
+  - neck holes ≤ reference limits; residue ≤ sheet +18; chin-to-collar ±1.5 px;
+  - face scale ±3%;
+  - undyed hair ≤.5%; skin-class pixels in hair 0; ears = tint(skin); no second neck or dark rim;
+  - split margin ≥.10 in every front pose, including the nod peak and against each worn top's collar polyline;
+  - long-hair hand visibility; profile hair-back never over the near sleeve;
+  - constant node count; dye error ≤2/255;
+  - cheek vs upper arm |ΔL| ≤4 and |Δhue| ≤3° at all tones.
+- Negative controls that must fail: head moved 1.4; stub removal off; old back skin rule; eye boxes back; old skin formula; hair-back merged; split at 28.45; registration off.
+- Direct viewing of every sheet, including 72 junction zooms at 8× on dark blue and the before/after sheet. Record in 머리스타일-검수.md.
+
+9. STUDENT SAFETY
+- Untouched (sha in the guard): avatar-pixel.js, avatar-direction.js, avatar-poses.js, the six sd-heads PNGs, assets/avatar-file-data.js.
+- sd-hair files are requested only by foundation renders. Saved av is never written.
+- The shop thumbnails, classroom and maps keep the old renderer, whose head defects intentionally remain for students until stage 5.
+- A harness without avatar-pixel.js and avatar-direction.js renders every foundation head, which proves stage-5 readiness.
+
+HAIR DATA SCHEMA (assets/sd-hair-data.js, generated, 'Do not edit')
+- version, sources {file: sha256}, reference {m:'short', f:'bob'}, aliases.
+- styles['<sex>:<shape>']:
+  - sex, shape, origin 'atlas'|'sheet', base, catalogue {key, name, sold}, file, sha256;
+  - flags {asymmetric, scalpVisible, longBack};
+  - views.<front|profile|back>: place, layers {skin, eyeL, eyeR, mouth, iris, brows, hairFront, hairBack}, landmarks, split {front, back}, registration {scale, tx, ty, residual};
+  - left (schema-ready, mirrored until supported);
+  - provenance.
+##### verification
+All browser checks are headless, ?demo=1 only, with Firebase routes blocked. In this container set QUIZ_BROWSER_EXECUTABLE=/opt/pw-browsers/chromium_headless_shell-1194/chrome-linux/headless_shell, because the tools default to /usr/bin/chromium, which is absent. Outputs go to 검증/ and are not committed. Baselines come from a worktree of the pre-stage-3 commit 50f1af8.
+
+A. R0 PACKAGING IDENTITY (gate for WP3; tools/foundation-signature.cjs)
+- Matrix: 2 sexes × front/right/left/back × [idle, walk, run, jump, floor-sit, sit, climb] × 8 frames, plus [wave, nod, happy] × 6, plus the static render(), at 280 and 120 px, skin tones 0 and 4.
+- Per sample, the ordered list of outfit nodes must be identical: data-outfit-part, href hash, x/y/w/h, transform and clip d. So must the screenshot pixel hash and the node count.
+- Only the listed intentionally renamed dataset attributes may differ (foundationOutfit 'basic' → 'dressed', the new garment attributes).
+- Self-test: a scratch SEAT row +1, and the sleeve pin constant, must each be reported.
+- R0 is re-run on every lock handover and after WP9 (the legacy basic must stay identical).
+
+B. R1 PIPELINE ROUND TRIP (proof that the reference sheet reproduces today's assets; tools/garment/verify-pipeline.py --roundtrip, then the browser)
+Inputs: (a) template-sheet.png itself; (b) the template scaled to 1536x1024 and saved as WebP q80 (the ChatGPT path). Each is run once per slot (top, bottom, shoes), the other two slots known.
+- Registration: (a) |dx|, |dy| ≤.1 px and |s−1| ≤5e-4; (b) joint error ≤1 px.
+- Per-part alpha IoU (α>.5) against the current layers, outside the hidden-cloth refill zones: torso/bottom/shoes ≥.98; sleeve split ≥.97.
+- Edge alpha MAE ≤.05.
+- Mean |ΔRGB| on shared opaque pixels ≤2/255 for (a), ≤4/255 for (b).
+- Seams (hem, armhole, cuff, collar, shorts opening, shoe top): median ≤1 px, max ≤2 px from the current boundaries.
+- Metadata against today's values:
+  - SEAT cut/apex/cuff ±1.5 px, rise ±3 px; SIDE_SEAT ±1.5 px;
+  - sleeve cuff ±2 px of cuff_top;
+  - underarm edge ±.03 u, cloth/line ΔE ≤3, raised-sleeve art IoU ≥.97, against values exported ONCE from the runtime shirtSide()/raisedSleeve() as fixtures;
+  - edgeTone ΔE ≤3.
+- Hidden-cloth regions are viewed side by side; differences are expected where the old build used traced polylines.
+- Runtime idle of the round-trip records, registered in the studio, in verify-reference-body: per figure IoU ≥ BASE−.003 and colour ≤ BASE+.003 (BASE = the accepted round-3 values, e.g. m-front .9825/.088), shoe offset ≤ BASE, collar ≤1 px, node counts 198/192 across all actions.
+- For a new garment, the render→sheet round trip against ITS registered upload: IoU ≥ basic −.012, colour ≤ basic +.03, collar ≤3 px, shoe ≤1.5 px.
+
+C. SYNTHETIC POSITIVES (must pass; tools/garment/synth.py builds them from the reference and the owner map, as code, never painting)
+- Product hue 60/120/180/240/300 and ±20 L.
+- Navy top beside navy shorts: hem seam within 2 px.
+- Skin/cream top (the 카라 셔츠 case): garment IoU ≥.92, no skin leaking either way.
+- Hair-brown top.
+- Sleeve shortened 8 px with the frozen arm pasted: cuff moves 8±1.
+- Per-figure scale ±2.5% and shift ±8 px; one figure +2% / +5 px; global .97/1.03; 1024² padded input.
+- JPEG q70, WebP q60, brightness ±8%.
+- Alpha vs white vs off-white (250) background.
+- A skin band pasted into a cuff: must be stripped.
+
+D. SYNTHETIC NEGATIVE CONTROLS (each must FAIL with its code and Korean text)
+- figure blanked or 100 px crop → LAYOUT_COUNT
+- rows swapped → LAYOUT_ORDER
+- side mirrored → LAYOUT_MIRROR
+- checkerboard or grey background → BACKGROUND
+- cast shadow → SHADOW
+- corner text → FOREIGN_MARK
+- 512 px wide → SIZE_SMALL
+- 8% non-uniform squash → SQUASH
+- one figure +8% → FIGURE_SCALE
+- forearm moved 8 px or arm rotated 6° → POSE_ARM
+- leg moved 6 px → POSE_LEG
+- shorts recoloured in a top product → OTHER_SLOT_CHANGED
+- female row changed in a male-only product → SINGLE_SEX_CHANGED
+- sleeve +25% or to the wrist → SLEEVE_LONG
+- hem lowered 30 px → HEM_LOW
+- belly exposed → HEM_HIGH
+- neckline lowered 6 px below the neck art → NECK_OPEN
+- collar raised → COLLAR_HIGH
+- shorts −10 px → SHORTS_SHORT
+- legs joined → SKIRT_LIKE
+- shoes lifted 6 px → SOLE_OFF_FLOOR
+- boot shaft → SHOE_HIGH
+- one view recoloured → VIEW_INCONSISTENT
+- bob extended over the shoulder → HAIR_OVER_GARMENT
+- cuff skin band with the skin strip disabled → UNTINTED_SKIN
+One command runs C and D and writes a summary table for the record.
+
+E. REAL SHEET (top:shirt:10, built into 검증/옷/top-shirt/ only)
+- Registration ≤0.6 px.
+- All checks pass, or each failure is explained by its code.
+- Label map, parts sheet and full visual kit viewed.
+- Female collar–hair margin ≥.10 at the nod peak; puff sleeves inside the box.
+
+F. RUNTIME MATRIX (tools/verify-foundation-garments.cjs)
+Runs over every index record plus in-page alias records (hue-rotated tee/shorts, synthetic pipeline records from 검증/).
+- Structure: node count per the class-signature table; finite geometry; data-outfit-garment on every outfit node; static render = apply(idle, front, 0); reset/remount/prepare-only behave as today.
+Negative controls:
+- the same garment on two avatars with different tones adds no pool misses;
+- a different garment gives different shirt/sleeve/shorts/shoe hrefs and pixels;
+- a routed copy of outfit.js with the id stripped from gk() MUST fail;
+- same shorts with different shoes give different side floor-sit hrefs (lap shoe);
+- unconverted top:hood:5 shows the starter with fallback=todo;
+- a candidate record stays hidden outside the studio;
+- a delayed atlas keeps the avatar hidden, then shows the right garment (no starter flash);
+- a 404 shows the starter with 'error' and no exception;
+- a garment switch on a mounted svg equals a fresh render.
+Record limits:
+- no opaque sleeve pixel outside the box;
+- every top × bottom pair overlaps ≥.24;
+- female collar margin ≥.10 at idle and at the nod peak;
+- the underarm line ends within the record's cuff +.3.
+Probes:
+- pale-band probe at tone 4: light skin-hued pixels inside garment parts = 0. Today's basic MUST fail this, as the control;
+- tone-0 vs tone-4 differential: any garment-owned pixel that changes is untinted skin;
+- seam-gap probe on magenta: no background pixels inside arm capsule ∪ sleeve or thigh ∪ bottom, across all motions.
+Existing verifiers updated:
+- verify-reference-body: garment parameter, per-record reference composite, and a collar probe that asserts it found the collar instead of passing silently at offset 0;
+- verify-foundation-browser: loop over records, node counts from the matrix, screenshot-based differ (XMLSerializer→Blob cannot load external hrefs);
+- verify-foundation-model: shoeToe from the starter shoe record;
+- verify-foundation-transitions: runs per record.
+
+G. file:// (tools/verify-file-foundation.cjs; verify-file-avatar extended)
+- Opens index.html?demo=1&avatar=foundation and the studio from disk.
+- Every record renders; wave (legacy shirtSide reads) and side floor-sit run without a SecurityError; no network requests; garment hrefs are data URLs; hair hrefs are local files.
+
+H. STUDENTS UNCHANGED (tools/verify-student-avatar-unchanged.cjs, main worktree vs branch)
+- QPAvatar.render strings for both sexes × every sold item once, legacy ids, demo bots, and 24 hair keys including aliases × skins 0/4 × lod 2/3 × 46/120/280 px: string-identical. Blink delays are normalised.
+- QPAvatarDirection profile/back headMarkup hashes identical.
+- Normal-URL village, shop, campus and ranking screenshots at a fixed time with reduced motion: pixel-identical. No [data-qp-foundation] node, and no sd-garment, sd-hair or garment-bundle request in the network log.
+- sha256 unchanged for avatar-pixel.js, avatar-direction.js, avatar-poses.js, the six sd-heads PNGs and assets/avatar-file-data.js.
+- verify-shop-catalog, verify-economy, verify-clothes, verify-avatar-gender, verify-file-avatar, verify-sd-avatar, verify-avatar-direction/-back/-neck-motions/-direction-blink give the same results as on main.
+- Negative control: one alias or colour in avatar-pixel.js, or one atlas byte, must fail the guard.
+- Known unrelated failures (verify-school-room broken on main; verify-layout and verify-visual-polish items) are recorded as baseline, not hidden.
+
+I. VISUAL (opened and judged by the worker; numbers never replace it)
+tools/inspect-foundation-garments.cjs <id> writes to 검증/옷/<id>/:
+- both sexes × front/right/left/back × idle, walk, run, jump, wave, nod, happy, climb, floor-sit, desk-sit × 8 steps, at 280 and 120 px;
+- a 5-skin-tone strip (front/back);
+- 8× zooms on dark blue at the collar, hanging and raised cuffs, underarm, hem, shorts cuffs, seat edges (floor and desk, every view), shoe tops and soles;
+- garment-only renders with skin and head hidden;
+- left/right mirror pairs;
+- the real campus map at camera 0.76 with 30 mixed avatars.
+Done for: the basic outfit, ≥3 synthetic garments, the real shirt:10 and the rebuilt basic (before/after). Hair has its own set (see hair).
+
+J. PERFORMANCE (measure-avatar-crowd.cjs --garments)
+- Crowd: the round-2 role mix of 30 avatars (6 walk, 6 run, 3 wave, 3 happy, 2 nod, 3 desk, 2 floor, 2 climb, 2 jump, 1 idle) wearing ≥4 distinct records.
+- At 40 and 24 MiB, before vs after, in alternating runs: pool MiB per kind, evictions, warm misses (≤240 in 240 frames at 40 MiB), update/frame p50/p95, template string sizes.
+- Labelled as cloud software rendering; Gram/Chromebook FPS and memory are unmeasured.
+
+K. RECORDING
+Each requirement row in 옷틀-검수.md and 머리스타일-검수.md shows 구현됨 / 직접 확인됨 / 미확인 with evidence paths. An automatic PASS is never reported as art approval. Every screen shown to the user is labelled 배포 전 (체험 주소).
+##### guide
+NEW production guide: 퀴즈나라/옷-제작안내.md (Korean), linked from AGENTS.md under '먼저 읽을 문서'
+1. 한눈에 보기: 그림 틀 → ChatGPT → 올리기 → 자동 맞춤·자르기·검사 → 보고 → 체험 화면(?avatar=foundation, 기준 캐릭터 화면) → (4단계) 상점 연결. 학생 화면은 5단계까지 그대로.
+2. 결정과 범위: the 2026-10-09 decisions. Stage-3 classes are 반팔, 반바지 and 낮은 신발. 긴팔, 긴바지, 치마, 원피스, 부츠 and 샌들 exist as schema only.
+3. 사용자가 하는 일 (about 2 minutes): new chat, attach the template and the design reference, paste the prompt, download at original size, upload. On failure, paste the one sentence. Expect 2–3 tries per product.
+4. 그림 틀과 프롬프트:
+   - the files and why there are no guide marks;
+   - white background only;
+   - `node tools/garment/prompt.cjs <상품ID>` and the products.json notes;
+   - single-sex products; no lettering or logos; mirror-safe decorations.
+5. 종류별 한계표 (sheet px and body units, per sex and view), each with its reason: sleeve end/box, hem band and overlap ≥.24, collar and FRONT_HAIR_CLIP .10, neckline inside the neck art, shorts cuff, waist under the hem, shoe opening and sole. Reasons: neck layer end, copied thigh rows, basic-cuff scraps on the arm layer, seated breathing .14.
+6. 파이프라인:
+   - `python3 tools/garment/build-garment.py <cat:shape> --sheet <file> [--out 검증|assets]`;
+   - frozen body and frozen artifacts; source preservation (sha256, README row); one resample;
+   - what is rebuilt (hidden cloth, collar under the bob) and the metadata.
+7. 자동 검사표: code → meaning → the user's sentence → fix. Generated from messages.json and must equal it.
+8. 옷 기록: schema fields, index, catalogue mapping (sex, cat, shape), fixed colour, status, provenance.
+9. 실행 연결: flat file names, one bundle per product, generated deploy lists, demo-only visibility, fallback reasons.
+10. 동작별 옷 계약 표 and the node-count rule.
+11. 직접 보는 검수 목록: 280/120 px; 4 directions × all motions; 5 skin tones; 8× dark zooms; garment-only; seated; map at 0.76; collar–hair margin.
+12. 기록: 구현됨 / 직접 확인됨 / 미확인. An automatic PASS is not art approval. Screens are labelled 배포 전.
+13. 하지 않는 것:
+   - Higgsfield; hand-edited PNGs; generated full-body frames treated as layers;
+   - running derive() or moving joints;
+   - using the upload's face, hair, body or other slots;
+   - student-visible change before stage 5;
+   - applying the root zombie-game art rules. 퀴즈나라 uses flat hand-drawn 1–2-step shading (디자인기준.md).
+14. 새 종류를 열 때: a runtime work list for long sleeves (forearm part, forearmOverlay), trousers (shin parts, leg clip, seated shins), skirts and one-pieces (hem envelope, seated pictures), boots (shaft), sandals (skin parts).
+15. 머리: the automatic rules for the existing 24; the new-hairstyle template ('목 없는 머리 + 앞/뒤 머리카락 층'); the prompt location (assets/hair-template/프롬프트.md).
+
+NEW RECORDS
+- 퀴즈나라/옷틀-검수.md: the stage-3 garment record. Requirement → implementation → evidence → 상태 table; R0/R1/synthetic summary; real-sheet findings; perf; open items.
+- 퀴즈나라/머리스타일-검수.md: the hair record.
+- assets/sd-hair-제작기록.md: source sha256, generator rules, outputs, what is generated vs cut.
+
+REFRESH
+- 아바타-제작기준.md:
+  - :131 '몸 공유 비율은 1.18' → the v2 BODY_SCALE wording;
+  - the cache-key rule becomes 'pose + garment id';
+  - add an '옷 제작 (3단계)' section linking the guide;
+  - '생성 시트는 후보 원화 → 파이프라인 검사 통과분만 등록';
+  - rewrite the 머리–목 연결 규칙 to the automatic per-hairstyle rules and the new template.
+- AGENTS.md: link the guide and the two records.
+- 개발환경.md: Python tools, bundle list, QUIZ_BROWSER_EXECUTABLE.
+- assets/아바타-라이브러리.md: the 'current' table.
+- assets/avatar-reference-candidates/manifest.json: status = frozen body and template source.
+- 기준캐릭터-검수.md: link the remaining items (collar notch, skin bands, cuff clip → WP11).
+- assets/garment-sources/README.md: a build-result column.
+- avatar-standard.html: the dynamic header.
+- Stale verify-forest-climbing.cjs references at 숲속마을-디자인지침.md:49 and 공통-이동표시-검수.md:24 (the tool is missing).
+- assets/sd-heads-제작기록.md and sd-heads-profile-제작기록.md: a note that the foundation converts these atlases offline.
+
+DELETE (inbound links checked first)
+- assets/최종-제작기록.md, 세밀-원화-제작기록.md, 남자-원화-제작기록.md, 도트-원화-제작기록.md. They describe pixel-heads*.png and pixel-tops/bottoms-v3, which no longer exist; the only inbound link is 도트→최종.
+- assets/garment-template/옷그림-프롬프트.md, folded into 프롬프트.md and the guide.
+- After WP11: assets/sd-foundation-ref-{shirt,sleeves,shorts,shoes}.png, tools/garment/pack-basic.py, and the garment code in build-reference-body.py.
+
+KEEP until the stage-5 switch, marked '현재 학생 화면용'
+- assets/sd-wardrobe.md, 상의-원화-제작기록.md, 하의-원화-제작기록.md. Their 4×4, 1254 px atlases and item order match the live sd-tops.png and sd-bottoms.png.
+- sd-heads*.json, which describe the student atlases.
+##### parallelism
+RULE: one writer per file at a time. Lock handover is explicit and written in the work log. The receiver re-runs R0 and the students-unchanged guard before editing.
+
+LANES
+- Lane A, RUNTIME. Exclusive owner of avatar-foundation.js, -outfit.js, -skin.js, -garments.js, -head.js, avatar-foundation.css, index.html, avatar-image.js, tools/build-avatar-file-data.cjs, deployment-files.cjs, garment-files.cjs, check-source.cjs and the generated bundles. Sequence: WP3 → WP9 → H3 → WP11 (runtime half), strictly sequential.
+- Lane B, GARMENT PIPELINE. Owns tools/avatar_build/*, tools/garment/*, tools/build-reference-body.py, and the generated assets/sd-garment-* and sd-garments-index.js. Sequence: WP1 → WP2 → WP5 → WP6 → WP8 → WP10 → WP11 (pipeline half).
+- Sub-lane B2. Owns make-template.py, design-ref.cjs, prompt.cjs, prompts.json, products.json, 프롬프트.md and guide-overlay.py. Runs WP4.
+- Lane C, HAIR OFFLINE. Owns tools/hair/*, tools/fixtures/head-frame.json, assets/sd-hair-* and assets/hair-template/*. Sequence: H1 → H2 → H5.
+- Lane D, VERIFICATION & STUDIO. Owns new tools/*.cjs, the existing verify-*.cjs and avatar-standard.*. Sequence: WP0 → WP7 → H4. verify-reference-body.cjs and verify-foundation-browser.cjs change only here, in that order.
+- Lane E, DOCS. G1 at the end; earlier WPs only add their own record sections.
+
+CONCURRENCY WINDOWS
+1. Start together: WP0 (D), WP1 (B), and WP4's template/prompt/design-ref part (B2). WP0 and H1 measure the unchanged tree, or a worktree of 50f1af8. WP0 must finish before anyone edits a runtime file.
+2. After WP1: WP2 and WP5 in parallel (disjoint files). H1 → H2 (C) run alongside all of Lane B. WP4's overlay follows.
+3. After WP0 + WP2: WP3 (A). It runs in parallel with WP5/WP6 (B), H2 (C) and WP4 (B2).
+4. After WP3: WP7 (D) runs in parallel with WP6/WP8 (B) and H2 (C). WP9 (A) starts once WP7's registerGarment and crowd tooling and WP8's synthetic records exist.
+5. After WP9 + H2: H3 (A). It runs in parallel with WP10 (B+D), which edits nothing outside 검증/ and its record section.
+6. After H3: H4 (D) and H5 (C) in parallel.
+7. After WP10 + H4 + the user's approval: WP11. Lane B builds first, then hands to Lane A for the deletions.
+8. G1, then M1 with a single integrator.
+
+GENERATED SHARED FILES (sd-garments-index.js, sd-hair-data.js, file bundles, 배포용/) are never merged by hand. After rebasing, rerun build-index.cjs, build-avatar-file-data.cjs and build-deployment.cjs. When lanes work in separate worktrees, Lane A's branch is the integration branch, and merges follow the lock order.
+##### workPackages
+- [WP0] Freeze evidence and add guards before any change. Lane D, tools only.
+- R0 render-signature tool.
+- Students-unchanged guard against a worktree of 50f1af8.
+- Shared matrix definitions and a node-count table keyed by class signature.
+- Before-sheets of the current ?avatar=foundation heads.
+   files: tools/foundation-matrix.cjs (new), tools/foundation-signature.cjs (new), tools/verify-student-avatar-unchanged.cjs (new), 검증/기준선/ (not committed)
+   deps: 
+   done: - Two runs on the unchanged tree give identical signatures and student hashes, with blink delays normalised.
+- Each tool flags its scratch mutation: SEAT row +1, the sleeve pin constant, one colour in avatar-pixel.js, one byte of sd-heads-female.png.
+- The node-count table records 198/192.
+- Before-sheets (24 hairstyles × 4 directions × tones 0/4, 280 px) are saved and viewed.
+- [WP1] Freeze the body and build the shared imaging library. Lane B.
+- Move generic and cloth helpers out of build-reference-body.py, de-nesting its closures.
+- Add the frozen-body hash guard and --allow-body-change.
+- Generate the frozen build artifacts: owner map from the original 7 layers, zones, cover masks, hair-occlusion mask and class limits from body coverage plus runtime constants.
+   files: tools/build-reference-body.py, tools/avatar_build/__init__.py, tools/avatar_build/common.py, tools/avatar_build/cloth.py, tools/avatar_build/body.py, tools/garment/frozen/frozen-body.json, tools/garment/frozen/owner-map.png, tools/garment/frozen/zones.json, tools/garment/frozen/cover-torso.png, tools/garment/frozen/cover-bottom.png, tools/garment/frozen/hair-occlusion.png, tools/garment/frozen/limits.json, tools/garment/verify-body-freeze.py
+   deps: 
+   done: - Rerunning build-reference-body.py into a temp dir reproduces the 7 PNGs and sd-foundation-ref-data.js byte-identically (sha256).
+- frozen-body.json matches the data file, the 3 body PNGs and SPEC/SPEC_F.
+- Writes without --allow-body-change are refused.
+- derive() is reachable only in body mode.
+- The basic outfit passes every limit with ≥2 px margin.
+- The zones/limits overlay of all six figures has been viewed.
+- [WP2] Garment data layer, with no runtime use yet. Lane B.
+- Schema and validator.
+- Generated index and catalogue mapping.
+- Lossless packing of today's basic layers into the legacy records top:tee, bottom:shorts and shoes:sneaker, as per-sex atlases.
+- Catalogue consistency test.
+   files: tools/garment/schema.json, tools/garment/schema.cjs, tools/garment/pack-basic.py, tools/garment/build-index.cjs, assets/sd-garment-top-tee.js, assets/sd-garment-top-tee-m.png, assets/sd-garment-top-tee-f.png, assets/sd-garment-bottom-shorts.js, assets/sd-garment-bottom-shorts-m.png, assets/sd-garment-bottom-shorts-f.png, assets/sd-garment-shoes-sneaker.js, assets/sd-garment-shoes-sneaker-m.png, assets/sd-garment-shoes-sneaker-f.png, assets/sd-garments-index.js, tools/verify-garment-catalog.cjs
+   deps: WP1
+   done: - Every packed crop is RGBA-equal to the full-layer crop at the same integer rect.
+- The PNGs carry only IHDR/IDAT/IEND chunks.
+- Records validate against the schema.
+- seat/sideSeat equal the outfit.js constants, and cuff equals (cuff_top − shoulder_y)·k.
+- verify-garment-catalog passes in a headless ?demo=1 page: each mapped (sex, cat, shape) is on that sex's shelf, and colours equal QPClothes.colorFor.
+- index.html does not load these files yet.
+- [WP3] Data-driven demo runtime behind an identity gate. Lane A holds the exclusive edit lock on avatar-foundation*.js, index.html, avatar-image.js and the bundle/deploy lists.
+- Registry and lazy per-garment atlases; gk() keys carrying garment ids everywhere.
+- Legacy path for legacy records; data path for pipeline records.
+- Per-slot fallback reasons.
+- Normalised av in the gated index.html branch.
+- avatar-image.js route; generated bundles and deploy lists.
+   files: avatar-foundation-garments.js (new), avatar-foundation-outfit.js, avatar-foundation.js (render, template, pending/repaintWhenReady, apply gate), index.html (script tag + gated branch only), avatar-image.js, tools/build-avatar-file-data.cjs, tools/garment-files.cjs (new), tools/deployment-files.cjs, tools/check-source.cjs, assets/avatar-file-data-foundation.js (regenerated without garment layers), assets/avatar-file-data-garment-*.js (generated)
+   deps: WP0, WP2
+   done: - The R0 signature is identical to the WP0 baseline over the full matrix; only the listed renamed attributes differ.
+- Node counts are 198/192 in every motion.
+- verify-foundation-browser, -model, -transitions and verify-reference-body pass with the accepted numbers.
+- The students-unchanged guard passes.
+- check-source and build-deployment --check pass.
+- The normal ?demo=1 URL requests no sd-garment file and no garment bundle.
+- A test record registered in the studio session renders different hrefs than the basic.
+- The avatar-image routing unit test passes for every pre-existing key.
+- [WP4] User kit. Sub-lane B2, own files.
+- Reproducible template generator.
+- design-ref generator for existing shop items.
+- products.json.
+- KO/EN prompt generator per class.
+- Worker overlay drawn from limits.json.
+   files: tools/garment/make-template.py, tools/garment/design-ref.cjs, tools/garment/prompt.cjs, tools/garment/prompts.json, tools/garment/guide-overlay.py, assets/garment-template/products.json, assets/garment-template/프롬프트.md, assets/garment-template/작업자-안내도.png, assets/garment-template/옷그림-프롬프트.md (delete)
+   deps: WP1
+   done: - make-template.py rebuilds template-sheet.png pixel-identically (sha 09b4a736…).
+- design-ref.cjs reproduces ref-shirt-10-design.png, or replaces it with a recorded reason, and makes one shorts and one shoe reference.
+- prompt.cjs prints KO and EN prompts for top:shirt:10, matching the v1 content, plus one shorts and one shoe product; all have been reviewed.
+- The overlay's limits equal limits.json, and the overlay has been viewed.
+- products.json colours pass verify-garment-catalog.
+- [WP5] Registration (shared with hair), matte, drift checks and the Korean report. Lane B.
+- messages.json holds every code with its Korean message and one ChatGPT retry sentence.
+- Registration-level synthetic variants.
+   files: tools/avatar_build/register.py, tools/avatar_build/matte.py, tools/garment/report.py, tools/garment/messages.json, tools/garment/synth.py, tools/garment/test_register.py
+   deps: WP1
+   done: - Template as upload: |dx|, |dy| ≤.1 px and |s−1| ≤5e-4.
+- 1536 WebP q80 path: joint error ≤1 px.
+- Real shirt:10 sheet: ≤0.6 px and ≤0.2% from the global fit; stable ΔE median ≤4 / p95 ≤10; no OTHER_SLOT_CHANGED; female white collar kept by the matte.
+- Drift variants are recovered within .3 px.
+- Every registration-level negative fails with its code, Korean message and retry sentence.
+- 등록-보고.png has been opened for one pass and one fail.
+- ≤60 s per sheet.
+- [WP6] Garment build. Lane B.
+- Three-way U/T/B segmentation with a per-sheet skin model, skin gate and ridge rule.
+- DP seams in frozen bands; part split by frozen zones.
+- Hidden-cloth fill; offline metadata (new seat-rise rule); per-sex atlas packer; build-garment CLI.
+- R1 round trip.
+   files: tools/garment/segment.py, tools/garment/seam.py, tools/garment/fill.py, tools/garment/metadata.py, tools/garment/pack.py, tools/garment/build-garment.py, tools/garment/verify-pipeline.py, tools/garment/fixtures/runtime-side-raised.json (exported once from today's shirtSide/raisedSleeve)
+   deps: WP2, WP5
+   done: - R1 meets every tolerance in verification B (identity and WebP paths, for top, bottom and shoes).
+- Output is deterministic: the same input gives the same bytes.
+- A build takes ≤3 min per sheet.
+- The real shirt:10 sheet builds into 검증/옷/top-shirt/ only, and its label map and parts sheet have been viewed.
+- No skin or hair pixels remain in garment layers; the skin-coloured synthetic top's IoU is ≥.92.
+- [WP7] Browser verification kit and the studio as the review host. Lane D.
+- Manifest-driven runtime matrix with negative controls.
+- Visual inspection tool: contact sheets, zooms, tones, garment-only, magenta seam-gap probe, tone-0/4 differential.
+- file:// test.
+- Existing foundation verifiers updated to the garment API; screenshot-based differ.
+- Studio selectors and registerGarment.
+   files: tools/verify-foundation-garments.cjs (new), tools/inspect-foundation-garments.cjs (new), tools/verify-file-foundation.cjs (new), tools/verify-foundation-browser.cjs, tools/verify-reference-body.cjs, tools/verify-foundation-model.cjs, tools/verify-foundation-transitions.cjs, tools/verify-file-avatar.cjs, tools/verify-visual-polish.cjs (add studio page), avatar-standard.html, avatar-standard.js, avatar-standard.css
+   deps: WP3
+   done: - The matrix is green for the basic and the in-page alias records.
+- Every runtime negative control fails as designed: key-strip mutation, delayed atlas, 404, switch = fresh render, lap shoe, candidate hidden, and the pale-band probe failing on today's basic.
+- The file:// test passes, and the studio works hosted and over file://.
+- Contact sheets, zooms, tone strips, garment-only and seam-gap images for the basic outfit have been produced and opened.
+- The visual-polish zoom sheet of the studio has been viewed.
+- [WP8] Synthetic control suite proving the pipeline without a new ChatGPT sheet. Lane B.
+- All positives and negatives with expected codes.
+- Three synthetic garment records for runtime tests: a navy top beside navy shorts, a skin/cream top, recoloured shorts plus shoes.
+   files: tools/garment/synth.py, tools/garment/controls.json, tools/garment/verify-pipeline.py, 검증/옷/synth-*/ (not committed)
+   deps: WP6, WP4
+   done: - Every positive in verification C passes within its tolerance.
+- Every negative in D fails with its expected code and Korean text.
+- One command runs the suite and writes the summary table.
+- The 3 synthetic records build and validate.
+- [WP9] Memory and the per-record sleeve box. Lane A, lock handed over from WP3.
+- Data-path sleeves use the record box at 32 px/unit.
+- headCache becomes an LRU of 64.
+- Mixed-garment crowd measurement.
+- The ≤120 px half-res option is prepared only if the budget is exceeded.
+   files: avatar-foundation-outfit.js (sleeveTexture box), avatar-foundation.js (headCache LRU), tools/measure-avatar-crowd.cjs (--garments)
+   deps: WP3, WP7, WP8
+   done: - R0 is still identical for the legacy basic.
+- No opaque sleeve pixel lies outside the box for data-path records.
+- Crowd numbers are recorded at 40 and 24 MiB against the basic-only baseline, labelled as cloud software rendering: pool per kind, evictions, warm misses ≤240/240 at 40 MiB, update/frame p50/p95, template sizes.
+- If over budget: the half-res option exists behind a flag and its 280/120 comparison has been shown to the user. It stays off without approval.
+- [WP10] Real-sheet dry run for top:shirt:10, demo only. Lanes B+D; no runtime source edits.
+- Build, register in the studio, full visual kit, crowd on the real map.
+- Findings go into the record.
+   files: 검증/옷/top-shirt/ (not committed), 옷틀-검수.md (real-sheet section), assets/garment-sources/README.md (build-result column)
+   deps: WP6, WP7, WP8, WP9
+   done: - Registration and checks pass, or each failure is explained by its code.
+- The render→sheet round trip is within limits: IoU ≥ basic −.012, colour ≤ basic +.03, collar ≤3 px, shoe ≤1.5 px.
+- The full visual kit (280/120, 4 views, all motions, 5 tones, zooms, seated, garment-only) has been opened.
+- Female collar–hair margin ≥.10 at the nod peak; puff sleeves inside the box.
+- A mixed basic+shirt crowd on the real map at camera 0.76 has been viewed.
+- Nothing is added to assets/ or the shop.
+- [H1] Measure the head frame from the runtime: neck corridor, collar rows, profile neck-back outline, and the front collar/shoulder envelope over all front poses. Lane C; a new read-only tool run on the unchanged tree.
+   files: tools/hair/measure-head-frame.cjs (new), tools/fixtures/head-frame.json (new)
+   deps: WP0
+   done: - Written per sex × view in head-native units at .05 resolution.
+- The envelope is the minimum over idle, walk/run 8 steps, jump, wave, happy, nod peak, floor and desk.
+- A rerun gives identical JSON.
+- Evaluated on the current bob FRONT_HAIR_CLIP, it reproduces the .40 (nod) and .68 (idle) margins within .02.
+- [H2] Offline conversion of the 24 head paintings × 3 views into foundation-owned layers. Lane C.
+- Pixel classes, landmarks, skin ramp remap, face-scale registration.
+- Automatic neck-stub removal and per-hairstyle front split, profile hair-back with nape underlap, back collar rule.
+- Packing, metadata and production record.
+   files: tools/hair/build-heads.py (new), tools/hair/heads-spec.json (new; zone hints as polygons only), assets/sd-hair-<sex>-<shape>.png ×24 (new, flat names), assets/sd-hair-data.js (generated), assets/sd-hair-제작기록.md (new)
+   deps: WP1, H1
+   done: For all 72 paintings:
+- recomposition ΔE mean ≤1.5 and p99.5 ≤8 outside the removed stub;
+- skin enclosed by hair outside the zones = 0 (crown highlights fixed); ears ≥95% skin; eyes are components, not boxes; stubble split; grey specks 0;
+- stub px in the corridor = 0.
+Also:
+- Regenerated bob reproduces FRONT_HAIR_CLIP within ±.08.
+- Face-scale residuals within ±3% or flagged with a reason; reference tiles |s−1| ≤.002.
+- Two builds are byte-identical; ≤250 KB per PNG and ≤6 MB in total.
+- All 72 class overlays have been viewed. No PNG is edited by hand.
+- [H3] Foundation head runtime, demo only. Lane A, lock handed over from WP9.
+- avatar-foundation-head.js builds heads from <image> slices: hair dye filter port, iris filter, expression stencils, blink classes.
+- Head skin uses the body toneMatrix.
+- headViews and every hand-traced cut/clip are replaced by per-hairstyle data; profile hair-back group; crown band keeps hair-front.
+- The demo gate stops waiting for the old atlases.
+   files: avatar-foundation-head.js (new), avatar-foundation.js, avatar-foundation-skin.js (export toneMatrix/tint), avatar-foundation.css (blink classes), index.html (script tag; demo-gate readiness only), tools/check-source.cjs (hair output freshness), tools/deployment-files.cjs (hair files via generated list)
+   deps: H2, WP9
+   done: - The students-unchanged guard passes, and the normal URL requests no sd-hair file.
+- All 24 hairstyles plus legacy keys render in 4 directions.
+- Node counts are constant across motions per hairstyle, with the new numbers recorded.
+- The static render string is ≤100 KB.
+- The bob/short nod peak looks the same or better (viewed).
+- The 30-avatar update median is ≤ +10% (cloud, labelled).
+- A harness page without avatar-pixel.js/avatar-direction.js renders every head.
+- Garment-node R0 signatures are unchanged.
+- [H4] Hair verification and review. Lane D.
+- Hairstyle matrix and probes, with negative controls.
+- verify-reference-body hair parameter; foundation head under file://.
+- Review sheets, including the before/after face-scale sheet shown to the user.
+   files: tools/verify-hairstyles.cjs (new), tools/inspect-hairstyles.cjs (new), tools/verify-reference-body.cjs (hair parameter), tools/verify-file-avatar.cjs, 머리스타일-검수.md (new)
+   deps: H3, WP7
+   done: - The idle matrix (24 hairstyles × 4 directions × 5 tones × 4 colours) and the pose matrix pass, or exceptions are recorded with images.
+- Every hair negative control fails as expected.
+- All sheets have been opened: 280/120 px, 4 views, all motions, 5 tones, colours, 72 junction zooms at 8×, profile run/jump nape.
+- The before/after sheet has been shown to the user, and the decision is recorded.
+- [H5] New-hairstyle template ('no-neck head + front/back hair layers') and its pipeline, proven without a real sheet. Lane C, with a studio check by Lane D.
+- Base head per sex.
+- Template rendered by the runtime; KO/EN prompt.
+- build-hairstyle.py reusing register.py and the three-way method.
+- Synthetic tests T1–T10.
+   files: tools/hair/make-base-head.py, tools/hair/make-hair-template.cjs, tools/hair/build-hairstyle.py, tools/hair/verify-hairstyle-pipeline.py, tools/hair/schema.json, assets/hair-template/머리-그림틀-m.png, assets/hair-template/머리-그림틀-f.png, assets/hair-template/프롬프트.md, assets/sd-hair-base-m.png, assets/sd-hair-base-f.png, assets/sd-hair-data.js (base entries)
+   deps: H2, H3, WP5
+   done: - The base heads pass the H4 matrix in the studio with zero neck holes.
+- Templates rebuild deterministically, and registering a template against itself gives RMS 0.
+- T1–T6 meet their thresholds (IoU ≥.97/.95/.95/.93, RMS ≤1.5 px, false face-hair ≤.5%).
+- T7–T10 fail or flag with Korean messages.
+- One synthetic new style, registered at runtime, passes the H4 matrix in the studio only.
+- The base-head sheet, template and prompt have been shown to the user, with approval recorded.
+- Nothing is added to the shop.
+- [WP11] Rebuild the basic outfit through the pipeline and remove the legacy code. Lane B builds, then Lane A deletes.
+- Fixes skin bands, collar notch, bob remnants and cuff clipping.
+- Deletes the raisedSleeve classifier, shirtSide pixel reads, the runtime edgeTone/rowSpan reads, the legacy branches, the 4 full-sheet PNGs, pack-basic.py and the garment code in build-reference-body.py.
+- sd-foundation-ref-data.js becomes body-only.
+   files: assets/sd-garment-top-tee*.{js,png}, assets/sd-garment-bottom-shorts*.{js,png}, assets/sd-garment-shoes-sneaker*.{js,png} (regenerated, legacy:false), assets/sd-garments-index.js, avatar-foundation-outfit.js, tools/build-reference-body.py, assets/sd-foundation-ref-data.js (body-only, same global), assets/sd-foundation-ref-{shirt,sleeves,shorts,shoes}.png (delete), tools/garment/pack-basic.py (delete), tools/verify-reference-body.cjs (BASE re-measured and recorded), generated bundles and deploy lists
+   deps: WP10, H3, H4
+   done: Requires the user's approval; if declined, the WP is deferred and recorded as 미완.
+- Side-by-side packed vs rebuilt (280/120, 4 views, all motions, 5 tones, 8× zooms) has been viewed and approved.
+- Pale-band probe = 0 and the tone-0/4 differential is clean; no cuff clipping.
+- The pixel diff is confined to the reviewed regions.
+- verify-reference-body: no metric worse by >.003 unless reviewed.
+- Body fields are field-equal.
+- No getImageData on garment art remains at runtime outside mesh drawing.
+- Bundles are regenerated, and check-source and build-deployment --check pass.
+- [G1] Documents. Lane E.
+- Production guide 옷-제작안내.md.
+- Records 옷틀-검수.md and 머리스타일-검수.md.
+- Refreshes, stale-doc deletions and link fixes, per the guide field.
+   files: 옷-제작안내.md (new), 옷틀-검수.md, 머리스타일-검수.md, 아바타-제작기준.md, AGENTS.md, 개발환경.md, 기준캐릭터-검수.md, 숲속마을-디자인지침.md, 공통-이동표시-검수.md, assets/아바타-라이브러리.md, assets/avatar-reference-candidates/manifest.json, assets/garment-sources/README.md, assets/sd-heads-제작기록.md, assets/sd-heads-profile-제작기록.md, assets/최종-제작기록.md (delete), assets/세밀-원화-제작기록.md (delete), assets/남자-원화-제작기록.md (delete), assets/도트-원화-제작기록.md (delete)
+   deps: WP11, H5, H4, WP10
+   done: - Following only the guide on a synthetic sheet produces a valid record.
+- The guide's code table equals messages.json.
+- Every requirement row links its implementation and evidence, marked 구현됨 / 직접 확인됨 / 미확인.
+- No link points at a deleted file.
+- The kept student-art records are marked 현재 학생 화면용.
+- [M1] Integration and release check on the work branch. One integrator.
+   files: 배포용/ (generated), tools/build-deployment.cjs (run only)
+   deps: G1
+   done: - These all pass, with known unrelated failures listed separately: check-source; every foundation, garment and hair verifier; the students-unchanged guard; verify-starlight-shop and verify-economy (same as main); the file:// tests; build-deployment and --check.
+- The 배포용 URL has been checked once more.
+- The work branch is pushed and a PR opened, reported as a preview only.
+- main is merged only after the user confirms. The Cloudflare check is confirmed before anything is reported as deployed.
+##### risks
+- Only one real ChatGPT sheet exists (0.6 px, only the tops changed). Other runs may drift in arms, pose, proportions or layout. Thresholds are calibrated on that sheet plus synthetic variants, so the first new products may need 2–3 retries and a recalibration (never loosened past a negative).
+- ChatGPT re-renders every pixel and redraws prints: the real shorts differ in up to 15% of pixels. The design never reuses non-product pixels from the upload, but the T/B comparison thresholds must tolerate this style drift while still catching real slot changes.
+- Cream or skin-coloured garments are hard to separate: the female 카라 셔츠 is about ΔE 6–7 from skin, and white collars sit against a white background. The geometry gates, outline ridge and connectivity matte help, but seams may wobble. The prototype still showed female white-collar holes, which the WP5 matte must fix.
+- Body coverage limits stage 3. The real male V-neck reaches y=289, exactly the neck layer's end (zero margin). The arms layer carries basic-cuff scraps, and the thigh rows above shorts_bottom−8 are copied. Deeper necklines and shorter sleeves or shorts need body art changes, which need user approval.
+- Hidden cloth under the bob and the arms is rebuilt by rule, not drawn. Distinctive back collars (sailor, hood) or prints hidden there cannot be captured from one sheet.
+- Auto-extracted seat metadata is error-prone: the prototype rise was off by 4–7 px. Wrong rows give torn seats or cream wedges, so every garment needs a seated visual review. The hand table stays as truth for the basic outfit.
+- Puff sleeves and wide collars stretch short-sleeve assumptions: a per-record box increases sleeve raster memory, and the female FRONT_HAIR_CLIP .10 margin must be re-measured per collar.
+- The left view mirrors the right, so the shirt pocket and the blouse bow flip sides. This conflicts with 아바타-제작기준.md:33 until left figures are supported.
+- Paint-pool pressure: the basic-only crowd already uses 38.18 of 40 MiB, and mixed garments multiply sleeve and shorts entries. The 24 MiB tier on small Chromebooks may thrash. Half resolution changes approved art and needs approval.
+- R0 identity is fragile. It depends on lossless crops, PNG chunk hygiene, integer rects and the same Chromium build. A false alarm could stall WP3; a loosened gate would hide regressions.
+- Shared-file edits (index.html gate and script tags, avatar-image.js route) could leak into the student path or file:// play. The students-unchanged guard and the routing unit test are the protection.
+- avatar-foundation.js and avatar-foundation-outfit.js are edited by the garment WPs (WP3, WP9, WP11) and the hair runtime (H3). Concurrent patches can overwrite each other, so the lock order must be strict and R0 re-run after each handover.
+- Hair automation visibly changes the demo: face size up to ×1.17 or ×.92, faces slightly less pink, and the bow look for long bangs. Offline classification can mislabel cream highlights, brows or lashes, and boundary unmixing can halo under dark skin or light hair.
+- SVG filter cost on 30 heads (skin plus hair-front/back filters) may raise update time. Any code or verifier that serialises the SVG into an image loses external head hrefs; verify-foundation-browser's differ() must move to screenshots first.
+- The female back view borrows the male neck painting (f-back neck is null). Nape-revealing styles (pony, bun, twin) may show a wrong-width neck, and fixing it changes the frozen body.
+- The numpy-only exemplar and harmonic loops are slow. A build must stay under 3 min by limiting work to the product's cells, or the feedback loop suffers.
+- The task text assumed no real sheet exists. The user may expect stage 4 to start from a fresh sheet, so whether to reuse it is asked rather than assumed.
+- Baseline noise: verify-school-room is broken on main, verify-layout and verify-visual-polish fail on unrelated items, and the tools default to /usr/bin/chromium (absent here). Unrecorded noise could hide regressions.
+- All performance numbers are cloud software rendering. Gram and Chromebook FPS, memory and file:// play on school PCs are unmeasured and must be reported as such.
+- The repo-root AGENTS.md zombie-game art rules (curved, rubber, cloth, metal) and 21-player standard must not be applied here. 퀴즈나라 uses flat hand-drawn 1–2-step shading.
+##### userAsks
+- 이미 만들어 주신 top:shirt:10 ChatGPT 시트(2026-10-09)를 3단계의 실제 시험 자료로 써도 될까요? 결과는 검증 폴더와 기준 캐릭터 화면(체험 주소)에서만 보이고 상점에는 넣지 않습니다. 4단계에서 이 시트가 검사를 통과하면 새로 만들지 않고 그대로 상점에 연결하고, 문제가 있을 때만 다시 요청드리겠습니다.
+- 왼쪽 옆모습은 오른쪽 옆모습을 뒤집어서 씁니다. 그래서 셔츠 주머니·리본처럼 한쪽에만 있는 장식은 왼쪽 모습에서 반대쪽으로 갑니다. 3단계 상품은 이대로 할까요, 아니면 좌우가 다른 상품은 나중에 왼쪽 모습 그림을 따로 받을까요?
+- 기본 옷(티셔츠·반바지·운동화)을 새 파이프라인으로 다시 잘라 남은 결함을 고치면 체험 화면의 기본 옷이 조금 달라집니다. 고칠 결함은 어두운 피부에서 소매·반바지 끝의 밝은 띠, 여자 옷깃 홈, 단발 자국, 잘린 소매 끝입니다. 전후 비교 그림을 보신 뒤 승인해 주시겠어요?
+- 기본 옷을 시작 상품과 연결할까요? 남자는 top:tee:5 '도토리 반팔'과 bottom:shorts:9, 여자는 top:tee:3과 bottom:shorts:5, 신발은 둘 다 shoes:sneaker:8입니다. 다만 기준 그림의 여자 티(초록 꽃 티)는 지금 tee:3 그림과 다르고, 기준 신발은 아이보리 꽃 운동화인데 sneaker:8은 흰색입니다. 또 남자 새 계정의 기본 하의는 청바지(jeans:5)인데 기준 그림은 반바지입니다. 이 기본값은 로그인할 때 저장 자료에 다시 써지므로 5단계 전에 정해 주세요.
+- 체험 주소에서 아직 옮기지 않은 상품은 그 자리만 기본 옷으로 보이게 하고, 기준 캐릭터 화면에는 '아직 옮기지 않음' 표시를 하겠습니다. 학생 화면은 그대로입니다. 이렇게 해도 될까요?
+- 3단계 옷에는 한계가 있습니다. 몸에 위팔·가슴·허벅지 피부 그림이 없어서 소매·반바지를 기본보다 짧게 하거나 목선을 기본보다 깊게 팔 수 없습니다. 이번 셔츠의 남자 V자 목선도 목 그림 끝에 딱 닿습니다. 이 한계로 진행할까요? 더 파인 옷이 필요해지면 목·몸 피부 그림을 생성 규칙으로 늘리는 작업(기준 몸 변경)을 따로 승인받겠습니다.
+- ChatGPT가 그린 옷 색이 상점 고정색과 조금 다를 때는 어떻게 할까요? 경고만 하고 ChatGPT 색을 쓰는 방법(추천)과 다시 요청하는 방법이 있습니다.
+- 상품 하나에 ChatGPT를 2~3번 다시 요청하는 일이 생길 수 있습니다. 두 번 시도한 결과가 각각 통과하면, 모습별로 좋은 쪽을 골라 합쳐도 될까요? 제가 직접 보고 색이 같을 때만 합치겠습니다.
+- 30명이 각자 다른 옷을 입으면 메모리가 빠듯할 수 있습니다. 측정해서 넘칠 때만, 지도처럼 작게(120px 이하) 보이는 아바타의 소매·반바지를 절반 해상도로 그려도 될까요? 비교 그림을 먼저 보여 드리겠습니다.
+- 머리마다 얼굴 크기를 같게 맞추면 일부 머리 그림이 최대 약 15% 커지거나 약 8% 작아집니다. 커지는 머리는 곱슬·페이드·덥수룩·언더컷·울프와 여자 긴 생머리·히메·양갈래이고, 작아지는 머리는 여자 가르마·스포츠·땋은 머리입니다. 체험 화면 전후 비교를 보시고 허용 범위를 정해 주세요(±3% 제안).
+- 얼굴 피부를 목·팔과 같은 규칙으로 물들이면 얼굴이 지금보다 조금 덜 분홍빛이 됩니다(볼터치는 남깁니다). 또 옆모습의 긴 머리는 어깨와 가까운 팔 뒤로 보내고, 페이드·언더컷의 깎은 부분은 '피부 + 짧은 잔머리 점'으로 그리려 합니다. 괜찮을까요?
+- 새 머리 틀은 이렇게 만들려 합니다. 기본 얼굴은 지금 기준 머리(남자 짧은 머리, 여자 단발)의 얼굴을 쓰고, 머리카락 밑 정수리와 눈썹은 규칙으로 그려 '목 없는 민머리'를 만듭니다. 이 민머리는 한 번 보여 드리고 승인받겠습니다. 새 머리는 한 성별의 앞·옆·뒤를 한 장에 담은 틀에 '머리 모양만 바꿔 주세요'라고 ChatGPT에 요청해 만듭니다. 이 방식으로 할까요? 팔지 않는 여자 머리 4종(짧은 머리·가르마·덥수룩·스포츠)도 함께 변환해 두고 판매나 삭제는 나중에 정하면 될까요? 긴 머리가 흔들리는 움직임은 3단계에서는 넣지 않습니다.
+- 여자 뒷모습의 목은 지금 남자 목 그림을 빌려 쓰고 있습니다. 포니테일·만두·양갈래처럼 목이 보이는 머리에서 어색하면, 여자 뒷목을 생성 규칙으로 따로 만들어도 될까요? 기준 몸을 바꾸는 일이라 결과를 보여 드리고 따로 승인받겠습니다.
+##### REDTEAM
+- [blocker] The frozen body layers contain the basic outfit's edge line art. The arms layer holds the basic cuff's dark lower outline and the neck layer holds the old collar line and cream remnants. Every new garment whose cuff or collar edge does not land exactly on the old edge leaves a ghost line on visible skin. On the real top:shirt:10 sheet this already happens on all four female front/back arms. No planned check catches it, and SLEEVE_SHORT as worded would reject the real sheet. ChatGPT cannot hit the old edge to ±1 px, so the retry loop for female tops cannot converge.
+   evidence: - Cause in the builder: tools/build-reference-body.py:517-519 hands the cuff's dark line art to the arm on purpose ('let the arm keep it', `lum<120 & Y>cuff_top+6`). neck_line (:481) does the same for the collar.
+- Measured with numpy: interior dark pixels (lum<150) of sd-foundation-ref-arms.png lie outside the sleeve alpha just below the cuff. Female front/back: rows 865-879, 53-58 px per arm. Male: 349-356.
+- Zoom: scratchpad/st3/redteam/arm-ghost-cuff.png shows the curved brown cuff line inside the arm layer.
+- Real sheet (global scale 1629/1536, x-90): the old line falls on visible skin 2-3 px below the new cuff. f-front 29/36 px, f-back 25/29 px; template 0-1 px. Image: redteam/ghost-arm-f-front-1.png.
+- The new 카라 셔츠 cuff ends in a light lavender edge, not a dark line (redteam/cuff-template-vs-real.png), so the runtime would draw a double cuff edge on the forearm.
+- forearmOverlay (avatar-foundation-skin.js:161-190) re-pastes the arm painting over the sleeve from elbow−re, so folded poses also show the ghost line.
+- Neck layer: dashed or dark collar line and cream band in m-front, m-right and m-back (redteam/neck-layer.png).
+- None of the pale-band, tone differential, seam-gap or NECK_OPEN checks looks for dark body line art on exposed skin.
+   fix: 1. In WP1, generate frozen 'contact band' masks: pixels of arms/neck/legs that are not clean skin, i.e. line art, cream or shadow within ~6 px of the basic garment edge.
+2. Build a rule-generated clean-limb and clean-neck variant. Continue the clean skin rows below the old cuff and collar, the same way the builder already copies rows above cuff_top. Data-path records use this variant; legacy basic records keep today's layers, so R0 stays identical.
+3. This is a body-art change: add it as a stage-3 user ask now, with a before/after zoom, not as a WP11 item.
+4. Until approved, add a hard check GHOST_EDGE: every contact-band pixel must be covered by the product's opaque alpha at rest. Back it with a runtime probe over all motions: render body-only plus product and count dark band pixels not covered.
+5. Change the 반팔 prompt line to '지금 소매 끝과 같거나 아주 조금 더 길게' (never shorter).
+- [blocker] SLEEVE_LONG ('opening ≥.3 u above the elbow') rejects the basic outfit itself. This contradicts the plan's rule that every limit passes the basic with ≥2 px margin. For girls, the zone between covering the old cuff line (ends at 876-879) and SLEEVE_LONG (≤872-874) is empty, so no female sleeve can pass both.
+   evidence: From sd-foundation-ref-sleeves.png and sd-foundation-ref-data.js (k=.0612):
+- m-front: lowest opaque sleeve row at the arm axis is 353 and 351; limit is elbow 356 − .3/k = 351.1 → fails. m-right: 352 vs 352.1 (0 margin). m-back: 353 vs 352.1/353.1.
+- The lowest cuff pixels sit at 359-361, below the elbows at 356-358.
+- f-right: 872 vs 873 (1 px margin).
+- Female ghost line rows reach 876-879 (finding 1), while the female SLEEVE_LONG limit is 872-874.
+   fix: - Derive SLEEVE_LONG from the real constraint, the forearmOverlay elbow cap (elbow − re of the actual clip in avatar-foundation-skin.js:182-187), not from a fixed .3 u.
+- Allow at least the basic's own reach plus margin.
+- WP1 doneWhen must print each basic margin per figure and per limit before any calibration, and fail on an empty pass zone.
+- Express SLEEVE_SHORT as a coverage test of the contact band (finding 1), not as 'opening vs clean-skin start'. The basic opening itself sits above the scraps it covers.
+- [major] The file:// bundle design is broken. Per-product bundles named avatar-file-data-garment-$1.js all share ONE global, QPAvatarGarmentFileData. avatar-image.js resolves early whenever the global already exists, and the generator writes `window.X=Object.freeze(...)`. The second and third garment bundles (the starter set alone loads top:tee, bottom:shorts and shoes:sneaker at the first render) would therefore get the wrong object, or a racing overwrite. The proposed key regex also rejects real shape keys.
+   evidence: - avatar-image.js:28-29: `if (window[bundle.global]) return Promise.resolve(window[bundle.global])`; bundles is a fixed 4-entry table with one `pending` each.
+- tools/build-avatar-file-data.cjs:22-24 emits `'window.'+global+' = Object.freeze(...)'`.
+- The plan's regex `/^assets\/sd-garment-([a-z0-9-]+)-(m|f)\.png$/` excludes `_`. Catalogue shape keys include jean_skirt, star_skirt, wing_shoes and cat_ears (index.html:2227-2236).
+   fix: - Give each product bundle a unique global, e.g. QPAvatarGarmentFileData_top_tee, generated from the index. Alternatively merge into one registry (`Object.assign(window.QPAvatarGarmentFileData||={}, {...})`) and resolve only when the requested key is present.
+- Build the bundles map dynamically from sd-garments-index.js.
+- Allow `_` in the regex, or use a reversible id→filename encoding.
+- Add a file:// test that loads ≥3 garment bundles concurrently.
+- [major] 'The studio works over file://' (WP7 doneWhen; verification G) cannot be met by changing the iframe src. In Chrome every file:// document is an opaque origin. avatar-standard.js reads runtime.contentWindow.QPFoundationSkin/QPAvatarFoundation, and the verifiers call QPFoundationStudio.api, which reaches into the iframe.
+   evidence: - Tested in /opt/pw-browsers/chromium_headless_shell-1194: a file:// parent reading iframe.contentWindow.MARK of a sibling file:// page throws SecurityError (redteam/fileframe-test.cjs → 'ERR:SecurityError').
+- avatar-standard.js:14 polls w.QPFoundationSkin etc. through contentWindow.
+   fix: - Drop the file:// requirement for the studio and keep it hosted-only (preview server).
+- Alternatively, rebuild the studio API on postMessage, with the iframe running a small bridge.
+- Run file:// verification only on index.html?demo=1&avatar=foundation directly, as G already does for the main page.
+- [major] The untinted-skin probes are logically wrong for this product.
+- The 'tone-0 vs tone-4 differential: any garment-owned pixel that changes is untinted skin' is inverted. Skin baked into a garment PNG is unfiltered, so it does not change between tones. That invariance is exactly what makes the pale band. Pixels that change are tinted skin showing through.
+- The pale-band probe ('light skin-hued pixels inside garment parts = 0') will fire on the legitimate cream 카라 셔츠 cloth (#f2dfbd, about ΔE 6-7 from skin). It will then be loosened or ignored.
+   evidence: - Garment images are drawn without the skin tint filter (avatar-foundation-outfit.js paint/href); only limb and neck paintings carry `filter=tint` (avatar-foundation-skin.js:138).
+- The plan's own risk text puts the female shirt ΔE 6-7 from skin.
+   fix: Define UNTINTED_SKIN offline and at runtime as garment-topmost pixels that meet all of:
+- invariant between tones 0 and 4;
+- inside the build's own per-pixel skin-likelihood mask, exported per record as a debug PNG and kept small;
+- not explained by the per-sheet product colour model.
+Keep the 5-tone visual strip as the authority, and exclude per-record cloth colours from any colour-only probe.
+- [major] No test checks segmentation on a garment whose outline differs from the basic outfit against a known correct answer.
+- R1 with the identity input is circular: U=T gives D_T≈0, every pixel is 'unchanged', and the label is taken straight from the owner map O. The 1536 WebP path is the same.
+- The synthetic positives are recolours inside O's masks, plus one 'sleeve shortened 8 px', which is itself a SLEEVE_SHORT/ghost-line failure (finding 1).
+- So DP seams, the part split, the hidden-cloth target 'from the NEW side contour', underarm metadata and the new SEAT rise rule are never compared with ground truth. They would first run on the real shirt:10, which has none. Bottoms and shoes have no real sheet at all.
+   evidence: - segmentation step 3: 'Unchanged (D_T<τ) → owner O'.
+- synth.py is described as building variants 'from the reference and the owner map, as code', i.e. recolours.
+- The prototype seat rise was off by 4-7 px (plan risks).
+   fix: Add generated-truth geometric positives to WP8:
+- Warp the basic garment layers: sleeve longer by +4 px, a puff sleeve by radial scaling about the shoulder, hem ±6 px through rebuild_cloth, a wider or shorter-by-0 shorts cuff, a taller low shoe.
+- Composite them with the frozen body and the other slots, and re-render through the matte/WebP path.
+- Assert per-part IoU ≥.97, seams ≤1.5 px median, and seat/sideSeat rows within ±1.5 px of the generated truth.
+- Run R1's segmentation check on these, not on the identity input.
+- [major] Cream garments next to skin will be cut wrong, and the acceptance numbers are too loose to show it.
+- τ=max(7, p95+1) is about 7 on the real sheet, while the cream product is ΔE 6-7 from skin. Cream product pixels over old skin positions therefore read as 'unchanged' and go to the body.
+- The skin gate (frozen skin zones dilated 4 px, skin model wins) eats up to 4 px of any cuff or collar near skin.
+- A global garment IoU ≥.92 hides a whole missing cuff band.
+   evidence: - τ rule and skin gate: segmentation steps 1 and 3.
+- The real female blouse is cream with lavender-edged cuffs right at the skin (redteam/cuff-template-vs-real.png).
+- Synthetic C: 'skin/cream top: garment IoU ≥.92'.
+   fix: - Use each garment's own drawn edge (outline ridge plus connectivity) as the primary cuff/collar boundary, and colour only as a tie-breaker.
+- Never apply the 4 px skin-gate dilation inside the product's frozen zone.
+- Replace the global IoU with per-boundary error at cuff, collar and hem: median ≤1 px, max ≤2 px.
+- Add a cream synthetic whose silhouette extends over skin.
+- [major] Per-garment pending and repaint does not work with today's repaintWhenReady.
+- It is single-flight (`if(repainting)return`) and sweeps ALL `svg[data-foundation-static=pending]` once the first promise resolves.
+- A second avatar pending on different garments is therefore mounted while its atlas is still missing. outfit.apply returns false, unpose has already removed visibility, and the avatar shows the vector body and underlay (undressed).
+- Static list avatars never get another apply(), so they stay undressed.
+- The observer also stops after 10 s, which is short for school Wi-Fi.
+   evidence: - avatar-foundation.js:863-869 (single global `repainting`, sweep-all selector, setTimeout 10000).
+- avatar-foundation.js:891 unpose removes visibility.
+- avatar-foundation-outfit.js:430 `if(!atlas.ready||!R)return false`.
+   fix: - Store the needed ids on the svg (data-foundation-garments) and keep a Map from id-set to promise.
+- Sweep only svgs whose ids are all ready or errored.
+- Keep the observer until every pending set settles.
+- Add a negative control with two different pending sets whose atlases arrive in reverse order, including static avatars.
+- [major] Ordering and lock contradiction. WP3 (Lane A) must pass verify-foundation-browser, but that verifier forces a pending render by writing QPFoundationOutfit.atlas.ready=false. Under the plan, readiness moves to QPFoundationGarments.ready() and atlas.ready becomes a compat alias, so the write no longer holds the render. The verifier belongs to Lane D and is only changed in WP7, after WP3.
+   evidence: - tools/verify-foundation-browser.cjs:85 sets `atlas.ready=false; api.render(...)`, then checks pending/hidden/repaint.
+- WP3 doneWhen lists 'verify-foundation-browser … pass'.
+   fix: Choose one:
+- Keep a writable test hold in WP3 (e.g. QPFoundationGarments.hold(ids)) and have atlas.ready writes route to it.
+- Move the one-line verifier change into WP3, with an explicit Lane D → A lock handover recorded in the work log.
+- [major] WP11 deletes 'the garment code in build-reference-body.py', yet the frozen body layers are computed by that code.
+- The arm and neck masks use cuff_top (from derive's cuffs), the FIGURES sleeve and arm polygons, classify/cream/cloth colour rules and neck_line.
+- After WP11 the body can no longer be rebuilt, so the WP1 reproducibility proof and the --allow-body-change path disappear.
+- Separately, G1 depends on WP11, which needs user approval, so M1 cannot finish if the user declines or delays.
+   evidence: - tools/build-reference-body.py:474-521: part['arm'] built from f['sleeves'] polygons, cream/cloth rules and Y>cuff_top+6.
+- :849: limb extension uses f['cuff_top'] and shorts_bottom.
+- Rebuilding today into scratch reproduces all 8 outputs byte-identically in 59 s (redteam/rebuild). WP1 is feasible, but needs an --out flag because OUT is hard-coded to assets/.
+   fix: - In WP11, keep the legacy body-extraction module, or declare arms/legs/neck PNGs as sha-pinned frozen sources with the generator commit recorded, and stop claiming reproducibility after WP11.
+- Make G1 and M1 depend on the WP11 decision being recorded, not on WP11 completion.
+- [minor] The template key leaves out the fallback reasons, so the cached template carries the wrong data-foundation-fallback. A tee:5 wearer and a hood:5 wearer with the same head resolve to the same set 'top:tee|…' and share one template. Whichever renders first decides the fallback attribute and the studio badge, which makes the 'top:hood:5 → fallback=todo' control depend on render order.
+   evidence: - Plan: 'template key = heads.key+mode+key(set), so all unconverted items share one template'.
+- template() writes data-foundation-fallback.
+- render() caches by key (avatar-foundation.js:798-800).
+   fix: Include a canonical fallback map in the key, or make the fallback attribute a template slot filled per render, as the id/size slots are.
+- [minor] The label rule 'changed, matching B' mislabels a newly exposed waistband. Where a new top's hem is higher than the old one, B holds refilled or harmonically rebuilt shorts cloth, while ChatGPT draws a real waistband. The pixels mismatch B, fall inside the top's 20 px allowance zone and become top pixels, so HEM is mis-measured and the shorts' colour moves with the torso.
+   evidence: - B is defined as the frozen layers, and the shorts under the old hem are refill (build-reference-body.py:823 refill('shorts', f['shorts_fill'])).
+- The real sheet re-renders the shorts in up to 15% of its pixels.
+   fix: In changed pixels near another slot, classify by the per-sheet neighbour-slot colour model's likelihood ratio against the product model, not by pixel equality with B. Report the exposure as HEM_HIGH evidence.
+- [minor] The 'byte-exact ChatGPT source' is a lossy re-encode, so the calibration rests on a degraded copy. The file is a 123 KB lossy VP8 WebP (about 0.63 bpp) with a 'Google Inc. 2016' sRGB ICC, which looks like a browser or preview save rather than ChatGPT's PNG download. The ΔE p95 6.0, IoU and 0.6 px figures were measured on it. If the chat upload path itself re-encodes, the guide's 'PNG preferred' cannot be honoured.
+   evidence: WebP chunks are VP8X, ICCP and 'VP8 ' (lossy), 123,766 bytes, 1536x1024 (assets/garment-sources/top-shirt-10-chatgpt-2026-10-09.webp).
+   fix: - Verify how a user upload reaches the container (file attachment vs inline image) and record the format and encoder in the README row.
+- Keep separate calibration columns for PNG and lossy inputs; the WebP q60 and JPEG q70 synthetics stay.
+- Ask the user once for the original PNG of shirt:10 if possible.
+- [minor] Puff sleeves are not covered by any limit. The real female blouse has puff crowns at and above the shoulder line. With hold=0 (raised ≥.4), the whole sleeve rotates about the shoulder, so the crown swings into the neck, collar and bob zone during wave, happy, climb and the jump V. No limit or probe covers sleeve pixels entering the head/neck region.
+   evidence: - redteam/real-vs-template-torso.png (female front/right puff sleeves).
+- avatar-foundation-outfit.js:47-50: a raised arm carries its whole sleeve.
+   fix: - Add CAP_HIGH (sleeve alpha above the shoulder-top row S +.1 u) to limits.json.
+- Add a runtime probe: no sleeve-owned pixel inside the head/neck capsule over raised-arm poses.
+- [minor] The students-unchanged guard has blind spots, and its baseline is pinned to 50f1af8.
+- avatar-foundation.css and the new foundation scripts are loaded on every student page (index.html:828-832). H3 adds blink classes and keyframes there, and the old renderer defines qpx-blink-* keyframes (avatar-pixel.js:645-646). A name collision would change student blinking, but the guard screenshots with reduced motion, which disables these animations.
+- The new script tag also adds a request to the student network log.
+- Comparing against 50f1af8 instead of the merge-base will flag unrelated main changes.
+   evidence: - index.html:828-832 load the foundation scripts and CSS unconditionally.
+- avatar-pixel.js:645-657: blink keyframes and the reduced-motion media rule.
+   fix: - Require the qpf- prefix for all foundation CSS classes and keyframes, plus a static grep guard against `qpx-` in foundation CSS.
+- Add one non-reduced-motion screenshot set with animations paused at fixed currentTime through the Web Animations API.
+- Allow-list exactly the new script URL.
+- Use the branch merge-base with main as the baseline.
+- [minor] The test-only register() is not restricted to demo.
+- It is 'honoured under session=foundation-studio', but that URL parameter also works on the real non-demo site.
+- outfit.js already auto-loads foundation art for it (avatar-foundation-outfit.js:30-31), so real students opening such a link download garment atlases.
+   evidence: avatar-foundation-outfit.js:30-31: `params.get('avatar')==='foundation'||params.get('session')==='foundation-studio'`.
+   fix: Gate register(), the auto-load and the studio session on window.QPDemo, as the index.html gate already does.
+- [minor] The products.json colour check is empty for girls. QPClothes.colorFor returns maleColors only for 'm' and otherwise the passed fallback (undefined).
+   evidence: avatar-clothes.js:61: `colorFor=(category,shape,sex='f',fallback)=>sex==='m'&&maleColors[category]?.[shape]||fallback`.
+   fix: Compare against QPGame.getCatalog().curatedItem(cat,shape,sex).color for both sexes (index.html:5093), and keep colorFor only as the male cross-check.
+- [minor] Memory left out of the budget:
+- atlas.parts keeps a canvas plus a full toDataURL string per part, per garment, per sex and view, with no bound. It sits outside the 40/24 MiB pool.
+- headCache becomes an LRU of 64 × about 0.92 MB, which is still about 59 MB of strings before H3.
+- WP9 measures only the pool.
+   evidence: - avatar-foundation-outfit.js:26 part() keeps entries forever in atlas.parts.
+- avatar-foundation.js:6 headCache = new Map(), never evicted.
+   fix: - Count atlas.parts bytes in measure-avatar-crowd --garments, and bound it with an LRU or drop the canvases once the url exists.
+- Size the headCache LRU from the measured bytes, not a fixed count.
+- [minor] The R0 definition becomes unworkable after H3 and WP11. R0 includes a screenshot pixel hash and is 're-run on every lock handover', but H3 changes the heads and WP11 changes the garment pixels by design, so later handovers can never show identity.
+   evidence: Verification A (screenshot hash) vs H3 doneWhen ('Garment-node R0 signatures are unchanged') and WP11.
+   fix: From H3 on, define R0 as the node signature plus a garment-only screenshot with head and hair hidden. After WP11, re-baseline R0 on the approved rebuild.
+- [minor] Registration details are unproven.
+- The search is ±3% scale and ±16 px shift at 1 px steps, with a full-cell Lanczos resample and Lab error per evaluation. That is about 10^4 evaluations per figure, which can exceed the ≤60 s per-sheet budget without a pyramid.
+- The template margins are 90 px left and 91 px right (1448+181), not 90/90, so a symmetric assumption would shift x by 0.5 px.
+   evidence: - template-sheet.png matches the reference composite only at x offset 90 (max diff 0.498); offsets 89 and 91 give max 199.
+- The canvas is 1629 = 1448 + 90 + 91 px.
+   fix: - Specify a ¼-resolution coarse search, then refine at full resolution.
+- In make-template.py and the registration constants, assert the left margin is 90 and the right margin 91.
+##### JUDGES
+{"winner": "plan-runtime", "scores": [["plan-pipeline", 6, 5.5, 8, 5.5], ["plan-production", 8, 9, 7, 6.5], ["plan-runtime", 8.5, 7, 9, 8]], "fatal": ["plan-pipeline (as written): it ignores the repo's existing stage-3 artifacts: template-sheet.png, the v1 prompt, the garment-only design reference ref-shirt-10-design.png (added in 914c7ef after the user saw ChatGPT copy the old body) and the real ChatGPT sheet top-shirt-10-chatgpt-2026-10-09.webp (50f1af8). It replaces them with a redundant downscaled template and a prompt that has no design-reference image. That reopens the user-reported problem and weakens shop-item identity (아바타-제작기준.md:169), and it leaves every threshold uncalibrated on the real sheet that already exists.", "plan-pipeline: WP2 accepts the offline-migrated underarm and raised-sleeve data within tolerances (±0.02 u, ΔE≤2), but WP3's gate demands a zero-pixel diff against the WP0 baseline. Unless the data are exported exactly from the browser, the gate cannot pass, so the stated plan blocks itself.", "plan-production (fixable): WP4 deletes raisedSleeve's colour classifier and reads raised art from the record. Neither WP0 nor WP4's dependencies produce raised art for the basic outfit; that comes only from WP3 and WP6. The runtime refactor also has no full-motion pixel or signature gate, so a regression in approved stage-2 motions (wave, happy, jump, climb raised sleeves) could ship to the demo unnoticed.", "plan-runtime (fixable omission): no work package delivers decision 3's new-hairstyle template ('no-neck head + front/back hair layers': schema, validator, guide image). It appears only as a guide section."]}
+{"winner": "plan-production", "scores": [["plan-pipeline", 6, 5, 8, 5], ["plan-production", 8, 9, 7, 7], ["plan-runtime", 8, 7, 9, 8]], "fatal": ["plan-pipeline (as written): it is built on the outdated premise that no real sheet exists yet. It replaces the proven v1 template (template-sheet.png 1629x1086, which already produced the good top:shirt:10 sheet in 50f1af8) with a new 1536x1024 옷-그림틀.png and a text-and-hex-only prompt that asks for a transparent background. It drops the garment-only design reference that the user's own correction introduced (914c7ef). The user would have to regenerate top:shirt:10, existing products would lose their shop-art identity, and its basic-relative limits (hem ≤ basic+4 px, neckline ±3 px) would falsely reject the real sheet (female hem +4..+6 px, male V-neck +4 px). This is fixable only by adopting the existing template, design reference and real-sheet calibration.", "No fatal flaws in plan-production or plan-runtime. plan-production lacks a skin strip (untinted skin can enter garment layers) and a pixel-identity gate on the runtime refactor. plan-runtime's global sleeve-resolution halving and its deletion of the 상의/하의 art records need user approval or provenance proof first."]}

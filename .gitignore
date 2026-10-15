@@ -13,3 +13,4 @@ node_modules/
 
 # 로컬 시각 검증 캡처와 임시 QA 스크립트.
 artifacts/
+퀴즈나라/assets/seated/.*.npy

@@ -26,7 +26,7 @@ const executablePath = process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH
     await page.goto(base.href);
     await page.waitForFunction(() => QPGame.getCampus() && QPAvatar.atlas.ready
       && QPClothes.atlas.ready && QPShoes.atlas.partsReady && QPAvatarDirection.atlas.ready);
-    await page.evaluate(() => QPGame.go('school'));
+    await page.evaluate(() => QPGame.go('home'));
     await page.waitForFunction(() => !QPGame.getCampus());
 
     for (const offset of [60000, -60000]) {

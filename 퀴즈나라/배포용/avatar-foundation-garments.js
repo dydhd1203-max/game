@@ -51,6 +51,8 @@
   // The limb/neck art a top was fitted against: the packed basic keeps the
   // legacy layers; pipeline records use the rule-cleaned arms and neck.
   const bodyArtOf=record=>record?.slot==='top'?(record.bodyArt||(record.legacy?'legacy':'clean')):'legacy';
+  // Pipeline shoes need the clean art too: the legs' run under the shoe
+  // (sd-foundation-ref-legs-under.png) is loaded with it.
   // One (record, sex): the data file, then that sex's atlas (and clean body art).
   function loadOne(id,sex){
     const k=id+'|'+sex;let s=states.get(k);if(s)return s.promise;
@@ -59,7 +61,7 @@
       const entry=record.sexes?.[sex];if(!entry)throw new Error(id+': '+sex+' 그림이 없어요');
       if(!runtimeClass(record.class))throw new Error(id+': 이 종류('+record.class+')는 아직 그리지 않아요');
       const image=extra[id]?extra[id].images[sex]:QPAvatarImage.load(new URL(entry.atlas,base).href);
-      const art=bodyArtOf(record)==='clean'?Promise.resolve(root.QPFoundationSkin?.loadClean?.()).then(c=>{if(!c?.ready)throw new Error('정리한 팔·목 그림을 불러오지 못했어요'+(c?.error?': '+c.error:''));}):null;
+      const art=bodyArtOf(record)==='clean'||(record.slot==='shoes'&&!record.legacy)?Promise.resolve(root.QPFoundationSkin?.loadClean?.()).then(c=>{if(!c?.ready)throw new Error('정리한 팔·목 그림을 불러오지 못했어요'+(c?.error?': '+c.error:''));}):null;
       return Promise.all([image,art]).then(([img])=>{
         if(!img)throw new Error(id+': '+sex+' 그림이 비어 있어요');
         s.garment=Object.freeze({id,sex,record,legacy:Boolean(record.legacy),bodyArt:bodyArtOf(record),figures:entry.figures,image:img});s.status='ready';

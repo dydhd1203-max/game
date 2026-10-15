@@ -155,3 +155,5 @@ body .starlight-shop .shop-feature-star{right:10px;top:-9px}
 }
 /* The global candy rule paints #tbSnd purple by ID; keep the shop's speaker on cream wood. */
 body .starlight-header #tbSnd{--candy-top:#fff8e8;--candy-mid:#f6e6c2;--candy-bottom:#e2c98f;--candy-edge:#b8925a;--candy-base:#8f6c3a}
+/* 1280px: the wardrobe switch ran under the sound button at the header corner. */
+@media(max-width:1300px) and (min-width:901px){body .qp-starlight-shop .qp-shop-switch{right:42px}}

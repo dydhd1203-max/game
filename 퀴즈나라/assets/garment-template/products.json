@@ -1,7 +1,7 @@
 {
  "note": "Products for the ChatGPT garment kit (stage 3, WP4). The worker fills this from the shop catalogue and the design reference; the user reviews it. Keyed 'cat:shape' like the garment records. Checked against the live shop for both sexes by `node tools/garment/design-ref.cjs --verify-products` (headless ?demo=1). Used by tools/garment/prompt.cjs.",
  "fields": {
-  "class": "top/short-sleeve | bottom/shorts | shoes/low (stage 3). Other classes exist as schema only.",
+  "class": "top/short-sleeve | bottom/shorts | shoes/low (stage 3). Other classes exist as schema only. Hats (2026-10-15): hat/full (pulled onto the head, hair above its rim hidden by the game) | hat/sit-on (an ornament seated on the hair). Face decorations (2026-10-15): face/sticker (on the facial skin, front and profile). Face parts (2026-10-15): face/eyes | face/nose | face/mouth (one part changed, front and profile).",
   "sexes": "who the shop sells it to (QPGame.getCatalog().curatedItem(cat, shape, sex) is not null). A single-sex product changes only that child; the prompt says the other child stays as it is.",
   "ci": "the fixed colour index per sex (index.html CURATED_COLOURS / fixedColour).",
   "names": "the shop name per sex (curatedItem(...).name).",
@@ -10,17 +10,33 @@
   "mirrorSafe": "true when the right-facing side view may be mirrored into the left view without a decoration looking wrong (no lettering, nothing on one side only that the side view shows). false adds the mirror line to the prompt.",
   "sharedPicture": "true when both sexes wear the same painting in the same colour: image 2 shows it once.",
   "designRef": "image 2 in assets/garment-template/, made by tools/garment/design-ref.cjs from the shop art (no body).",
-  "notes": "KO/EN design notes for the prompt. item: the garment noun; look: what to take from image 2; m/f (or both): the description per child; back: the back-view line."
+  "notes": "KO/EN design notes for the prompt. item: the garment noun; look: what to take from image 2; m/f (or both): the description per child; back: the back-view line.",
+  "planned": "true for a product the shop does not sell yet (requested art first): design-ref.cjs draws image 2 from refSvg and skips the catalogue check."
  },
  "products": {
   "top:shirt": {
    "class": "top/short-sleeve",
    "status": "pilot (stage 4 trial item; first real ChatGPT sheet: assets/garment-sources/top-shirt-10-chatgpt-2026-10-09.webp)",
-   "sexes": ["m", "f"],
-   "ci": {"m": 10, "f": 10},
-   "names": {"m": "단정한 셔츠", "f": "카라 셔츠"},
-   "colour": {"m": "#f2dfbd", "f": "#f2dfbd"},
-   "display": {"m": "#82ace1", "f": "#f2dfbd"},
+   "sexes": [
+    "m",
+    "f"
+   ],
+   "ci": {
+    "m": 10,
+    "f": 10
+   },
+   "names": {
+    "m": "단정한 셔츠",
+    "f": "카라 셔츠"
+   },
+   "colour": {
+    "m": "#f2dfbd",
+    "f": "#f2dfbd"
+   },
+   "display": {
+    "m": "#82ace1",
+    "f": "#f2dfbd"
+   },
    "mirrorSafe": true,
    "designRef": "ref-shirt-10-design.png",
    "notes": {
@@ -45,11 +61,26 @@
   "bottom:cargo": {
    "class": "bottom/shorts",
    "status": "example (shorts class)",
-   "sexes": ["m", "f"],
-   "ci": {"m": 11, "f": 11},
-   "names": {"m": "카고 바지", "f": "카고 바지"},
-   "colour": {"m": "#a87352", "f": "#a87352"},
-   "display": {"m": "#a87352", "f": "#a87352"},
+   "sexes": [
+    "m",
+    "f"
+   ],
+   "ci": {
+    "m": 11,
+    "f": 11
+   },
+   "names": {
+    "m": "카고 바지",
+    "f": "카고 바지"
+   },
+   "colour": {
+    "m": "#a87352",
+    "f": "#a87352"
+   },
+   "display": {
+    "m": "#a87352",
+    "f": "#a87352"
+   },
    "mirrorSafe": true,
    "sharedPicture": true,
    "designRef": "ref-bottom-cargo-11-design.png",
@@ -71,11 +102,26 @@
   "shoes:dress": {
    "class": "shoes/low",
    "status": "example (low shoes class)",
-   "sexes": ["m", "f"],
-   "ci": {"m": 9, "f": 9},
-   "names": {"m": "구두", "f": "구두"},
-   "colour": {"m": "#556074", "f": "#556074"},
-   "display": {"m": "#556074", "f": "#556074"},
+   "sexes": [
+    "m",
+    "f"
+   ],
+   "ci": {
+    "m": 9,
+    "f": 9
+   },
+   "names": {
+    "m": "구두",
+    "f": "구두"
+   },
+   "colour": {
+    "m": "#556074",
+    "f": "#556074"
+   },
+   "display": {
+    "m": "#556074",
+    "f": "#556074"
+   },
    "mirrorSafe": true,
    "sharedPicture": true,
    "designRef": "ref-shoes-dress-9-design.png",
@@ -97,11 +143,21 @@
   "shoes:ballet": {
    "class": "shoes/low",
    "status": "example (single-sex product: girls only)",
-   "sexes": ["f"],
-   "ci": {"f": 7},
-   "names": {"f": "발레슈즈"},
-   "colour": {"f": "#ff8ad4"},
-   "display": {"f": "#ff8ad4"},
+   "sexes": [
+    "f"
+   ],
+   "ci": {
+    "f": 7
+   },
+   "names": {
+    "f": "발레슈즈"
+   },
+   "colour": {
+    "f": "#ff8ad4"
+   },
+   "display": {
+    "f": "#ff8ad4"
+   },
    "mirrorSafe": true,
    "designRef": "ref-shoes-ballet-7-design.png",
    "notes": {
@@ -119,6 +175,465 @@
      "back": "show both heels in the back view."
     }
    }
+  },
+  "top:vest": {
+   "class": "top/short-sleeve",
+   "status": "stage 5 batch A (shorts-sleeve class; vest over a short-sleeve shirt)",
+   "sexes": [
+    "m",
+    "f"
+   ],
+   "ci": {
+    "m": 9,
+    "f": 7
+   },
+   "names": {
+    "m": "클래식 조끼",
+    "f": "조끼"
+   },
+   "colour": {
+    "m": "#556074",
+    "f": "#ff8ad4"
+   },
+   "display": {
+    "m": "#314561",
+    "f": "#ff8ad4"
+   },
+   "mirrorSafe": true,
+   "designRef": "ref-top-vest-design.png",
+   "notes": {
+    "ko": {
+     "item": "조끼",
+     "look": "색·셔츠 깃·넥타이·단추·주머니·소매 끝 모양",
+     "m": "두 번째 그림 왼쪽의 남색 조끼와 그 안의 크림색 반팔 셔츠. 크림색 셔츠 깃, 빨간 넥타이, 가운데 금색 단추 세 개, 양쪽 주머니의 금색 테두리, 크림색으로 접어 올린 소매 끝.",
+     "f": "두 번째 그림 오른쪽의 분홍 조끼와 그 안의 크림색 반팔 셔츠. 크림색 셔츠 깃, 분홍 넥타이, 금색 테두리를 두른 조끼 깃과 주머니, 가운데 금색 단추, 왼쪽 가슴의 금색 별 배지와 금색 회중시계 줄, 금색 단추가 달린 크림색 소매 끝.",
+     "back": "뒷모습에는 조끼 등판과 셔츠 깃의 뒷부분이 보이게 합니다."
+    },
+    "en": {
+     "item": "vest",
+     "itemM": "vest",
+     "itemF": "vest",
+     "look": "colours, shirt collar, tie, buttons, pockets and cuffs",
+     "m": "the navy vest over a cream short-sleeve shirt from image 2 (cream shirt collar, red tie, three gold centre buttons, gold-edged pockets, rolled cream cuffs).",
+     "f": "the pink vest over a cream short-sleeve shirt from image 2 (cream shirt collar, pink tie, gold-trimmed lapels and pocket, gold centre buttons, gold star badge and gold pocket-watch chain on the chest, cream cuffs with gold buttons).",
+     "back": "show the back of the vest and the shirt collar in the back view."
+    }
+   }
+  },
+  "top:sailor": {
+   "class": "top/short-sleeve",
+   "status": "stage 5 batch A (single-sex product: girls only)",
+   "sexes": [
+    "f"
+   ],
+   "ci": {
+    "f": 5
+   },
+   "names": {
+    "f": "교복 (세라복)"
+   },
+   "colour": {
+    "f": "#5aa8ff"
+   },
+   "display": {
+    "f": "#5aa8ff"
+   },
+   "mirrorSafe": true,
+   "designRef": "ref-top-sailor-design.png",
+   "notes": {
+    "ko": {
+     "item": "세라복",
+     "look": "색·세라 깃·리본·소매 줄무늬",
+     "f": "두 번째 그림의 하늘색 반팔 세라복. 흰 줄무늬를 두른 크림색 큰 세라 깃, 가슴 앞의 크림색 큰 리본, 깃 아래 금색 꽃 장식, 흰 줄 두 개를 두른 소매 끝.",
+     "back": "뒷모습에는 세라 깃의 네모난 뒷부분과 흰 줄무늬가 보이게 합니다."
+    },
+    "en": {
+     "item": "sailor blouse",
+     "itemF": "sailor blouse",
+     "look": "colour, sailor collar, bow and cuff stripes",
+     "f": "the light-blue short-sleeve sailor blouse from image 2 (large cream sailor collar with white stripes, big cream bow at the chest, small gold flower under the collar, two white stripes on each cuff).",
+     "back": "show the square back of the sailor collar with its white stripes in the back view."
+    }
+   }
+  },
+  "shoes:wing_shoes": {
+   "class": "shoes/low",
+   "status": "stage 5 batch A (shared picture)",
+   "sexes": [
+    "m",
+    "f"
+   ],
+   "ci": {
+    "m": 8,
+    "f": 8
+   },
+   "names": {
+    "m": "날개 신발",
+    "f": "날개 신발"
+   },
+   "colour": {
+    "m": "#ffffff",
+    "f": "#ffffff"
+   },
+   "display": {
+    "m": "#ffffff",
+    "f": "#ffffff"
+   },
+   "mirrorSafe": true,
+   "designRef": "ref-shoes-wing_shoes-design.png",
+   "notes": {
+    "ko": {
+     "item": "날개 신발",
+     "look": "색·작은 날개·금색 장식·밑창 모양",
+     "both": "두 번째 그림의 흰 메리제인 구두. 발등을 지나는 흰 끈과 금색 단추, 발등의 금색 보석 장식과 크림색 리본, 발목 바깥쪽의 작은 크림색 날개, 두꺼운 크림색 밑창.",
+     "back": "뒷모습에는 두 발의 뒤꿈치와 크림색 밑창, 양옆의 작은 날개가 보이게 합니다."
+    },
+    "en": {
+     "item": "winged shoes",
+     "look": "colour, small wings, gold ornaments and sole",
+     "both": "the white Mary Jane shoes from image 2 (white instep strap with a gold button, gold jewel and cream bow on the instep, a small cream wing on the outer side of each ankle, thick cream sole).",
+     "back": "show both heels, the cream soles and the small wings in the back view."
+    }
+   },
+   "sharedPicture": true
+  },
+  "hat:cap": {
+   "class": "hat/full",
+   "status": "hat pilot H1 (shared picture)",
+   "sexes": [
+    "m",
+    "f"
+   ],
+   "ci": {
+    "m": 3,
+    "f": 3
+   },
+   "names": {
+    "m": "야구모자",
+    "f": "야구모자"
+   },
+   "colour": {
+    "m": "#8fd94a",
+    "f": "#8fd94a"
+   },
+   "display": {
+    "m": "#8fd94a",
+    "f": "#8fd94a"
+   },
+   "mirrorSafe": true,
+   "designRef": "ref-hat-cap-design.png",
+   "notes": {
+    "ko": {
+     "item": "야구모자",
+     "look": "색과 모양(둥근 머리 부분과 앞 챙)",
+     "both": "두 번째 그림의 연두색 야구모자. 둥근 머리 부분, 앞으로 나온 챙, 꼭대기의 작은 단추, 머리 부분을 나누는 박음선.",
+     "back": "옆모습에서는 챙이 얼굴 쪽(오른쪽)으로 나오고, 뒷모습에서는 모자 뒤쪽의 조절 끈과 그 위 반원 구멍이 보이게 합니다."
+    },
+    "en": {
+     "item": "baseball cap",
+     "look": "colour and shape (rounded crown and front brim)",
+     "both": "the light green baseball cap from image 2: rounded crown, brim pointing forward, a small button on top, stitched panel seams.",
+     "back": "in the side view the brim points toward the face (right); in the back view show the adjustment strap at the back with the half-round opening above it."
+    }
+   },
+   "sharedPicture": true
+  },
+  "hat:crown": {
+   "class": "hat/sit-on",
+   "status": "hat pilot H1 (shared picture)",
+   "sexes": [
+    "m",
+    "f"
+   ],
+   "ci": {
+    "m": 2,
+    "f": 2
+   },
+   "names": {
+    "m": "왕관",
+    "f": "왕관"
+   },
+   "colour": {
+    "m": "#ffd24a",
+    "f": "#ffd24a"
+   },
+   "display": {
+    "m": "#ffd24a",
+    "f": "#ffd24a"
+   },
+   "mirrorSafe": true,
+   "designRef": "ref-hat-crown-design.png",
+   "notes": {
+    "ko": {
+     "item": "왕관",
+     "look": "색, 뾰족한 끝 모양, 보석 위치",
+     "both": "두 번째 그림의 금색 작은 왕관. 뾰족한 끝 세 개, 가운데 분홍 보석, 양옆 하늘색 보석, 아래의 밝은 금색 띠. 반짝이는 금속 느낌.",
+     "back": "옆모습에서는 왕관을 옆에서 본 모양(둥근 띠와 뾰족한 끝)으로, 뒷모습에서는 왕관의 뒤쪽 띠와 뾰족한 끝이 보이게 합니다."
+    },
+    "en": {
+     "item": "crown",
+     "look": "colour, pointed tips and jewel positions",
+     "both": "the small gold crown from image 2: three pointed tips, a pink jewel in the middle, light blue jewels at the sides, a light gold band below; shiny metal.",
+     "back": "in the side view show the crown from the side (round band and pointed tips); in the back view show the back of the band and its tips."
+    }
+   },
+   "sharedPicture": true
+  },
+  "face:band": {
+   "class": "face/sticker",
+   "status": "face decoration pilot F1 (shared picture)",
+   "sexes": [
+    "m",
+    "f"
+   ],
+   "ci": {
+    "m": 3,
+    "f": 3
+   },
+   "names": {
+    "m": "반창고",
+    "f": "반창고"
+   },
+   "colour": {
+    "m": "#c9954a",
+    "f": "#c9954a"
+   },
+   "display": {
+    "m": "#c9954a",
+    "f": "#c9954a"
+   },
+   "mirrorSafe": true,
+   "designRef": "ref-face-band-design.png",
+   "notes": {
+    "ko": {
+     "item": "반창고",
+     "look": "색과 모양",
+     "both": "두 번째 그림의 살구색 반창고 한 개. 보는 사람 기준 오른쪽 볼(아이의 왼쪽 볼), 눈 아래 볼 가운데에 살짝 비스듬히 붙입니다. 가운데 흰 패드와 양쪽 끝의 작은 숨구멍 점.",
+     "back": "옆모습에서는 보이는 볼의 같은 자리에 반창고가 보이게 하고, 뒷모습은 그림틀 그대로 둡니다."
+    },
+    "en": {
+     "item": "adhesive bandage",
+     "look": "colour and shape",
+     "both": "the peach adhesive bandage from image 2, one piece, on the cheek on the viewer's right (the child's left cheek), in the middle of the cheek below the eye, slightly tilted; a white pad in the middle and tiny vent dots on both ends.",
+     "back": "in the side view show the bandage at the same place on the visible cheek; the back view stays exactly as in image 1."
+    }
+   },
+   "sharedPicture": true
+  },
+  "face:bruise": {
+   "class": "face/sticker",
+   "status": "face decoration pilot F2 (planned: not in the shop yet, shared picture)",
+   "planned": true,
+   "sexes": [
+    "m",
+    "f"
+   ],
+   "ci": {
+    "m": 0,
+    "f": 0
+   },
+   "names": {
+    "m": "멍 자국",
+    "f": "멍 자국"
+   },
+   "colour": {
+    "m": "#8a6cb8",
+    "f": "#8a6cb8"
+   },
+   "display": {
+    "m": "#8a6cb8",
+    "f": "#8a6cb8"
+   },
+   "mirrorSafe": true,
+   "designRef": "ref-face-bruise-design.png",
+   "refSvg": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"140\" height=\"100\" viewBox=\"0 0 140 100\"><defs><radialGradient id=\"g\" cx=\"50%\" cy=\"50%\" r=\"50%\"><stop offset=\"0\" stop-color=\"#7a4f9e\" stop-opacity=\".85\"/><stop offset=\".45\" stop-color=\"#8a6cb8\" stop-opacity=\".6\"/><stop offset=\".75\" stop-color=\"#7f9fc8\" stop-opacity=\".35\"/><stop offset=\"1\" stop-color=\"#b9a07a\" stop-opacity=\"0\"/></radialGradient></defs><ellipse cx=\"70\" cy=\"50\" rx=\"44\" ry=\"32\" fill=\"url(#g)\"/></svg>",
+   "notes": {
+    "ko": {
+     "item": "멍 자국",
+     "look": "색이 번지는 모양",
+     "both": "보는 사람 기준 오른쪽 눈 아래 볼(아이의 왼쪽 볼)에 작은 멍 자국 하나. 가운데는 연한 보라, 가장자리는 푸르스름하다가 피부색으로 부드럽게 번지는 둥근 자국입니다. 테두리 선 없이 피부에 스며들게, 아프거나 무섭지 않게 가볍게 그립니다.",
+     "back": "옆모습에서는 보이는 볼의 같은 자리에 멍이 보이게 하고, 뒷모습은 그림틀 그대로 둡니다."
+    },
+    "en": {
+     "item": "bruise",
+     "look": "its colours and soft fading",
+     "both": "one small bruise on the cheek below the eye on the viewer's right (the child's left cheek): light purple in the middle, bluish towards the edge, fading softly into the skin; round, no outline, light and not scary.",
+     "back": "in the side view show the bruise at the same place on the visible cheek; the back view stays exactly as in image 1."
+    }
+   },
+   "sharedPicture": true
+  },
+  "face:gonji": {
+   "class": "face/sticker",
+   "status": "face decoration pilot F3 (planned: not in the shop yet, shared picture)",
+   "planned": true,
+   "sexes": [
+    "m",
+    "f"
+   ],
+   "ci": {
+    "m": 0,
+    "f": 0
+   },
+   "names": {
+    "m": "연지곤지",
+    "f": "연지곤지"
+   },
+   "colour": {
+    "m": "#e2322f",
+    "f": "#e2322f"
+   },
+   "display": {
+    "m": "#e2322f",
+    "f": "#e2322f"
+   },
+   "mirrorSafe": true,
+   "designRef": "ref-face-gonji-design.png",
+   "refSvg": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"160\" height=\"70\" viewBox=\"0 0 160 70\"><circle cx=\"40\" cy=\"35\" r=\"17\" fill=\"#e2322f\"/><circle cx=\"120\" cy=\"35\" r=\"17\" fill=\"#e2322f\"/></svg>",
+   "notes": {
+    "ko": {
+     "item": "연지곤지",
+     "look": "빨간 동그라미의 색과 크기",
+     "both": "전통 혼례 화장의 연지곤지. 양쪽 볼 가운데에 작고 동그란 빨간 점을 하나씩 찍습니다(눈동자보다 조금 작게). 테두리 선 없이 매끈한 동그라미입니다. 이마의 점은 앞머리에 가려지므로 그리지 않습니다.",
+     "back": "옆모습에서는 보이는 볼에 빨간 점 하나가 보이게 하고, 뒷모습은 그림틀 그대로 둡니다."
+    },
+    "en": {
+     "item": "yeonji-gonji (red cheek dots)",
+     "look": "the colour and size of the red dots",
+     "both": "traditional Korean wedding make-up: one small round red dot in the middle of each cheek (a little smaller than the iris), smooth circles with no outline. No dot on the forehead (the fringe covers it).",
+     "back": "in the side view show one red dot on the visible cheek; the back view stays exactly as in image 1."
+    }
+   },
+   "sharedPicture": true
+  },
+  "eyes:cat": {
+   "class": "face/eyes",
+   "status": "face part pilot E1 (planned, shared picture)",
+   "planned": true,
+   "sexes": [
+    "m",
+    "f"
+   ],
+   "ci": {
+    "m": 0,
+    "f": 0
+   },
+   "names": {
+    "m": "고양이 눈",
+    "f": "고양이 눈"
+   },
+   "colour": {
+    "m": "#2f8f8a",
+    "f": "#2f8f8a"
+   },
+   "display": {
+    "m": "#2f8f8a",
+    "f": "#2f8f8a"
+   },
+   "mirrorSafe": true,
+   "designRef": "ref-eyes-cat-design.png",
+   "refSvg": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"210\" height=\"80\" viewBox=\"0 0 210 80\"><defs/><clipPath id=\"c1\"><path d=\"M84 50 Q60 66 30 52 Q22 46 20 34 Q52 24 84 50 Z\"/></clipPath><path d=\"M84 50 Q60 66 30 52 Q22 46 20 34 Q52 24 84 50 Z\" fill=\"#fff\"/><g clip-path=\"url(#c1)\"><circle cx=\"52\" cy=\"46\" r=\"15\" fill=\"#2f8f8a\"/><circle cx=\"52\" cy=\"46\" r=\"7\" fill=\"#173f3d\"/><circle cx=\"47\" cy=\"40\" r=\"4\" fill=\"#fff\"/></g><path d=\"M84 50 Q52 24 20 34 L10 25\" fill=\"none\" stroke=\"#3a2a28\" stroke-width=\"5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><path d=\"M30 52 Q60 66 84 50\" fill=\"none\" stroke=\"#3a2a28\" stroke-width=\"2\"/><g transform=\"translate(210 0) scale(-1 1)\"><clipPath id=\"c2\"><path d=\"M84 50 Q60 66 30 52 Q22 46 20 34 Q52 24 84 50 Z\"/></clipPath><path d=\"M84 50 Q60 66 30 52 Q22 46 20 34 Q52 24 84 50 Z\" fill=\"#fff\"/><g clip-path=\"url(#c2)\"><circle cx=\"52\" cy=\"46\" r=\"15\" fill=\"#2f8f8a\"/><circle cx=\"52\" cy=\"46\" r=\"7\" fill=\"#173f3d\"/><circle cx=\"47\" cy=\"40\" r=\"4\" fill=\"#fff\"/></g><path d=\"M84 50 Q52 24 20 34 L10 25\" fill=\"none\" stroke=\"#3a2a28\" stroke-width=\"5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><path d=\"M30 52 Q60 66 84 50\" fill=\"none\" stroke=\"#3a2a28\" stroke-width=\"2\"/></g></svg>",
+   "notes": {
+    "ko": {
+     "item": "고양이 눈",
+     "look": "눈 모양(눈꼬리가 올라간 아몬드 모양)과 속눈썹",
+     "both": "두 번째 그림처럼 눈꼬리가 살짝 위로 올라간 아몬드 모양의 고양이 눈. 위 눈꺼풀 선이 굵고 눈꼬리 끝이 짧게 위로 뻗습니다. 눈동자는 크고 동그랗게, 빛 반사 점 하나. 귀엽고 장난스러운 느낌.",
+     "back": "옆모습에서는 보이는 한쪽 눈을 같은 고양이 눈 모양(옆에서 본 모양)으로 그리고, 뒷모습은 그림틀 그대로 둡니다."
+    },
+    "en": {
+     "item": "cat eyes",
+     "look": "the eye shape (almond, outer corners turned up) and lashes",
+     "both": "almond-shaped cat eyes with slightly upturned outer corners as in image 2: a bold upper lid line ending in a short upward flick, large round iris with one highlight; cute and playful.",
+     "back": "in the side view draw the visible eye as the same cat eye seen from the side; the back view stays exactly as in image 1."
+    }
+   },
+   "sharedPicture": true
+  },
+  "nose:button": {
+   "class": "face/nose",
+   "status": "face part pilot N1 (planned, shared picture)",
+   "planned": true,
+   "sexes": [
+    "m",
+    "f"
+   ],
+   "ci": {
+    "m": 0,
+    "f": 0
+   },
+   "names": {
+    "m": "동그란 단추 코",
+    "f": "동그란 단추 코"
+   },
+   "colour": {
+    "m": "#f4b9a0",
+    "f": "#f4b9a0"
+   },
+   "display": {
+    "m": "#f4b9a0",
+    "f": "#f4b9a0"
+   },
+   "mirrorSafe": true,
+   "designRef": "ref-nose-button-design.png",
+   "refSvg": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"80\" height=\"70\" viewBox=\"0 0 80 70\"><path d=\"M24 44 Q40 18 56 44 Q40 56 24 44 Z\" fill=\"#f4b9a0\" stroke=\"#b9775f\" stroke-width=\"2.5\"/><ellipse cx=\"34\" cy=\"46\" rx=\"3\" ry=\"2.2\" fill=\"#9a5a48\"/><ellipse cx=\"46\" cy=\"46\" rx=\"3\" ry=\"2.2\" fill=\"#9a5a48\"/><ellipse cx=\"38\" cy=\"33\" rx=\"4\" ry=\"2.5\" fill=\"#fff\" opacity=\".7\"/></svg>",
+   "notes": {
+    "ko": {
+     "item": "동그란 단추 코",
+     "look": "동그란 코끝과 작은 콧구멍",
+     "both": "두 번째 그림처럼 끝이 동그랗고 살짝 도톰한 작은 단추 코. 콧구멍 두 개는 아주 작은 점으로, 코끝에 작은 빛 반사. 피부색은 얼굴과 같게 하고 코끝만 아주 살짝 발그레하게.",
+     "back": "옆모습에서는 동그란 코끝이 얼굴 옆선에서 살짝 튀어나오게 그리고, 뒷모습은 그림틀 그대로 둡니다."
+    },
+    "en": {
+     "item": "round button nose",
+     "look": "the round nose tip and tiny nostrils",
+     "both": "a small round button nose as in image 2: a soft rounded tip, two tiny dot nostrils, a small highlight on the tip; the same skin colour as the face with only a faint rosy tip.",
+     "back": "in the side view the round tip sticks out slightly from the face outline; the back view stays exactly as in image 1."
+    }
+   },
+   "sharedPicture": true
+  },
+  "mouth:cat": {
+   "class": "face/mouth",
+   "status": "face part pilot L1 (planned, shared picture)",
+   "planned": true,
+   "sexes": [
+    "m",
+    "f"
+   ],
+   "ci": {
+    "m": 0,
+    "f": 0
+   },
+   "names": {
+    "m": "고양이 입",
+    "f": "고양이 입"
+   },
+   "colour": {
+    "m": "#8c4a52",
+    "f": "#8c4a52"
+   },
+   "display": {
+    "m": "#8c4a52",
+    "f": "#8c4a52"
+   },
+   "mirrorSafe": true,
+   "designRef": "ref-mouth-cat-design.png",
+   "refSvg": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"120\" height=\"60\" viewBox=\"0 0 120 60\"><path d=\"M20 22 Q38 50 60 26 Q82 50 100 22\" fill=\"none\" stroke=\"#8c4a52\" stroke-width=\"5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>",
+   "notes": {
+    "ko": {
+     "item": "고양이 입",
+     "look": "ω 모양의 입선",
+     "both": "두 번째 그림처럼 ω(오메가) 모양으로 가운데가 살짝 올라간 고양이 입. 가는 선 하나로 그리고, 입꼬리는 살짝 웃는 느낌. 이와 혀는 그리지 않습니다.",
+     "back": "옆모습에서는 입꼬리 쪽 ω의 반쪽이 보이게 그리고, 뒷모습은 그림틀 그대로 둡니다."
+    },
+    "en": {
+     "item": "cat mouth",
+     "look": "the ω-shaped mouth line",
+     "both": "a cat mouth shaped like ω as in image 2, the middle slightly raised, one thin line, corners gently smiling; no teeth or tongue.",
+     "back": "in the side view show the half of the ω at the visible corner; the back view stays exactly as in image 1."
+    }
+   },
+   "sharedPicture": true
   }
  }
 }

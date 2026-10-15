@@ -9,7 +9,7 @@ const base=process.env.QUIZ_PREVIEW_URL||'http://127.0.0.1:4173/',out=path.resol
   await page.goto(new URL('?demo=1&session=back-'+Date.now(),base).href);
   await page.waitForFunction(()=>QPAvatar.atlas.ready&&QPAvatarDirection.atlas.ready&&QPAvatarDirection.atlas.backReady&&QPClothes.atlas.ready&&QPShoes.atlas.partsReady);
   const report=await page.evaluate(async()=>{
-   QPGame.go('school');
+   QPGame.go('home');
    document.head.insertAdjacentHTML('beforeend','<style>body{height:auto!important;overflow:visible!important;display:block!important;background:#f9f0df!important;color:#57432e}.qp-illustrated-avatar *{animation:none!important}.qpx-blink-half,.qpx-blink-closed{opacity:0!important}</style>');
    const host=document.createElement('main');document.body.replaceChildren(host);
    const clean={...QPGame.getMe().av,sex:'m',hair:'messy:1',sk:0,top:'hood:7',bottom:'jeans:5',shoes:'sneaker:8',pet:'',hat:'',glass:'',face:'',ear:'',neck:'',back:'',effect:'',bg:'',frame:''};

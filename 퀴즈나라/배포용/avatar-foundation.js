@@ -3,7 +3,7 @@
    tools/build-reference-body.py). Shared fixed joints, authored seated poses. */
 (function(root){
   'use strict';
-  const NS='http://www.w3.org/2000/svg',mounted=new WeakMap(),headCache=new Map();let serial=0;
+  const NS='http://www.w3.org/2000/svg',mounted=new WeakMap(),headCache=new Map(),HEAD_CACHE=64;let serial=0;
   // Body-local units: reference sheet pixels × 17.5/286 from the collar row
   // (16, 28.55). Values are the male front joints that tools/build-reference-
   // body.py derives from 기준캐릭터-조사/ref/measure-raw.json, made symmetric.
@@ -121,11 +121,17 @@
   // forearm crossing the waist flat (90 deg) or
   // diagonally (100-120 deg) is never drawn; with more poses per cycle, put
   // the keys on the new c values so this still holds.
+  // Round 4 (2026-10-13 critique: the forward fist still lay diagonally
+  // across the chest and ended in a loose hand, 'a hand laid on the chest'):
+  // from .61 on the elbow goes further out (abduction 13-16) and the forearm
+  // stands up beside the chest (145-150 deg from straight down, the fist
+  // about .9 nearer the midline than the elbow, still 4.5 outside it), and
+  // every front/back running hand is a closed fist (arm.fist, skin FIST).
   const GAIT={
     walk:{duty:.6,reach:[2.5,2.7],flat:.12,heel:.55,heelLift:.5,strike:-16,toe:28,swing:[[.22,-6,60],[.5,15,68],[.78,28,16]],bob:[[0,.56],[.06,.41],[.12,.25],[.2,.1],[.29,.025],[.4,.2]],lean:3,sway:.13,roll:1.7,support:.3,
       arm:{swing:[0,22],flex:[14,10],abduct:[2,-3],forearm:[-2,-7],facing:{flex:[10,15],abduct:[0,-2]}},lag:.03,frontRaise:1.9},
     run:{duty:.34,reach:[1.8,2.8],flat:.1,heel:.5,heelLift:.62,strike:-8,toe:34,swing:[[.3,-10,112],[.6,50,100],[.86,36,30]],bob:[[0,.33],[.12,.45],[.34,.18],[.42,-.1]],lean:12,sway:.06,roll:.9,support:.17,
-      arm:{swing:[-4,42],flex:[86,8],abduct:[2,-2],forearm:[-27,-19],facingKeys:[[-1,-61,85,10,-22],[-.6,-46,78,8,-15],[-.14,-26,70,6,-15],[.14,-20,70,6,-18],[.39,-15,70,6,-19],[.61,14,96,8,-35],[.8,22,96,9,-38],[1,28,94,10,-39]],
+      arm:{swing:[-4,42],flex:[86,8],abduct:[2,-2],forearm:[-27,-19],facingKeys:[[-1,-61,85,10,-22],[-.6,-46,78,8,-15],[-.14,-26,70,6,-15],[.14,-20,70,6,-18],[.39,-15,70,6,-19],[.61,14,96,13,-24],[.8,22,96,15,-29],[1,28,94,16,-33]],
         backKeys:[[-1,-56,82,6,-5],[-.6,-41,75,3,-7],[-.14,-24,68,0,-9],[.14,-18,68,-2,-11],[.39,-12,68,-4,-13],[.61,8,98,-6,-37],[.8,20,99,-6,-45],[1,28,96,-6,-47]]},lag:.02,frontRaise:1.5}
   };
   // Screen drop per body unit of walking depth in front/back views.
@@ -173,7 +179,7 @@
     // behind.
     takeoff:{drop:1.45,lean:13,hips:-.55,splay:16,profile:[-50,20,-58,26],front:[-34,22,18,16],back:[-34,22,18,16]},
     // Landing: a deeper give; the arms come down in front for balance.
-    landing:{drop:1.6,lean:11,hips:-.45,splay:18,profile:[30,42,12,40],front:[24,30,44,24],back:[24,30,44,24]},
+    landing:{drop:1.6,lean:11,hips:-.45,splay:18,profile:[8,60,12,40],front:[24,30,44,24],back:[24,30,44,24]},
     // Flight legs: launch (legs straight, toes pointed), apex (knees tucked
     // up), fall (legs reach down), touchdown.
     air:[
@@ -211,6 +217,12 @@
     //    up (.36-.42, a W rather than a level T), then from .45 the forearms
     //    point out and down (about 40 deg from straight down at the apex, soft
     //    elbows) for balance.
+    // Round 4 (2026-10-13 critique: at the fast fall and the landing the near
+    // side arm pointed almost straight forward at chest-waist height, a
+    // pointing or sleepwalking arm): from the fall (f .74) through the
+    // landing the near elbow stays bent 60-64 deg with the upper arm hanging
+    // by the body, so the forearm points forward-down (55-70 deg from
+    // straight down) and the hand is in front of the hip.
     airArms:[
       {f:0,profile:[78,46,-26,34],front:[10,116,132,10],back:[8,116,132,10]},
       {f:.12,profile:[86,50,2,44],front:[8,126,142,8],back:[6,126,142,8]},
@@ -219,8 +231,8 @@
       {f:.42,profile:[67,63,21,50],front:[16,50,122,20],back:[14,50,120,20]},
       {f:.45,profile:[63,64,16,47],front:[18,40,46,28],back:[16,40,46,28]},
       {f:.5,profile:[58,64,10,44],front:[18,30,30,26],back:[16,30,30,26]},
-      {f:.74,profile:[24,40,-24,32],front:[20,30,26,26],back:[18,30,26,26]},
-      {f:1,profile:[30,28,-14,28],front:[24,26,24,20],back:[22,26,24,20]}
+      {f:.74,profile:[4,64,-24,32],front:[20,30,26,26],back:[18,30,26,26]},
+      {f:1,profile:[-4,62,-14,28],front:[24,26,24,20],back:[22,26,24,20]}
     ]
   };
   // Catmull-Rom through flight keys: continuous speed, no hold at a key.
@@ -275,6 +287,14 @@
   //   set slightly in and back under the knees; forearms forward, in and a
   //   little down onto the desk (round 2: a level forearm read as holding a
   //   tray in the side view).
+  // Floor sit drawn as layers (user decision 2026-10-14, 옷층-계획.md): the
+  // user's ChatGPT seated base body per sex and view, then the bottom, shoes
+  // and top layers of the worn shop items (tools/seated-layers.py; skin
+  // pixels carry alpha 254 and are tinted to the avatar's skin). Only the
+  // head is the runtime avatar's. `seat` puts the runtime head where the
+  // drawing's is; rects in body units. An item without its seated layer
+  // keeps the built pose.
+  const SEATED_LAYERS=Object.freeze({m:Object.freeze({front:Object.freeze({seat:3.2,frame:[2.2219, 14.109, 27.594, 35.532],unit:0.0378,layers:Object.freeze({'base':Object.freeze({url:'assets/seated/m-front-base.png',rect:[8.0809, 32.1774, 15.8004, 13.8726]}),'bottom:shorts':Object.freeze({url:'assets/seated/m-front-bottom-shorts.png',rect:[8.2699, 40.2288, 15.5358, 4.2714]}),'shoes:sneaker':Object.freeze({url:'assets/seated/m-front-shoes-sneaker.png',rect:[9.7819, 42.6102, 12.1716, 3.4398]}),'top:tee':Object.freeze({url:'assets/seated/m-front-top-tee.png',rect:[9.8197, 32.5554, 12.285, 12.9654]}),'top:hood':Object.freeze({url:'assets/seated/m-front-top-hood.png',rect:[7.5517, 32.5176, 16.821, 14.5908]}),'top:shirt':Object.freeze({url:'assets/seated/m-front-top-shirt.png',rect:[7.5139, 32.4798, 16.821, 13.986]}),'top:vest':Object.freeze({url:'assets/seated/m-front-top-vest.png',rect:[8.2321, 32.4798, 15.6114, 13.4568]}),'top:cardi':Object.freeze({url:'assets/seated/m-front-top-cardi.png',rect:[8.0053, 32.442, 15.9894, 13.8348]}),'top:jacket':Object.freeze({url:'assets/seated/m-front-top-jacket.png',rect:[7.8919, 32.631, 16.3674, 13.5702]}),'top:knit':Object.freeze({url:'assets/seated/m-front-top-knit.png',rect:[8.1187, 32.5932, 15.7248, 13.4568]}),'bottom:track':Object.freeze({url:'assets/seated/m-front-bottom-track.png',rect:[7.9297, 32.8578, 16.254, 13.1544]}),'bottom:cargo':Object.freeze({url:'assets/seated/m-front-bottom-cargo.png',rect:[8.0053, 32.5554, 15.876, 13.5324]}),'shoes:dress':Object.freeze({url:'assets/seated/m-front-shoes-dress.png',rect:[9.6685, 42.6102, 12.474, 3.402]}),'shoes:boots':Object.freeze({url:'assets/seated/m-front-shoes-boots.png',rect:[9.5929, 42.7614, 12.5874, 3.3642]}),'shoes:sandal':Object.freeze({url:'assets/seated/m-front-shoes-sandal.png',rect:[9.8197, 42.7992, 12.2094, 3.3264]}),'shoes:hitop':Object.freeze({url:'assets/seated/m-front-shoes-hitop.png',rect:[9.7063, 42.7992, 12.5874, 3.4776]}),'shoes:rain':Object.freeze({url:'assets/seated/m-front-shoes-rain.png',rect:[9.5173, 42.1944, 13.2678, 4.4604]}),'shoes:slipper':Object.freeze({url:'assets/seated/m-front-shoes-slipper.png',rect:[9.7441, 42.5724, 12.285, 3.6288]}),'shoes:wing_shoes':Object.freeze({url:'assets/seated/m-front-shoes-wing_shoes.png',rect:[9.7819, 42.1944, 12.3984, 4.2336]}),'outfit:overall':Object.freeze({url:'assets/seated/m-front-outfit-overall.png',rect:[7.9297, 32.4798, 16.0272, 13.608]}),'outfit:space':Object.freeze({url:'assets/seated/m-front-outfit-space.png',rect:[7.4005, 32.631, 17.2746, 14.6286]}),'outfit:hanbok':Object.freeze({url:'assets/seated/m-front-outfit-hanbok.png',rect:[7.4383, 32.631, 17.199, 14.553]})})}),side:Object.freeze({seat:0.66,frame:[2.2, 17.001, 25.53, 32.43],unit:0.0345,layers:Object.freeze({'base':Object.freeze({url:'assets/seated/m-side-base.png',rect:[11.1355, 33.837, 10.281, 12.213]}),'bottom:shorts':Object.freeze({url:'assets/seated/m-side-bottom-shorts.png',rect:[11.446, 41.5995, 6.21, 4.3815]}),'shoes:sneaker':Object.freeze({url:'assets/seated/m-side-shoes-sneaker.png',rect:[17.449, 43.083, 5.382, 2.967]}),'top:tee':Object.freeze({url:'assets/seated/m-side-top-tee.png',rect:[11.0665, 34.734, 9.2805, 9.315]}),'top:hood':Object.freeze({url:'assets/seated/m-side-top-hood.png',rect:[10.6525, 32.112, 11.0055, 14.0415]}),'top:shirt':Object.freeze({url:'assets/seated/m-side-top-shirt.png',rect:[10.8595, 34.0785, 10.6605, 11.7645]}),'top:vest':Object.freeze({url:'assets/seated/m-side-top-vest.png',rect:[10.894, 33.7335, 10.488, 10.7295]}),'top:cardi':Object.freeze({url:'assets/seated/m-side-top-cardi.png',rect:[10.963, 33.8715, 10.4535, 12.2475]}),'top:jacket':Object.freeze({url:'assets/seated/m-side-top-jacket.png',rect:[10.204, 33.285, 11.316, 12.696]}),'top:knit':Object.freeze({url:'assets/seated/m-side-top-knit.png',rect:[10.549, 33.5265, 10.971, 12.696]}),'bottom:track':Object.freeze({url:'assets/seated/m-side-bottom-track.png',rect:[11.2735, 34.182, 10.074, 11.9715]}),'bottom:cargo':Object.freeze({url:'assets/seated/m-side-bottom-cargo.png',rect:[11.2735, 34.182, 10.212, 11.7645]}),'shoes:dress':Object.freeze({url:'assets/seated/m-side-shoes-dress.png',rect:[16.4485, 42.876, 6.7965, 3.312]}),'shoes:boots':Object.freeze({url:'assets/seated/m-side-shoes-boots.png',rect:[16.5175, 41.8065, 7.0035, 4.5195]}),'shoes:sandal':Object.freeze({url:'assets/seated/m-side-shoes-sandal.png',rect:[16.3105, 42.2895, 7.383, 3.6915]}),'shoes:hitop':Object.freeze({url:'assets/seated/m-side-shoes-hitop.png',rect:[16.345, 41.703, 6.693, 4.554]}),'shoes:rain':Object.freeze({url:'assets/seated/m-side-shoes-rain.png',rect:[17.449, 41.703, 5.796, 4.692]}),'shoes:slipper':Object.freeze({url:'assets/seated/m-side-shoes-slipper.png',rect:[16.3795, 41.91, 6.4515, 4.14]}),'shoes:wing_shoes':Object.freeze({url:'assets/seated/m-side-shoes-wing_shoes.png',rect:[17.587, 41.703, 5.3475, 4.347]}),'outfit:overall':Object.freeze({url:'assets/seated/m-side-outfit-overall.png',rect:[9.79, 32.043, 11.7645, 13.9725]}),'outfit:space':Object.freeze({url:'assets/seated/m-side-outfit-space.png',rect:[9.9625, 33.285, 13.041, 12.903]}),'outfit:hanbok':Object.freeze({url:'assets/seated/m-side-outfit-hanbok.png',rect:[10.342, 34.044, 13.4895, 12.627]})})}),back:Object.freeze({seat:1.43,frame:[3.9204, 13.3356, 24.4584, 36.12],unit:0.0258,layers:Object.freeze({'base':Object.freeze({url:'assets/seated/m-back-base.png',rect:[8.5386, 33.9756, 14.964, 12.0744]}),'bottom:shorts':Object.freeze({url:'assets/seated/m-back-bottom-shorts.png',rect:[10.3188, 40.5288, 11.5068, 5.3922]}),'shoes:sneaker':null,'top:tee':Object.freeze({url:'assets/seated/m-back-top-tee.png',rect:[8.5644, 34.0272, 14.8092, 9.5976]}),'top:hood':Object.freeze({url:'assets/seated/m-back-top-hood.png',rect:[8.3064, 33.7176, 15.1446, 12.3066]}),'top:shirt':Object.freeze({url:'assets/seated/m-back-top-shirt.png',rect:[8.487, 32.6856, 15.0414, 13.5708]}),'top:vest':Object.freeze({url:'assets/seated/m-back-top-vest.png',rect:[8.8482, 32.6856, 14.4738, 13.2096]}),'top:cardi':Object.freeze({url:'assets/seated/m-back-top-cardi.png',rect:[8.5644, 32.6856, 14.835, 12.8226]}),'top:jacket':Object.freeze({url:'assets/seated/m-back-top-jacket.png',rect:[8.3838, 34.0788, 15.5058, 12.2292]}),'top:knit':Object.freeze({url:'assets/seated/m-back-top-knit.png',rect:[8.5128, 32.6856, 14.8608, 13.3386]}),'bottom:track':Object.freeze({url:'assets/seated/m-back-bottom-track.png',rect:[8.4612, 34.7496, 14.9898, 11.3778]}),'bottom:cargo':Object.freeze({url:'assets/seated/m-back-bottom-cargo.png',rect:[8.6934, 34.2336, 14.6544, 11.9196]}),'shoes:dress':null,'shoes:boots':null,'shoes:sandal':null,'shoes:hitop':null,'shoes:rain':null,'shoes:slipper':null,'shoes:wing_shoes':null,'outfit:overall':Object.freeze({url:'assets/seated/m-back-outfit-overall.png',rect:[8.5902, 32.6856, 14.8092, 13.4676]}),'outfit:space':Object.freeze({url:'assets/seated/m-back-outfit-space.png',rect:[8.2032, 33.6402, 15.4026, 12.7194]}),'outfit:hanbok':Object.freeze({url:'assets/seated/m-back-outfit-hanbok.png',rect:[8.1, 32.6856, 15.8412, 14.6544]})})})}),f:Object.freeze({front:Object.freeze({seat:2.33,frame:[3.6206, 18.7094, 25.156, 31.114],unit:0.0331,layers:Object.freeze({'base':Object.freeze({url:'assets/seated/f-front-base.png',rect:[8.7842, 33.4389, 14.4316, 12.6111]}),'bottom:shorts':Object.freeze({url:'assets/seated/f-front-bottom-shorts.png',rect:[8.8835, 40.4561, 13.24, 4.2699]}),'shoes:sneaker':Object.freeze({url:'assets/seated/f-front-shoes-sneaker.png',rect:[10.4392, 43.071, 10.8568, 2.979]}),'top:tee':Object.freeze({url:'assets/seated/f-front-top-tee.png',rect:[9.9096, 33.7699, 11.7505, 10.7906]}),'top:hood':Object.freeze({url:'assets/seated/f-front-top-hood.png',rect:[8.5525, 33.6044, 14.9612, 12.3463]}),'top:shirt':Object.freeze({url:'assets/seated/f-front-top-shirt.png',rect:[8.1553, 31.7839, 15.7556, 14.2661]}),'top:vest':Object.freeze({url:'assets/seated/f-front-top-vest.png',rect:[8.3208, 33.3727, 15.0936, 12.247]}),'top:cardi':Object.freeze({url:'assets/seated/f-front-top-cardi.png',rect:[8.5194, 33.3727, 15.1598, 13.3062]}),'top:sailor':Object.freeze({url:'assets/seated/f-front-top-sailor.png',rect:[8.1884, 31.8501, 15.6894, 15.1267]}),'top:jacket':Object.freeze({url:'assets/seated/f-front-top-jacket.png',rect:[7.6919, 31.7839, 16.7155, 14.1006]}),'top:knit':Object.freeze({url:'assets/seated/f-front-top-knit.png',rect:[8.6518, 33.4389, 14.5971, 12.1146]}),'top:tank':Object.freeze({url:'assets/seated/f-front-top-tank.png',rect:[9.9758, 33.7368, 11.7836, 12.2139]}),'bottom:pleat':Object.freeze({url:'assets/seated/f-front-bottom-pleat.png',rect:[8.1884, 33.9023, 15.7887, 13.0083]}),'bottom:track':Object.freeze({url:'assets/seated/f-front-bottom-track.png',rect:[8.6849, 33.7699, 14.1668, 12.7435]}),'bottom:legging':Object.freeze({url:'assets/seated/f-front-bottom-legging.png',rect:[8.5525, 33.7699, 14.6964, 12.578]}),'bottom:tutu':Object.freeze({url:'assets/seated/f-front-bottom-tutu.png',rect:[7.4271, 33.7699, 17.0796, 13.1407]}),'bottom:cargo':Object.freeze({url:'assets/seated/f-front-bottom-cargo.png',rect:[8.6187, 33.7699, 14.7957, 13.0745]}),'bottom:jean_skirt':Object.freeze({url:'assets/seated/f-front-bottom-jean_skirt.png',rect:[8.2877, 33.7699, 15.5901, 13.4717]}),'bottom:star_skirt':Object.freeze({url:'assets/seated/f-front-bottom-star_skirt.png',rect:[7.394, 33.7699, 17.2451, 13.3724]}),'shoes:dress':Object.freeze({url:'assets/seated/f-front-shoes-dress.png',rect:[10.4723, 43.0048, 10.923, 2.979]}),'shoes:boots':Object.freeze({url:'assets/seated/f-front-shoes-boots.png',rect:[9.38, 42.9717, 12.9421, 3.5417]}),'shoes:sandal':Object.freeze({url:'assets/seated/f-front-shoes-sandal.png',rect:[10.4061, 43.1041, 10.7906, 3.1445]}),'shoes:hitop':Object.freeze({url:'assets/seated/f-front-shoes-hitop.png',rect:[9.2807, 43.3027, 13.24, 3.2769]}),'shoes:ballet':Object.freeze({url:'assets/seated/f-front-shoes-ballet.png',rect:[9.4793, 43.6668, 12.4125, 2.7142]}),'shoes:rain':Object.freeze({url:'assets/seated/f-front-shoes-rain.png',rect:[9.4462, 43.2034, 12.8097, 4.1706]}),'shoes:slipper':Object.freeze({url:'assets/seated/f-front-shoes-slipper.png',rect:[9.6779, 42.5083, 12.4787, 3.6079]}),'shoes:wing_shoes':Object.freeze({url:'assets/seated/f-front-shoes-wing_shoes.png',rect:[9.1814, 43.071, 13.4386, 3.5748]}),'outfit:dress':Object.freeze({url:'assets/seated/f-front-outfit-dress.png',rect:[7.8243, 31.7839, 16.5831, 14.8288]}),'outfit:robe':Object.freeze({url:'assets/seated/f-front-outfit-robe.png',rect:[6.6989, 33.6044, 18.2712, 13.3393]}),'outfit:overall':Object.freeze({url:'assets/seated/f-front-outfit-overall.png',rect:[8.6849, 33.7699, 14.7295, 12.5118]}),'outfit:space':Object.freeze({url:'assets/seated/f-front-outfit-space.png',rect:[7.9567, 31.8501, 15.9211, 14.8619]}),'outfit:hanbok':Object.freeze({url:'assets/seated/f-front-outfit-hanbok.png',rect:[7.8243, 33.6706, 16.1859, 10.9892]})})}),side:Object.freeze({seat:0.9,frame:[2.9103, 20.9839, 23.7276, 28.5948],unit:0.03042,layers:Object.freeze({'base':Object.freeze({url:'assets/seated/f-side-base.png',rect:[8.2642, 34.2166, 13.2631, 11.8334]}),'bottom:shorts':Object.freeze({url:'assets/seated/f-side-bottom-shorts.png',rect:[12.4013, 41.4262, 5.0802, 4.3804]}),'shoes:sneaker':Object.freeze({url:'assets/seated/f-side-shoes-sneaker.png',rect:[17.1773, 43.5251, 5.0193, 2.4641]}),'top:tee':Object.freeze({url:'assets/seated/f-side-top-tee.png',rect:[12.0059, 35.1292, 8.1221, 10.7687]}),'top:hood':Object.freeze({url:'assets/seated/f-side-top-hood.png',rect:[9.0855, 34.46, 13.8716, 11.1641]}),'top:shirt':Object.freeze({url:'assets/seated/f-side-top-shirt.png',rect:[9.0247, 34.3687, 12.9589, 11.4988]}),'top:vest':Object.freeze({url:'assets/seated/f-side-top-vest.png',rect:[7.7471, 33.2432, 14.5407, 12.8068]}),'top:cardi':Object.freeze({url:'assets/seated/f-side-top-cardi.png',rect:[10.7586, 34.5817, 11.3467, 11.4987]}),'top:sailor':Object.freeze({url:'assets/seated/f-side-top-sailor.png',rect:[8.5076, 33.9124, 14.054, 11.9551]}),'top:jacket':Object.freeze({url:'assets/seated/f-side-top-jacket.png',rect:[8.2946, 34.3687, 12.746, 11.4684]}),'top:knit':Object.freeze({url:'assets/seated/f-side-top-knit.png',rect:[8.0208, 33.9428, 14.5408, 11.8638]}),'top:tank':Object.freeze({url:'assets/seated/f-side-top-tank.png',rect:[8.5684, 34.1862, 12.533, 11.7117]}),'bottom:pleat':Object.freeze({url:'assets/seated/f-side-bottom-pleat.png',rect:[8.538, 34.5512, 14.0844, 11.6205]}),'bottom:track':Object.freeze({url:'assets/seated/f-side-bottom-track.png',rect:[8.4771, 34.5208, 13.8716, 11.3771]}),'bottom:legging':Object.freeze({url:'assets/seated/f-side-bottom-legging.png',rect:[8.8726, 34.4904, 13.8411, 11.3771]}),'bottom:tutu':Object.freeze({url:'assets/seated/f-side-bottom-tutu.png',rect:[7.9904, 34.5208, 13.5978, 11.8942]}),'bottom:cargo':Object.freeze({url:'assets/seated/f-side-bottom-cargo.png',rect:[8.5988, 34.46, 12.746, 11.6813]}),'bottom:jean_skirt':Object.freeze({url:'assets/seated/f-side-bottom-jean_skirt.png',rect:[8.3859, 34.5512, 14.0236, 12.1072]}),'bottom:star_skirt':Object.freeze({url:'assets/seated/f-side-bottom-star_skirt.png',rect:[8.3555, 34.5208, 13.7194, 11.6813]}),'shoes:dress':Object.freeze({url:'assets/seated/f-side-shoes-dress.png',rect:[15.9605, 43.5251, 6.084, 2.4641]}),'shoes:boots':Object.freeze({url:'assets/seated/f-side-shoes-boots.png',rect:[15.9605, 42.8255, 6.2969, 3.407]}),'shoes:sandal':Object.freeze({url:'assets/seated/f-side-shoes-sandal.png',rect:[17.1773, 42.3083, 5.2626, 4.1067]}),'shoes:hitop':Object.freeze({url:'assets/seated/f-side-shoes-hitop.png',rect:[17.4815, 42.3083, 5.9319, 3.8634]}),'shoes:ballet':Object.freeze({url:'assets/seated/f-side-shoes-ballet.png',rect:[15.9605, 42.9167, 6.3273, 2.9204]}),'shoes:rain':Object.freeze({url:'assets/seated/f-side-shoes-rain.png',rect:[15.9605, 42.3083, 7.4529, 4.8368]}),'shoes:slipper':Object.freeze({url:'assets/seated/f-side-shoes-slipper.png',rect:[15.9909, 42.6125, 6.6011, 3.3767]}),'shoes:wing_shoes':Object.freeze({url:'assets/seated/f-side-shoes-wing_shoes.png',rect:[16.0517, 42.3083, 6.662, 3.6809]}),'outfit:dress':Object.freeze({url:'assets/seated/f-side-outfit-dress.png',rect:[8.2642, 34.46, 14.1757, 11.5292]}),'outfit:robe':Object.freeze({url:'assets/seated/f-side-outfit-robe.png',rect:[8.1729, 34.5208, 14.9971, 12.1376]}),'outfit:overall':Object.freeze({url:'assets/seated/f-side-outfit-overall.png',rect:[7.9904, 34.1862, 13.0198, 11.6813]}),'outfit:space':Object.freeze({url:'assets/seated/f-side-outfit-space.png',rect:[8.1121, 34.0341, 13.111, 11.7421]}),'outfit:hanbok':Object.freeze({url:'assets/seated/f-side-outfit-hanbok.png',rect:[8.9943, 33.6082, 12.9589, 12.2593]})})}),back:Object.freeze({seat:2.56,frame:[4.0398, 13.2192, 23.7948, 36.144],unit:0.0251,layers:Object.freeze({'base':Object.freeze({url:'assets/seated/f-back-base.png',rect:[8.7336, 34.3032, 14.4576, 11.7468]}),'bottom:shorts':Object.freeze({url:'assets/seated/f-back-bottom-shorts.png',rect:[11.2687, 42.1344, 9.5379, 3.7148]}),'shoes:sneaker':null,'top:tee':Object.freeze({url:'assets/seated/f-back-top-tee.png',rect:[10.4152, 34.504, 11.1696, 10.4416]}),'top:hood':Object.freeze({url:'assets/seated/f-back-top-hood.png',rect:[8.5076, 33.0482, 15.06, 13.052]}),'top:shirt':Object.freeze({url:'assets/seated/f-back-top-shirt.png',rect:[8.5328, 34.3032, 14.9846, 11.7468]}),'top:vest':Object.freeze({url:'assets/seated/f-back-top-vest.png',rect:[8.5076, 33.0482, 15.2358, 13.1524]}),'top:cardi':Object.freeze({url:'assets/seated/f-back-top-cardi.png',rect:[8.3069, 33.0733, 15.3361, 13.0269]}),'top:sailor':Object.freeze({url:'assets/seated/f-back-top-sailor.png',rect:[8.5076, 33.0482, 14.9094, 13.303]}),'top:jacket':Object.freeze({url:'assets/seated/f-back-top-jacket.png',rect:[8.5076, 33.0482, 15.0349, 13.052]}),'top:knit':Object.freeze({url:'assets/seated/f-back-top-knit.png',rect:[8.4574, 34.2028, 15.0851, 11.8472]}),'top:tank':Object.freeze({url:'assets/seated/f-back-top-tank.png',rect:[8.583, 33.0482, 14.7086, 13.0018]}),'bottom:pleat':Object.freeze({url:'assets/seated/f-back-bottom-pleat.png',rect:[8.4324, 34.5542, 15.5118, 13.7297]}),'bottom:track':Object.freeze({url:'assets/seated/f-back-bottom-track.png',rect:[8.6834, 34.5542, 14.6082, 11.797]}),'bottom:legging':Object.freeze({url:'assets/seated/f-back-bottom-legging.png',rect:[8.7838, 34.5793, 14.0057, 11.5209]}),'bottom:tutu':Object.freeze({url:'assets/seated/f-back-bottom-tutu.png',rect:[7.83, 34.5542, 16.3651, 13.5038]}),'bottom:cargo':Object.freeze({url:'assets/seated/f-back-bottom-cargo.png',rect:[8.7336, 34.6044, 14.4827, 11.6464]}),'bottom:jean_skirt':Object.freeze({url:'assets/seated/f-back-bottom-jean_skirt.png',rect:[8.2315, 34.5542, 15.4617, 11.9476]}),'bottom:star_skirt':Object.freeze({url:'assets/seated/f-back-bottom-star_skirt.png',rect:[8.2064, 34.5542, 16.2398, 13.7548]}),'shoes:dress':null,'shoes:boots':null,'shoes:sandal':null,'shoes:hitop':null,'shoes:ballet':null,'shoes:rain':null,'shoes:slipper':null,'shoes:wing_shoes':null,'outfit:dress':Object.freeze({url:'assets/seated/f-back-outfit-dress.png',rect:[8.2315, 33.8514, 15.6374, 11.9225]}),'outfit:robe':Object.freeze({url:'assets/seated/f-back-outfit-robe.png',rect:[7.9805, 33.8514, 15.3361, 12.4496]}),'outfit:overall':Object.freeze({url:'assets/seated/f-back-outfit-overall.png',rect:[8.6834, 33.0482, 14.7336, 13.2277]}),'outfit:space':Object.freeze({url:'assets/seated/f-back-outfit-space.png',rect:[8.6582, 34.3534, 14.5581, 11.797]}),'outfit:hanbok':Object.freeze({url:'assets/seated/f-back-outfit-hanbok.png',rect:[8.4574, 34.3032, 15.6123, 11.7468]})})})})});
   const SEATED=Object.freeze({
     // The side view is drawn for reading, as in the user's side reference
     // (round 2: before, the shirt reached the floor, no knee showed and the
@@ -469,7 +489,7 @@
   function solve(input={}){
     const direction=input.action==='climb'?'back':['front','back','left','right'].includes(input.direction)?input.direction:input.facing||'front',profile=['left','right'].includes(direction),back=direction==='back',view=profile?'profile':back?'back':'front';
     const SPEC=rigFor(input.sex,view),REST_SWING=Math.atan2(...SPEC.profileSwing),REST_FLEX=Math.atan2(...SPEC.profileFlex)-REST_SWING;
-    const action=input.action||'idle',run=action==='run',walk=run||action==='walk',floor=action==='floor-sit'||action==='sit'&&input.seatMode==='floor',desk=action==='sit'&&!floor,jump=action==='jump',climb=action==='climb',CR=climb?climbRig(SPEC):null;
+    const action=input.action||'idle',run=action==='run',walk=run||action==='walk',floor=action==='floor-sit'||action==='sit'&&input.seatMode==='floor',seatArt=floor?seatLayers(direction,input.sex,input.garments):null,desk=action==='sit'&&!floor,jump=action==='jump',climb=action==='climb',CR=climb?climbRig(SPEC):null;
     const rawPhase=((Number(input.phase)||0)%1+1)%1;
     // A cycle has 24 shared painted poses (walk ~50fps, run ~78fps in maps).
     // Quantize drawing only: world position and input timing remain continuous.
@@ -521,7 +541,7 @@
     // hip joint sits `seat` above the floor (front rig, so turning keeps the
     // head height).
     const FRONT=rigFor(input.sex,'front'),HIP_L=(FRONT.hip[1]-FRONT.hip[0])/2;
-    const drop=floor?SPEC.floor-SEATED.floor.seat-FRONT.waist:desk?SEATED.desk.drop:climb?.05:walk?Math.max(hipDrop(gait,phase),planted):crouch?.03+jumpKey.drop*compression:air?.05:.03+.07*breath+(profile?.1:BOW_DIP)*nod+.62*squash;
+    const drop=floor?SPEC.floor-(seatArt?seatArt.seat:SEATED.floor.seat)-FRONT.waist:desk?SEATED.desk.drop:climb?.05:walk?Math.max(hipDrop(gait,phase),planted):crouch?.03+jumpKey.drop*compression:air?.05:.03+.07*breath+(profile?.1:BOW_DIP)*nod+.62*squash;
     // Climbing: phase 0 (the foot of the ladder) starts with one foot just
     // leaving the ground. The reaching arm's shoulder rises and the hips shift
     // over the standing (lower) foot, the lower hand's diagonal partner.
@@ -531,7 +551,7 @@
     // the start is not a one-frame snap from idle. Six drawn steps.
     const ease=climb?Math.round(clamp(Number.isFinite(input.climbIn)?input.climbIn:1,0,1)*6)/6:1,reachSide=climb?(grips[0].pos-grips[1].pos)*ease:0;
     const sway=climb?CLIMB.sway*reachSide:walk&&!profile?byGait(g=>-g.sway*Math.sin(TAU*(phase-g.support+.25))):0,roll=climb?-CLIMB.roll*reachSide:walk&&!profile?byGait(g=>g.roll*(-g.sway*Math.sin(TAU*(phase-g.support+.25)))/g.sway):0;
-    const lean=profile?(walk?byGait(g=>g.lean+(g===GAIT.walk?.8*Math.cos(2*TAU*phase):0)):floor?SEATED.floor.side.lean:desk?SEATED.desk.lean:crouch?jumpKey.lean*compression:air?jumpKey.lean:BOW_LEAN*nod+4*squash-2*hopTuck):0;
+    const lean=profile?(walk?byGait(g=>g.lean+(g===GAIT.walk?.8*Math.cos(2*TAU*phase):0)):floor?(seatArt?0:SEATED.floor.side.lean):desk?SEATED.desk.lean:crouch?jumpKey.lean*compression:air?jumpKey.lean:BOW_LEAN*nod+4*squash-2*hopTuck):0;
     // A side crouch sits the hips back over the heels as the knees go forward.
     const hips=profile&&crouch?jumpKey.hips*compression:0;
     const torso=transform([16,SPEC.waist],[16+sway+hips-(profile?.8*nod:0),SPEC.waist+drop],rad(profile?lean:roll));
@@ -758,13 +778,16 @@
       // its painting and sleeve, shared by every seated avatar) never changes.
       if(seatBreath){const up=chest[5]-torso[5];for(const p of [shoulder,elbow,wrist])p[1]+=up;}
       // fold: a run/jump forearm may turn back over its own upper arm on
-      // screen; the skin paints that bend as a rounded elbow.
-      return{shoulder,elbow,wrist,depth:depth[1],boneSpace:[[...shoulder,0],[...elbow,depth[0]],[...wrist,depth[1]]],sleeve:transform(rest,shoulder,angle),angle,lift,open:open??lift,handTurn,fold:walk&&runW>0||jump};
+      // screen; the skin paints that bend as a rounded elbow. fist: a
+      // running arm seen from the front or behind closes its hand (the
+      // skin's rule-drawn fist, QPFoundationSkin FIST); the side run keeps
+      // the painted hand, which reads as a fist from the side.
+      return{shoulder,elbow,wrist,depth:depth[1],boneSpace:[[...shoulder,0],[...elbow,depth[0]],[...wrist,depth[1]]],sleeve:transform(rest,shoulder,angle),angle,lift,open:open??lift,handTurn,fold:walk&&runW>0||jump,fist:walk&&runW>0&&!profile};
     });
     // The raised side cheer lifts the chin a little toward the hands, on top
     // of the lean rule (a head pitch like the bow's, not a lean).
     const headLook=happy&&profile?-(GESTURE_KEYS.happy.profile[cheerStyle].look||0)*happy.arms:0;
-    return{direction,profile,back,action,phase,torso,chest,legs,arms,floor,desk,drop,lean,neckTilt,headTilt,headLook,gesture,hop,nod,headPitch:profile?(BOW_LEAN+BOW_PITCH)*nod:0,spec:SPEC,ladder:CR};
+    return{direction,profile,back,action,phase,torso,chest,legs,arms,floor,desk,seatArt,drop,lean,neckTilt,headTilt,headLook,gesture,hop,nod,headPitch:profile?(BOW_LEAN+BOW_PITCH)*nod:0,spec:SPEC,ladder:CR};
   }
   const el=(tag,attrs={})=>{const e=document.createElementNS(NS,tag);for(const[k,v]of Object.entries(attrs))e.setAttribute(k,v);return e;};
   const set=(e,key,value)=>{if(e.getAttribute(key)!==String(value))e.setAttribute(key,value);};
@@ -773,10 +796,13 @@
   function pigment(defs,id,color){const g=el('linearGradient',{id,x1:0,y1:0,x2:1,y2:0});for(const [offset,f]of[[0,.80],[.28,1.04],[.62,1.09],[1,.88]])g.append(el('stop',{offset,'stop-color':tone(color,f)}));defs.append(g);return'url(#'+id+')';}
   function headViews(av){
     const base={...av,rig:undefined,foundationGarments:undefined,top:'',bottom:'',shoes:'',outfit:'',pet:'',effect:'',bg:'',frame:'',hat:'',glass:'',face:'',ear:'',neck:'',back:''};
-    const key=JSON.stringify(base);if(headCache.has(key))return headCache.get(key);
+    const key=JSON.stringify(base);if(headCache.has(key)){const hit=headCache.get(key);headCache.delete(key);headCache.set(key,hit);return hit;}
     const raw=new DOMParser().parseFromString(QPAvatar.render(base,280,3),'image/svg+xml').documentElement;
     const front=raw.querySelector('.qpx-head'),skin=front.dataset.qpxHeadSkin;
-    const result={key,skin,headClip:raw.querySelector('#qpx-head-front').outerHTML,backHair:raw.querySelector('.qpx-back-hair')?.outerHTML||'',front:front.outerHTML,profile:QPAvatarDirection.headMarkup(raw,'profile'),back:QPAvatarDirection.headMarkup(raw,'back')};headCache.set(key,result);return result;
+    const result={key,skin,headClip:raw.querySelector('#qpx-head-front').outerHTML,backHair:raw.querySelector('.qpx-back-hair')?.outerHTML||'',front:front.outerHTML,profile:QPAvatarDirection.headMarkup(raw,'profile'),back:QPAvatarDirection.headMarkup(raw,'back')};headCache.set(key,result);
+    // Least recently used out past HEAD_CACHE (stage 3 WP9): a class roster
+    // of 30 heads fits; shop previews cycling hair no longer grow it forever.
+    while(headCache.size>HEAD_CACHE)headCache.delete(headCache.keys().next().value);return result;
   }
   // render() output is assembled from a template per head and outfit: the
   // posed skeleton serialized once with its id and size left as slots, and
@@ -799,20 +825,28 @@
     const sex=av.sex==='m'?'m':'f',G=root.QPFoundationGarments,mode=av.foundationOutfit==='body'||!G?'body':'dressed';
     // The garments this avatar wears (per slot, or the basic piece with a reason).
     const dress=mode==='dressed'?G.resolve({...av,sex}):null;
-    const base={...av,sex,hair:av.hair|| (sex==='m'?'short:1':'bob:1'),expression:av.expression||'bright:0'},heads=headViews(base),key=heads.key+'\n'+mode+(dress?'\n'+dress.key+'\n'+dress.fallbackKey:'');
+    const base={...av,sex,hair:av.hair|| (sex==='m'?'short:1':'bob:1'),expression:av.expression||'bright:0'},heads=headViews(base),items=shopItems(av),key=heads.key+'\n'+mode+(dress?'\n'+dress.key+'\n'+dress.fallbackKey:'')+'\n'+items;
     let t=templates.get(key);if(t){templates.delete(key);templates.set(key,t);}
-    else{t=template(base,heads,sex,mode,dress);if(!t.pending){templates.set(key,t);if(templates.size>48)templates.delete(templates.keys().next().value);}}
+    else{t=template(base,heads,sex,mode,dress,items);if(!t.pending){templates.set(key,t);if(templates.size>48)templates.delete(templates.keys().next().value);}}
     const values=['qpf-'+(++serial),String(size*32/56),String(size*62/56)];
     if(t.pending){issued.add(values[0]);repaintWhenReady(dress?dress.ids:[],sex);}
     let html='';for(const c of t.chunks)html+=typeof c==='string'?c:values[c];return html;
   }
-  function template(base,heads,sex,mode,dress){
+  // The shop items worn, by shape ('top:hood|bottom:shorts|shoes:sneaker';
+  // a one-piece 'outfit:dress|shoes:…'), the basic piece for an empty slot.
+  // The drawn floor sit (SEATED_ART) is chosen by these: an item without its
+  // garment record still has its own seated drawing.
+  function shopItems(av){
+    const whole=String(av.outfit||'').split(':')[0],shape=(slot,basic)=>String(av[slot]||'').split(':')[0]||basic;
+    return(whole?['outfit:'+whole]:['top:'+shape('top','tee'),'bottom:'+shape('bottom','shorts')]).concat('shoes:'+shape('shoes','sneaker')).join('|');
+  }
+  function template(base,heads,sex,mode,dress,items=''){
     const id=TEMPLATE_ID;
     const svg=el('svg',{xmlns:NS,class:'qp-pixel-avatar qp-illustrated-avatar qp-foundation-avatar','data-qp-foundation':'1','data-foundation-outfit':mode,'data-qpx-sex':sex,'data-foundation-id':id,'data-foundation-skin':heads.skin,viewBox:'0 0 32 62',width:TEMPLATE_W,height:TEMPLATE_H,role:'img','aria-label':(sex==='m'?'남자':'여자')+' 기준 캐릭터',style:'display:block;overflow:visible;--qpx-viewport-scale:1.107142857;--qpx-ground-shift:2.4'});
     // What it wears: record ids per slot (top|bottom|shoes), the fallback
     // reasons (slot:reason|…, empty when every item has its record) and the
     // class signature (tools/foundation-matrix.cjs NODE_TABLE).
-    if(dress){svg.dataset.foundationGarments=dress.key;svg.dataset.foundationFallback=dress.fallbackKey;svg.dataset.foundationClass=dress.cls;}
+    if(dress){svg.dataset.foundationGarments=dress.key;svg.dataset.foundationFallback=dress.fallbackKey;svg.dataset.foundationClass=dress.cls;svg.dataset.foundationItems=items;}
     const defs=el('defs');svg.append(defs);const skin=pigment(defs,id+'-skin',heads.skin),underlay=pigment(defs,id+'-underlay','#d9e0d1');
     const neckGradient=el('linearGradient',{id:id+'-neck-shadow',gradientUnits:'userSpaceOnUse',x1:16,x2:16,y1:27.8,y2:28.5});neckGradient.append(el('stop',{offset:0,'stop-color':tone(heads.skin,.74),'stop-opacity':.62}),el('stop',{offset:.42,'stop-color':tone(heads.skin,.82),'stop-opacity':.26}),el('stop',{offset:1,'stop-color':tone(heads.skin,.88),'stop-opacity':0}));defs.append(neckGradient);
     const headClip=el('g');headClip.innerHTML=heads.headClip.replaceAll('qpx-head-front',id+'-head-front');defs.append(...headClip.children);
@@ -995,7 +1029,7 @@
   // breathing clock is offset by its own render serial (0-3.3 s).
   const breathOffset=svg=>(Number(String(svg.dataset.foundationId).slice(4))||0)*1.37%3.3;
   function apply(svg,state={}){
-    const r=mount(svg,false);if(!r)return false;r.state=state;const sitting=state.action==='sit'||state.action==='floor-sit',pose=solve({...state,sex:svg.dataset.qpxSex,time:(Number.isFinite(state.time)?state.time:performance.now()/1000)+(sitting?breathOffset(svg):0),reducedMotion:state.reducedMotion??Boolean(REDUCED?.matches)}),view=pose.profile?'profile':pose.back?'back':'front';r.pose=pose;
+    const r=mount(svg,false);if(!r)return false;r.state=state;const sitting=state.action==='sit'||state.action==='floor-sit',pose=solve({...state,sex:svg.dataset.qpxSex,garments:svg.dataset.foundationItems,time:(Number.isFinite(state.time)?state.time:performance.now()/1000)+(sitting?breathOffset(svg):0),reducedMotion:state.reducedMotion??Boolean(REDUCED?.matches)}),view=pose.profile?'profile':pose.back?'back':'front';r.pose=pose;
     set(r.mirror,'transform',(pose.direction==='left'?'translate(32 0) scale(-1 1)':'')+(pose.hop?' translate(0 '+n(-pose.hop)+')':''));
     // The floor shadow shrinks while a cheering hop is in the air.
     set(r.svg.querySelector('.qpx-contact-shadow'),'transform',pose.hop?'translate(16 56.75) scale('+n(1-.28*pose.hop/HAPPY_HEIGHT)+') translate(-16 -56.75)':'');
@@ -1092,7 +1126,50 @@
       if(dressed===undefined){if(svg.getAttribute('visibility')!=='hidden')svg.setAttribute('visibility','hidden');if(!templating){r.waiting=true;waiting.add(svg);repaintWhenReady(root.QPFoundationGarments.idsOf(svg.dataset.foundationGarments),svg.dataset.qpxSex==='m'?'m':'f');}}
       else if(r.waiting){r.waiting=false;waiting.delete(svg);svg.removeAttribute('visibility');}}
     root.QPFoundationSkin?.apply(r,pose);
+    seatDrawn(r,pose);
     return true;
+  }
+  // The drawn floor sit for this view, sex and worn shop items
+  // (shopItems), or null when one of them has no seated layer.
+  function seatLayers(direction,sex,items){
+    const view=direction==='front'?'front':direction==='back'?'back':'side',rec=SEATED_LAYERS?.[sex==='f'?'f':'m']?.[view];if(!rec)return null;
+    const ids=String(items||'').split('|'),slot=s=>ids.find(id=>id.startsWith(s+':')),one=slot('outfit');
+    const order=one?['shoes','outfit']:['bottom','shoes','top'],layers=[rec.layers.base];
+    for(const s of order){const id=slot(s);if(!id||!(id in rec.layers))return null;if(rec.layers[id])layers.push(rec.layers[id]);}
+    return{seat:rec.seat,frame:rec.frame,unit:rec.unit,layers,key:sex+'|'+view+'|'+order.map(slot).join('|')};
+  }
+  // The layers composed into one picture per look and skin tone (skin
+  // pixels tinted with the skin painting's own colour matrix), cached.
+  const seatImages=new Map(),seatPictures=new Map();
+  function seatImage(url){let p=seatImages.get(url);if(!p){p=new Promise((ok,fail)=>{const im=new Image();im.onload=()=>ok(im);im.onerror=fail;im.src=url;});seatImages.set(url,p);}return p;}
+  function seatPicture(A,skin){
+    const key=A.key+'|'+skin;let p=seatPictures.get(key);
+    if(p){seatPictures.delete(key);seatPictures.set(key,p);return p;}
+    p=Promise.all(A.layers.map(l=>seatImage(l.url))).then(images=>{
+      const [fx,fy,fw,fh]=A.frame,k=1/A.unit,c=document.createElement('canvas');c.width=Math.ceil(fw*k);c.height=Math.ceil(fh*k);const x=c.getContext('2d');
+      images.forEach((im,i)=>{const [lx,ly]=A.layers[i].rect;x.drawImage(im,Math.round((lx-fx)*k),Math.round((ly-fy)*k));});
+      const d=x.getImageData(0,0,c.width,c.height),px=d.data,m=(root.QPFoundationSkin?.toneMatrix?.(skin)||'1 0 0 0 0 0 1 0 0 0 0 0 1 0 0').split(' ').map(Number);
+      for(let i=0;i<px.length;i+=4)if(px[i+3]===254){const r=px[i]/255,g=px[i+1]/255,b=px[i+2]/255;for(let c2=0;c2<3;c2++)px[i+c2]=Math.round(255*Math.max(0,Math.min(1,m[c2*5]*r+m[c2*5+1]*g+m[c2*5+2]*b+m[c2*5+4])));px[i+3]=255;}
+      x.putImageData(d,0,0);return{url:c.toDataURL(),rect:A.frame};
+    });
+    seatPictures.set(key,p);while(seatPictures.size>24)seatPictures.delete(seatPictures.keys().next().value);return p;
+  }
+  // Shows a drawn floor sit (pose.seatArt): the body is hidden and the
+  // composed picture takes the near leg's painting (no node is added),
+  // shown through the hidden body; the head stays. Undone for any other pose.
+  function seatDrawn(r,pose){
+    const A=pose.seatArt,pics=r.legs.map(l=>l.painting).filter(Boolean);
+    if(!A){if(r.seatDrawn){for(const e of [r.body,r.frontHands,...pics]){e.style.removeProperty('visibility');if(!e.getAttribute('style'))e.removeAttribute('style');}
+      for(const e of pics)if(e.dataset.seatFilter){e.setAttribute('filter',e.dataset.seatFilter);delete e.dataset.seatFilter;}r.seatDrawn=false;r.seatKey='';}return;}
+    if(pics.length<2)return;
+    r.body.style.visibility='hidden';r.frontHands.style.visibility='hidden';
+    const e=pics[1],skin=r.svg.dataset.foundationSkin,key=A.key+'|'+skin;
+    if(e.hasAttribute('filter')){e.dataset.seatFilter=e.getAttribute('filter');e.removeAttribute('filter');}
+    e.style.visibility=r.seatKey===key?'visible':'hidden';pics[0].style.visibility='hidden';
+    if(e.hasAttribute('clip-path'))e.removeAttribute('clip-path');
+    if(r.seatKey!==key){r.seatKey=key;seatPicture(A,skin).then(P=>{if(r.seatKey!==key||!r.pose?.seatArt)return;set(e,'href',P.url);e.paintedArt=null;for(const[k,v]of Object.entries({x:P.rect[0],y:P.rect[1],width:P.rect[2],height:P.rect[3]}))set(e,k,v);e.style.visibility='visible';}).catch(()=>{});}
+    else{const P=e.getAttribute('x');if(!P)e.style.visibility='hidden';}
+    r.seatDrawn=true;
   }
   function destroy(svg){
     const r=mounted.get(svg);if(!r)return false;waiting.delete(svg);
