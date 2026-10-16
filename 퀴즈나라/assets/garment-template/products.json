@@ -1629,6 +1629,295 @@
     }
    },
    "sharedPicture": true
+  },
+  "ear:dot": {
+   "class": "ear/earring",
+   "status": "earring R3 (shared picture)",
+   "sexes": [
+    "m",
+    "f"
+   ],
+   "ci": {
+    "m": 0,
+    "f": 0
+   },
+   "names": {
+    "m": "방울 귀걸이",
+    "f": "방울 귀걸이"
+   },
+   "colour": {
+    "m": "#ffd24a",
+    "f": "#ffd24a"
+   },
+   "display": {
+    "m": "#ffd24a",
+    "f": "#ffd24a"
+   },
+   "mirrorSafe": true,
+   "designRef": "ref-ear-dot-design.png",
+   "notes": {
+    "ko": {
+     "item": "방울 귀걸이",
+     "look": "색과 모양",
+     "both": "두 번째 그림의 방울 귀걸이. 귓불에 붙은 작은 동그란 장식 바로 아래에 달걀 모양의 반짝이는 금색 구슬이 하나씩 달려 있습니다. 귀걸이 전체가 턱선보다 아래로 내려오지 않습니다.",
+     "back": "옆모습에서는 보이는 귀에 같은 귀걸이를 그리고, 뒷모습은 위 규칙을 따릅니다."
+    },
+    "en": {
+     "item": "bead earrings",
+     "look": "colour and shape",
+     "both": "the earrings from image 2: a small round stud on the earlobe with an oval shiny gold bead hanging just below it. The whole earring stays above the jaw line.",
+     "back": "in the side view show the same earring on the visible ear; the back view follows the rule above."
+    }
+   },
+   "sharedPicture": true
+  },
+  "ear:heart_e": {
+   "class": "ear/earring",
+   "status": "earring R4 (shared picture)",
+   "sexes": [
+    "m",
+    "f"
+   ],
+   "ci": {
+    "m": 0,
+    "f": 0
+   },
+   "names": {
+    "m": "하트 귀걸이",
+    "f": "하트 귀걸이"
+   },
+   "colour": {
+    "m": "#ffd24a",
+    "f": "#ffd24a"
+   },
+   "display": {
+    "m": "#ffd24a",
+    "f": "#ffd24a"
+   },
+   "mirrorSafe": true,
+   "designRef": "ref-ear-heart_e-design.png",
+   "notes": {
+    "ko": {
+     "item": "하트 귀걸이",
+     "look": "색과 모양",
+     "both": "두 번째 그림의 하트 귀걸이. 귓불에 붙은 작은 동그란 장식 바로 아래에 작은 금색 하트가 하나씩 달려 있습니다. 귀걸이 전체가 턱선보다 아래로 내려오지 않습니다.",
+     "back": "옆모습에서는 보이는 귀에 같은 귀걸이를 그리고, 뒷모습은 위 규칙을 따릅니다."
+    },
+    "en": {
+     "item": "heart earrings",
+     "look": "colour and shape",
+     "both": "the earrings from image 2: a small round stud on the earlobe with a small gold heart hanging just below it. The whole earring stays above the jaw line.",
+     "back": "in the side view show the same earring on the visible ear; the back view follows the rule above."
+    }
+   },
+   "sharedPicture": true
+  },
+  "ear:drop": {
+   "class": "ear/earring",
+   "status": "earring R5 (shared picture)",
+   "sexes": [
+    "m",
+    "f"
+   ],
+   "ci": {
+    "m": 0,
+    "f": 0
+   },
+   "names": {
+    "m": "물방울 귀걸이",
+    "f": "물방울 귀걸이"
+   },
+   "colour": {
+    "m": "#ffd24a",
+    "f": "#ffd24a"
+   },
+   "display": {
+    "m": "#ffd24a",
+    "f": "#ffd24a"
+   },
+   "mirrorSafe": true,
+   "designRef": "ref-ear-drop-design.png",
+   "notes": {
+    "ko": {
+     "item": "물방울 귀걸이",
+     "look": "색과 모양",
+     "both": "두 번째 그림의 물방울 귀걸이. 귓불에 붙은 작은 동그란 장식 바로 아래에 짧은 금색 물방울이 줄 없이 붙어 매달려 있습니다(긴 귀걸이처럼 가는 줄로 길게 늘어지지 않음). 물방울 안에 작은 흰 반짝임. 귀걸이 전체가 턱선보다 아래로 내려오지 않습니다.",
+     "back": "옆모습에서는 보이는 귀에 같은 귀걸이를 그리고, 뒷모습은 위 규칙을 따릅니다."
+    },
+    "en": {
+     "item": "teardrop earrings",
+     "look": "colour and shape",
+     "both": "the earrings from image 2: a small round stud on the earlobe with a short gold teardrop hanging right under it, no chain (not long like a dangling earring); a tiny white shine in the drop. The whole earring stays above the jaw line.",
+     "back": "in the side view show the same earring on the visible ear; the back view follows the rule above."
+    }
+   },
+   "sharedPicture": true,
+   "refSvg": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"180\" height=\"60\" viewBox=\"0 0 180 60\"><circle cx=\"40\" cy=\"12\" r=\"4.5\" fill=\"#ffd24a\" stroke=\"#b8952e\" stroke-width=\"1.5\"/><path d=\"M40 18 C38 28 31 33 31 38 C31 45 35 47 40 47 C45 47 49 45 49 38 C49 33 42 28 40 18 Z\" fill=\"#ffd24a\" stroke=\"#b8952e\" stroke-width=\"1.5\"/><ellipse cx=\"36\" cy=\"36\" rx=\"2\" ry=\"3.5\" fill=\"#fff6c8\"/><circle cx=\"140\" cy=\"12\" r=\"4.5\" fill=\"#ffd24a\" stroke=\"#b8952e\" stroke-width=\"1.5\"/><path d=\"M140 18 C138 28 131 33 131 38 C131 45 135 47 140 47 C145 47 149 45 149 38 C149 33 142 28 140 18 Z\" fill=\"#ffd24a\" stroke=\"#b8952e\" stroke-width=\"1.5\"/><ellipse cx=\"136\" cy=\"36\" rx=\"2\" ry=\"3.5\" fill=\"#fff6c8\"/></svg>"
+  },
+  "ear:ring": {
+   "class": "ear/earring",
+   "status": "earring R6 (shared picture)",
+   "sexes": [
+    "m",
+    "f"
+   ],
+   "ci": {
+    "m": 0,
+    "f": 0
+   },
+   "names": {
+    "m": "링 귀걸이",
+    "f": "링 귀걸이"
+   },
+   "colour": {
+    "m": "#ffd24a",
+    "f": "#ffd24a"
+   },
+   "display": {
+    "m": "#ffd24a",
+    "f": "#ffd24a"
+   },
+   "mirrorSafe": true,
+   "designRef": "ref-ear-ring-design.png",
+   "notes": {
+    "ko": {
+     "item": "링 귀걸이",
+     "look": "색과 모양",
+     "both": "두 번째 그림의 링 귀걸이. 귓불에 끼운 가는 금색 동그라미 고리 하나씩. 고리는 귓불 아래로 동그랗게 늘어집니다. 귀걸이 전체가 턱선보다 아래로 내려오지 않습니다.",
+     "back": "옆모습에서는 보이는 귀에 같은 귀걸이를 그리고, 뒷모습은 위 규칙을 따릅니다."
+    },
+    "en": {
+     "item": "hoop earrings",
+     "look": "colour and shape",
+     "both": "the earrings from image 2: a thin gold hoop through each earlobe, hanging in a round loop below the lobe. The whole earring stays above the jaw line.",
+     "back": "in the side view show the same earring on the visible ear; the back view follows the rule above."
+    }
+   },
+   "sharedPicture": true
+  },
+  "ear:flower_e": {
+   "class": "ear/earring",
+   "status": "earring R7 (shared picture)",
+   "sexes": [
+    "m",
+    "f"
+   ],
+   "ci": {
+    "m": 0,
+    "f": 0
+   },
+   "names": {
+    "m": "꽃 귀걸이",
+    "f": "꽃 귀걸이"
+   },
+   "colour": {
+    "m": "#ffd24a",
+    "f": "#ffd24a"
+   },
+   "display": {
+    "m": "#ffd24a",
+    "f": "#ffd24a"
+   },
+   "mirrorSafe": true,
+   "designRef": "ref-ear-flower_e-design.png",
+   "notes": {
+    "ko": {
+     "item": "꽃 귀걸이",
+     "look": "색과 모양",
+     "both": "두 번째 그림의 꽃 귀걸이. 귓불에 붙은 작은 동그란 장식 바로 아래에 다섯 꽃잎의 작은 금색 꽃이 하나씩 달려 있습니다. 꽃 가운데는 연한 노랑. 귀걸이 전체가 턱선보다 아래로 내려오지 않습니다.",
+     "back": "옆모습에서는 보이는 귀에 같은 귀걸이를 그리고, 뒷모습은 위 규칙을 따릅니다."
+    },
+    "en": {
+     "item": "flower earrings",
+     "look": "colour and shape",
+     "both": "the earrings from image 2: a small round stud on the earlobe with a small five-petal gold flower hanging just below it, its centre pale yellow. The whole earring stays above the jaw line.",
+     "back": "in the side view show the same earring on the visible ear; the back view follows the rule above."
+    }
+   },
+   "sharedPicture": true
+  },
+  "ear:cross_e": {
+   "class": "ear/earring",
+   "status": "earring R8 (shared picture)",
+   "sexes": [
+    "m",
+    "f"
+   ],
+   "ci": {
+    "m": 0,
+    "f": 0
+   },
+   "names": {
+    "m": "십자 귀걸이",
+    "f": "십자 귀걸이"
+   },
+   "colour": {
+    "m": "#ffd24a",
+    "f": "#ffd24a"
+   },
+   "display": {
+    "m": "#ffd24a",
+    "f": "#ffd24a"
+   },
+   "mirrorSafe": true,
+   "designRef": "ref-ear-cross_e-design.png",
+   "notes": {
+    "ko": {
+     "item": "십자 귀걸이",
+     "look": "색과 모양",
+     "both": "두 번째 그림의 십자 귀걸이. 귓불에 붙은 작은 동그란 장식 바로 아래에 가는 금색 십자 모양이 하나씩 달려 있습니다. 귀걸이 전체가 턱선보다 아래로 내려오지 않습니다.",
+     "back": "옆모습에서는 보이는 귀에 같은 귀걸이를 그리고, 뒷모습은 위 규칙을 따릅니다."
+    },
+    "en": {
+     "item": "cross earrings",
+     "look": "colour and shape",
+     "both": "the earrings from image 2: a small round stud on the earlobe with a thin gold cross shape hanging just below it. The whole earring stays above the jaw line.",
+     "back": "in the side view show the same earring on the visible ear; the back view follows the rule above."
+    }
+   },
+   "sharedPicture": true
+  },
+  "ear:bell": {
+   "class": "ear/earring",
+   "status": "earring R9 (shared picture)",
+   "sexes": [
+    "m",
+    "f"
+   ],
+   "ci": {
+    "m": 0,
+    "f": 0
+   },
+   "names": {
+    "m": "방울",
+    "f": "방울"
+   },
+   "colour": {
+    "m": "#ffd24a",
+    "f": "#ffd24a"
+   },
+   "display": {
+    "m": "#ffd24a",
+    "f": "#ffd24a"
+   },
+   "mirrorSafe": true,
+   "designRef": "ref-ear-bell-design.png",
+   "notes": {
+    "ko": {
+     "item": "방울",
+     "look": "색과 모양",
+     "both": "두 번째 그림의 방울. 귓불에 붙은 작은 동그란 장식 아래에 작은 금색 종 모양 방울(아래 테두리와 작은 추가 보이는 종)이 하나씩 달려 있습니다. 귀걸이 전체가 턱선보다 아래로 내려오지 않습니다.",
+     "back": "옆모습에서는 보이는 귀에 같은 귀걸이를 그리고, 뒷모습은 위 규칙을 따릅니다."
+    },
+    "en": {
+     "item": "bell earrings",
+     "look": "colour and shape",
+     "both": "the earrings from image 2: a small round stud on the earlobe with a tiny gold jingle bell (a bell shape with a rim and a small clapper) hanging below it. The whole earring stays above the jaw line.",
+     "back": "in the side view show the same earring on the visible ear; the back view follows the rule above."
+    }
+   },
+   "sharedPicture": true,
+   "refSvg": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"180\" height=\"60\" viewBox=\"0 0 180 60\"><circle cx=\"40\" cy=\"11\" r=\"4\" fill=\"#ffd24a\" stroke=\"#b8952e\" stroke-width=\"1.5\"/><path d=\"M30 38 C30 26 35 19 40 19 C45 19 50 26 50 38 Z\" fill=\"#ffd24a\" stroke=\"#b8952e\" stroke-width=\"1.5\"/><rect x=\"28\" y=\"37\" width=\"24\" height=\"4\" rx=\"2\" fill=\"#ffd24a\" stroke=\"#b8952e\" stroke-width=\"1.2\"/><circle cx=\"40\" cy=\"44\" r=\"2.6\" fill=\"#b8952e\"/><ellipse cx=\"36\" cy=\"27\" rx=\"1.6\" ry=\"4\" fill=\"#fff6c8\"/><circle cx=\"140\" cy=\"11\" r=\"4\" fill=\"#ffd24a\" stroke=\"#b8952e\" stroke-width=\"1.5\"/><path d=\"M130 38 C130 26 135 19 140 19 C145 19 150 26 150 38 Z\" fill=\"#ffd24a\" stroke=\"#b8952e\" stroke-width=\"1.5\"/><rect x=\"128\" y=\"37\" width=\"24\" height=\"4\" rx=\"2\" fill=\"#ffd24a\" stroke=\"#b8952e\" stroke-width=\"1.2\"/><circle cx=\"140\" cy=\"44\" r=\"2.6\" fill=\"#b8952e\"/><ellipse cx=\"136\" cy=\"27\" rx=\"1.6\" ry=\"4\" fill=\"#fff6c8\"/></svg>"
   }
  }
 }
