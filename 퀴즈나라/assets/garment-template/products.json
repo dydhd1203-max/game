@@ -1344,7 +1344,7 @@
   },
   "face:mask": {
    "class": "face/mask",
-   "status": "face decoration F4 (shared picture)",
+   "status": "face decoration F4 (shared picture); F4R 2026-10-16: the first sheet covered the chin over the neck",
    "sexes": [
     "m",
     "f"
@@ -1371,13 +1371,13 @@
     "ko": {
      "item": "마스크",
      "look": "색과 모양",
-     "both": "두 번째 그림의 천 마스크. 코와 입을 덮고, 위쪽 가장자리는 코 위(눈 아래)에, 아래쪽은 턱 끝을 살짝 덮습니다. 양옆 끝에서 가는 끈이 귀 쪽으로 이어집니다. 가운데 가로 주름 한 줄, 부드러운 천 느낌.",
+     "both": "두 번째 그림의 천 마스크. 코와 입을 덮고, 위쪽 가장자리는 코 위(눈 아래)에 둡니다. 아래쪽 가장자리는 턱선보다 조금 위에서 둥글게 끝나, 마스크 아래로 턱 끝 피부가 보입니다(턱선과 목은 덮지 않음). 양옆 끝에서 가는 끈이 귀 쪽으로 이어집니다. 가운데 가로 주름 한 줄, 부드러운 천 느낌.",
      "back": "옆모습에서는 마스크가 코끝과 입을 덮고 끈이 귀로 이어지게 하고, 뒷모습은 그림틀 그대로 둡니다."
     },
     "en": {
      "item": "fabric face mask",
      "look": "colour and shape",
-     "both": "the fabric face mask from image 2: it covers the nose and the mouth, its top edge on the nose below the eyes, its bottom edge just over the chin; thin loops run from its sides towards the ears; one soft horizontal fold in the middle, soft cloth.",
+     "both": "the fabric face mask from image 2: it covers the nose and the mouth, its top edge on the nose below the eyes; its bottom edge ends in a curve a little above the jaw line, so the skin of the chin tip shows below the mask (it never covers the jaw line or the neck); thin loops run from its sides towards the ears; one soft horizontal fold in the middle, soft cloth.",
      "back": "in the side view the mask covers the nose tip and the mouth and its loop runs to the ear; the back view stays exactly as in image 1."
     }
    },

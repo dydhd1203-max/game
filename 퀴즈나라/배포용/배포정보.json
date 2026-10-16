@@ -1,7 +1,7 @@
 {
   "project": "퀴즈나라",
   "format": 1,
-  "builtAt": "2026-10-16T03:05:36.090Z",
+  "builtAt": "2026-10-16T04:34:37.209Z",
   "instructions": "Cloudflare Pages 또는 Netlify 수동 배포에는 이 배포용 폴더 전체를 올리세요. index.html만 올리지 마세요.",
   "files": [
     {
@@ -541,8 +541,8 @@
     },
     {
       "path": "avatar-foundation.js",
-      "bytes": 133150,
-      "sha256": "a8fa3d5cb6083e54c886c61177dd635f7e93421d7caacc997255e10b2465e572"
+      "bytes": 134617,
+      "sha256": "940b0d605b15ad5e26e2e415f64570d60dfe4abf29c70f701087185f37d161bb"
     },
     {
       "path": "avatar-foundation.css",
@@ -2451,8 +2451,8 @@
     },
     {
       "path": "avatar-face-art.js",
-      "bytes": 7168,
-      "sha256": "303516944222a20215974fc4f8708825d360208878e24ea09409f652eee49551"
+      "bytes": 11169,
+      "sha256": "5dd5a73ac02c117575461333781547cf99a3d1ff45c0b35528697a8f50818b1c"
     },
     {
       "path": "assets/face-art/fringe/f-front-short.png",
@@ -2695,6 +2695,56 @@
       "sha256": "5379ee5b3521724b16f24413b43ddff07d1a848fee73894e1143c680c1264206"
     },
     {
+      "path": "assets/face-art/ear-long_e-m-front.png",
+      "bytes": 13442,
+      "sha256": "081ffed3d6a67bc26b59522a3d3e5aac2d9879059a8a65a2997dcd5cca080172"
+    },
+    {
+      "path": "assets/face-art/ear-long_e-m-right.png",
+      "bytes": 2030,
+      "sha256": "4ea91be25836a7d3cafd532e058c6334c973b45f05497f94f6b4ddf65acc2586"
+    },
+    {
+      "path": "assets/face-art/ear-long_e-m-back.png",
+      "bytes": 12715,
+      "sha256": "7dcb98acab15ad404ad645aa3e2a0bf95c41d4a376b0c83fb7e56410e5517294"
+    },
+    {
+      "path": "assets/face-art/ear-long_e-f-front.png",
+      "bytes": 12914,
+      "sha256": "33c301f56077e3517fe4942928296c7043444b6b50640c903e3a3c497f60eea2"
+    },
+    {
+      "path": "assets/face-art/ear-long_e-f-right.png",
+      "bytes": 2001,
+      "sha256": "ce2cd859daab0310cb439419e331fdc1a269f153d6481c79161eb1e1d12ea979"
+    },
+    {
+      "path": "assets/face-art/ear-star_e-m-front.png",
+      "bytes": 11530,
+      "sha256": "1f2dbb0539ba46db1966b91be0301c1ddb562d416434e3eb3247de42821b54f7"
+    },
+    {
+      "path": "assets/face-art/ear-star_e-m-right.png",
+      "bytes": 1937,
+      "sha256": "357b7e9e958cad4bd2b8e7f0079cd48277237631c3859aadbd72c35260ea302f"
+    },
+    {
+      "path": "assets/face-art/ear-star_e-m-back.png",
+      "bytes": 11328,
+      "sha256": "fc3f1e3d129b9aba16d1bd2677e0a160f40a769824caea18a1fa4441f915405d"
+    },
+    {
+      "path": "assets/face-art/ear-star_e-f-front.png",
+      "bytes": 13063,
+      "sha256": "b2b10b1b5685aee7164fb85c6fcc93a0590a43068cd02cb90ef45d713ac2d4c4"
+    },
+    {
+      "path": "assets/face-art/ear-star_e-f-right.png",
+      "bytes": 2367,
+      "sha256": "2c385c52d3a5da31e33c65d759b79d944a9bb6b6fbcdd306e175a62e31dbb746"
+    },
+    {
       "path": "assets/face-art/eyes-cat-m-front.png",
       "bytes": 24935,
       "sha256": "6e177cb2fa8a06d29c9730336d648737f9fd7d307c6145c9ea5d8c38f8c9002c"
@@ -2746,33 +2796,53 @@
     },
     {
       "path": "assets/face-art/face-band-f-front.png",
-      "bytes": 2083,
-      "sha256": "63288e2e37eab4e447090494ce7742d39941d2142c6dff7c0507b1df74be7175"
+      "bytes": 2089,
+      "sha256": "4aa03705f2d782f6237ca61be7877fde5eefcfac078658f8f28d8d64f15f2037"
     },
     {
       "path": "assets/face-art/face-band-f-right.png",
-      "bytes": 4779,
-      "sha256": "9b3dde19fc652783e2366258b887eae74ec00d0d0ad0eee8dc888e13ca9d4204"
+      "bytes": 1492,
+      "sha256": "6bce9e1f4744c2f6f28bef69e34a72feb2567aa04121b23b17c74e6ba37cea95"
     },
     {
       "path": "assets/face-art/face-bruise-m-front.png",
-      "bytes": 2361,
-      "sha256": "ffdf0a9e9bbc11d71203f0f0cba584a4190a886df925834531b72fce995718de"
+      "bytes": 2363,
+      "sha256": "415d1a4a176d285d2e09e213a75fea0bb48ea4e9b72ed94cca8bea070e21c9ff"
     },
     {
       "path": "assets/face-art/face-bruise-m-right.png",
-      "bytes": 2895,
-      "sha256": "ce5820f33f6ad1a3c6396cd480dad563786712d22456e2cf648aa78a580d0212"
+      "bytes": 2172,
+      "sha256": "4bd8c4d37f9f63ce7b45cbe857932f5422cd6a9610b8056305262d63e1a8100a"
     },
     {
       "path": "assets/face-art/face-bruise-f-front.png",
-      "bytes": 2440,
-      "sha256": "f8482c8e861217330838cbae96151ae037b7f8e819fe9a24116fe9f62c67d5fb"
+      "bytes": 2453,
+      "sha256": "b1eb8ce2b56dba85186b2daf39f87448e3a8368b536597c4684bcb1057dfe939"
     },
     {
       "path": "assets/face-art/face-bruise-f-right.png",
-      "bytes": 3386,
-      "sha256": "8c53baecc6a4b416068131e2b079178effa1c9141a7de94bec305eb9324df4c9"
+      "bytes": 1906,
+      "sha256": "89894442481dbf8fae5fd03239345d5bf6965ab6c5afaa62c365fec72ad8b584"
+    },
+    {
+      "path": "assets/face-art/face-glow-m-front.png",
+      "bytes": 8363,
+      "sha256": "d658de5c793a210512966bc55d2b92b5332101ff7694c9d3ee50bf47ec1e4ac2"
+    },
+    {
+      "path": "assets/face-art/face-glow-m-right.png",
+      "bytes": 3059,
+      "sha256": "c480b385704071a5a0c2437a67e0c85380a05849da40cc03afe31ddfbae3a2cb"
+    },
+    {
+      "path": "assets/face-art/face-glow-f-front.png",
+      "bytes": 7916,
+      "sha256": "f83ea772a179d31f95042f58b40ea615438aa0d139e0338cb1e9103782a808de"
+    },
+    {
+      "path": "assets/face-art/face-glow-f-right.png",
+      "bytes": 2191,
+      "sha256": "e8c2cb4507f32d5e9d769d569c438bf83c62de0fd467ba3e0bc42458abb14a33"
     },
     {
       "path": "assets/face-art/face-gonji-m-front.png",
@@ -2793,6 +2863,86 @@
       "path": "assets/face-art/face-gonji-f-right.png",
       "bytes": 1225,
       "sha256": "89de26d31b5fd35f8189a531acf7305e6ddcc6209aa970c2a5f12b5c45800df6"
+    },
+    {
+      "path": "assets/face-art/face-mask-m-front.png",
+      "bytes": 31799,
+      "sha256": "36a4023d47f1fb3c0b1996c5440a82fd8f1464f1f7a95d023f4665e506137a27"
+    },
+    {
+      "path": "assets/face-art/face-mask-m-right.png",
+      "bytes": 24581,
+      "sha256": "e6e08cdbd7785c87c98cc6a92d2f0cc34e407b1200a519f51f94aa2913d4b087"
+    },
+    {
+      "path": "assets/face-art/face-mask-f-front.png",
+      "bytes": 25197,
+      "sha256": "7617ed22895a06efc70985c168ca8de97592b6864db70edf2725547edc9dc828"
+    },
+    {
+      "path": "assets/face-art/face-mask-f-right.png",
+      "bytes": 13772,
+      "sha256": "9dca0d5dd5867127b935b6c4f89eb0575aba212e67ccd3b1d39a83038715d42f"
+    },
+    {
+      "path": "assets/face-art/face-paint-m-front.png",
+      "bytes": 5478,
+      "sha256": "8469a917d4252019f574d50f17b3430f3095bd60b7fa0c49c122b8b38f492582"
+    },
+    {
+      "path": "assets/face-art/face-paint-m-right.png",
+      "bytes": 1567,
+      "sha256": "035fed2d8558b4dc12801ca0f23f2dee427cfa3bb6b37a6edf443d13c8f3acfa"
+    },
+    {
+      "path": "assets/face-art/face-paint-f-front.png",
+      "bytes": 5903,
+      "sha256": "e1625dc71f65f5b41b1b3c9f682d9efc3650b7acc58ade4f2061e9f16fa8700c"
+    },
+    {
+      "path": "assets/face-art/face-paint-f-right.png",
+      "bytes": 2149,
+      "sha256": "9aa58d50d5bcb77283d781e74562be41980a5ab81f446c4abd811688f1958201"
+    },
+    {
+      "path": "assets/face-art/face-tear-m-front.png",
+      "bytes": 1437,
+      "sha256": "15cbc844dff2451eef41267eccbded07ad99d45d9c695bed7ed0a7fb70e0f6f5"
+    },
+    {
+      "path": "assets/face-art/face-tear-m-right.png",
+      "bytes": 1380,
+      "sha256": "1ab5df9c94c5fd38eab9370ffb5e2c0528a6558148f58595c13f946e546637b7"
+    },
+    {
+      "path": "assets/face-art/face-tear-f-front.png",
+      "bytes": 964,
+      "sha256": "81741c7c5cba60d275432dd1faa7a6e56ea867c6fa4d9a1c55764618d2a040be"
+    },
+    {
+      "path": "assets/face-art/face-tear-f-right.png",
+      "bytes": 872,
+      "sha256": "99b4d7d1f9aaf8eaca8e98bb24ffaf714bac700a1c2e74ab559049787735a5b7"
+    },
+    {
+      "path": "assets/face-art/face-whisker-m-front.png",
+      "bytes": 5277,
+      "sha256": "5d9045af5a16449fa9d569a6129f5c2dc6d71b81e2d624dbefd4cccacacbb4e9"
+    },
+    {
+      "path": "assets/face-art/face-whisker-m-right.png",
+      "bytes": 13925,
+      "sha256": "4440dfd91e2c4ba7dd84fda93dcdf291eba02ce858aeb3e70c8518b3a6e42fda"
+    },
+    {
+      "path": "assets/face-art/face-whisker-f-front.png",
+      "bytes": 3841,
+      "sha256": "92656cad256b69cb268a2945185ab9b4a1da3e05d7a1ed3b3120fba86433bc05"
+    },
+    {
+      "path": "assets/face-art/face-whisker-f-right.png",
+      "bytes": 2512,
+      "sha256": "afaab99da0db75133133be1ddc36bdd8a9736ffc1fc948a47927199ca387e527"
     },
     {
       "path": "assets/face-art/mouth-cat-m-front.png",
