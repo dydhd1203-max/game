@@ -73,3 +73,6 @@
 | `glass-sport-5-chatgpt-2026-10-16.png` | `glass:sport:5` '스포츠 고글' | 2026-10-16 | 1536×1024 | `7e96aba069361559cd46f743444ba9887912dd77884a360a019cf8738be178d2` | 안경 G10, 첫 원화로 사용. |
 | `glass-half-11-chatgpt-2026-10-16.png` | `glass:half:11` '반달 안경' | 2026-10-16 | 1536×1024 | `40d850129ca10ba0fa74b41d8139a3e9d7a9bd013cd6ba30d5776b6089cc2fd5` | 안경 G11, 첫 원화로 사용. |
 | `glass-eyepatch-9-chatgpt-2026-10-16.png` | `glass:eyepatch:9` '안대' | 2026-10-16 | 1536×1024 | `495ac4922ac133ecca3b4f219cb0d896201b30c553454d2a0fb03a5e1e5b88e1` | 안경 G12, 첫 원화로 사용. 한쪽 눈. |
+| `hat-cowboy-flat-chatgpt-2026-10-16.png` | `hat:cowboy:11` '카우보이 모자(분홍 머리 시범)' | 2026-10-16 | 1536×1024 | `d19825425420d27b46540ca229fdb258f108bb773e04cc91b84f18a6ef1990c6` | 분홍 머리 그림틀 시범. ChatGPT가 분홍을 지켰지만 모자를 더 크게 그려, 게임에는 넣지 않음(지금 모자 유지). |
+| `hat-police-flat-chatgpt-2026-10-16.png` | `hat:police:5` '경찰모(분홍 머리 시범)' | 2026-10-16 | 1536×1024 | `6bd43edb8991b8436d29ffc4c0c9abc88e7116e4bc8471a28038259f8fc2193b` | 위와 같음. 모자가 커서 머리 위에 떠 보임. |
+| `standing-barefoot-chatgpt-2026-10-16.png` | `서 있는 기준 몸 남녀` '서 있는 맨발' | 2026-10-16 | 1536×1024 | `8f43e6655eafd1110abcc21d48307343b625cafabc385cbb7a5c3044e91c5f4e` | 슬리퍼·샌들 발 피부 층용. 첫 원화. |

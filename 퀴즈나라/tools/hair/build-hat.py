@@ -40,6 +40,9 @@ GAP_FILL = 30     # px (template scale) of a gap in a column bridged as hat
 MAX_FACE = .003   # share of a hat cut that may be the base figure's unchanged face (face_in_hat)
 BROWN_HAT = 11.5  # Lab: hat colours this near the head's are the hair's own (kept whole, trim_head)
 COLOUR_SHARE = .8 # the colour cut stands when it finds this share of what changed
+PIECE_OPEN = 3     # px (template scale): a piece joined to the hat by a narrower bridge is not the hat (cut_flat)
+SHIFT = 4          # px (template scale) a redrawn face part may move (cut_flat)
+SHIFT_MATCH = 12.0 # Lab: a pixel this near the base face within SHIFT px is the face redrawn
 HOLE_UNLIKE = 25.0 # Lab: an unchanged hole this unlike the hat round it is the page seen through it (cut_flat)
 FLAT_NEAR = 30.0  # Lab distance to a flat-hair base's colour that is still the placeholder (cut_flat)
 GROW = 3          # px the hat mask grows over its own outline
@@ -361,6 +364,23 @@ def cut_flat(u, t, flat, head, low, x0, y0, box, px=1.0):
         if ring.any() and np.sqrt(((Ul[m].mean(0) - Ul[ring].mean(0)) ** 2).sum()) > HOLE_UNLIKE:
             dh = dh & ~m
     hat = dh & ~flat_now
+    # the base figure's own face, ears and neck redrawn a few px off (an eye, an ear's rim): a pixel that matches
+    # one of them within SHIFT px is that redraw, not the hat. Colour alone could not tell: the brim's brown and
+    # the visor's black are the brows' and lashes' (a notch), a cream hat is the skin's (Lab 9). Cowboy and
+    # police pilots on the flat base hung ear and eye pieces under the brim (FACE_IN_HAT, 2026-10-16).
+    Tl = R.lab(t)
+    t_face = head & (np.sqrt(((Tl - Fl) ** 2).sum(-1)) >= FLAT_NEAR) & (np.abs(t - 255).sum(-1) > 30)
+    sh = max(1, int(round(SHIFT * px)))
+    best = np.full(hat.shape, np.inf, np.float32)
+    H, W = hat.shape
+    for dy in range(-sh, sh + 1):
+        for dx in range(-sh, sh + 1):
+            ys0, ys1, xs0, xs1 = max(0, dy), min(H, H + dy), max(0, dx), min(W, W + dx)
+            d_ = np.full(hat.shape, np.inf, np.float32)
+            dd = np.sqrt(((Ul[ys0 - dy:ys1 - dy, xs0 - dx:xs1 - dx] - Tl[ys0:ys1, xs0:xs1]) ** 2).sum(-1))
+            d_[ys0 - dy:ys1 - dy, xs0 - dx:xs1 - dx] = np.where(t_face[ys0:ys1, xs0:xs1], dd, np.inf)
+            best = np.minimum(best, d_)
+    hat &= ~(best < SHIFT_MATCH)
     r = max(1, int(round(2 * px)))
     lab_, comps = M.components(M.erode(M.dilate(hat, r), r))
     hat = np.isin(lab_, [c['label'] for c in comps if c['size'] >= SEED_MIN * px * px]) & ~flat_now
@@ -370,6 +390,15 @@ def cut_flat(u, t, flat, head, low, x0, y0, box, px=1.0):
     lab_, comps = M.components(opening)
     opening = np.isin(lab_, [c['label'] for c in comps if c['size'] > 40 * px * px])
     hat = drop_wisps(peel_page(hat & ~opening, u, t), px)
+    # pieces hanging on by a bridge a few px wide (an ear or a lid the sheet showed more of under the brim) are
+    # cut off: opened, pieces under a tenth of the biggest dropped, grown back over the hat only
+    ro = max(1, int(round(PIECE_OPEN * px)))
+    op = M.dilate(M.erode(hat, ro), ro)
+    lab_, comps = M.components(op)
+    if comps:
+        big = max(c['size'] for c in comps)
+        core = np.isin(lab_, [c['label'] for c in comps if c['size'] >= .1 * big])
+        hat = hat & M.dilate(core, ro + 1)
     if not hat.any():
         return None
     # the edge over the flat hair: u = a*hat + (1-a)*flat, the hat's colour taken from its inside a few px in
