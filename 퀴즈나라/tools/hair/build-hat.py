@@ -49,6 +49,20 @@ HIDE_FLARE = 1.6  # beside the hat the hidden edge drops this many px per px out
                   # a rising edge left 'wings' of hair beside the rim)
 HIDE_SOFT = 6.0   # px of the hidden edge's soft fall-off
 SKIN_ABOVE = 10   # px above the rim's edge where the head's skin (an ear) is still kept
+BAND_L, BAND_C = 25.0, 12.0  # Lab lightness, chroma: a near-black neutral piece (a police cap's visor, unlike the
+                             # brown of hair) ...
+BAND_SPAN = .5    # ... spanning this share of the hat's width is the hat's own band, kept by trim_head (2026-10-16:
+                  # the visor was dropped as 'nearer the hair'; redrawn fringes and faces dropped there span <= 72 px
+                  # of a ~200 px hat and are brown or light)
+BAND_PX_C = 18.0  # Lab chroma: a band's own pixels (grey highlights of a black visor; hair's brown is over 20)
+WISP = 2          # px (template scale): hat pieces thinner than 2*WISP+1 ...
+WISP_DROP = 3     # ... hanging this many px below the hat's body are a redrawn strand or outline (a police cap's
+                  # white arcs beside its brim, a cowboy hat's hair wisps, 2026-10-16)
+PAGE_MIN, PAGE_SPREAD = 236, 12  # RGB: near-white neutral, the sheet's page; ChatGPT's page is not the base's
+                  # pure white near a hat, a grey haze that diff_hat takes as new paint (a police cap's white arcs,
+                  # 2026-10-16), peeled off from the cut's outside in (peel_page; a white crown's outline stops it)
+ROW_GAP = 60      # px (template scale) of a gap in a row bridged in a hat of the hair's brown (a cowboy hat's crown
+                  # over hair of its own colour changes little: a notch, 2026-10-16)
 
 
 def fill_holes(mask):
@@ -72,6 +86,24 @@ def kmeans(X, k, iters=12, seed=0):
 
 def nearest(L, C):
     return np.sqrt(((L[..., None, :] - C) ** 2).sum(-1)).min(-1)
+
+
+def badge_holes(holes, Ul, head_cols, px=1.0):
+    """Holes of a colour cut painted in a colour the head has not (a police cap's gold star, between the
+    blue around it): the hat's own badge. Holes showing hair (a cap's back opening) stay open
+    (2026-10-16: the star was cut out as an opening and showed the hair through the cap)."""
+    lab_, comps = M.components(holes)
+    novel = nearest(Ul, head_cols) > NOVEL
+    keep = [c['label'] for c in comps if c['size'] > 40 * px * px and novel[lab_ == c['label']].mean() > .5]
+    return np.isin(lab_, keep)
+
+
+def unchanged_skin(u, t):
+    """The base figure's own face skin or eyes, left as they were (face_in_hat)."""
+    r, g, b = (t[..., i].astype(int) for i in range(3))
+    skin = (r > 200) & (g > 160) & (r > g) & (g >= b) & (r - b > 20)
+    iris = (g > r + 25) & (b > r + 15)
+    return (skin | iris) & (np.abs(u.astype(int) - t.astype(int)).sum(-1) < 30)
 
 
 def cut_figure(U, A, T, owner, box):
@@ -128,17 +160,57 @@ def face_in_hat(hat, u, t, head):
     except the cowboy girl's front .0065, a real skin bit)."""
     if not hat.any():
         return 0.0
-    r, g, b = (t[..., i].astype(int) for i in range(3))
-    skin = (r > 200) & (g > 160) & (r > g) & (g >= b) & (r - b > 20)
-    iris = (g > r + 25) & (b > r + 15)
-    same = np.abs(u.astype(int) - t.astype(int)).sum(-1) < 30
-    return round(float((hat & head & (skin | iris) & same).sum() / hat.sum()), 4)
+    return round(float((hat & head & unchanged_skin(u, t)).sum() / hat.sum()), 4)
 
 
-def trim_head(hat, u, t, head):
+def drop_wisps(hat, px=1.0):
+    """The hat less thin strands hanging below its body (WISP): pixels of the hat outside its opening by
+    WISP px that lie more than WISP_DROP px below the opened hat's lowest pixel in their column (or
+    beside it), and then the pieces left hanging alone."""
+    r = max(1, int(round(WISP * px)))
+    body = M.dilate(M.erode(hat, r), r) & hat
+    if not body.any():
+        return hat
+    bottom = np.full(hat.shape[1], -1)
+    for c in np.nonzero(body.any(0))[0]:
+        bottom[c] = np.nonzero(body[:, c])[0].max()
+    yy = np.arange(hat.shape[0])[:, None]
+    hang = hat & ~body & ((bottom[None, :] < 0) | (yy > bottom[None, :] + WISP_DROP * px))
+    out = hat & ~hang
+    lab_, comps = M.components(out)
+    big = max((c['size'] for c in comps), default=0)
+    return np.isin(lab_, [c['label'] for c in comps if c['size'] >= .05 * big])
+
+
+def peel_page(hat, u, t):
+    """The hat less the page's haze: near-white neutral pixels reached through such pixels only from the
+    base figure's page outside the cut (PAGE_*), then the pieces left hanging alone (a chef's white band
+    meets the forehead below, not the page: 2026-10-16 it was peeled from its open lower edge)."""
+    page = (u.min(-1) >= PAGE_MIN) & (u.max(-1) - u.min(-1) <= PAGE_SPREAD) & hat
+    edge = page & M.dilate(~hat & (np.abs(t - 255).sum(-1) < 15), 1)
+    out = hat & ~M.connected_to(page, edge)
+    lab_, comps = M.components(out)
+    big = max((c['size'] for c in comps), default=0)
+    return np.isin(lab_, [c['label'] for c in comps if c['size'] >= .05 * big])
+
+
+def band_pieces(lab_, comps, hat, Ul):
+    """Labels of the pieces that are a near-black neutral band across the hat (BAND_*: a visor)."""
+    cols = np.nonzero(hat.any(0))[0]
+    width = cols.max() - cols.min() + 1
+    C = np.hypot(Ul[..., 1], Ul[..., 2])
+    out = set()
+    for c in comps:
+        m = lab_ == c['label']
+        if c['bbox'][2] - c['bbox'][0] >= BAND_SPAN * width and np.median(Ul[..., 0][m]) < BAND_L and np.median(C[m]) < BAND_C:
+            out.add(c['label'])
+    return out
+
+
+def trim_head(hat, u, t, head, px=1.0):
     """A redrawn fringe, eyes or ear under the hat changed too: pieces of the hat mask nearer the head's
     colours than the hat's and hanging from its lower edge are dropped (a band over hair of the same
-    brown lies inside the hat and stays)."""
+    brown lies inside the hat and stays; a near-black band across the hat stays, BAND_*)."""
     Ul, Tl = R.lab(u), R.lab(t)
     head_cols = kmeans(Tl[head].reshape(-1, 3)[::7], 10)
     # the hat's own colours: where it is painted over the page (above and beside the head)
@@ -151,16 +223,36 @@ def trim_head(hat, u, t, head):
     # a hat the hair's own brown (a cowboy hat) cannot be told from the hair by colour: kept whole
     dist = float(np.median(nearest(hat_cols[None], head_cols)))
     if dist < BROWN_HAT:
-        return hat
+        return brown_hat(hat, u, t, px)
     headlike = hat & (nearest(Ul, head_cols) < nearest(Ul, hat_cols))
     below = np.zeros_like(hat); below[:-1] = ~hat[1:]; below[-1] = True  # lowest pixel of the hat in its column
     edge = hat & below
     lab_, comps = M.components(headlike)
-    drop = np.isin(lab_, [c['label'] for c in comps if (edge & (lab_ == c['label'])).any()])
+    bands = band_pieces(lab_, comps, hat, Ul)
+    drop = np.isin(lab_, [c['label'] for c in comps if (edge & (lab_ == c['label'])).any() and c['label'] not in bands])
+    # of a band only its neutral pixels (the redrawn fringe touching a visor is brown)
+    drop |= np.isin(lab_, list(bands)) & (np.hypot(Ul[..., 1], Ul[..., 2]) >= BAND_PX_C)
     out = hat & ~drop
+    out |= fill_holes(out) & hat  # what it encloses stays (a badge joined to the visor by its outline)
+    out = drop_wisps(out, px)
     lab_, comps = M.components(out)  # what is left hanging alone
     big = max((c['size'] for c in comps), default=0)
     return np.isin(lab_, [c['label'] for c in comps if c['size'] >= .05 * big])
+
+
+def brown_hat(hat, u, t, px=1.0):
+    """A hat the hair's own brown (a cowboy hat): kept whole, less the face left unchanged under its brim,
+    with short gaps in its rows bridged (where it lies over hair of its own colour it changes little,
+    a notch in the crown), and the pieces left hanging alone dropped."""
+    out = hat & ~unchanged_skin(u, t)
+    gap = int(round(ROW_GAP * px))
+    fill = out.copy()
+    for r_ in np.nonzero(out.any(1))[0]:
+        cc = np.nonzero(out[r_])[0]
+        for a_, b_ in zip(cc[:-1], cc[1:]):
+            if 1 < b_ - a_ <= gap: fill[r_, a_:b_] = True
+    fill = fill_holes(fill) & ~unchanged_skin(u, t)
+    return drop_wisps(fill, px)
 
 
 def cut_zone(u, a, t, head, low, x0, y0, box, px=1.0, diff=False):
@@ -180,7 +272,13 @@ def cut_zone(u, a, t, head, low, x0, y0, box, px=1.0, diff=False):
         # a hat with colours of its own: the colour cut finds most of what changed and keeps out the
         # redrawn face and fringe under it (a graduation cap's tassel, a bandana's ties)
         if colour is not None and colour['px'] >= COLOUR_SHARE * dh.sum():
-            return colour
+            # less a band its colours miss (a police cap's black visor): what changed beside it, across the hat
+            lab_, comps = M.components(dh & ~colour['mask'])
+            bands = band_pieces(lab_, comps, colour['mask'], R.lab(u))
+            if not bands:
+                return colour
+            dh = colour['mask'] | (np.isin(lab_, list(bands)) & (np.hypot(*R.lab(u)[..., 1:].transpose(2, 0, 1)) < BAND_PX_C))
+            colour = dict(colour, px=0)  # the cut below stands on dh, which already holds the colour cut
         if dh.sum() >= SEED_MIN * px * px:
             # what changed is the hat; the colour cut only adds the hole it shows hair through (a cap's back)
             opening = np.zeros_like(dh)
@@ -188,7 +286,8 @@ def cut_zone(u, a, t, head, low, x0, y0, box, px=1.0, diff=False):
                 cm = colour['mask']; opening = fill_holes(cm) & ~cm
                 lab_, comps = M.components(opening)
                 opening = np.isin(lab_, [c['label'] for c in comps if c['size'] > 40 * px * px])
-            hat = trim_head(dh, u, t, head) & ~opening
+                opening &= ~badge_holes(opening, R.lab(u), kmeans(R.lab(t)[head].reshape(-1, 3)[::7], 10), px)
+            hat = drop_wisps(peel_page(trim_head(dh, u, t, head, px), u, t), px) & ~opening
             alpha = hat.astype(np.float32)
             ys, xs = np.nonzero(hat)
             bx = (int(xs.min()), int(ys.min()), int(xs.max()) + 1, int(ys.max()) + 1)
@@ -220,6 +319,7 @@ def cut_zone(u, a, t, head, low, x0, y0, box, px=1.0, diff=False):
     for c in hc:
         if c['size'] <= 40 * px * px:
             hat |= hl == c['label']
+    hat |= badge_holes(fill_holes(hat) & ~hat, Ul, head_cols, px)
     alpha = np.where(hat, np.clip(a, 0, 1), 0).astype(np.float32)
     opening = fill_holes(hat) & ~hat
     ys, xs = np.nonzero(hat)
