@@ -220,6 +220,28 @@ def polyline_dist(P, Q, step=.25):
     return np.array(out)
 
 
+SEAM_END_COLS = 3    # columns from each end of a seam band that may be a corner of the outline (trim_end_leaps)
+SEAM_END_STEP = 3.0  # px: a step in the truth's edge to the next inward column that marks such a corner
+
+
+def trim_end_leaps(tc, tv, T):
+    """The truth's drawn seam points less the end columns where its edge leaps (see seam_errors)."""
+    order = np.argsort(tc)
+    tc, tv, T = tc[order], np.asarray(tv)[order], T[order]
+    n = len(tc)
+    if n <= 2 * SEAM_END_COLS + 2:
+        return tc, tv, T
+    step = np.abs(np.diff(tv))  # step[i]: between columns i and i + 1
+    lo, hi = 0, n
+    # a corner plateau of up to SEAM_END_COLS columns at either end: cut at the step that leaves it
+    for i in range(SEAM_END_COLS):
+        if step[i] > SEAM_END_STEP:
+            lo = i + 1
+        if step[n - 2 - i] > SEAM_END_STEP:
+            hi = min(hi, n - 1 - i)
+    return tc[lo:hi], tv[lo:hi], T[lo:hi]
+
+
 def seam_errors(b, truth):
     """Per seam: symmetric distances between the pipeline seam and the
     truth's drawn edge in the same band (sheet px)."""
@@ -243,7 +265,14 @@ def seam_errors(b, truth):
                 xi = np.clip(np.floor(px).astype(int), 0, limb.shape[1] - 1)
                 yi = np.clip(np.floor(py).astype(int), 0, limb.shape[0] - 1)
                 keep = limb[yi, xi]
-                tc, T = tc[keep], T[keep]
+                tc, tv, T = tc[keep], tv[keep], T[keep]
+            if len(T) < 2:
+                continue
+            # The band's end columns where the truth's edge leaps up the garment's own side outline (a shoe opening
+            # meeting the shoe's side: 7 px in one column, 2026-10-16) have no seam position to compare: the drawn
+            # edge there is the outline's corner, not the opening. Up to SEAM_END_COLS columns from each end, while the
+            # step to the next inward column exceeds SEAM_END_STEP px.
+            tc, tv, T = trim_end_leaps(tc, tv, T)
             if len(T) < 2:
                 continue
             pk = ok & np.isin(r['cols'], tc)
