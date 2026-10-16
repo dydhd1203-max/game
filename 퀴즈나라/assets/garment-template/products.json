@@ -1918,6 +1918,130 @@
    },
    "sharedPicture": true,
    "refSvg": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"180\" height=\"60\" viewBox=\"0 0 180 60\"><circle cx=\"40\" cy=\"11\" r=\"4\" fill=\"#ffd24a\" stroke=\"#b8952e\" stroke-width=\"1.5\"/><path d=\"M30 38 C30 26 35 19 40 19 C45 19 50 26 50 38 Z\" fill=\"#ffd24a\" stroke=\"#b8952e\" stroke-width=\"1.5\"/><rect x=\"28\" y=\"37\" width=\"24\" height=\"4\" rx=\"2\" fill=\"#ffd24a\" stroke=\"#b8952e\" stroke-width=\"1.2\"/><circle cx=\"40\" cy=\"44\" r=\"2.6\" fill=\"#b8952e\"/><ellipse cx=\"36\" cy=\"27\" rx=\"1.6\" ry=\"4\" fill=\"#fff6c8\"/><circle cx=\"140\" cy=\"11\" r=\"4\" fill=\"#ffd24a\" stroke=\"#b8952e\" stroke-width=\"1.5\"/><path d=\"M130 38 C130 26 135 19 140 19 C145 19 150 26 150 38 Z\" fill=\"#ffd24a\" stroke=\"#b8952e\" stroke-width=\"1.5\"/><rect x=\"128\" y=\"37\" width=\"24\" height=\"4\" rx=\"2\" fill=\"#ffd24a\" stroke=\"#b8952e\" stroke-width=\"1.2\"/><circle cx=\"140\" cy=\"44\" r=\"2.6\" fill=\"#b8952e\"/><ellipse cx=\"136\" cy=\"27\" rx=\"1.6\" ry=\"4\" fill=\"#fff6c8\"/></svg>"
+  },
+  "hat:headphone": {
+   "class": "hat/band",
+   "status": "hat H-P1 again (2026-10-16): taken out 2026-10-16 (girl hair redrawn, no ear anchor), ear anchor now from the face anchor (earrings R1·R2); white (user 2026-10-16 \"헤드셋은 하얀색으로\")",
+   "sexes": [
+    "m",
+    "f"
+   ],
+   "ci": {
+    "m": 8,
+    "f": 8
+   },
+   "names": {
+    "m": "헤드폰",
+    "f": "헤드폰"
+   },
+   "colour": {
+    "m": "#ffffff",
+    "f": "#ffffff"
+   },
+   "display": {
+    "m": "#ffffff",
+    "f": "#ffffff"
+   },
+   "mirrorSafe": true,
+   "designRef": "ref-hat-headphone-design.png",
+   "notes": {
+    "ko": {
+     "item": "헤드폰",
+     "look": "색과 모양(머리 위의 띠와 양쪽 귀를 덮는 둥근 덮개)",
+     "both": "두 번째 그림의 흰색 헤드폰. 정수리를 가로지르는 띠, 양쪽 귀를 덮는 둥글고 푹신한 덮개. 덮개는 귀 자리에 놓고, 머리카락은 띠와 덮개가 닿는 곳만 가려집니다. 머리카락 가닥을 새로 그리거나 옮기지 않습니다(덮개와 띠 밖의 머리는 그림틀 그대로).",
+     "back": "옆모습에서는 보이는 쪽 귀를 덮개가 덮고, 뒷모습에서는 띠와 양쪽 덮개 뒤쪽이 보이게 합니다."
+    },
+    "en": {
+     "item": "headphones",
+     "look": "colour and shape (headband and round ear cups)",
+     "both": "the white headphones from image 2: a band across the crown and round padded cups covering both ears; the cups sit at the ears and cover the hair only where the band and cups touch it. Do not redraw or move any hair strands (outside the band and cups the hair stays exactly as in image 1).",
+     "back": "in the side view the cup covers the visible ear; in the back view show the band and the backs of both cups."
+    }
+   },
+   "sharedPicture": true,
+   "refSvg": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"220\" height=\"150\" viewBox=\"0 0 220 150\"><path d=\"M38 108 Q36 22 110 20 Q184 22 182 108\" fill=\"none\" stroke=\"#9aa3b2\" stroke-width=\"16\" stroke-linecap=\"round\"/><path d=\"M38 108 Q36 22 110 20 Q184 22 182 108\" fill=\"none\" stroke=\"#ffffff\" stroke-width=\"10\" stroke-linecap=\"round\"/><rect x=\"16\" y=\"92\" width=\"40\" height=\"54\" rx=\"16\" fill=\"#ffffff\" stroke=\"#9aa3b2\" stroke-width=\"3\"/><rect x=\"164\" y=\"92\" width=\"40\" height=\"54\" rx=\"16\" fill=\"#ffffff\" stroke=\"#9aa3b2\" stroke-width=\"3\"/><rect x=\"44\" y=\"98\" width=\"14\" height=\"42\" rx=\"6\" fill=\"#c9d0db\"/><rect x=\"162\" y=\"98\" width=\"14\" height=\"42\" rx=\"6\" fill=\"#c9d0db\"/></svg>"
+  },
+  "glass:round": {
+   "class": "face/glasses",
+   "status": "glasses pilot G1 (shared picture)",
+   "sexes": [
+    "m",
+    "f"
+   ],
+   "ci": {
+    "m": 11,
+    "f": 11
+   },
+   "names": {
+    "m": "동그란 안경",
+    "f": "동그란 안경"
+   },
+   "colour": {
+    "m": "#a87352",
+    "f": "#a87352"
+   },
+   "display": {
+    "m": "#a87352",
+    "f": "#a87352"
+   },
+   "mirrorSafe": true,
+   "designRef": "ref-glass-round-design.png",
+   "notes": {
+    "ko": {
+     "item": "동그란 안경",
+     "look": "색과 모양",
+     "both": "두 번째 그림의 동그란 안경. 가는 갈색 테의 동그란 두 렌즈를 코 위의 둥근 다리가 잇고, 양옆 다리는 귀 쪽으로 갑니다. 렌즈는 투명해서 눈이 그대로 보입니다.",
+     "back": "옆모습에서는 안경을 옆에서 본 모양(앞쪽 테와 귀로 가는 다리)으로 그리고, 뒷모습은 그림틀 그대로 둡니다."
+    },
+    "en": {
+     "item": "동그란 안경",
+     "look": "colour and shape",
+     "both": "the round glasses from image 2: two round lenses in a thin brown rim joined by a curved bridge over the nose, the arms running to the ears; clear lenses, the eyes show through unchanged.",
+     "back": "in the side view draw the glasses from the side (the front rim and the arm running to the ear); the back view stays exactly as in image 1."
+    }
+   },
+   "sharedPicture": true
+  },
+  "glass:sun": {
+   "class": "face/glasses",
+   "status": "glasses pilot G2 (shared picture)",
+   "sexes": [
+    "m",
+    "f"
+   ],
+   "ci": {
+    "m": 9,
+    "f": 9
+   },
+   "names": {
+    "m": "선글라스",
+    "f": "선글라스"
+   },
+   "colour": {
+    "m": "#556074",
+    "f": "#556074"
+   },
+   "display": {
+    "m": "#556074",
+    "f": "#556074"
+   },
+   "mirrorSafe": true,
+   "designRef": "ref-glass-sun-design.png",
+   "notes": {
+    "ko": {
+     "item": "선글라스",
+     "look": "색과 모양",
+     "both": "두 번째 그림의 선글라스. 모서리가 둥근 네모난 진회색 렌즈 두 개가 눈을 가리고, 코 위 다리와 양옆 다리가 이어집니다. 렌즈 위쪽에 짧고 밝은 빛 반사 한 줄.",
+     "back": "옆모습에서는 안경을 옆에서 본 모양(앞쪽 테와 귀로 가는 다리)으로 그리고, 뒷모습은 그림틀 그대로 둡니다."
+    },
+    "en": {
+     "item": "선글라스",
+     "look": "colour and shape",
+     "both": "the sunglasses from image 2: two dark grey rounded-square lenses covering the eyes, joined by a bridge over the nose, the arms running to the ears; one short light reflection near the top of each lens.",
+     "back": "in the side view draw the glasses from the side (the front rim and the arm running to the ear); the back view stays exactly as in image 1."
+    }
+   },
+   "sharedPicture": true
   }
  }
 }

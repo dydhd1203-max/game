@@ -1,0 +1,148 @@
+원화 요청 3가지 (2026-10-16)
+=============================
+
+[꼭 지킬 것 - 모든 결과에 공통]
+- 결과 그림은 매번 그 항목의 그림틀에서 새로 그립니다. 앞에서 만든 그림 위에 덧그리지 않습니다. 바꾸라는 것만 바뀌고 나머지(얼굴·머리·몸·옷·배경·위치·크기)는 그림틀과 같아야 합니다.
+- 결과는 그린 원본 그대로 줍니다. 크기 조정, 자르기, 색·위치 보정을 하지 않습니다.
+- 항목마다 ChatGPT 새 대화에서: 아래 첨부 그림 → 요청 문장 붙여 넣기 → 결과만 아래 이름으로 저장.
+
+[보낼 것 5장]
+1) 옆모습 양반다리 남자: 첨부 01-양반다리-남자-그림틀.webp → 결과 seated-side-m.png
+2) 옆모습 양반다리 여자: 첨부 02-양반다리-여자-그림틀.webp → 결과 seated-side-f.png
+3) 동그란 안경(G1): 첨부 03-안경-그림틀.png, 04-동그란안경-참고.png → 결과 glass-round.png
+4) 선글라스(G2): 첨부 03-안경-그림틀.png, 05-선글라스-참고.png → 결과 glass-sun.png
+5) 흰색 헤드폰: 첨부 06-헤드폰-그림틀.png, 07-헤드폰-참고.png → 결과 hat-headphone.png
+
+----------------------------------------------------------------
+1)·2) 옆모습 양반다리 - 요청 문장 (남자·여자 각각 새 대화에서 그대로)
+----------------------------------------------------------------
+첨부한 그림은 바닥에 양반다리로 앉은 아이의 앞모습·옆모습·뒷모습입니다. 가운데 옆모습의 다리만 다시 그려 주세요. 왼쪽 앞모습과 오른쪽 뒷모습은 그대로 둡니다.
+- 지금 옆모습은 앞쪽 무릎이 높이 세워져 있어 무릎 꿇기나 쪼그려 앉기처럼 보입니다. 옆에서 봐도 양반다리로 보이게 고쳐 주세요.
+- 엉덩이는 바닥에 닿아 있고, 양 무릎은 바닥 가까이 낮게 바깥으로 벌어집니다. 무릎을 위로 세우지 않습니다.
+- 보이는 쪽 다리: 무릎이 앞쪽 아래로 낮게 나오고, 정강이가 몸 앞을 가로질러 반대쪽으로 갑니다. 그 발은 반대쪽 무릎 아래에 놓입니다.
+- 먼 쪽 다리: 신발 앞부분이 보이는 쪽 정강이 앞으로 살짝 보여서, 두 정강이가 몸 앞에서 엇갈린 것이 보이게 합니다.
+- 신발은 신은 채이고, 손은 무릎 위에 둡니다.
+- 얼굴·머리·윗옷·팔·몸 크기, 인물 위치·크기, 반바지와 신발의 색과 무늬는 그대로 둡니다.
+- 같은 부드러운 손그림 채색과 외곽선, 흰 배경. 그림자·글자·테두리 없이 세 장면만 그립니다.
+
+English (same request):
+The attached sheet shows a child sitting cross-legged on the floor: front, side and back. Redraw only the legs of the middle side view; keep the front (left) and back (right) views exactly as they are.
+- Now the near knee stands up high, so the side view reads as kneeling or squatting. Make it read as cross-legged from the side too.
+- The bottom stays on the floor; both knees are low near the floor and spread outwards. No knee stands up.
+- Near leg: the knee comes forward and low, the shin crosses in front of the body to the other side, its foot rests under the far knee.
+- Far leg: the toe of its shoe shows just in front of the near shin, so the two shins visibly cross in front of the body.
+- Shoes stay on; the hands rest on the knees.
+- Keep the face, hair, top, arms, body size, the figure's position and size, and the colours and patterns of the shorts and shoes.
+- Same soft hand-painted colouring and outlines, plain white background, no shadow, text or frame; only the three views.
+
+----------------------------------------------------------------
+3) 동그란 안경 - 요청 문장
+----------------------------------------------------------------
+첫 번째 그림은 게임 캐릭터 설정 시트입니다. 윗줄은 남자아이, 아랫줄은 여자아이이고, 왼쪽부터 앞모습, 오른쪽을 보는 옆모습, 뒷모습입니다. 두 번째 그림은 새로 입힐 동그란 안경 디자인입니다(두 아이가 같은 안경을 씁니다). 색과 모양만 참고하고, 몸과 그림체는 첫 번째 그림을 따릅니다.
+
+첫 번째 그림의 두 아이에게 안경만 씌워 주세요.
+- 두 아이: 두 번째 그림의 동그란 안경. 가는 갈색 테의 동그란 두 렌즈를 코 위의 둥근 다리가 잇고, 양옆 다리는 귀 쪽으로 갑니다. 렌즈는 투명해서 눈이 그대로 보입니다.
+
+꼭 지켜 주세요.
+1. 얼굴, 머리 모양, 몸 크기와 비율, 자세, 팔·다리 위치, 옷과 신발, 머리카락, 눈·눈썹·코·입과 얼굴 윤곽은 첫 번째 그림과 똑같이 둡니다.
+2. 여섯 그림의 위치, 크기, 간격을 그대로 둡니다. 그림을 자르거나 옮기지 않습니다.
+3. 동그란 안경은 두 눈 앞에 쓰고 코 위에 걸칩니다. 테는 눈썹 바로 아래부터 볼 위까지, 눈 둘레에 맞는 크기로 그립니다. 눈·눈썹·코·입, 얼굴 윤곽, 머리카락의 모양과 위치는 바꾸지 않습니다(렌즈가 투명하면 그림틀의 눈이 렌즈 안에 그대로 보이게). 앞머리가 테 위로 내려와 있으면 앞머리를 테 위에 그대로 둡니다. 앞모습과 오른쪽을 보는 옆모습에 그리고, 얼굴이 보이지 않는 뒷모습은 그림틀 그대로 둡니다.
+4. 앞·옆·뒤 세 모습이 같은 동그란 안경으로 보이게 그립니다. 옆모습에서는 안경을 옆에서 본 모양(앞쪽 테와 귀로 가는 다리)으로 그리고, 뒷모습은 그림틀 그대로 둡니다.
+5. 그림체(부드러운 채색, 외곽선 굵기, 명암)는 첫 번째 그림과 같게 합니다.
+6. 배경은 아무것도 없는 흰색입니다. 그림자, 글자, 테두리를 넣지 않고, 안경에도 글자나 로고를 넣지 않습니다.
+7. 결과는 가로로 긴 그림 한 장으로 주세요.
+
+English (same request):
+Image 1 is a game character sheet: top row a boy, bottom row a girl; from left to right front view, right-facing side view, back view. Image 2 shows only the new glasses (both children wear the same 동그란 안경). Use their colour and shape; keep the bodies and art style of image 1.
+
+Change ONLY the glasses of both children in image 1:
+- Both children: the round glasses from image 2: two round lenses in a thin brown rim joined by a curved bridge over the nose, the arms running to the ears; clear lenses, the eyes show through unchanged.
+
+Rules:
+1. Keep faces, hair, body size and proportions, pose, arm and leg positions, clothes and shoes, the hair, eyes, eyebrows, nose, mouth and face outline exactly as in image 1.
+2. Keep the position, size and spacing of all six figures. Do not crop or move them.
+3. Put the 동그란 안경 in front of both eyes, resting on the nose; the rims reach from just below the eyebrows to the top of the cheeks, sized to the eyes. Do not change the eyes, eyebrows, nose, mouth, face outline or hair (with clear lenses the eyes of image 1 show through unchanged). If the fringe falls over the rim, keep the fringe over it. Draw them in the front view and the right-facing side view; the back view shows no face and stays exactly as in image 1.
+4. Front, side and back must show the same 동그란 안경; in the side view draw the glasses from the side (the front rim and the arm running to the ear); the back view stays exactly as in image 1.
+5. Same art style as image 1 (soft painting, outline weight, shading).
+6. Plain white background. No shadows, text or frames, and no lettering or logos on the glasses.
+7. Return one landscape image.
+
+----------------------------------------------------------------
+4) 선글라스 - 요청 문장
+----------------------------------------------------------------
+첫 번째 그림은 게임 캐릭터 설정 시트입니다. 윗줄은 남자아이, 아랫줄은 여자아이이고, 왼쪽부터 앞모습, 오른쪽을 보는 옆모습, 뒷모습입니다. 두 번째 그림은 새로 입힐 선글라스 디자인입니다(두 아이가 같은 안경을 씁니다). 색과 모양만 참고하고, 몸과 그림체는 첫 번째 그림을 따릅니다.
+
+첫 번째 그림의 두 아이에게 안경만 씌워 주세요.
+- 두 아이: 두 번째 그림의 선글라스. 모서리가 둥근 네모난 진회색 렌즈 두 개가 눈을 가리고, 코 위 다리와 양옆 다리가 이어집니다. 렌즈 위쪽에 짧고 밝은 빛 반사 한 줄.
+
+꼭 지켜 주세요.
+1. 얼굴, 머리 모양, 몸 크기와 비율, 자세, 팔·다리 위치, 옷과 신발, 머리카락, 눈·눈썹·코·입과 얼굴 윤곽은 첫 번째 그림과 똑같이 둡니다.
+2. 여섯 그림의 위치, 크기, 간격을 그대로 둡니다. 그림을 자르거나 옮기지 않습니다.
+3. 선글라스는 두 눈 앞에 쓰고 코 위에 걸칩니다. 테는 눈썹 바로 아래부터 볼 위까지, 눈 둘레에 맞는 크기로 그립니다. 눈·눈썹·코·입, 얼굴 윤곽, 머리카락의 모양과 위치는 바꾸지 않습니다(렌즈가 투명하면 그림틀의 눈이 렌즈 안에 그대로 보이게). 앞머리가 테 위로 내려와 있으면 앞머리를 테 위에 그대로 둡니다. 앞모습과 오른쪽을 보는 옆모습에 그리고, 얼굴이 보이지 않는 뒷모습은 그림틀 그대로 둡니다.
+4. 앞·옆·뒤 세 모습이 같은 선글라스로 보이게 그립니다. 옆모습에서는 안경을 옆에서 본 모양(앞쪽 테와 귀로 가는 다리)으로 그리고, 뒷모습은 그림틀 그대로 둡니다.
+5. 그림체(부드러운 채색, 외곽선 굵기, 명암)는 첫 번째 그림과 같게 합니다.
+6. 배경은 아무것도 없는 흰색입니다. 그림자, 글자, 테두리를 넣지 않고, 안경에도 글자나 로고를 넣지 않습니다.
+7. 결과는 가로로 긴 그림 한 장으로 주세요.
+
+English (same request):
+Image 1 is a game character sheet: top row a boy, bottom row a girl; from left to right front view, right-facing side view, back view. Image 2 shows only the new glasses (both children wear the same 선글라스). Use their colour and shape; keep the bodies and art style of image 1.
+
+Change ONLY the glasses of both children in image 1:
+- Both children: the sunglasses from image 2: two dark grey rounded-square lenses covering the eyes, joined by a bridge over the nose, the arms running to the ears; one short light reflection near the top of each lens.
+
+Rules:
+1. Keep faces, hair, body size and proportions, pose, arm and leg positions, clothes and shoes, the hair, eyes, eyebrows, nose, mouth and face outline exactly as in image 1.
+2. Keep the position, size and spacing of all six figures. Do not crop or move them.
+3. Put the 선글라스 in front of both eyes, resting on the nose; the rims reach from just below the eyebrows to the top of the cheeks, sized to the eyes. Do not change the eyes, eyebrows, nose, mouth, face outline or hair (with clear lenses the eyes of image 1 show through unchanged). If the fringe falls over the rim, keep the fringe over it. Draw them in the front view and the right-facing side view; the back view shows no face and stays exactly as in image 1.
+4. Front, side and back must show the same 선글라스; in the side view draw the glasses from the side (the front rim and the arm running to the ear); the back view stays exactly as in image 1.
+5. Same art style as image 1 (soft painting, outline weight, shading).
+6. Plain white background. No shadows, text or frames, and no lettering or logos on the glasses.
+7. Return one landscape image.
+
+----------------------------------------------------------------
+5) 흰색 헤드폰 - 요청 문장
+----------------------------------------------------------------
+첫 번째 그림은 게임 캐릭터 설정 시트입니다. 윗줄은 남자아이, 아랫줄은 여자아이이고, 왼쪽부터 앞모습, 오른쪽을 보는 옆모습, 뒷모습입니다. 두 번째 그림은 새로 입힐 헤드폰 디자인입니다(두 아이가 같은 장식을 씁니다). 색과 모양(머리 위의 띠와 양쪽 귀를 덮는 둥근 덮개)만 참고하고, 몸과 그림체는 첫 번째 그림을 따릅니다.
+
+첫 번째 그림의 두 아이에게 머리 장식만 얹어 주세요.
+- 두 아이: 두 번째 그림의 흰색 헤드폰. 정수리를 가로지르는 띠, 양쪽 귀를 덮는 둥글고 푹신한 덮개. 덮개는 귀 자리에 놓고, 머리카락은 띠와 덮개가 닿는 곳만 가려집니다. 머리카락 가닥을 새로 그리거나 옮기지 않습니다(덮개와 띠 밖의 머리는 그림틀 그대로).
+
+꼭 지켜 주세요.
+1. 얼굴, 머리 모양, 몸 크기와 비율, 자세, 팔·다리 위치, 옷과 신발, 머리카락은 첫 번째 그림과 똑같이 둡니다.
+2. 여섯 그림의 위치, 크기, 간격을 그대로 둡니다. 그림을 자르거나 옮기지 않습니다.
+3. 헤드폰은 정수리의 머리카락 위를 가로질러 양쪽 귀 바로 위까지 내려오게 씁니다. 머리카락 위에 살짝 눌려 닿아 있게 하고, 떠 있지 않게 합니다. 머리 모양은 바꾸지 않고, 머리카락을 가리는 부분은 띠의 폭만큼입니다. 얼굴과 눈썹을 가리지 않습니다. 앞·옆·뒤 세 모습에서 같은 크기로 그립니다.
+4. 앞·옆·뒤 세 모습이 같은 헤드폰으로 보이게 그립니다. 옆모습에서는 보이는 쪽 귀를 덮개가 덮고, 뒷모습에서는 띠와 양쪽 덮개 뒤쪽이 보이게 합니다.
+5. 그림체(부드러운 채색, 외곽선 굵기, 명암)는 첫 번째 그림과 같게 합니다.
+6. 배경은 아무것도 없는 흰색입니다. 그림자, 글자, 테두리를 넣지 않고, 장식에도 글자나 로고를 넣지 않습니다.
+7. 결과는 가로로 긴 그림 한 장으로 주세요.
+
+English (same request):
+Image 1 is a game character sheet: top row a boy, bottom row a girl; from left to right front view, right-facing side view, back view. Image 2 shows only the new ornaments (both children wear the same headphones). Use their colour and shape (headband and round ear cups); keep the bodies and art style of image 1.
+
+Change ONLY the head ornaments of both children in image 1:
+- Both children: the white headphones from image 2: a band across the crown and round padded cups covering both ears; the cups sit at the ears and cover the hair only where the band and cups touch it. Do not redraw or move any hair strands (outside the band and cups the hair stays exactly as in image 1).
+
+Rules:
+1. Keep faces, hair, body size and proportions, pose, arm and leg positions, clothes and shoes, the hair exactly as in image 1.
+2. Keep the position, size and spacing of all six figures. Do not crop or move them.
+3. The headphones goes across the hair at the crown and comes down to just above both ears, pressed lightly onto the hair, never floating. Do not change the hair style; it covers the hair only as wide as its band. Do not cover the face or eyebrows. Draw it at the same size in the front, side and back views.
+4. Front, side and back must show the same headphones; in the side view the cup covers the visible ear; in the back view show the band and the backs of both cups.
+5. Same art style as image 1 (soft painting, outline weight, shading).
+6. Plain white background. No shadows, text or frames, and no lettering or logos on the ornaments.
+7. Return one landscape image.
+
+----------------------------------------------------------------
+결과가 이러면 다시 요청 (그대로 붙여 넣기)
+----------------------------------------------------------------
+- 양반다리 옆모습 무릎이 여전히 높이 서 있을 때:
+  "옆모습 무릎을 세우지 말고 바닥 가까이 낮게 벌려 주세요. 보이는 쪽 정강이가 몸 앞을 가로지르고, 먼 쪽 신발 앞부분이 그 앞으로 보이게 다시 그려 주세요."
+- 양반다리 앞모습·뒷모습이 바뀌었을 때:
+  "앞모습과 뒷모습은 첨부 그림과 똑같이 두고, 가운데 옆모습의 다리만 다시 그려 주세요."
+- 안경이 눈을 바꿨거나 눈썹·앞머리를 가렸을 때:
+  "눈과 눈썹, 앞머리는 그림틀 그대로 두고 안경만 그 앞에 씌워 다시 그려 주세요."
+- 헤드폰을 그리면서 머리 모양이 바뀌었을 때(특히 여자아이):
+  "머리카락은 그림틀과 똑같이 두고, 띠와 귀 덮개가 닿는 곳만 가리게 헤드폰을 얹어 다시 그려 주세요."
+- 얼굴·몸·옷이 바뀌었거나 인물이 움직였을 때:
+  "바꾸라는 것 말고는 첫 번째 그림과 완전히 같아야 합니다. 같은 그림틀에서 다시 그려 주세요."
+- 색이 참고 그림과 많이 다를 때:
+  "색을 두 번째 그림과 같게 맞춰 다시 그려 주세요."
