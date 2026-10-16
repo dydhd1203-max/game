@@ -71,7 +71,10 @@ EYE_KEEP = 4          # px round the new eye where unchanged template dark pixel
 BROW_LINE = .45       # eye gaps above the irises where the eyebrows start
 BROW_NEAR = 14.0      # Lab distance to the template's hair colours that is an eyebrow
 FIGURES = ('m-front', 'm-right', 'f-front', 'f-right')
-KINDS = {'face/sticker': 'sticker', 'face/mask': 'mask', 'face/eyes': 'part', 'face/nose': 'part', 'face/mouth': 'part'}
+EAR_FIGURES = ('m-front', 'm-right', 'm-back', 'f-front', 'f-right', 'f-back')
+EAR_ROWS = (.45, .08) # from this share of the head's height to this share below its lowest row: the lobes and a drop
+EAR_NEAR = 30.0       # Lab distance to the product's colour where an earring starts (its gold, light and shade)
+KINDS = {'face/sticker': 'sticker', 'face/mask': 'mask', 'ear/earring': 'ear', 'face/eyes': 'part', 'face/nose': 'part', 'face/mouth': 'part'}
 
 
 def face_mask(lt, head):
@@ -243,6 +246,53 @@ def cut(U, T, O, cells, slot, kind, debug=None):
     return out
 
 
+def cut_ear(U, T, O, cells, colour):
+    """Earrings (R1/R2 pilot, 2026-10-16): in all six figures (a boy's ears show from behind), the changed pixels
+    in a colour the template has nowhere near the ears (gold), between the head's middle and a little under
+    the chin. Front and profile keep the template's eyes for the per-hair face anchor; the back has none."""
+    LU, LT = R.lab(U), R.lab(T)
+    out = {}
+    # the template's skin from every head (a girl's back shows no skin)
+    skin_all = np.concatenate([LT[y0:y1, x0:x1][(O[y0:y1, x0:x1] == HEAD) & (np.sqrt(((LT[y0:y1, x0:x1] - SKIN_LAB) ** 2).sum(-1)) < SKIN_NEAR)]
+                               for x0, y0, x1, y1 in (cells[k] for k in EAR_FIGURES)])
+    skin_cols = BH.kmeans(skin_all[::5], 10)
+    for k in EAR_FIGURES:
+        x0, y0, x1, y1 = cells[k]
+        lu, lt, u = LU[y0:y1, x0:x1], LT[y0:y1, x0:x1], U[y0:y1, x0:x1]
+        head = O[y0:y1, x0:x1] == HEAD
+        ys = np.nonzero(head.any(1))[0]; top, bot = ys.min(), ys.max(); hgt = bot - top
+        # (front and profile end under the chin, not under the head: a girl's bob reaches her shoulders and the
+        # zone took the shirt's redrawn flowers)
+        if not k.endswith('back'):
+            fys = np.nonzero(face_mask(lt, head).any(1))[0]; bot = fys.max()
+        zone = np.zeros(head.shape, bool); zone[int(top + EAR_ROWS[0] * hgt):int(bot + EAR_ROWS[1] * hgt)] = True
+        d = np.sqrt(((lu - lt) ** 2).sum(-1))
+        changed = (d > CHANGED) & zone
+        # in the product's own colour, not just any new colour: the whole zone reached the shirt's redrawn flowers
+        # and redrawn hair tips started pieces too (R1·R2 first cut, 2026-10-16)
+        novel = changed & (np.sqrt(((lu - colour) ** 2).sum(-1)) < EAR_NEAR)
+        lab_, comps = M.components(M.dilate(novel, 1))
+        seeds = novel & np.isin(lab_, [c['label'] for c in comps if (novel & (lab_ == c['label'])).sum() >= MIN_PX])
+        item = M.dilate(seeds, STICKER_GROW) & changed
+        lab_, comps = M.components(item)
+        item = np.isin(lab_, [c['label'] for c in comps if c['size'] >= MIN_PX])
+        if item.sum() < MIN_PX:
+            out[k] = None
+            continue
+        item = BH.fill_holes(M.dilate(item, 1))
+        nonskin = np.clip((BH.nearest(lu, skin_cols) - SKIN_SOFT[0]) / SKIN_SOFT[1], 0, 1)
+        thin = item & ~M.dilate(M.erode(item, 2), 2)
+        alpha = np.maximum(soft(item), thin.astype(np.float32)) * nonskin
+        yy, xx = np.nonzero(M.dilate(item, 3))
+        bx = (int(xx.min()), int(yy.min()), int(xx.max()) + 1, int(yy.max()) + 1)
+        eyes = []
+        if not k.endswith('back'):
+            face = face_mask(lt, head); eyes = eye_centres(T[y0:y1, x0:x1], face)
+        out[k] = dict(px=int(item.sum()), rgba=np.dstack([u, alpha * 255]).clip(0, 255).astype(np.uint8)[bx[1]:bx[3], bx[0]:bx[2]],
+                      box=[x0 + bx[0], y0 + bx[1], x0 + bx[2], y0 + bx[3]], eyes=[[x0 + a, y0 + b] for a, b in eyes])
+    return out
+
+
 def eye_fit(fr, eyes, game):
     """Head-native rect -> the same rect moved (and, front, scaled about the eyes' midpoint) so the
     template's irises land on the game default head's (tools/fixtures/face-anchor.json). The head fit
@@ -271,7 +321,8 @@ def export(pid, kind, figures, out_assets, sheet=None, runtime=True):
             continue
         sex, view = k.split('-')
         fr = dict(frame[k], cell0=spec['cells'][k][:2])
-        fix = eye_fit(fr, f['eyes'], anchor['eyes'][sex][view][anchor['default'][sex]])
+        # the back has no eyes (earrings): the head fit alone
+        fix = eye_fit(fr, f['eyes'], anchor['eyes'][sex][view][anchor['default'][sex]]) if f['eyes'] else (lambda r: r)
         name = '%s-%s-%s-%s' % (slot, shape, sex, view)
         Image.fromarray(f['rgba']).save(os.path.join(out_assets, name + '.png'), optimize=True)
         v = dict(src='assets/face-art/%s.png' % name, rect=fix(BH.to_head(fr, f['box'])))
@@ -357,7 +408,7 @@ def build(sheet, out, pid, out_assets=None, debug=False, runtime=True):
     U = res['images']['registered'][..., :3].astype(np.float32)
     T = spec['template'][..., :3].astype(np.float32)
     dbg = {} if debug else None
-    figs = cut(U, T, spec['owner'], spec['cells'], slot, kind, dbg)
+    figs = cut_ear(U, T, spec['owner'], spec['cells'], R.lab(np.array([[[int(prod['colour']['f'][i:i + 2], 16) for i in (1, 3, 5)]]], np.float32))[0, 0]) if kind == 'ear' else cut(U, T, spec['owner'], spec['cells'], slot, kind, dbg)
     os.makedirs(out, exist_ok=True)
     report = dict(sheet=os.path.basename(sheet), id=pid, kind=kind, codes=[c['code'] for c in res['codes']],
                   figures={k: (None if f is None else dict(box=f['box'], px=f['px'])) for k, f in figs.items()})

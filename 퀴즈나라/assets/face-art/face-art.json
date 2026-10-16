@@ -1,5 +1,115 @@
 {
  "items": {
+  "ear:long_e": {
+   "kind": "ear",
+   "views": {
+    "m": {
+     "front": {
+      "src": "assets/face-art/ear-long_e-m-front.png",
+      "rect": [
+       5.138,
+       23.333,
+       21.855,
+       4.483
+      ]
+     },
+     "right": {
+      "src": "assets/face-art/ear-long_e-m-right.png",
+      "rect": [
+       12.98,
+       23.769,
+       1.826,
+       3.555
+      ]
+     },
+     "back": {
+      "src": "assets/face-art/ear-long_e-m-back.png",
+      "rect": [
+       7.492,
+       22.888,
+       16.867,
+       3.518
+      ]
+     }
+    },
+    "f": {
+     "front": {
+      "src": "assets/face-art/ear-long_e-f-front.png",
+      "rect": [
+       7.55,
+       23.864,
+       16.976,
+       3.918
+      ]
+     },
+     "right": {
+      "src": "assets/face-art/ear-long_e-f-right.png",
+      "rect": [
+       13.288,
+       23.556,
+       1.817,
+       3.442
+      ]
+     }
+    }
+   },
+   "sheet": "assets/garment-sources/ear-long_e-0-chatgpt-2026-10-16.png"
+  },
+  "ear:star_e": {
+   "kind": "ear",
+   "views": {
+    "m": {
+     "front": {
+      "src": "assets/face-art/ear-star_e-m-front.png",
+      "rect": [
+       4.577,
+       23.781,
+       22.64,
+       3.81
+      ]
+     },
+     "right": {
+      "src": "assets/face-art/ear-star_e-m-right.png",
+      "rect": [
+       12.788,
+       24.154,
+       1.922,
+       2.978
+      ]
+     },
+     "back": {
+      "src": "assets/face-art/ear-star_e-m-back.png",
+      "rect": [
+       6.95,
+       22.978,
+       17.859,
+       2.977
+      ]
+     }
+    },
+    "f": {
+     "front": {
+      "src": "assets/face-art/ear-star_e-f-front.png",
+      "rect": [
+       7.55,
+       23.864,
+       16.976,
+       3.918
+      ]
+     },
+     "right": {
+      "src": "assets/face-art/ear-star_e-f-right.png",
+      "rect": [
+       13.097,
+       23.748,
+       2.199,
+       3.251
+      ]
+     }
+    }
+   },
+   "sheet": "assets/garment-sources/ear-star_e-0-chatgpt-2026-10-16.png"
+  },
   "eyes:cat": {
    "kind": "part",
    "views": {

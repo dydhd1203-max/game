@@ -1,7 +1,7 @@
 {
   "project": "퀴즈나라",
   "format": 1,
-  "builtAt": "2026-10-16T04:21:23.102Z",
+  "builtAt": "2026-10-16T04:25:08.891Z",
   "instructions": "Cloudflare Pages 또는 Netlify 수동 배포에는 이 배포용 폴더 전체를 올리세요. index.html만 올리지 마세요.",
   "files": [
     {
@@ -2451,8 +2451,8 @@
     },
     {
       "path": "avatar-face-art.js",
-      "bytes": 9533,
-      "sha256": "37328e121448ab4a2041831dc9985b994dd9aea2f80bd0c9aa74cbaea7703135"
+      "bytes": 10681,
+      "sha256": "ef8c9a3118e3edb8f418afee476b393516786233da52b2ab6a7a96989d985fbf"
     },
     {
       "path": "assets/face-art/fringe/f-front-short.png",
@@ -2693,6 +2693,56 @@
       "path": "assets/face-art/fringe/m-right-wolf.png",
       "bytes": 1821,
       "sha256": "5379ee5b3521724b16f24413b43ddff07d1a848fee73894e1143c680c1264206"
+    },
+    {
+      "path": "assets/face-art/ear-long_e-m-front.png",
+      "bytes": 13442,
+      "sha256": "081ffed3d6a67bc26b59522a3d3e5aac2d9879059a8a65a2997dcd5cca080172"
+    },
+    {
+      "path": "assets/face-art/ear-long_e-m-right.png",
+      "bytes": 2030,
+      "sha256": "4ea91be25836a7d3cafd532e058c6334c973b45f05497f94f6b4ddf65acc2586"
+    },
+    {
+      "path": "assets/face-art/ear-long_e-m-back.png",
+      "bytes": 12715,
+      "sha256": "7dcb98acab15ad404ad645aa3e2a0bf95c41d4a376b0c83fb7e56410e5517294"
+    },
+    {
+      "path": "assets/face-art/ear-long_e-f-front.png",
+      "bytes": 12914,
+      "sha256": "33c301f56077e3517fe4942928296c7043444b6b50640c903e3a3c497f60eea2"
+    },
+    {
+      "path": "assets/face-art/ear-long_e-f-right.png",
+      "bytes": 2001,
+      "sha256": "ce2cd859daab0310cb439419e331fdc1a269f153d6481c79161eb1e1d12ea979"
+    },
+    {
+      "path": "assets/face-art/ear-star_e-m-front.png",
+      "bytes": 11530,
+      "sha256": "1f2dbb0539ba46db1966b91be0301c1ddb562d416434e3eb3247de42821b54f7"
+    },
+    {
+      "path": "assets/face-art/ear-star_e-m-right.png",
+      "bytes": 1937,
+      "sha256": "357b7e9e958cad4bd2b8e7f0079cd48277237631c3859aadbd72c35260ea302f"
+    },
+    {
+      "path": "assets/face-art/ear-star_e-m-back.png",
+      "bytes": 11328,
+      "sha256": "fc3f1e3d129b9aba16d1bd2677e0a160f40a769824caea18a1fa4441f915405d"
+    },
+    {
+      "path": "assets/face-art/ear-star_e-f-front.png",
+      "bytes": 13063,
+      "sha256": "b2b10b1b5685aee7164fb85c6fcc93a0590a43068cd02cb90ef45d713ac2d4c4"
+    },
+    {
+      "path": "assets/face-art/ear-star_e-f-right.png",
+      "bytes": 2367,
+      "sha256": "2c385c52d3a5da31e33c65d759b79d944a9bb6b6fbcdd306e175a62e31dbb746"
     },
     {
       "path": "assets/face-art/eyes-cat-m-front.png",
