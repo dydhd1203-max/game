@@ -68,7 +68,6 @@ import report as RP  # noqa: E402
 ROOT = os.path.dirname(TOOLS)
 SCHEMA = json.load(open(os.path.join(HERE, 'schema.json'), encoding='utf-8'))
 PRODUCTS = os.path.join(ROOT, 'assets', 'garment-template', 'products.json')
-TEMPLATE = 'assets/garment-template/template-sheet.png'
 LIMITS = 'tools/garment/frozen/limits.json'
 FROZEN_BODY = 'tools/garment/frozen/frozen-body.json'
 BUILDER = 'tools/garment/build-garment.py'
@@ -468,7 +467,12 @@ def colour_codes(ctx, segs, figs, prod, masks=None):
 # ---------------------------------------------------------------------------
 # Build
 # ---------------------------------------------------------------------------
-BUILDER_TODO = {'top/long-sleeve': 'the sleeve strip along the arm (sleeves[i].arm) is not segmented yet; runtime tested with tools/boards/longsleeve-board.cjs'}
+BUILDER_TODO = {}
+LONG_GROW = 3        # px round the arm painting (clean and legacy) where a long sleeve's strip may lie
+LONG_SKIN = 2.0      # nll margin by which the skin model must beat the product model for a strip pixel to be skin
+LONG_MIN = 30        # px of a kept strip piece
+LONG_LINE = 2        # px: skin-like pieces this thin (2r+1 wide) are drawn lines, not bare skin
+LONG_CODES = ('SLEEVE_LONG', 'SLEEVE_SHORT')  # the short-sleeve coverage rules a long sleeve does not keep
 OPEN_SHOE_CODES = ('SOLE_OFF_FLOOR', 'SHOE_MISSING')
 OPEN_CHANGED = 12.0   # Lab change (blurred) from the bare feet that is the shoe
 OPEN_ZONE = 8         # px round the pipeline's own shoe part where an open shoe may lie
@@ -551,6 +555,81 @@ def crops_of(figs):
     return out
 
 
+def arm_strips(ctx, segs, keys):
+    """Long sleeves (class top/long-sleeve, 2026-10-16): per figure and arm, the sleeve over the arm as a strip on
+    the painted arm's own rect (assets/sd-foundation-ref-data.js rects.arm[i]), which the game warps along the arm
+    like the arm painting (avatar-foundation-outfit.js top.armSleeves, avatar-foundation-skin.js limbPainting)
+    over the arm skin and under the sleeve cap. A strip pixel lies within LONG_GROW px of the arm painting (clean
+    or legacy), below the shoulder line (across the upper arm at the shoulder joint: above it the strip would flap
+    out of the shoulder when the arm swings) and above the wrist (across the forearm), is not the page (the white
+    reached from the figure's cell border; its edge keeps the sheet's matte) and not bare skin (where this
+    sheet's skin model beats the product model by LONG_SKIN in an area wider than a drawn line: the hand; drawn
+    on the dark-skin template the two part, make-dark-template.py). Under the sleeve cap the strip
+    holds the cap's own cloth, which shows when the arm moves away from it. Pieces under LONG_MIN px are
+    dropped. Returns {(key, i): (RGBA crop, rect)}; the profile's two arms share one rect and one strip."""
+    fz = ctx.fz
+    art = M.dilate((fz.clean['arms'][..., 3] > 64) | (fz.layers['arms'][..., 3] > 64), LONG_GROW)
+    H, W = art.shape
+    yy, xx = np.mgrid[0:H, 0:W]
+    out = {}
+    for key in keys:
+        F = fz.data[key]
+        J = F['joints']
+        x0, y0, x1, y1 = SG.CELLS[key]
+        nll = segs[key]['nll']
+        # the page is the white reached from the cell's border: a white cuff inside its outline is cloth
+        pagelike = (ctx.A[y0:y1, x0:x1] <= .5) | (ctx.U[y0:y1, x0:x1].sum(-1) >= 735)
+        border = np.zeros(pagelike.shape, bool); border[0] = border[-1] = True; border[:, 0] = border[:, -1] = True
+        page_cell = M.connected_to(pagelike, border)
+        for i in (0, 1):
+            x, y, w, h = F['rects']['arm'][i]
+            if i == 1 and F['rects']['arm'][1] == F['rects']['arm'][0]:
+                out[(key, 1)] = out[(key, 0)]
+                continue
+            sl = np.s_[y:y + h, x:x + w]
+            S, E, Wr = (np.array(J[n][i], float) for n in ('shoulder', 'elbow', 'wrist'))
+            ua, fa = (E - S) / np.linalg.norm(E - S), (Wr - E) / np.linalg.norm(Wr - E)
+            px, py = xx[sl] + .5, yy[sl] + .5
+            below = (px - S[0]) * ua[0] + (py - S[1]) * ua[1] >= 0
+            above = (px - Wr[0]) * fa[0] + (py - Wr[1]) * fa[1] < 0
+            cs = np.s_[y - y0:y - y0 + h, x - x0:x - x0 + w]
+            # skin is a bare area (the hand, a forearm a short sleeve leaves), never a drawn line: the skin model
+            # also holds the arm's dark outline, so the sleeve's own lines (the cuff's edge) would read as skin
+            skinlike = (nll['skin'][cs] - nll['product'][cs]) < -LONG_SKIN
+            skin = M.dilate(M.erode(skinlike, LONG_LINE), LONG_LINE) & skinlike
+            page = page_cell[cs]
+            m = art[sl] & below & above & ~skin & ~page
+            lab_, comps = M.components(m)
+            keep = np.zeros_like(m)
+            for c in comps:
+                if c['size'] >= LONG_MIN:
+                    keep |= lab_ == c['label']
+            rgba = np.zeros((h, w, 4), np.float32)
+            rgba[..., :3] = ctx.U[sl]
+            rgba[..., 3] = np.where(keep, np.where(M.dilate(page, 1), np.clip(ctx.A[sl], 0, 1), 1) * 255, 0)
+            out[(key, i)] = (np.clip(np.rint(rgba), 0, 255).astype(np.uint8), [int(x), int(y), int(w), int(h)])
+    return out
+
+
+def long_static(ctx, figs, keys):
+    """A long sleeve's static parts (top/long-sleeve): the sleeve caps keep the basic sleeve's footprint (the
+    drawn basic sleeves grown LONG_GROW px) and the torso gives up the arm painting outside the basic shirt's:
+    the sleeve down the arm is the strip (arm_strips), which follows the arm; left in a cap, it would stay in the
+    cap's place when the arm swings."""
+    fz = ctx.fz
+    art = M.dilate((fz.clean['arms'][..., 3] > 64) | (fz.layers['arms'][..., 3] > 64), LONG_GROW)
+    cap = M.dilate(fz.drawn['sleeves'][..., 3] > 127, LONG_GROW)
+    shirt = M.dilate(fz.drawn['shirt'][..., 3] > 127, LONG_GROW)
+    for key in keys:
+        x0, y0, x1, y1 = SG.CELLS[key]
+        sl = np.s_[y0:y1, x0:x1]
+        for name, p in figs[key]['parts'].items():
+            if name.startswith('sleeve'):
+                p['a'] = p['a'] * cap[sl]
+            elif name == 'torso':
+                p['a'] = p['a'] * ~(art[sl] & ~shirt[sl])
+
+
 def regions_for(slot, view):
     pairs = SCHEMA['x-views'][view]['pairs']
     if slot == 'top':
@@ -586,7 +665,9 @@ def build(sheet, product, sexes=None, date=None, res=None, prod_override=None, k
     if problems:
         raise SystemExit('frozen body mismatch, not building:\n  ' + '\n  '.join(problems))
     if res is None:
-        res = R.register(sheet, slot=slot, sexes=sexes)
+        res = R.register(sheet, slot=slot, sexes=sexes, base=prod.get('base'))
+    if res.get('spec', {}).get('base') != prod.get('base'):
+        raise SystemExit('%s is drawn on the %s template, the registration used %s' % (product, prod.get('base') or 'light', res.get('spec', {}).get('base') or 'light'))
     timing['register'] = round(time.time() - t0, 2)
     out = dict(res=res, slot=slot, sexes=sexes, product=product, prod=prod, cat=cat, shape=shape)
     if not res.get('figures') or any(k not in res['figures'] for k in SG.CELLS if k[0] in sexes):
@@ -603,9 +684,14 @@ def build(sheet, product, sexes=None, date=None, res=None, prod_override=None, k
     figs = FL.build(ctx, segs)
     if cls == 'shoes/sandals':
         open_shoes(res, figs, keys)
+    if cls == 'top/long-sleeve':
+        long_static(ctx, figs, keys)
     timing['fill'] = round(time.time() - t, 2)
     t = time.time()
     lcodes, measured = limit_codes(ctx, segs, figs, slot)
+    strips = arm_strips(ctx, segs, keys) if cls == 'top/long-sleeve' else None
+    if strips is not None:  # the sleeve runs down the arm by design: its strip is checked by its own rules
+        lcodes = [c for c in lcodes if c['code'] not in LONG_CODES]
     if cls == 'shoes/sandals':  # an open shoe's opening is below the legs' run by design: the bare foot shows there
         lcodes = [c for c in lcodes if c['code'] in OPEN_SHOE_CODES]
     skin_masks = {}
@@ -636,7 +722,7 @@ def build(sheet, product, sexes=None, date=None, res=None, prod_override=None, k
         errors.update({k: m['seatError'] for k, m in meta.items() if 'seatError' in m})
     codes = [c for c in res['codes']] + lcodes + ccodes
     warnings = [w for w in res['warnings']] + cwarn
-    out.update(ctx=ctx, segs=segs, figs=figs, crops=crops, meta=meta, measured=measured, colour=cinfo, skinMasks=skin_masks,
+    out.update(ctx=ctx, segs=segs, figs=figs, crops=crops, meta=meta, measured=measured, colour=cinfo, skinMasks=skin_masks, strips=strips,
                garmentCodes=lcodes + ccodes, garmentWarnings=cwarn, codes=codes, warnings=warnings)
     if errors or partial:
         out['built'] = False
@@ -663,6 +749,13 @@ def build(sheet, product, sexes=None, date=None, res=None, prod_override=None, k
                     crop, rect = crops[(key, n)]
                 regions[(view, n)] = crop
                 row.append((n, crop.shape[1], crop.shape[0]))
+            if strips is not None:  # the long sleeve's strips (the profile's two arms share one)
+                for i in (0, 1):
+                    if i == 1 and strips[(key, 1)] is strips[(key, 0)]:
+                        continue
+                    crop = strips[(key, i)][0]
+                    regions[(view, 'arm%d' % i)] = crop
+                    row.append(('arm%d' % i, crop.shape[1], crop.shape[0]))
             rows.append((view, row))
         place, size = PK.layout(rows)
         arr = PK.atlas(regions, place, size)
@@ -701,6 +794,10 @@ def make_record(b, crops, meta, atlases, measured, figs, sheet, date, kind, stem
                 figures[view] = {'top': {'torso': {'rect': crops[(key, 'torso')][1], 'at': at('torso')}, 'sleeves': sleeves,
                                          'underarm': PK.r4(m['underarm']) if m['underarm'] else None,
                                          'hem': PK.r4(m['hem']), 'collar': PK.r4(m['collar'])}}
+                if b.get('strips') is not None:  # a long sleeve's strip along each arm (arm_strips)
+                    st = b['strips']
+                    figures[view]['top']['armSleeves'] = [
+                        {'rect': st[(key, i)][1], 'at': at('arm%d' % (0 if i == 1 and st[(key, 1)] is st[(key, 0)] else i))} for i in (0, 1)]
             elif slot == 'bottom':
                 B = {'rect': crops[(key, 'bottom')][1], 'at': at('bottom'), 'waistTop': m['waistTop'], 'edgeTone': m['edgeTone'],
                      'cuffAlong': m['cuffAlong']}
@@ -744,7 +841,7 @@ def make_record(b, crops, meta, atlases, measured, figs, sheet, date, kind, stem
         'catalog': catalog, 'mirrorSafe': mirror,
         'source': {
             'kind': kind, 'sheet': {'path': rel(sheet), 'sha256': sha256_file(sheet)}, 'layers': None, 'data': None,
-            'template': {'path': TEMPLATE, 'sha256': sha256_file(os.path.join(ROOT, TEMPLATE))},
+            'template': {'path': rel(R.TEMPLATE_PATHS[prod.get('base')]), 'sha256': sha256_file(R.TEMPLATE_PATHS[prod.get('base')])},
             'designRef': {'path': dpath, 'sha256': sha256_file(os.path.join(ROOT, dpath))} if dpath and os.path.exists(os.path.join(ROOT, dpath)) else None,
             'prompt': None, 'registration': reg, 'bodyFieldsSha256': fbody['bodyFieldsSha256'],
             'builder': builder_id(), 'date': sheet_date(sheet, date),

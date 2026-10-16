@@ -2677,7 +2677,8 @@
   },
   "top:knit": {
    "class": "top/long-sleeve",
-   "status": "long sleeve L (requested 2026-10-16)",
+   "status": "long sleeve L (requested 2026-10-16); dark-skin template pilot (2026-10-16)",
+   "base": "dark",
    "sexes": [
     "m",
     "f"

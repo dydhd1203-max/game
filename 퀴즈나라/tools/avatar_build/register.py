@@ -72,6 +72,10 @@ assert TEMPLATE['left'] == 90 and TEMPLATE['right'] == 91, 'template margins are
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 TEMPLATE_PATH = os.path.join(ROOT, 'assets', 'garment-template', 'template-sheet.png')
+# image 1 of a request by the product's "base" (products.json): the dark-skin template (2026-10-16,
+# tools/garment/make-dark-template.py) for cloth near the light skin's colour
+TEMPLATE_PATHS = {None: TEMPLATE_PATH,
+                  'dark': os.path.join(ROOT, 'assets', 'garment-template', 'template-sheet-dark.png')}
 SHEET_PATH = os.path.join(ROOT, 'assets', 'avatar-reference-candidates', 'body-study-2026-10-04.png')
 FROZEN = os.path.join(ROOT, 'tools', 'garment', 'frozen')
 DATA_JS = os.path.join(ROOT, 'assets', 'sd-foundation-ref-data.js')
@@ -194,18 +198,21 @@ def _read_data_js(path=DATA_JS):
 _SPEC_CACHE = {}
 
 
-def garment_spec(slot='top', sexes=('m', 'f')):
+def garment_spec(slot='top', sexes=('m', 'f'), base=None):
     """The ChatGPT garment template: 2 rows (boy, girl) x front/right/back.
     slot: the product slot ('top' | 'bottom' | 'shoes'); sexes: the rows the
-    product changes (a single-sex product leaves the other row untouched)."""
+    product changes (a single-sex product leaves the other row untouched);
+    base: the template the sheet was drawn on (TEMPLATE_PATHS; None the light one)."""
     if slot not in SLOT_OWNERS:
         raise ValueError('unknown slot %r' % slot)
-    key = (slot, tuple(sexes))
+    if base not in TEMPLATE_PATHS:
+        raise ValueError('unknown template base %r' % base)
+    key = (slot, tuple(sexes), base)
     if key in _SPEC_CACHE:
         return _SPEC_CACHE[key]
-    tpl = np.asarray(Image.open(TEMPLATE_PATH).convert('RGB')).astype(np.float32)
+    tpl = np.asarray(Image.open(TEMPLATE_PATHS[base]).convert('RGB')).astype(np.float32)
     if tpl.shape[1] != TEMPLATE['width'] or tpl.shape[0] != TEMPLATE['height']:
-        raise ValueError('template-sheet.png is not %dx%d' % (TEMPLATE['width'], TEMPLATE['height']))
+        raise ValueError('%s is not %dx%d' % (os.path.basename(TEMPLATE_PATHS[base]), TEMPLATE['width'], TEMPLATE['height']))
     t = tpl[:, TEMPLATE['left']:TEMPLATE['left'] + SHEET['width']]
     ref = np.asarray(Image.open(SHEET_PATH).convert('RGBA')).astype(np.float32)
     fg = ref[..., 3] >= 128
@@ -237,7 +244,7 @@ def garment_spec(slot='top', sexes=('m', 'f')):
         J = data[k]['joints']
         pts = [p for name in ('shoulder', 'elbow', 'wrist', 'hip', 'knee', 'ankle') for p in J[name]]
         anchors[k] = np.array(pts, np.float64)
-    spec = dict(kind='garment', slot=slot, sexes=tuple(sexes), template=t, templateFg=fg, owner=owner,
+    spec = dict(kind='garment', slot=slot, sexes=tuple(sexes), base=base, template=t, templateFg=fg, owner=owner,
                 hairOcclusion=hair_occ, cells=CELLS, layout=LAYOUT, stable=stable, fit=fit, anchors=anchors,
                 zones=zones['figures'], data=data, canvas=(TEMPLATE['width'], TEMPLATE['height']),
                 offset=(float(TEMPLATE['left']), 0.0), productMask=product)
@@ -965,7 +972,7 @@ FIG_KO = {'m-front': '남자아이 앞모습', 'm-right': '남자아이 옆모�
           'f-front': '여자아이 앞모습', 'f-right': '여자아이 옆모습', 'f-back': '여자아이 뒷모습'}
 
 
-def register(path, spec=None, slot='top', sexes=('m', 'f'), keep_images=True, min_long_side=None):
+def register(path, spec=None, slot='top', sexes=('m', 'f'), keep_images=True, min_long_side=None, base=None):
     """Register one upload. Returns a result dict; result['ok'] is False when
     any failure code was raised. With keep_images, result['images'] holds
     numpy arrays (registered RGBA in sheet space, masks) for the report and
@@ -973,9 +980,11 @@ def register(path, spec=None, slot='top', sexes=('m', 'f'), keep_images=True, mi
     precision only; production keeps matte.SIZE_MIN)."""
     t_all = time.time()
     timing = {}
-    spec = spec or garment_spec(slot, sexes)
+    spec = spec or garment_spec(slot, sexes, base)
     res = dict(version=1, spec=dict(kind=spec['kind'], slot=spec['slot'], sexes=list(spec['sexes'])),
                codes=[], warnings=[], figures={}, timing=timing, thresholds=T)
+    if spec.get('base'):
+        res['spec']['base'] = spec['base']
     rec, im = M.read_input(path)
     res['input'] = rec
     size_min = M.SIZE_MIN if min_long_side is None else min_long_side

@@ -2,8 +2,9 @@
 // 긴팔 움직임 확인판(?demo=1 studio, 저장 안 함): 기본 티셔츠 기록을 복사해 종류를 top/long-sleeve로 바꾸고,
 // 팔마다 '팔 띠 모양 소매'(top.armSleeves[i])를 정리한 팔 그림에서 손목 위까지 티셔츠 색으로 칠해 만든 시험용 긴팔을
 // 등록한다. 남녀 × 앞·옆·뒤 × 서기·걷기·뛰기·점프·손 흔들기·사다리·책상 앉기를 그린다(원화 전 움직임 시험).
-// 예: node tools/boards/longsleeve-board.cjs . 검증/긴팔/판.png [크기]
-const ROOT=process.argv[2],OUT=process.argv[3],SIZE=Number(process.argv[4])||280;
+// 예: node tools/boards/longsleeve-board.cjs . 검증/긴팔/판.png [크기] [기록 폴더]
+//   기록 폴더(예 검증/긴팔/knit-real, build-garment.py 결과)를 주면 그 긴팔 기록을 등록해 입힌다. [피부톤] 기본 2.
+const ROOT=process.argv[2],OUT=process.argv[3],SIZE=Number(process.argv[4])||280,DIR=process.argv[5],SK=process.argv[6]===undefined?2:Number(process.argv[6]);
 const path=require('node:path'),fs=require('node:fs');
 const L=require(path.resolve(ROOT,'tools/foundation-garment-lib.cjs')),H=L.H;
 (async()=>{
@@ -32,10 +33,13 @@ const L=require(path.resolve(ROOT,'tools/foundation-garment-lib.cjs')),H=L.H;
     return await G.register(src,images);
   });
   if(Object.values(res).some(s=>s!=='ready'))throw new Error('register: '+JSON.stringify(res));
-  const outfits=await page.evaluate(()=>Object.fromEntries(['m','f'].map(sex=>[sex,{...__fg.outfitFor(null,sex),top:'top:longtest'}])));
+  let topId='top:longtest';
+  if(DIR){const rs=L.recordsOption(DIR,{log:()=>{}});if(!rs.valid.length)throw new Error('no valid record in '+DIR);const x=rs.valid[0];
+    const r2=await L.registerAll(page,{aliases:[],records:[{record:x.record,atlases:x.atlases}]});topId=x.record.id;console.log('record',topId,JSON.stringify(r2));}
+  const outfits=await page.evaluate(id=>Object.fromEntries(['m','f'].map(sex=>[sex,{...__fg.outfitFor(null,sex),top:id}])),topId);
   const states=[{action:'idle',time:0},{action:'walk',time:.18},{action:'run',time:.12},{action:'jump',time:.3},{action:'idle',gesture:'wave',gestureProgress:.5,time:0},{action:'climb',time:.2},{action:'sit',seatMode:'desk',time:0}];
   const cells=[];
-  for(const sex of ['m','f'])for(const direction of ['front','right','back'])for(const st of states)cells.push({av:{sex,sk:2,hair:(sex==='m'?'short':'bob')+':1',expression:'bright:0',foundationGarments:outfits[sex]},state:{...st,direction,reducedMotion:false},size:SIZE});
+  for(const sex of ['m','f'])for(const direction of ['front','right','back'])for(const st of states)cells.push({av:{sex,sk:SK,hair:(sex==='m'?'short':'bob')+':1',expression:'bright:0',foundationGarments:outfits[sex]},state:{...st,direction,reducedMotion:false},size:SIZE});
   const g=await page.evaluate(spec=>__fg.grid(spec),{cells,cols:states.length,cellW:Math.round(SIZE*.62),cellH:Math.round(SIZE*1.15),labelW:0});
   const info=await page.evaluate(()=>({shown:[...document.querySelectorAll('[data-outfit-part^="arm-sleeve-"]')].filter(e=>e.style.display!=='none'&&e.getAttribute('href')).length,all:document.querySelectorAll('[data-outfit-part^="arm-sleeve-"]').length}));
   fs.mkdirSync(path.dirname(OUT),{recursive:true});await L.capture(page,g,OUT);

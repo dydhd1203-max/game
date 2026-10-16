@@ -11,8 +11,8 @@
 //
 // Inputs: tools/garment/prompts.json (frame, class rule lines, v1 record) and
 // assets/garment-template/products.json (names, notes, sexes, mirrorSafe,
-// designRef). Image 1 is always assets/garment-template/template-sheet.png
-// (tools/garment/make-template.py); image 2 is the product's garment-only
+// designRef). Image 1 is assets/garment-template/template-sheet.png
+// (tools/garment/make-template.py), or template-sheet-dark.png for a product with "base": "dark"; image 2 is the product's garment-only
 // reference written by tools/garment/design-ref.cjs (headless ?demo=1).
 // 작업자-안내도.png is for the worker only and is never attached.
 const fs=require('node:fs'),path=require('node:path');
@@ -23,6 +23,8 @@ const PROMPTS=path.join(__dirname,'prompts.json');
 const PRODUCTS=path.join(KIT,'products.json');
 const DOC=path.join(KIT,'프롬프트.md');
 const TEMPLATE=path.join(KIT,'template-sheet.png');
+// image 1 by the product's "base": the dark-skin template (tools/garment/make-dark-template.py) for cloth near the light skin
+const templateOf=product=>product.base==='dark'?path.join(KIT,'template-sheet-dark.png'):TEMPLATE;
 
 const load=file=>JSON.parse(fs.readFileSync(file,'utf8'));
 
@@ -73,6 +75,7 @@ function build(product,lang,P){
   }else{values.targets=ch.targetsBoth;values.singleSex='';}
   values.layout=P.layout[lang][single?'single':shared?'shared':'two'];
   values.mirror=product.mirrorSafe?'':P.mirror[lang];
+  values.darkBase=product.base==='dark'?P.darkBase[lang]:'';
   const label=lang==='ko'?sex=>ch[sex]:sex=>ch.line[sex];
   values.descriptions=(shared?['- '+ch.both+': '+notes.both]:sexes.map(sex=>'- '+label(sex)+': '+notes[sex])).join('\n');
   return fill(P.frame[lang].join('\n'),values).split('\n');
@@ -109,6 +112,7 @@ function check(){
       for(const field of ['class','sexes','ci','names','colour','display','designRef'])if(p[field]===undefined)problems.push(key+': products.json lacks '+field);
       if(p.mirrorSafe===undefined)problems.push(key+': products.json lacks mirrorSafe');
       for(const sex of p.sexes)for(const f of ['colour','display'])if(!/^#[0-9a-f]{6}$/i.test(p[f]?.[sex]||''))problems.push(key+' '+sex+': '+f+' is not a hex');
+      if(p.base!==undefined&&p.base!=='dark')problems.push(key+': base must be "dark" or absent');
       if(p.designRef&&!fs.existsSync(path.join(KIT,p.designRef)))problems.push(key+': image 2 missing ('+p.designRef+'): node tools/garment/design-ref.cjs '+key);
     }catch(e){problems.push(key+': '+e.message);}
   }
@@ -117,7 +121,8 @@ function check(){
   const variants={
     'single-m':{...base,sexes:['m'],mirrorSafe:false},
     'single-f-shoes':{...products.products['shoes:ballet']||base,mirrorSafe:false},
-    'shared-mirror':{...base,sharedPicture:true,mirrorSafe:false,notes:{ko:{...base.notes.ko,both:'둘 다'},en:{...base.notes.en,both:'both'}}}
+    'shared-mirror':{...base,sharedPicture:true,mirrorSafe:false,notes:{ko:{...base.notes.ko,both:'둘 다'},en:{...base.notes.en,both:'both'}}},
+    'dark-base':{...base,base:'dark'}
   };
   for(const [name,product] of Object.entries(variants)){
     const fake={products:{'x:y':product}};
@@ -125,6 +130,7 @@ function check(){
       for(const lang of ['ko','en']){const text=r[lang].join('\n');
         if(/[{}]/.test(text))problems.push('branch '+name+' '+lang+': unfilled value');
         if(!product.mirrorSafe&&!text.includes(P.mirror[lang].trim()))problems.push('branch '+name+' '+lang+': mirror line missing');
+        if(product.base==='dark'&&!text.includes(P.darkBase[lang].trim()))problems.push('branch '+name+' '+lang+': dark-base line missing');
         if(product.sexes.length===1&&!text.includes(lang==='ko'?'바꾸지 않습니다':'Do not change the'))problems.push('branch '+name+' '+lang+': single-sex line missing');}
     }catch(e){problems.push('branch '+name+': '+e.message);}
   }
@@ -149,7 +155,7 @@ function check(){
 function header(r){
   const p=r.product,sexes=p.sexes.map(sex=>(sex==='m'?'남':'여')+' '+r.key+':'+p.ci[sex]+" '"+p.names[sex]+"' 상점 색 "+p.display[sex]+(p.display[sex]!==p.colour[sex]?' (카탈로그 '+p.colour[sex]+')':'')).join(', ');
   return ['상품: '+sexes+'  ('+p.class+(p.mirrorSafe?'':', 좌우 뒤집기 주의')+(p.sexes.length===1?', 한 성별 상품':'')+')',
-    '첨부 1: '+path.relative(ROOT,TEMPLATE)+'  (그림 틀, 먼저)',
+    '첨부 1: '+path.relative(ROOT,templateOf(p))+'  (그림 틀, 먼저'+(p.base==='dark'?', 피부를 진하게 칠한 틀':'')+')',
     '첨부 2: '+path.relative(ROOT,path.join(KIT,p.designRef))+'  (옷만 그린 디자인 참고, 두 번째)',
     '작업자-안내도.png는 ChatGPT에 올리지 않습니다.'].join('\n');
 }
@@ -184,7 +190,7 @@ async function main(){
   }
   if(typeof a.kit==='string'){
     const dir=path.resolve(a.kit);fs.mkdirSync(dir,{recursive:true});
-    fs.copyFileSync(TEMPLATE,path.join(dir,'1-그림틀.png'));
+    fs.copyFileSync(templateOf(r.product),path.join(dir,'1-그림틀.png'));
     fs.copyFileSync(path.join(KIT,r.product.designRef),path.join(dir,'2-옷참고-'+r.product.designRef));
     fs.writeFileSync(path.join(dir,'프롬프트-한국어.txt'),r.ko.join('\n')+'\n');
     fs.writeFileSync(path.join(dir,'prompt-english.txt'),r.en.join('\n')+'\n');

@@ -3,6 +3,7 @@
   python3 -B tools/garment/verify-pipeline.py --roundtrip [--positives] [--cream] [--controls] [--out DIR] [--only NAME,...]
   python3 -B tools/garment/verify-pipeline.py --all [--register]   the whole suite (WP8), 4 cases at a time,
                                                                    a table in OUT/요약.md
+  ... --base dark   the same cases drawn on the dark-skin template (make-dark-template.py, products "base": "dark")
 
 --roundtrip (R1): the basic outfit itself, once as the template sheet (1629x1086
   PNG, 'identity') and once through the ChatGPT path (1536x1024 WebP q80,
@@ -141,9 +142,11 @@ def product(slot, shape, display=None):
     c = LEGACY_CATALOG[slot]
     cat = basic_catalog(slot)
     disp = {s: display or cat[s]['display'] for s in ('m', 'f')}
-    return '%s:%s' % (slot, shape), {
-        'class': c['class'], 'sexes': ['m', 'f'], 'ci': {'m': 0, 'f': 0}, 'names': {'m': shape, 'f': shape},
-        'colour': {s: cat[s]['colour'] for s in ('m', 'f')}, 'display': disp, 'mirrorSafe': True}
+    p = {'class': c['class'], 'sexes': ['m', 'f'], 'ci': {'m': 0, 'f': 0}, 'names': {'m': shape, 'f': shape},
+         'colour': {s: cat[s]['colour'] for s in ('m', 'f')}, 'display': disp, 'mirrorSafe': True}
+    if GS.BASE:
+        p['base'] = GS.BASE
+    return '%s:%s' % (slot, shape), p
 
 
 def composed_layers(slot, prod):
@@ -704,7 +707,7 @@ def run_case(name, sheet, slot, truth, own_vis, kind, out_dir, prod_override, pr
     if cream:
         # the synthetic itself must be the case it stands for: cream cloth
         # within dE 12 of the body's skin (#f2dfbd is 8.5 from the clean art)
-        sk = R.lab(GS.skin_rgb()[None].astype(np.float32))[0]
+        sk = R.lab(GS.skin_rgb(base=None)[None].astype(np.float32))[0]  # near the LIGHT skin (what a dark base is for)
         near = {}
         for key in b['figs']:
             mc = GS.main_colour(truth['shirt'], key)
@@ -751,8 +754,8 @@ def run_case(name, sheet, slot, truth, own_vis, kind, out_dir, prod_override, pr
 def roundtrip_cases(work):
     fz = SG.frozen()
     truth = {n: fz.drawn[n] for n in ('shirt', 'sleeves', 'shorts', 'shoes')}
-    tpl = os.path.join(ROOT, 'assets', 'garment-template', 'template-sheet.png')
-    webp = os.path.join(work, 'identity-1536-q80.webp')
+    tpl = R.TEMPLATE_PATHS[GS.BASE]
+    webp = os.path.join(work, 'identity-1536-q80%s.webp' % ('-' + GS.BASE if GS.BASE else ''))
     if not os.path.exists(webp):
         Image.open(tpl).convert('RGB').resize((1536, 1024), Image.LANCZOS).save(webp, 'WEBP', quality=80, method=6)
     cases = []
@@ -952,7 +955,9 @@ def main(argv=None):
     ap.add_argument('--all', action='store_true')
     ap.add_argument('--only', help='comma-separated case names')
     ap.add_argument('--out', default=os.path.join(ROOT, '검증', '옷', '파이프라인-검사'))
+    ap.add_argument('--base', choices=('dark',), help='draw the synthetic sheets on the dark-skin template (make-dark-template.py)')
     a = ap.parse_args(argv)
+    GS.BASE = a.base
     if a.all:
         a.roundtrip = a.positives = a.cream = a.controls = a.wp8 = True
     if not (a.roundtrip or a.positives or a.cream or a.controls or a.wp8):
@@ -978,7 +983,7 @@ def main(argv=None):
     # the suite shows in review (tools/garment/controls.json)
     ctl = [dict(name=c['name'], slot=c['slot'], kind=c['kind'], expect=list(c.get('expect', ())) or 'pass',
                 role='control' if c.get('control') else 'positive' if c.get('positive') or c.get('cream') else 'roundtrip') for c in cases]
-    if not a.only:
+    if not a.only and not a.base:
         with open(os.path.join(HERE, 'controls.json'), 'w', encoding='utf-8') as fh:
             json.dump(ctl, fh, ensure_ascii=False, indent=1)
     # independent cases, a few at a time (one at a time took ~40 min)

@@ -9,7 +9,7 @@
    "{descriptions}",
    "",
    "꼭 지켜 주세요.",
-   "1. 얼굴, 머리 모양, 몸 크기와 비율, 자세, {pose}, {keep|은} 첫 번째 그림과 똑같이 둡니다.{singleSex}",
+   "1. 얼굴, 머리 모양, 몸 크기와 비율, 자세, {pose}, {keep|은} 첫 번째 그림과 똑같이 둡니다.{singleSex}{darkBase}",
    "2. 여섯 그림의 위치, 크기, 간격을 그대로 둡니다. 그림을 자르거나 옮기지 않습니다.",
    "3. {length}",
    "4. 앞·옆·뒤 세 모습이 같은 {item|로} 보이게 그립니다. {back}{mirror}",
@@ -24,7 +24,7 @@
    "{descriptions}",
    "",
    "Rules:",
-   "1. Keep faces, hair, body size and proportions, pose, {pose}, {keep} exactly as in image 1.{singleSex}",
+   "1. Keep faces, hair, body size and proportions, pose, {pose}, {keep} exactly as in image 1.{singleSex}{darkBase}",
    "2. Keep the position, size and spacing of all six figures. Do not crop or move them.",
    "3. {length}",
    "4. Front, side and back must show the same {item}; {back}{mirror}",
@@ -68,6 +68,11 @@
  "singleSex": {
   "ko": " {other}의 {slot|은} 바꾸지 않습니다.",
   "en": " Do not change the {other}'s {slot}."
+ },
+ "darkBase": {
+  "ko": " 첫 번째 그림의 아이들 피부는 일부러 진한 갈색으로 칠해 두었습니다. 피부색은 그대로 두고, 소매 끝·목둘레·밑단 가장자리에도 밝은 피부색을 새로 칠하지 않습니다.",
+  "en": " The children's skin in image 1 is painted dark brown on purpose. Keep that skin colour, and do not paint light skin along the cuffs, neckline or hem.",
+  "why": "Products with \"base\": \"dark\" (products.json, 2026-10-16) are drawn on assets/garment-template/template-sheet-dark.png (tools/garment/make-dark-template.py): cream and beige cloth lie within Lab ~10 of the light skin, so the cut lost their edges to skin or kept pale untinted bands (real top:shirt); on dark skin the two part."
  },
  "mirror": {
   "ko": " 왼쪽을 보는 옆모습은 이 옆모습을 좌우로 뒤집어 쓰므로, 한쪽에만 있는 장식은 뒤집어도 어색하지 않게 그립니다.",

@@ -141,9 +141,10 @@ class Frozen:
     """The frozen body, the legacy layers, the owner map, zones and limits,
     and the drawn basic garments."""
 
-    def __init__(self):
+    def __init__(self, base=None):
+        self.base = base
         self.sheet = load_rgba(os.path.join(ASSETS, 'avatar-reference-candidates', 'body-study-2026-10-04.png'))
-        tpl = np.asarray(Image.open(os.path.join(ASSETS, 'garment-template', 'template-sheet.png')).convert('RGB')).astype(np.float32)
+        tpl = np.asarray(Image.open(R.TEMPLATE_PATHS[base]).convert('RGB')).astype(np.float32)
         self.template = tpl[:, TEMPLATE['left']:TEMPLATE['left'] + SHEET['width']].copy()
         self.owner = np.asarray(Image.open(os.path.join(FROZEN, 'owner-map.png'))).copy()
         self.bands = np.asarray(Image.open(os.path.join(FROZEN, 'contact-bands.png'))).copy()
@@ -203,15 +204,19 @@ class Frozen:
         return 'clean' if slot == 'top' else 'legacy'
 
     def B(self, slot):
-        """RGBA of everything but the product slot (z order)."""
+        """RGBA of everything but the product slot (z order). On the dark base the body's skin is the dark
+        template's (dark_body)."""
         if slot not in self._B:
             body = self.body(self.art_for(slot))
+            head = self.head
+            if self.base == 'dark':
+                body, head = dark_body(body, head)
             out = np.zeros_like(self.sheet)
             own = np.zeros(self.owner.shape, np.uint8)
             for name in reversed(Z_TOP_FIRST):
                 if name in SLOT[slot]['layers']:
                     continue
-                lay = self.head if name == 'head' else body.get(name, self.layers.get(name))
+                lay = head if name == 'head' else body.get(name, self.layers.get(name))
                 out = over(lay, out)
                 own[lay[..., 3] > 127] = LAYER_OWNER[name]
             self._B[slot] = out
@@ -334,14 +339,31 @@ def drawn_owner(fz):
     return O
 
 
-_FZ = None
+_FZ = {}
 
 
-def frozen():
-    global _FZ
-    if _FZ is None:
-        _FZ = Frozen()
-    return _FZ
+def frozen(base=None):
+    if base not in _FZ:
+        _FZ[base] = Frozen(base)
+    return _FZ[base]
+
+
+def dark_body(body, head):
+    """The limb and neck layers and the head painted as the dark template paints them (make-dark-template.py:
+    the whole limb painting times DARK / the sheet's skin, the neck's and head's skin-coloured pixels by their
+    skin weight). B is what a dark-base sheet shows where the product is not."""
+    import importlib.util
+    spec = importlib.util.spec_from_file_location('make_dark_template', os.path.join(HERE, 'make-dark-template.py'))
+    D = importlib.util.module_from_spec(spec); spec.loader.exec_module(D)
+    gain = np.array(D.DARK, np.float32) / np.array(D.SKIN, np.float32)
+
+    def tint(lay, w):
+        out = lay.copy()
+        out[..., :3] = lay[..., :3] * (1 - w[..., None]) + np.clip(lay[..., :3] * gain, 0, 255) * w[..., None]
+        return out
+    ones = np.ones(head.shape[:2], np.float32)
+    out = {n: tint(lay, ones if n in ('arms', 'legs') else D.skin_weight(lay[..., :3])) for n, lay in body.items()}
+    return out, tint(head, D.skin_weight(head[..., :3]))
 
 
 # ---------------------------------------------------------------------------
@@ -441,7 +463,10 @@ def distance_to(mask, cap=32):
 # ---------------------------------------------------------------------------
 class Context:
     def __init__(self, res, slot, sexes=('m', 'f'), fz=None):
-        self.fz = fz or frozen()
+        base = res.get('spec', {}).get('base')  # the template the sheet was drawn on (register.TEMPLATE_PATHS)
+        self.fz = fz or frozen(base)
+        if self.fz.base != base:
+            raise ValueError('frozen body for base %r, sheet registered on %r' % (self.fz.base, base))
         self.slot = slot
         self.sexes = tuple(sexes)
         img = res['images']['registered']
@@ -467,7 +492,7 @@ class Context:
             self.Blab[sl] = R.lab(Bwhite[sl])
             self.D[sl] = median3(R.winmin_de(R.blur3(self.Ut[sl], 1), R.blur3(self.Tlab[sl], 1), 2, .7))
             self.DB[sl] = R.de(self.Ut[sl], self.Blab[sl], .7)
-        spec = R.garment_spec(slot, sexes)
+        spec = R.garment_spec(slot, sexes, base)
         st = np.zeros(self.D.shape, bool)
         for k in CELLS:
             st |= spec['stable'][k]
