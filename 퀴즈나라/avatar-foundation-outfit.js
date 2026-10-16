@@ -490,7 +490,7 @@
   function sprite(parent,owner){const e=el('image',{'data-outfit-part':owner,preserveAspectRatio:'none'});parent.append(e);return e;}
   function paint(e,art,key,x,y,w,h){if(e.dataset.outfitSource!==key){e.setAttribute('href',art.url);e.dataset.outfitSource=key;}set(e,'x',n(x));set(e,'y',n(y));set(e,'width',n(w));set(e,'height',n(h));}
   function clip(defs,id){const c=el('clipPath',{id,clipPathUnits:'userSpaceOnUse'}),p=el('path');c.append(p);defs.append(c);return p;}
-  // The node set of the class signature short-sleeve|shorts|low (198 m / 192 f
+  // The node set of the class signature short-sleeve|shorts|low (201 m / 195 f
   // in every motion; tools/foundation-matrix.cjs NODE_TABLE), each node
   // labelled with its garment id. The mounted set is remembered: an svg whose
   // data-foundation-garments changes is rebuilt at its next apply() (destroy +

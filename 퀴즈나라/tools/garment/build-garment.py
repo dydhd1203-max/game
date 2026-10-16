@@ -468,6 +468,48 @@ def colour_codes(ctx, segs, figs, prod, masks=None):
 # ---------------------------------------------------------------------------
 # Build
 # ---------------------------------------------------------------------------
+OPEN_SHOE_CODES = ('SOLE_OFF_FLOOR', 'SHOE_MISSING')
+OPEN_CHANGED = 12.0   # Lab change (blurred) from the bare feet that is the shoe
+OPEN_ZONE = 8         # px round the pipeline's own shoe part where an open shoe may lie
+OPEN_MIN = 20         # px of a kept piece
+
+
+def open_shoes(res, figs, keys):
+    """Open shoes (class shoes/sandals, 2026-10-16) are drawn on the barefoot sheet
+    (assets/garment-sources/standing-barefoot-chatgpt-2026-10-16.png): the shoe is what changed from those bare
+    feet, both registered to the body. The bare skin the straps leave stays out of the record (no baked skin
+    colour); the game draws its own feet layer there (record.feet, avatar-foundation-outfit.js). Replaces each
+    figure's shoe parts in place; the zone is the pipeline's own shoe part, grown."""
+    import importlib.util
+    from PIL import ImageFilter
+    spec = importlib.util.spec_from_file_location('standing_feet', os.path.join(ROOT, 'tools', 'build-standing-feet.py'))
+    SF = importlib.util.module_from_spec(spec); spec.loader.exec_module(SF)
+    bare = SF.registered()
+    reg = res['images']['registered'].astype(np.float32)
+    blur = lambda x: np.asarray(Image.fromarray(np.clip(x, 0, 255).astype(np.uint8)).filter(ImageFilter.GaussianBlur(1))).astype(np.float32)
+    for key in keys:
+        x0, y0, x1, y1 = SG.CELLS[key]
+        u, b = reg[y0:y1, x0:x1], bare[y0:y1, x0:x1]
+        d = np.sqrt(((R.lab(blur(u[..., :3])) - R.lab(blur(b[..., :3]))) ** 2).sum(-1))
+        page = (u[..., :3].sum(-1) > 735) | (u[..., 3] < 128)
+        for name, part in figs[key]['parts'].items():
+            if not name.startswith('shoe'):
+                continue
+            zone = M.dilate(part['a'] > .1, OPEN_ZONE)
+            m = zone & (d > OPEN_CHANGED) & ~page
+            lab_, comps = M.components(m)
+            m = np.isin(lab_, [c['label'] for c in comps if c['size'] >= OPEN_MIN])
+            # a cream strap is the light skin's colour (Lab under OPEN_CHANGED): its middle read as unchanged and
+            # the strap came out hollow. Holes enclosed by one piece are filled; skin between two pieces (toes
+            # between a strap and the sole) is not enclosed and stays out (closing bridged it; fake sandal, 2026-10-16)
+            lab_, comps = M.components(m)
+            for c in comps:
+                piece = lab_ == c['label']
+                m |= FL.fill_holes(piece) & zone & ~page
+            part['a'] = m.astype(np.float32) * (u[..., 3] / 255.0)
+            part['rgb'] = u[..., :3].copy()
+
+
 def crops_of(figs):
     out = {}
     for key, f in figs.items():
@@ -527,9 +569,13 @@ def build(sheet, product, sexes=None, date=None, res=None, prod_override=None, k
     timing['segment'] = round(time.time() - t, 2)
     t = time.time()
     figs = FL.build(ctx, segs)
+    if cls == 'shoes/sandals':
+        open_shoes(res, figs, keys)
     timing['fill'] = round(time.time() - t, 2)
     t = time.time()
     lcodes, measured = limit_codes(ctx, segs, figs, slot)
+    if cls == 'shoes/sandals':  # an open shoe's opening is below the legs' run by design: the bare foot shows there
+        lcodes = [c for c in lcodes if c['code'] in OPEN_SHOE_CODES]
     skin_masks = {}
     ccodes, cwarn, cinfo = colour_codes(ctx, segs, figs, prod, skin_masks)
     timing['codes'] = round(time.time() - t, 2)
@@ -659,7 +705,7 @@ def make_record(b, crops, meta, atlases, measured, figs, sheet, date, kind, stem
     warns.append('PIPELINE: built by tools/garment/build-garment.py; an automatic pass is not an art approval')
     if slot == 'top':
         warns.append('PROFILE_SLEEVE: the profile sleeve has no raised drawing or underarm (the runtime never raises it)')
-    return {
+    rec = {
         'schema': 1, 'id': gid, 'cat': cat, 'shape': shape, 'slot': slot, 'slots': SCHEMA['x-slots'][slot]['slots'],
         'class': prod['class'], 'status': 'candidate', 'legacy': False, 'legacyComputed': [],
         'bodyArt': 'clean' if slot == 'top' else 'legacy',
@@ -679,6 +725,9 @@ def make_record(b, crops, meta, atlases, measured, figs, sheet, date, kind, stem
         },
         'sexes': sexes_out,
     }
+    if prod['class'] == 'shoes/sandals':  # open shoes: the game draws the bare feet under them (open_shoes)
+        rec['feet'] = True
+    return rec
 
 
 # ---------------------------------------------------------------------------

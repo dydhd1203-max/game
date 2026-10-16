@@ -2460,6 +2460,88 @@
     }
    },
    "sharedPicture": true
+  },
+  "shoes:slipper": {
+   "class": "shoes/low",
+   "status": "closed slipper O1 (shared picture, requested 2026-10-16): the toes are covered, no feet layer",
+   "sexes": [
+    "m",
+    "f"
+   ],
+   "ci": {
+    "m": 3,
+    "f": 3
+   },
+   "names": {
+    "m": "슬리퍼",
+    "f": "슬리퍼"
+   },
+   "colour": {
+    "m": "#8fd94a",
+    "f": "#8fd94a"
+   },
+   "display": {
+    "m": "#8fd94a",
+    "f": "#8fd94a"
+   },
+   "mirrorSafe": true,
+   "designRef": "ref-shoes-slipper-design.png",
+   "sharedPicture": true,
+   "notes": {
+    "ko": {
+     "item": "토끼 슬리퍼",
+     "look": "색과 모양",
+     "both": "두 번째 그림의 토끼 털 슬리퍼. 발 전체를 감싸는 크림색 털 테두리, 발등은 초록 천에 토끼 얼굴(분홍 코, 까만 눈)과 세운 토끼 귀 두 개, 귀 사이에 초록 리본과 금색 방울.",
+     "back": "뒷모습에는 두 발의 크림색 털 뒤꿈치가 보이게 합니다."
+    },
+    "en": {
+     "item": "bunny slippers",
+     "look": "colour and shape",
+     "both": "the fluffy bunny slippers from image 2: a cream fur rim round the whole foot, a green instep with a bunny face (pink nose, black eyes) and two upright bunny ears, a green bow with a gold bell between the ears.",
+     "back": "show both cream fur heels in the back view."
+    }
+   }
+  },
+  "shoes:sandal": {
+   "class": "shoes/sandals",
+   "status": "open shoes O2 (shared picture, requested 2026-10-16)",
+   "sexes": [
+    "m",
+    "f"
+   ],
+   "ci": {
+    "m": 10,
+    "f": 10
+   },
+   "names": {
+    "m": "샌들",
+    "f": "샌들"
+   },
+   "colour": {
+    "m": "#f2dfbd",
+    "f": "#f2dfbd"
+   },
+   "display": {
+    "m": "#f2dfbd",
+    "f": "#f2dfbd"
+   },
+   "mirrorSafe": true,
+   "designRef": "ref-shoes-sandal-design.png",
+   "sharedPicture": true,
+   "notes": {
+    "ko": {
+     "item": "샌들",
+     "look": "색과 끈 모양",
+     "both": "두 번째 그림의 크림색 샌들. 금색 테두리의 납작한 밑창, 발가락 위를 가로지르는 넓은 끈과 발목을 두르는 끈(바깥쪽에 금색 고리), 발등 끈 가운데 금색 꽃. 발가락과 끈 사이 발등 피부가 보입니다.",
+     "back": "뒷모습에는 두 발의 발목 끈과 뒤꿈치, 밑창 뒤쪽이 보이게 합니다."
+    },
+    "en": {
+     "item": "sandals",
+     "look": "colour and straps",
+     "both": "the cream sandals from image 2: a flat sole with a gold edge, a wide strap across the toes and a strap round the ankle (a gold ring outside), a gold flower on the instep strap; the toes and the skin between the straps show.",
+     "back": "show both ankle straps, heels and the backs of the soles in the back view."
+    }
+   }
   }
  }
 }

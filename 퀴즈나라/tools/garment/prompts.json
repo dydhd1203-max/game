@@ -154,6 +154,26 @@
    ],
    "why": "The leg painting ends at the current shoe top (SHOE_LOW_OPENING); low shoes stay under the ankle bone (SHOE_HIGH); shoes hang from the ankle and the sole sits on the frozen floor (SOLE_OFF_FLOOR); both feet are drawn front and back (SHOE_MISSING). Pilot S2/S3 (2026-10-15): ChatGPT drew the back-view shoes larger, their soles 5 px under the floor; the back-view line was added."
   },
+  "shoes/sandals": {
+   "ko": {
+    "slot": "신발",
+    "thing": "신발",
+    "verb": "신겨",
+    "wear": "신습니다",
+    "pose": "팔·다리 위치",
+    "keep": "윗옷, 반바지, 맨발의 모양(발가락·발등·뒤꿈치)",
+    "length": "첫 번째 그림의 아이들은 맨발입니다. 그 맨발 위에 {item|을} 신깁니다. 발 크기·위치·모양과 바닥선은 그대로 두고, 밑창은 지금 발바닥이 닿는 바닥선에 둡니다. 신발에 가리지 않는 발가락·발등·뒤꿈치는 첫 번째 그림의 맨발과 똑같이 두고 다시 그리지 않습니다. 앞모습과 뒷모습에서는 두 발에 모두 신깁니다."
+   },
+   "en": {
+    "slot": "shoes",
+    "things": "shoes",
+    "pose": "arm and leg positions",
+    "keep": "tops, shorts and the bare feet (toes, insteps, heels)",
+    "length": "The children in image 1 are barefoot. Put the {item} on those bare feet. Keep the feet's size, position and shape and the floor line; the soles lie on the floor line where the feet stand now. Toes, insteps and heels the shoes leave bare stay exactly as the bare feet of image 1 and are not redrawn. Put shoes on both feet in the front and back views."
+   },
+   "limits": [],
+   "why": "Open shoes (slippers, sandals, 2026-10-16): drawn on the barefoot sheet (assets/garment-sources/standing-barefoot-chatgpt-2026-10-16.png) so the shoe is what changed from the bare feet, and the bare skin left shows the game's feet layer (sd-foundation-ref-feet.png) in every skin tone. Cut by tools/build-open-shoes.py, not the garment pipeline."
+  },
   "hat/full": {
    "ko": {
     "slot": "모자",

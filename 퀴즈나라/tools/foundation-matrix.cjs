@@ -91,17 +91,21 @@ const HAIR_ALIASES=Object.freeze(['buzz','longm','wave','afro','mohawk','crop'])
 // prepare() hidden, and gets its own row here).
 //   total: svg.querySelectorAll('*').length of the reference avatar
 //          (m short:1, f bob:1). The male reference head adds 6 nodes of
-//          neck-cut clip paths; every other male head gives 192.
+//          neck-cut clip paths; every other male head gives 195. Each head
+//          view wraps its painting in one group (data-foundation-head-paint,
+//          the neck cut clips the painting only: 3 nodes, dd3318f 2026-10-16).
 //   body:  the same count without the head, the back hair and their clip
 //          definitions (the R0 'garment' mode used from H3 on, when heads
 //          change by design). Equal for both sexes and every head (checked
 //          with m spiky:1 as well).
 // Measured 2026-10-09 on 7a2643f (stage 2 runtime) over the whole matrix by
 // tools/foundation-signature.cjs (full and garment mode, fresh and walking
-// avatars); verify-reference-body and 모션-검수 record the same 198/192.
+// avatars); verify-reference-body and 모션-검수 record the same 198/192
+// (201/195 since the head painting group, 2026-10-16; body unchanged).
 const NODE_TABLE=Object.freeze({
-  'short-sleeve|shorts|low':Object.freeze({total:Object.freeze({m:198,f:192}),body:Object.freeze({m:149,f:149}),note:'basic outfit: shirt, shorts hip mesh, 2 underarm fills + lines, 2 sleeve groups (image + arm-skin clip), 2 shoes, shirt-side clip'}),
-  'none|none|none':Object.freeze({total:Object.freeze({m:177,f:171}),body:Object.freeze({m:128,f:128}),note:"foundationOutfit 'body' (no garments)"})
+  'short-sleeve|shorts|low':Object.freeze({total:Object.freeze({m:201,f:195}),body:Object.freeze({m:149,f:149}),note:'basic outfit: shirt, shorts hip mesh, 2 underarm fills + lines, 2 sleeve groups (image + arm-skin clip), 2 shoes, shirt-side clip'}),
+  'short-sleeve|shorts|sandals':Object.freeze({total:Object.freeze({m:203,f:197}),body:Object.freeze({m:151,f:151}),note:'open shoes (record.feet): the basic set and one bare-foot image per shoe (avatar-foundation-outfit.js prepare, 2026-10-16)'}),
+  'none|none|none':Object.freeze({total:Object.freeze({m:180,f:174}),body:Object.freeze({m:128,f:128}),note:"foundationOutfit 'body' (no garments)"})
 });
 const classSignature=({top='none',bottom='none',shoes='none'}={})=>top+'|'+bottom+'|'+shoes;
 function expectedNodes(signature,sex,mode='total'){const row=NODE_TABLE[signature];return row?row[mode==='garment'?'body':'total'][sex]:undefined;}
