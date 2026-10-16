@@ -4,10 +4,10 @@
    "front": {
     "src": "assets/hat-art/hair/f-twin-front.png",
     "rect": [
-     0.919,
-     15.429,
-     30.328,
-     25.015
+     -0.143,
+     8.282,
+     31.39,
+     33.611
     ],
     "keep": {
      "src": "assets/hat-art/hair/f-twin-front-keep.png",
@@ -22,10 +22,10 @@
    "right": {
     "src": "assets/hat-art/hair/f-twin-right.png",
     "rect": [
-     1.595,
-     16.727,
-     18.448,
-     23.18
+     2.851,
+     7.745,
+     22.601,
+     34.094
     ],
     "keep": {
      "src": "assets/hat-art/hair/f-twin-right-keep.png",
@@ -40,10 +40,10 @@
    "back": {
     "src": "assets/hat-art/hair/f-twin-back.png",
     "rect": [
-     2.318,
-     16.525,
-     28.058,
-     23.652
+     2.498,
+     10.23,
+     28.148,
+     31.655
     ],
     "keep": {
      "src": "assets/hat-art/hair/f-twin-back-keep.png",
@@ -60,10 +60,10 @@
    "front": {
     "src": "assets/hat-art/hair/f-pony-front.png",
     "rect": [
-     4.01,
-     16.781,
-     23.76,
-     16.709
+     3.334,
+     7.509,
+     25.692,
+     32.163
     ],
     "keep": {
      "src": "assets/hat-art/hair/f-pony-front-keep.png",
@@ -78,10 +78,10 @@
    "right": {
     "src": "assets/hat-art/hair/f-pony-right.png",
     "rect": [
-     -1.109,
-     15.472,
-     21.732,
-     22.987
+     0.34,
+     7.552,
+     26.368,
+     38.924
     ],
     "keep": {
      "src": "assets/hat-art/hair/f-pony-right-keep.png",
@@ -96,10 +96,10 @@
    "back": {
     "src": "assets/hat-art/hair/f-pony-back.png",
     "rect": [
-     5.106,
-     16.795,
-     22.482,
-     23.292
+     5.555,
+     9.241,
+     23.112,
+     37.051
     ],
     "keep": {
      "src": "assets/hat-art/hair/f-pony-back-keep.png",

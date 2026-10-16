@@ -1,7 +1,9 @@
 """Hat pipeline: the hair of a style that a pulled-on hat cannot simply cut
-(twin tails, a pony tied above the rim), as drawn under a cap by ChatGPT
-(H1 twin, H2 pony: tools/hair/make-hat-hair-base.cjs makes the first
-picture, the game's own figures).
+(twin tails, a pony tied above the rim), as drawn by ChatGPT on the game's
+own figures (tools/hair/make-hat-hair-base.cjs makes the first picture):
+H1R twin, H2R pony (2026-10-16) without a cap, the whole scalp's hair with the
+tails tied low, so every pulled-on hat's hide mask cuts it (the first H1·H2 were
+drawn under a cap and left a gap under higher rims).
 
   python3 -B tools/hair/build-hat-hair.py SHEET --hair f:twin --base BASE_DIR --skin SKIN_DIR
 
@@ -42,12 +44,15 @@ BH = importlib.util.module_from_spec(_spec); _spec.loader.exec_module(BH)
 VIEWS = ('front', 'right', 'back')
 LEGS = (36.0, 55.0)     # svg viewBox rows (of 62) that place a figure: shorts, legs, shoes
 SHIFT = 70              # px searched each way
+FEET = 6                # px searched round the feet's offset (align by_feet)
+EYE_GROW = 1.8          # head units round the game's irises where nothing is hair (lashes, eye whites)
 HAIR_LOW = 47.0         # svg rows: no hair below (the longest tail)
 NECK = 28.6             # svg rows: below it only hair is kept (not the shirt, arms)
 OPEN = 2                # px of the opening that drops drawn outlines
 FACE_IN = 4             # px inside the game's face edge where nothing is hair
 CAP_REACH = 6           # px above the drawn cap's lowest row a kept piece must reach below
 MIN_PIECE = 300         # px of a kept hair piece
+CAPLESS_PX = 500        # px of drawn cap colour under which the sheet has no cap (H1R·H2R)
 KEEP_CLOSE = {'front': 20, 'right': 8, 'back': 0}  # px (at RES) the kept skin is closed over the eyes
 UNDER_BAND = 10         # px beside the drawn hair where the drawn cap's place becomes hair
 KEEP_PIECE = 1500        # px (at RES) of a kept skin piece: a face, an ear, the nape
@@ -64,14 +69,27 @@ def hsv(a):
     return h, d / (mx + 1e-6), mx
 
 
-def align(base, sheet, box):
-    """Shift (dx, dy) of the sheet's figure onto the base's: best match of the legs band."""
+def feet(a, x0, x1):
+    """The lowest painted row in the figure's columns (its shoes' shadow)."""
+    rows = np.nonzero((np.abs(a[:, x0:x1].astype(int) - 255).sum(-1) > 60).any(1))[0]
+    return int(rows.max()) if len(rows) else None
+
+
+def align(base, sheet, box, by_feet=False):
+    """Shift (dx, dy) of the sheet's figure onto the base's: best match of the legs band.
+    by_feet: dy is first taken from the feet and searched only FEET px round it (2026-10-16: the pony
+    sheet's profile matched its legs band 71 px off, a long tail beside the legs)."""
     ppu = box['w'] / 32.0
     x0, x1 = int(box['x']), int(box['x'] + box['w'])
     y0, y1 = int(box['y'] + LEGS[0] * ppu), int(box['y'] + LEGS[1] * ppu)
     ref = base[y0:y1, x0:x1].astype(np.float32).mean(-1)
     best = None
-    for dy in range(-SHIFT, SHIFT + 1, 2):
+    dys = range(-SHIFT, SHIFT + 1, 2)
+    if by_feet:
+        fb, fs = feet(base, x0, x1), feet(sheet, x0, x1)
+        if fb is not None and fs is not None:
+            dys = range(fs - fb - FEET, fs - fb + FEET + 1, 1)
+    for dy in dys:
         for dx in range(-SHIFT, SHIFT + 1, 2):
             if y0 + dy < 0 or x0 + dx < 0 or y1 + dy > sheet.shape[0] or x1 + dx > sheet.shape[1]:
                 continue
@@ -95,8 +113,10 @@ def to_head(box, t, px, py):
     return ((px - box['x']) / ppu - t[4]) / t[0], ((py - box['y']) / ppu - t[5]) / t[3]
 
 
-def keep_mask(skin_dir, sex, hair, view, hf):
-    """This hair style's skin in head-native units (white = keep the game's painting)."""
+def keep_mask(skin_dir, sex, hair, view, hf, extra=None):
+    """This hair style's skin in head-native units (white = keep the game's painting). extra: a mask over
+    the base figure (base.png px, with its box `extra_box`) also kept: the eyes' surround the drawing's hair
+    leaves out (H1R·H2R 2026-10-16: without it the page showed through beside an eye)."""
     meta = json.load(open(os.path.join(skin_dir, 'skin.json')))
     shots = {s['sk']: s for s in meta['shots'] if s['sex'] == sex and s['view'] == view}
     a, b = (np.asarray(Image.open(os.path.join(skin_dir, shots[k]['file'])).convert('RGB')).astype(int) for k in meta['tones'])
@@ -117,6 +137,11 @@ def keep_mask(skin_dir, sex, hair, view, hf):
     r = KEEP_CLOSE[view]
     m = M.erode(BH.fill_holes(M.dilate(m, r)), r) if r else BH.fill_holes(m)
     m = M.dilate(m, KEEP_GROW)
+    if extra is not None:
+        mask, ebox = extra; eppu = ebox['w'] / 32.0
+        ex = np.round(ebox['x'] + (gx * t[0] + t[4]) * eppu).astype(int); ey = np.round(ebox['y'] + (gy * t[3] + t[5]) * eppu).astype(int)
+        eok = (ex >= 0) & (ey >= 0) & (ex < mask.shape[1]) & (ey < mask.shape[0])
+        m[eok] |= mask[ey[eok], ex[eok]]
     rgba = np.full((H, W, 4), 255, np.uint8); rgba[..., 3] = np.where(m, 255, 0)
     return rgba
 
@@ -135,7 +160,7 @@ def build(sheet, hair_id, base_dir, skin_dir, out_dir):
     rec, report, tiles = {}, {}, []
     bh, bs, bv = hsv(base)
     for view, box in zip(meta['views'], meta['boxes']):
-        dx, dy, err = align(base, sh, box)
+        dx, dy, err = align(base, sh, box, by_feet=True)
         moved = np.full(base.shape, 255, np.uint8)
         ys0, ys1 = max(0, dy), min(base.shape[0], base.shape[0] + dy)
         xs0, xs1 = max(0, dx), min(base.shape[1], base.shape[1] + dx)
@@ -147,6 +172,11 @@ def build(sheet, hair_id, base_dir, skin_dir, out_dir):
         h, s, v = hsv(u)
         rows = (np.arange(Y0, Y1)[:, None] - box['y']) / ppu
         cap = (h > 65) & (h < 125) & (s > .3) & (rows < NECK)
+        # a sheet drawn without a cap (H1R·H2R 2026-10-16: the whole scalp's hair, tails tied low) keeps all
+        # its hair: the hat's own hide mask cuts it in the game, whatever the hat's rim height
+        capless = cap.sum() < CAPLESS_PX
+        if capless:
+            cap[:] = False
         skinlike = (v > .74) & (s < .45)  # an ear's shaded skin is brownish too
         brown = (h > 4) & (h < 48) & (s > .28) & (v > .1) & (v < .86) & ~cap & ~skinlike
         # the drawn cap over the game's head (its hair and skull) is hair under our cap
@@ -160,11 +190,19 @@ def build(sheet, hair_id, base_dir, skin_dir, out_dir):
         lab_, comps = M.components(face)
         face = BH.fill_holes(np.isin(lab_, [c['label'] for c in comps if c['size'] >= 2000]))
         face = M.erode(face, FACE_IN)
-        hairm = M.dilate(M.erode((brown | under) & ~face, OPEN), OPEN) & (brown | under)
+        # and nothing round the game's own eyes (the drawing's lashes and eye whites were kept as hair and
+        # drew over the game's eyes, H1R·H2R 2026-10-16): the base figure's iris, grown over lashes and brows
+        bi = base[Y0:Y1, X0:X1].astype(int)
+        # (the game's teal iris is dark: green and blue only 12 and 8 over red; at 25/15 an eye fell apart in bits)
+        iris = (bi[..., 1] > bi[..., 0] + 12) & (bi[..., 2] > bi[..., 0] + 8) & (rows < NECK)
+        lab_, comps = M.components(iris)
+        iris = np.isin(lab_, [c['label'] for c in comps if c['size'] >= 100])
+        eyes = M.dilate(iris, int(round(EYE_GROW * ppu))) if iris.any() else iris
+        hairm = M.dilate(M.erode((brown | under) & ~face & ~eyes, OPEN), OPEN) & (brown | under)
         lab_, comps = M.components(hairm)
         # a piece that does not reach below the drawn cap is a stray strand round its crown
         low = np.nonzero(cap.any(1))[0].max() if cap.any() else hairm.shape[0]
-        keep = [c['label'] for c in comps if c['size'] >= MIN_PIECE and np.nonzero((lab_ == c['label']).any(1))[0].max() > low - CAP_REACH]
+        keep = [c['label'] for c in comps if c['size'] >= MIN_PIECE and (capless or np.nonzero((lab_ == c['label']).any(1))[0].max() > low - CAP_REACH)]
         hairm = np.isin(lab_, keep)
         lum = (u[..., 0] * .25 + u[..., 1] * .59 + u[..., 2] * .16)
         # the drawn hair is darker than the game's source heads: its luminance is matched (quantiles) to the
@@ -188,10 +226,11 @@ def build(sheet, hair_id, base_dir, skin_dir, out_dir):
         hx0, hy0 = to_head(box, t, X0 + bx[0], Y0 + bx[1]); hx1, hy1 = to_head(box, t, X0 + bx[2], Y0 + bx[3])
         name = '%s-%s-%s' % (sex, hair, view)
         Image.fromarray(rgba).save(os.path.join(out_dir, name + '.png'), optimize=True)
-        Image.fromarray(keep_mask(skin_dir, sex, hair, view, hf)).save(os.path.join(out_dir, name + '-keep.png'), optimize=True)
+        full = np.zeros(base.shape[:2], bool); full[Y0:Y1, X0:X1] = eyes
+        Image.fromarray(keep_mask(skin_dir, sex, hair, view, hf, (full, box))).save(os.path.join(out_dir, name + '-keep.png'), optimize=True)
         rec[view] = dict(src='assets/hat-art/hair/%s.png' % name, rect=[round(hx0, 3), round(hy0, 3), round(hx1 - hx0, 3), round(hy1 - hy0, 3)],
                          keep=dict(src='assets/hat-art/hair/%s-keep.png' % name, rect=list(KEEP_RECT)))
-        report[view] = dict(shift=[dx, dy], legsError=round(err, 2), hairPx=int(hairm.sum()))
+        report[view] = dict(shift=[dx, dy], legsError=round(err, 2), hairPx=int(hairm.sum()), capless=bool(capless))
         prev = Image.new('RGBA', (rgba.shape[1], rgba.shape[0]), (230, 236, 244, 255)); prev.alpha_composite(Image.fromarray(rgba))
         tiles.append(prev.convert('RGB'))
     path = os.path.join(out_dir, 'hair.json')
