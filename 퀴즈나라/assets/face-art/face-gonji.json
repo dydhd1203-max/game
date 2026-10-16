@@ -1,0 +1,45 @@
+{
+ "kind": "sticker",
+ "views": {
+  "m": {
+   "front": {
+    "src": "assets/face-art/face-gonji-m-front.png",
+    "rect": [
+     8.612,
+     23.445,
+     14.794,
+     2.466
+    ]
+   },
+   "right": {
+    "src": "assets/face-art/face-gonji-m-right.png",
+    "rect": [
+     18.169,
+     23.001,
+     2.114,
+     2.21
+    ]
+   }
+  },
+  "f": {
+   "front": {
+    "src": "assets/face-art/face-gonji-f-front.png",
+    "rect": [
+     10.463,
+     24.366,
+     11.15,
+     2.411
+    ]
+   },
+   "right": {
+    "src": "assets/face-art/face-gonji-f-right.png",
+    "rect": [
+     18.165,
+     22.983,
+     2.008,
+     2.199
+    ]
+   }
+  }
+ }
+}

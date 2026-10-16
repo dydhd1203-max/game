@@ -1,0 +1,63 @@
+{
+ "kind": "sit",
+ "views": {
+  "m": {
+   "front": {
+    "src": "assets/hat-art/crown-m-front.png",
+    "rect": [
+     8.308,
+     -0.138,
+     12.44,
+     6.886
+    ]
+   },
+   "right": {
+    "src": "assets/hat-art/crown-m-right.png",
+    "rect": [
+     12.017,
+     3.183,
+     6.822,
+     6.918
+    ]
+   },
+   "back": {
+    "src": "assets/hat-art/crown-m-back.png",
+    "rect": [
+     11.009,
+     4.578,
+     10.102,
+     5.683
+    ]
+   }
+  },
+  "f": {
+   "front": {
+    "src": "assets/hat-art/crown-f-front.png",
+    "rect": [
+     10.361,
+     4.896,
+     10.852,
+     6.04
+    ]
+   },
+   "right": {
+    "src": "assets/hat-art/crown-f-right.png",
+    "rect": [
+     12.677,
+     6.007,
+     6.311,
+     6.311
+    ]
+   },
+   "back": {
+    "src": "assets/hat-art/crown-f-back.png",
+    "rect": [
+     10.48,
+     5.885,
+     10.198,
+     6.022
+    ]
+   }
+  }
+ }
+}

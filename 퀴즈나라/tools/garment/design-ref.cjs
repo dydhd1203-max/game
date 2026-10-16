@@ -15,7 +15,8 @@
 // floor line, spaced like the avatar's ankles), hats and face decorations
 // from the shop thumbnail with its head hidden (QPAvatar.thumb, the design
 // only), and a planned product the shop does not sell yet (products.json
-// planned: true) from its drawn refSvg. Boy left, girl right; a
+// planned: true) from its drawn refSvg; a product with designRefArt keeps its
+// reference cut from returned art (tools/hair/hat-ref.py). Boy left, girl right; a
 // product whose two pictures are identical (same art and colour) or that is
 // for one sex only shows one picture. No body is drawn: ChatGPT copied the
 // old awkward arms and low shorts when the reference showed them (914c7ef).
@@ -86,7 +87,8 @@ function pageCapture({items,withPictures}){
     g.drawImage(L.c,0,h-L.c.height);g.drawImage(R.c,xr,h-R.c.height);return pair;
   }
   // A drawn reference (products.json refSvg) of a planned product the shop
-  // does not sell yet: the design idea only, rendered at 3x.
+  // does not sell yet, or of a sold one whose shop drawing misleads (nine hats
+  // the shop draws as the generic cap, 2026-10-15): the design idea only, at 3x.
   async function drawn(svg){
     const img=await load('data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg));
     const w=(img.naturalWidth||img.width)*3,h=(img.naturalHeight||img.height)*3,c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);return c;
@@ -126,6 +128,8 @@ function pageCapture({items,withPictures}){
         else{const s=QPClothes.surface(cat,shape,painted,sex);canvas=s&&s.canvas;}
         row.pictures[sex]=canvas?canvas.toDataURL('image/png'):null;
       }
+      // A sold product whose shop drawing misleads (a hat the shop draws as the generic cap) carries its own drawn reference.
+      if(withPictures&&refSvg){const u=(await drawn(refSvg)).toDataURL('image/png');row.pictures={m:u,f:u};}
       out[key]=row;
     }
     return out;
@@ -197,6 +201,8 @@ async function run({ids=[],all=false,check=false,out=null,verifyOnly=false}={}){
       for(const {key} of items){
         const p=products.products[key];
         if(!p.designRef){result.skipped.push(key+' (no designRef: '+(p.basic?'the template already wears it':'not set')+')');continue;}
+        // A reference cut from returned art (designRefArt: how it was made) is not the shop's code shape: keep it.
+        if(p.designRefArt){result.skipped.push(key+' (art reference '+p.designRef+': '+p.designRefArt+')');continue;}
         const {pictures,shared}=picturesFor(p,rows[key]),png=compose(pictures),file=path.join(dir,p.designRef);
         const {width,height}=H.png.decode(png);
         if(Boolean(p.sharedPicture)!==shared)result.catalog.problems.push(key+': products.json sharedPicture '+Boolean(p.sharedPicture)+', the shop pictures are '+(shared?'identical':'different'));

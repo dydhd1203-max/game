@@ -1,0 +1,18 @@
+{
+ "about": "Skin of the head per sex/view in head-native units (white = skin in at least 3 hair styles, grown 0.25 units), from tools/hair/measure-head-skin.cjs + fit-head-skin.py. Generated; do not edit.",
+ "rect": [
+  -8.0,
+  -6.0,
+  48.0,
+  40.0
+ ],
+ "res": 20,
+ "maps": {
+  "f-back": "head-skin-f-back.png",
+  "f-front": "head-skin-f-front.png",
+  "f-right": "head-skin-f-right.png",
+  "m-back": "head-skin-m-back.png",
+  "m-front": "head-skin-m-front.png",
+  "m-right": "head-skin-m-right.png"
+ }
+}

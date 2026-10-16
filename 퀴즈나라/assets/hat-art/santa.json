@@ -1,0 +1,153 @@
+{
+ "kind": "full",
+ "views": {
+  "m": {
+   "front": {
+    "src": "assets/hat-art/santa-m-front.png",
+    "rect": [
+     1.172,
+     -2.997,
+     32.507,
+     17.822
+    ],
+    "hide": {
+     "src": "assets/hat-art/santa-m-front-hide.png",
+     "rect": [
+      -26.202,
+      -11.409,
+      87.256,
+      53.608
+     ]
+    },
+    "hideTop": [
+     -26.202,
+     -20.0,
+     87.256,
+     8.991
+    ]
+   },
+   "right": {
+    "src": "assets/hat-art/santa-m-right.png",
+    "rect": [
+     -0.193,
+     0.698,
+     26.251,
+     19.657
+    ],
+    "hide": {
+     "src": "assets/hat-art/santa-m-right-hide.png",
+     "rect": [
+      -24.08,
+      -6.643,
+      74.025,
+      50.884
+     ]
+    },
+    "hideTop": [
+     -24.08,
+     -20.0,
+     74.025,
+     13.757
+    ]
+   },
+   "back": {
+    "src": "assets/hat-art/santa-m-back.png",
+    "rect": [
+     1.035,
+     1.471,
+     26.394,
+     17.91
+    ],
+    "hide": {
+     "src": "assets/hat-art/santa-m-back-hide.png",
+     "rect": [
+      -21.588,
+      -5.481,
+      71.641,
+      47.486
+     ]
+    },
+    "hideTop": [
+     -21.588,
+     -20.0,
+     71.641,
+     14.919
+    ]
+   }
+  },
+  "f": {
+   "front": {
+    "src": "assets/hat-art/santa-f-front.png",
+    "rect": [
+     2.17,
+     0.353,
+     30.369,
+     15.256
+    ],
+    "hide": {
+     "src": "assets/hat-art/santa-f-front-hide.png",
+     "rect": [
+      -25.204,
+      -8.059,
+      85.118,
+      51.042
+     ]
+    },
+    "hideTop": [
+     -25.204,
+     -20.0,
+     85.118,
+     12.341
+    ]
+   },
+   "right": {
+    "src": "assets/hat-art/santa-f-right.png",
+    "rect": [
+     -2.392,
+     0.193,
+     28.515,
+     18.963
+    ],
+    "hide": {
+     "src": "assets/hat-art/santa-f-right-hide.png",
+     "rect": [
+      -29.767,
+      -8.219,
+      83.264,
+      54.749
+     ]
+    },
+    "hideTop": [
+     -29.767,
+     -20.0,
+     83.264,
+     12.181
+    ]
+   },
+   "back": {
+    "src": "assets/hat-art/santa-f-back.png",
+    "rect": [
+     -0.328,
+     1.644,
+     28.542,
+     18.187
+    ],
+    "hide": {
+     "src": "assets/hat-art/santa-f-back-hide.png",
+     "rect": [
+      -25.817,
+      -6.188,
+      79.518,
+      51.508
+     ]
+    },
+    "hideTop": [
+     -25.817,
+     -20.0,
+     79.518,
+     14.212
+    ]
+   }
+  }
+ }
+}

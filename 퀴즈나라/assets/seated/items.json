@@ -2,12 +2,6 @@
  {
   "sex": "m",
   "slot": "top",
-  "item": "top:hood",
-  "sheet": "assets/pose-references/floor-sit-m-item-top-hood-2026-10-14.webp"
- },
- {
-  "sex": "m",
-  "slot": "top",
   "item": "top:vest",
   "sheet": "assets/pose-references/floor-sit-m-item-top-vest-2026-10-14.webp"
  },
@@ -16,12 +10,6 @@
   "slot": "top",
   "item": "top:cardi",
   "sheet": "assets/pose-references/floor-sit-m-item-top-cardi-2026-10-14.webp"
- },
- {
-  "sex": "m",
-  "slot": "top",
-  "item": "top:jacket",
-  "sheet": "assets/pose-references/floor-sit-m-item-top-jacket-2026-10-14.webp"
  },
  {
   "sex": "m",
@@ -40,12 +28,6 @@
   "slot": "top",
   "item": "top:shirt",
   "sheet": "assets/pose-references/floor-sit-f-item-top-shirt-2026-10-14.webp"
- },
- {
-  "sex": "f",
-  "slot": "top",
-  "item": "top:vest",
-  "sheet": "assets/pose-references/floor-sit-f-item-top-vest-2026-10-15.webp"
  },
  {
   "sex": "f",
@@ -258,12 +240,6 @@
   "sheet": "assets/pose-references/floor-sit-f-item-bottom-track-2026-10-15.webp"
  },
  {
-  "sex": "f",
-  "slot": "bottom",
-  "item": "bottom:jean_skirt",
-  "sheet": "assets/pose-references/floor-sit-f-item-bottom-jean_skirt-2026-10-15.webp"
- },
- {
   "sex": "m",
   "slot": "bottom",
   "item": "bottom:cargo",
@@ -274,5 +250,29 @@
   "slot": "outfit",
   "item": "outfit:hanbok",
   "sheet": "assets/pose-references/floor-sit-f-item-outfit-hanbok-2026-10-15.webp"
+ },
+ {
+  "sex": "m",
+  "slot": "top",
+  "item": "top:hood",
+  "sheet": "assets/pose-references/floor-sit-m-item-top-hood-2026-10-14.webp"
+ },
+ {
+  "sex": "m",
+  "slot": "top",
+  "item": "top:jacket",
+  "sheet": "assets/pose-references/floor-sit-m-item-top-jacket-2026-10-14.webp"
+ },
+ {
+  "sex": "f",
+  "slot": "top",
+  "item": "top:vest",
+  "sheet": "assets/pose-references/floor-sit-f-item-top-vest-2026-10-15.webp"
+ },
+ {
+  "sex": "f",
+  "slot": "bottom",
+  "item": "bottom:jean_skirt",
+  "sheet": "assets/pose-references/floor-sit-f-item-bottom-jean_skirt-2026-10-15.webp"
  }
 ]

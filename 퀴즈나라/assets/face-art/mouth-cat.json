@@ -1,0 +1,49 @@
+{
+ "kind": "part",
+ "views": {
+  "m": {
+   "front": {
+    "src": "assets/face-art/mouth-cat-m-front.png",
+    "rect": [
+     13.767,
+     23.781,
+     4.595,
+     2.914
+    ],
+    "cover": "assets/face-art/mouth-cat-m-front-cover.png"
+   },
+   "right": {
+    "src": "assets/face-art/mouth-cat-m-right.png",
+    "rect": [
+     22.3,
+     23.001,
+     2.978,
+     3.651
+    ],
+    "cover": "assets/face-art/mouth-cat-m-right-cover.png"
+   }
+  },
+  "f": {
+   "front": {
+    "src": "assets/face-art/mouth-cat-f-front.png",
+    "rect": [
+     14.179,
+     24.566,
+     3.817,
+     2.311
+    ],
+    "cover": "assets/face-art/mouth-cat-f-front-cover.png"
+   },
+   "right": {
+    "src": "assets/face-art/mouth-cat-f-right.png",
+    "rect": [
+     21.033,
+     22.983,
+     2.869,
+     3.442
+    ],
+    "cover": "assets/face-art/mouth-cat-f-right-cover.png"
+   }
+  }
+ }
+}

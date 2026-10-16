@@ -321,7 +321,8 @@
     "f": "#8fd94a"
    },
    "mirrorSafe": true,
-   "designRef": "ref-hat-cap-design.png",
+   "designRef": "ref-hat-cap-3view.png",
+   "designRefArt": "tools/hair/hat-ref.py 검증/모자/M1 (m-front m-right f-back of assets/garment-sources/hat-cap-3.png)",
    "notes": {
     "ko": {
      "item": "야구모자",
@@ -532,7 +533,7 @@
    },
    "mirrorSafe": true,
    "designRef": "ref-eyes-cat-design.png",
-   "refSvg": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"210\" height=\"80\" viewBox=\"0 0 210 80\"><defs/><clipPath id=\"c1\"><path d=\"M84 50 Q60 66 30 52 Q22 46 20 34 Q52 24 84 50 Z\"/></clipPath><path d=\"M84 50 Q60 66 30 52 Q22 46 20 34 Q52 24 84 50 Z\" fill=\"#fff\"/><g clip-path=\"url(#c1)\"><circle cx=\"52\" cy=\"46\" r=\"15\" fill=\"#2f8f8a\"/><circle cx=\"52\" cy=\"46\" r=\"7\" fill=\"#173f3d\"/><circle cx=\"47\" cy=\"40\" r=\"4\" fill=\"#fff\"/></g><path d=\"M84 50 Q52 24 20 34 L10 25\" fill=\"none\" stroke=\"#3a2a28\" stroke-width=\"5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><path d=\"M30 52 Q60 66 84 50\" fill=\"none\" stroke=\"#3a2a28\" stroke-width=\"2\"/><g transform=\"translate(210 0) scale(-1 1)\"><clipPath id=\"c2\"><path d=\"M84 50 Q60 66 30 52 Q22 46 20 34 Q52 24 84 50 Z\"/></clipPath><path d=\"M84 50 Q60 66 30 52 Q22 46 20 34 Q52 24 84 50 Z\" fill=\"#fff\"/><g clip-path=\"url(#c2)\"><circle cx=\"52\" cy=\"46\" r=\"15\" fill=\"#2f8f8a\"/><circle cx=\"52\" cy=\"46\" r=\"7\" fill=\"#173f3d\"/><circle cx=\"47\" cy=\"40\" r=\"4\" fill=\"#fff\"/></g><path d=\"M84 50 Q52 24 20 34 L10 25\" fill=\"none\" stroke=\"#3a2a28\" stroke-width=\"5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><path d=\"M30 52 Q60 66 84 50\" fill=\"none\" stroke=\"#3a2a28\" stroke-width=\"2\"/></g></svg>",
+   "refSvg": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"210\" height=\"80\" viewBox=\"0 0 210 80\"><defs/><clipPath id=\"c1\"><path d=\"M84 50 Q60 66 30 52 Q22 46 20 34 Q52 24 84 50 Z\"/></clipPath><path d=\"M84 50 Q60 66 30 52 Q22 46 20 34 Q52 24 84 50 Z\" fill=\"#fff\"/><g clip-path=\"url(#c1)\"><circle cx=\"52\" cy=\"46\" r=\"15\" fill=\"#2f8f8a\"/><circle cx=\"52\" cy=\"46\" r=\"7\" fill=\"#173f3d\"/><circle cx=\"47\" cy=\"40\" r=\"4\" fill=\"#fff\"/></g><path d=\"M84 50 Q52 24 20 34 Q14 34 9 31\" fill=\"none\" stroke=\"#3a2a28\" stroke-width=\"5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><path d=\"M30 52 Q60 66 84 50\" fill=\"none\" stroke=\"#3a2a28\" stroke-width=\"2\"/><g transform=\"translate(210 0) scale(-1 1)\"><clipPath id=\"c2\"><path d=\"M84 50 Q60 66 30 52 Q22 46 20 34 Q52 24 84 50 Z\"/></clipPath><path d=\"M84 50 Q60 66 30 52 Q22 46 20 34 Q52 24 84 50 Z\" fill=\"#fff\"/><g clip-path=\"url(#c2)\"><circle cx=\"52\" cy=\"46\" r=\"15\" fill=\"#2f8f8a\"/><circle cx=\"52\" cy=\"46\" r=\"7\" fill=\"#173f3d\"/><circle cx=\"47\" cy=\"40\" r=\"4\" fill=\"#fff\"/></g><path d=\"M84 50 Q52 24 20 34 Q14 34 9 31\" fill=\"none\" stroke=\"#3a2a28\" stroke-width=\"5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><path d=\"M30 52 Q60 66 84 50\" fill=\"none\" stroke=\"#3a2a28\" stroke-width=\"2\"/></g></svg>",
    "notes": {
     "ko": {
      "item": "고양이 눈",
@@ -634,6 +635,712 @@
     }
    },
    "sharedPicture": true
+  },
+  "hat:straw": {
+   "class": "hat/full",
+   "status": "hat batch 2026-10-15 (shared picture)",
+   "sexes": [
+    "m",
+    "f"
+   ],
+   "ci": {
+    "m": 10,
+    "f": 10
+   },
+   "names": {
+    "m": "밀짚모자",
+    "f": "밀짚모자"
+   },
+   "colour": {
+    "m": "#f2dfbd",
+    "f": "#f2dfbd"
+   },
+   "display": {
+    "m": "#f2dfbd",
+    "f": "#f2dfbd"
+   },
+   "mirrorSafe": true,
+   "designRef": "ref-hat-straw-design.png",
+   "notes": {
+    "ko": {
+     "item": "밀짚모자",
+     "look": "색과 모양(둥근 머리 부분과 넓은 챙)",
+     "both": "두 번째 그림의 크림색 밀짚모자. 둥근 머리 부분, 머리 둘레를 빙 두른 넓고 둥근 챙, 머리 부분 아래의 분홍 리본 띠, 짚을 엮은 결.",
+     "back": "옆모습과 뒷모습에서도 챙이 머리 둘레를 빙 둘러 같은 넓이로 보이게 합니다."
+    },
+    "en": {
+     "item": "straw hat",
+     "look": "colour and shape (round crown and wide brim)",
+     "both": "the cream straw hat from image 2: round crown, a wide round brim all around, a pink ribbon band above the brim, woven straw texture.",
+     "back": "in the side and back views the brim still goes all around the head with the same width."
+    }
+   },
+   "sharedPicture": true
+  },
+  "hat:beanie": {
+   "class": "hat/full",
+   "status": "hat batch 2026-10-15 (shared picture)",
+   "sexes": [
+    "m",
+    "f"
+   ],
+   "ci": {
+    "m": 5,
+    "f": 5
+   },
+   "names": {
+    "m": "니트 비니",
+    "f": "니트 비니"
+   },
+   "colour": {
+    "m": "#5aa8ff",
+    "f": "#5aa8ff"
+   },
+   "display": {
+    "m": "#5aa8ff",
+    "f": "#5aa8ff"
+   },
+   "mirrorSafe": true,
+   "designRef": "ref-hat-beanie-design.png",
+   "notes": {
+    "ko": {
+     "item": "니트 비니",
+     "look": "색과 모양(머리에 꼭 맞는 니트와 접은 단, 꼭대기 방울)",
+     "both": "두 번째 그림의 파란 니트 비니. 머리를 감싸는 니트, 이마 위로 한 번 접은 골지 단, 꼭대기의 작은 방울.",
+     "back": "옆모습과 뒷모습에서도 접은 단이 머리를 한 바퀴 두르고, 꼭대기 방울이 보이게 합니다."
+    },
+    "en": {
+     "item": "knit beanie",
+     "look": "colour and shape (snug knit, folded cuff, pompom)",
+     "both": "the blue knit beanie from image 2: knit wrapping the head, a ribbed cuff folded once above the forehead, a small pompom on top.",
+     "back": "in the side and back views the folded cuff goes all around the head and the pompom shows on top."
+    }
+   },
+   "sharedPicture": true
+  },
+  "hat:witch": {
+   "class": "hat/full",
+   "status": "hat batch 2026-10-15 (shared picture)",
+   "sexes": [
+    "m",
+    "f"
+   ],
+   "ci": {
+    "m": 6,
+    "f": 6
+   },
+   "names": {
+    "m": "마녀 모자",
+    "f": "마녀 모자"
+   },
+   "colour": {
+    "m": "#9b7bff",
+    "f": "#9b7bff"
+   },
+   "display": {
+    "m": "#9b7bff",
+    "f": "#9b7bff"
+   },
+   "mirrorSafe": true,
+   "designRef": "ref-hat-witch-design.png",
+   "notes": {
+    "ko": {
+     "item": "마녀 모자",
+     "look": "색과 모양(뾰족하게 솟은 꼭대기와 넓은 챙, 띠)",
+     "both": "두 번째 그림의 보라색 마녀 모자. 위로 뾰족하게 솟아 끝이 살짝 꺾인 꼭대기, 머리 둘레의 넓은 챙, 챙 위의 밝은 띠와 금색 버클.",
+     "back": "옆모습과 뒷모습에서도 챙이 머리 둘레를 빙 두르고, 꺾인 꼭대기가 같은 쪽으로 기울게 합니다."
+    },
+    "en": {
+     "item": "witch hat",
+     "look": "colour and shape (tall pointed top, wide brim, band)",
+     "both": "the purple witch hat from image 2: a tall pointed top with a slightly bent tip, a wide brim all around, a light band with a gold buckle above the brim.",
+     "back": "in the side and back views the brim goes all around the head and the bent tip leans the same way."
+    }
+   },
+   "sharedPicture": true
+  },
+  "hat:santa": {
+   "class": "hat/full",
+   "status": "hat batch 2026-10-15 (shared picture)",
+   "sexes": [
+    "m",
+    "f"
+   ],
+   "ci": {
+    "m": 0,
+    "f": 0
+   },
+   "names": {
+    "m": "산타 모자",
+    "f": "산타 모자"
+   },
+   "colour": {
+    "m": "#ff6f91",
+    "f": "#ff6f91"
+   },
+   "display": {
+    "m": "#ff6f91",
+    "f": "#ff6f91"
+   },
+   "mirrorSafe": true,
+   "designRef": "ref-hat-santa-design.png",
+   "notes": {
+    "ko": {
+     "item": "산타 모자",
+     "look": "색과 모양(빨간 고깔과 하얀 털 단, 끝 방울)",
+     "both": "두 번째 그림의 빨간 산타 모자. 머리를 감싸는 빨간 천, 이마 위를 두르는 하얀 털 단, 한쪽으로 늘어진 끝과 하얀 털 방울.",
+     "back": "옆모습과 뒷모습에서도 하얀 털 단이 머리를 한 바퀴 두르고, 늘어진 끝과 방울이 같은 쪽에 보이게 합니다."
+    },
+    "en": {
+     "item": "santa hat",
+     "look": "colour and shape (red cone, white fur trim, pompom)",
+     "both": "the red santa hat from image 2: red cloth around the head, a white fur trim around the forehead, the tip drooping to one side with a white fur pompom.",
+     "back": "in the side and back views the fur trim goes all around the head and the drooping tip and pompom stay on the same side."
+    }
+   },
+   "sharedPicture": true
+  },
+  "hat:grad": {
+   "class": "hat/full",
+   "status": "hat batch 2026-10-15 (shared picture)",
+   "sexes": [
+    "m",
+    "f"
+   ],
+   "ci": {
+    "m": 9,
+    "f": 9
+   },
+   "names": {
+    "m": "학사모",
+    "f": "학사모"
+   },
+   "colour": {
+    "m": "#556074",
+    "f": "#556074"
+   },
+   "display": {
+    "m": "#556074",
+    "f": "#556074"
+   },
+   "mirrorSafe": true,
+   "designRef": "ref-hat-grad-design.png",
+   "notes": {
+    "ko": {
+     "item": "학사모",
+     "look": "색과 모양(납작한 네모 판과 머리에 쓰는 부분, 술)",
+     "both": "두 번째 그림의 검정 학사모. 머리에 꼭 맞는 둥근 모자 부분 위에 납작한 네모 판, 판 가운데 단추에서 한쪽으로 늘어진 술.",
+     "back": "옆모습에서는 네모 판이 얇은 판으로, 뒷모습에서는 판 아래 둥근 모자 부분과 술이 보이게 합니다."
+    },
+    "en": {
+     "item": "graduation cap",
+     "look": "colour and shape (flat square board, skull cap, tassel)",
+     "both": "the black graduation cap from image 2: a snug round skull cap with a flat square board on top, a tassel hanging to one side from the button in the middle.",
+     "back": "in the side view the board shows as a thin plate; in the back view show the round cap under the board and the tassel."
+    }
+   },
+   "sharedPicture": true
+  },
+  "hat:cowboy": {
+   "class": "hat/full",
+   "status": "hat batch 2026-10-15 (shared picture)",
+   "sexes": [
+    "m",
+    "f"
+   ],
+   "ci": {
+    "m": 11,
+    "f": 11
+   },
+   "names": {
+    "m": "카우보이 모자",
+    "f": "카우보이 모자"
+   },
+   "colour": {
+    "m": "#a87352",
+    "f": "#a87352"
+   },
+   "display": {
+    "m": "#a87352",
+    "f": "#a87352"
+   },
+   "mirrorSafe": true,
+   "designRef": "ref-hat-cowboy-design.png",
+   "notes": {
+    "ko": {
+     "item": "카우보이 모자",
+     "look": "색과 모양(가운데가 들어간 꼭대기와 양옆이 말려 올라간 챙)",
+     "both": "두 번째 그림의 갈색 카우보이 모자. 가운데가 오목하게 들어간 꼭대기, 양옆이 위로 말려 올라간 넓은 챙, 꼭대기 아래의 진한 띠.",
+     "back": "옆모습에서는 챙 앞뒤가 길게, 뒷모습에서는 양옆이 말려 올라간 챙과 띠가 보이게 합니다."
+    },
+    "en": {
+     "item": "cowboy hat",
+     "look": "colour and shape (dented crown, brim curled up at the sides)",
+     "both": "the brown cowboy hat from image 2: a crown dented in the middle, a wide brim curled up at both sides, a darker band above the brim.",
+     "back": "in the side view the brim reaches front and back; in the back view show the brim curled up at both sides and the band."
+    }
+   },
+   "sharedPicture": true,
+   "refSvg": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"220\" height=\"150\" viewBox=\"0 0 220 150\"><path d=\"M14 98 Q4 70 28 82 Q110 106 192 82 Q216 70 206 98 Q110 128 14 98Z\" fill=\"#a87352\" stroke=\"#6e4b35\" stroke-width=\"3\"/><path d=\"M58 90 Q56 42 72 22 Q90 36 110 28 Q130 36 148 22 Q164 42 162 90 Q110 102 58 90Z\" fill=\"#b8835f\" stroke=\"#6e4b35\" stroke-width=\"3\"/><path d=\"M59 78 Q110 92 161 78 L162 90 Q110 102 58 90Z\" fill=\"#6e4b35\"/><path d=\"M14 98 Q110 128 206 98 Q200 108 192 106 Q110 124 28 106 Q20 108 14 98Z\" fill=\"#8e5f42\"/></svg>"
+  },
+  "hat:pirate": {
+   "class": "hat/full",
+   "status": "hat batch 2026-10-15 (shared picture)",
+   "sexes": [
+    "m",
+    "f"
+   ],
+   "ci": {
+    "m": 9,
+    "f": 9
+   },
+   "names": {
+    "m": "해적 두건",
+    "f": "해적 두건"
+   },
+   "colour": {
+    "m": "#556074",
+    "f": "#556074"
+   },
+   "display": {
+    "m": "#556074",
+    "f": "#556074"
+   },
+   "mirrorSafe": true,
+   "designRef": "ref-hat-pirate-design.png",
+   "notes": {
+    "ko": {
+     "item": "해적 두건",
+     "look": "색과 모양(머리를 감싼 천과 뒤로 묶은 매듭, 하얀 해골 무늬)",
+     "both": "두 번째 그림의 검정 해적 두건. 머리를 꼭 감싼 천, 이마 앞의 작은 하얀 해골 무늬, 뒤통수에서 묶어 늘어진 매듭 두 가닥.",
+     "back": "옆모습에서는 뒤통수의 매듭이 뒤로 늘어지고, 뒷모습에서는 묶은 매듭과 두 가닥이 보이게 합니다."
+    },
+    "en": {
+     "item": "pirate bandana",
+     "look": "colour and shape (cloth wrapping the head, knot at the back, small white skull)",
+     "both": "the black pirate bandana from image 2: cloth wrapping the head snugly, a small white skull mark at the front, a knot at the back of the head with two hanging ends.",
+     "back": "in the side view the knot hangs at the back; in the back view show the knot and its two ends."
+    }
+   },
+   "sharedPicture": true,
+   "refSvg": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"220\" height=\"150\" viewBox=\"0 0 220 150\"><path d=\"M38 104 Q34 30 110 24 Q186 30 182 104 Q110 90 38 104Z\" fill=\"#556074\" stroke=\"#373e4b\" stroke-width=\"3\"/><path d=\"M178 84 Q202 76 208 94 Q198 104 182 100Z\" fill=\"#556074\" stroke=\"#373e4b\" stroke-width=\"3\"/><path d=\"M190 98 Q198 122 188 140 L178 136 Q188 120 182 102Z\" fill=\"#556074\" stroke=\"#373e4b\" stroke-width=\"3\"/><path d=\"M198 98 Q212 116 208 134 L198 132 Q202 116 192 102Z\" fill=\"#4a5363\" stroke=\"#373e4b\" stroke-width=\"3\"/><circle cx=\"110\" cy=\"56\" r=\"11\" fill=\"#fff\"/><rect x=\"104\" y=\"64\" width=\"12\" height=\"7\" rx=\"2\" fill=\"#fff\"/><circle cx=\"106\" cy=\"55\" r=\"3\" fill=\"#373e4b\"/><circle cx=\"114\" cy=\"55\" r=\"3\" fill=\"#373e4b\"/></svg>"
+  },
+  "hat:army": {
+   "class": "hat/full",
+   "status": "hat batch 2026-10-15 (shared picture)",
+   "sexes": [
+    "m",
+    "f"
+   ],
+   "ci": {
+    "m": 3,
+    "f": 3
+   },
+   "names": {
+    "m": "군인 모자",
+    "f": "군인 모자"
+   },
+   "colour": {
+    "m": "#8fd94a",
+    "f": "#8fd94a"
+   },
+   "display": {
+    "m": "#8fd94a",
+    "f": "#8fd94a"
+   },
+   "mirrorSafe": true,
+   "designRef": "ref-hat-army-design.png",
+   "notes": {
+    "ko": {
+     "item": "군인 모자",
+     "look": "색과 모양(둥근 머리 부분과 짧은 챙)",
+     "both": "두 번째 그림의 초록 군인 모자. 머리를 감싸는 둥근 모자 부분, 앞의 짧고 단단한 챙, 앞쪽의 작은 금색 별 배지.",
+     "back": "옆모습에서는 짧은 챙이 얼굴 쪽(오른쪽)으로, 뒷모습에서는 둥근 모자 부분 뒤쪽이 보이게 합니다."
+    },
+    "en": {
+     "item": "army cap",
+     "look": "colour and shape (round crown, short visor)",
+     "both": "the green army cap from image 2: a round crown wrapping the head, a short stiff visor at the front, a small gold star badge at the front.",
+     "back": "in the side view the short visor points toward the face (right); in the back view show the back of the round crown."
+    }
+   },
+   "sharedPicture": true,
+   "refSvg": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"220\" height=\"150\" viewBox=\"0 0 220 150\"><path d=\"M44 94 Q44 26 110 24 Q176 26 176 94Z\" fill=\"#8fd94a\" stroke=\"#5f9a2e\" stroke-width=\"3\"/><path d=\"M40 92 Q110 78 180 92 Q176 110 110 108 Q44 110 40 92Z\" fill=\"#6aa83a\" stroke=\"#4d7d27\" stroke-width=\"3\"/><polygon points=\"110.0,49.0 112.9,56.0 120.5,56.6 114.7,61.5 116.5,68.9 110.0,65.0 103.5,68.9 105.3,61.5 99.5,56.6 107.1,56.0\" fill=\"#ffd24a\" stroke=\"#c99a1e\" stroke-width=\"1.5\"/></svg>"
+  },
+  "hat:chef": {
+   "class": "hat/full",
+   "status": "hat batch 2026-10-15 (shared picture)",
+   "sexes": [
+    "m",
+    "f"
+   ],
+   "ci": {
+    "m": 8,
+    "f": 8
+   },
+   "names": {
+    "m": "요리사 모자",
+    "f": "요리사 모자"
+   },
+   "colour": {
+    "m": "#ffffff",
+    "f": "#ffffff"
+   },
+   "display": {
+    "m": "#ffffff",
+    "f": "#ffffff"
+   },
+   "mirrorSafe": true,
+   "designRef": "ref-hat-chef-design.png",
+   "notes": {
+    "ko": {
+     "item": "요리사 모자",
+     "look": "색과 모양(높게 부푼 하얀 윗부분과 머리 띠)",
+     "both": "두 번째 그림의 하얀 요리사 모자. 머리를 두르는 띠 위로 높게 부풀어 오른 주름진 윗부분.",
+     "back": "옆모습과 뒷모습에서도 띠가 머리를 한 바퀴 두르고, 부푼 윗부분이 같은 높이로 보이게 합니다."
+    },
+    "en": {
+     "item": "chef hat",
+     "look": "colour and shape (tall puffy top, headband)",
+     "both": "the white chef hat from image 2: a band around the head with a tall puffy pleated top.",
+     "back": "in the side and back views the band goes all around the head and the puffy top has the same height."
+    }
+   },
+   "sharedPicture": true,
+   "refSvg": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"220\" height=\"150\" viewBox=\"0 0 220 150\"><path d=\"M58 92 Q28 72 48 46 Q58 16 90 26 Q110 4 132 24 Q166 14 172 46 Q194 72 162 92Z\" fill=\"#ffffff\" stroke=\"#b9b9b9\" stroke-width=\"3\"/><path d=\"M86 88 Q84 60 90 40 M110 88 V36 M134 88 Q136 60 130 40\" fill=\"none\" stroke=\"#d8d8d8\" stroke-width=\"3\"/><rect x=\"54\" y=\"88\" width=\"112\" height=\"30\" rx=\"6\" fill=\"#ffffff\" stroke=\"#b9b9b9\" stroke-width=\"3\"/></svg>"
+  },
+  "hat:police": {
+   "class": "hat/full",
+   "status": "hat batch 2026-10-15 (shared picture)",
+   "sexes": [
+    "m",
+    "f"
+   ],
+   "ci": {
+    "m": 5,
+    "f": 5
+   },
+   "names": {
+    "m": "경찰 모자",
+    "f": "경찰 모자"
+   },
+   "colour": {
+    "m": "#5aa8ff",
+    "f": "#5aa8ff"
+   },
+   "display": {
+    "m": "#5aa8ff",
+    "f": "#5aa8ff"
+   },
+   "mirrorSafe": true,
+   "designRef": "ref-hat-police-design.png",
+   "notes": {
+    "ko": {
+     "item": "경찰 모자",
+     "look": "색과 모양(납작한 윗면과 검은 챙, 금색 배지)",
+     "both": "두 번째 그림의 파란 경찰 모자. 납작하고 둥근 윗면, 머리를 두르는 띠, 앞의 반짝이는 검은 챙, 띠 앞의 금색 배지.",
+     "back": "옆모습에서는 챙이 얼굴 쪽(오른쪽)으로, 뒷모습에서는 띠와 윗면 뒤쪽이 보이게 합니다."
+    },
+    "en": {
+     "item": "police cap",
+     "look": "colour and shape (flat top, black visor, gold badge)",
+     "both": "the blue police cap from image 2: a flat round top, a band around the head, a shiny black visor at the front, a gold badge on the band.",
+     "back": "in the side view the visor points toward the face (right); in the back view show the band and the back of the top."
+    }
+   },
+   "sharedPicture": true,
+   "refSvg": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"220\" height=\"150\" viewBox=\"0 0 220 150\"><path d=\"M48 50 Q50 84 60 94 L160 94 Q170 84 172 50 Q110 66 48 50Z\" fill=\"#5aa8ff\" stroke=\"#3a78c0\" stroke-width=\"3\"/><ellipse cx=\"110\" cy=\"46\" rx=\"80\" ry=\"22\" fill=\"#6db3ff\" stroke=\"#3a78c0\" stroke-width=\"3\"/><rect x=\"58\" y=\"78\" width=\"104\" height=\"16\" fill=\"#2f4f7a\"/><path d=\"M54 94 Q110 86 166 94 Q160 114 110 112 Q60 114 54 94Z\" fill=\"#2b2f38\" stroke=\"#15171c\" stroke-width=\"3\"/><polygon points=\"110.0,60.0 112.6,66.4 119.5,66.9 114.3,71.4 115.9,78.1 110.0,74.5 104.1,78.1 105.7,71.4 100.5,66.9 107.4,66.4\" fill=\"#ffd24a\" stroke=\"#c99a1e\" stroke-width=\"1.5\"/></svg>"
+  },
+  "hat:capback": {
+   "class": "hat/full",
+   "status": "hat batch 2026-10-15 (shared picture)",
+   "sexes": [
+    "m",
+    "f"
+   ],
+   "ci": {
+    "m": 5,
+    "f": 5
+   },
+   "names": {
+    "m": "뒤로 쓴 모자",
+    "f": "뒤로 쓴 모자"
+   },
+   "colour": {
+    "m": "#5aa8ff",
+    "f": "#5aa8ff"
+   },
+   "display": {
+    "m": "#5aa8ff",
+    "f": "#5aa8ff"
+   },
+   "mirrorSafe": true,
+   "designRef": "ref-hat-capback-design.png",
+   "notes": {
+    "ko": {
+     "item": "뒤로 쓴 모자",
+     "look": "색과 모양(둥근 머리 부분과 뒤로 돌린 챙)",
+     "both": "두 번째 그림의 파란 야구모자를 챙이 뒤로 가게 돌려 쓴 모습. 앞모습에서는 이마 위에 조절 끈과 그 위 반원 구멍이 보이고, 챙은 뒤통수 쪽으로 나옵니다.",
+     "back": "옆모습에서는 챙이 뒤통수 쪽(왼쪽)으로 나오고, 뒷모습에서는 챙이 아래로 향해 보이게 합니다."
+    },
+    "en": {
+     "item": "backwards cap",
+     "look": "colour and shape (rounded crown, brim turned to the back)",
+     "both": "the blue baseball cap from image 2 worn backwards: in the front view the adjustment strap and the half-round opening above it sit over the forehead, and the brim points to the back.",
+     "back": "in the side view the brim points to the back of the head (left); in the back view the brim shows pointing down."
+    }
+   },
+   "sharedPicture": true,
+   "refSvg": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"220\" height=\"150\" viewBox=\"0 0 220 150\"><path d=\"M40 98 Q40 26 110 24 Q180 26 180 98Z\" fill=\"#5aa8ff\" stroke=\"#3a78c0\" stroke-width=\"3\"/><path d=\"M110 26 V70 M74 32 Q66 60 66 96 M146 32 Q154 60 154 96\" fill=\"none\" stroke=\"#3a78c0\" stroke-width=\"2\"/><circle cx=\"110\" cy=\"22\" r=\"6\" fill=\"#5aa8ff\" stroke=\"#3a78c0\" stroke-width=\"2\"/><path d=\"M84 98 Q84 66 110 64 Q136 66 136 98Z\" fill=\"#a87352\" stroke=\"#3a78c0\" stroke-width=\"3\"/><rect x=\"78\" y=\"86\" width=\"64\" height=\"12\" rx=\"5\" fill=\"#4a90e0\" stroke=\"#3a78c0\" stroke-width=\"2\"/><circle cx=\"92\" cy=\"92\" r=\"2.2\" fill=\"#2f5f9c\"/><circle cx=\"104\" cy=\"92\" r=\"2.2\" fill=\"#2f5f9c\"/><circle cx=\"116\" cy=\"92\" r=\"2.2\" fill=\"#2f5f9c\"/></svg>"
+  },
+  "hat:ribbon": {
+   "class": "hat/sit-on",
+   "status": "hat batch 2026-10-15 (shared picture)",
+   "sexes": [
+    "m",
+    "f"
+   ],
+   "ci": {
+    "m": 7,
+    "f": 7
+   },
+   "names": {
+    "m": "리본",
+    "f": "리본"
+   },
+   "colour": {
+    "m": "#ff8ad4",
+    "f": "#ff8ad4"
+   },
+   "display": {
+    "m": "#ff8ad4",
+    "f": "#ff8ad4"
+   },
+   "mirrorSafe": true,
+   "designRef": "ref-hat-ribbon-design.png",
+   "notes": {
+    "ko": {
+     "item": "리본",
+     "look": "색과 모양(양쪽 고리와 가운데 매듭, 늘어진 끈)",
+     "both": "두 번째 그림의 분홍 리본. 양쪽으로 둥글게 펼친 고리, 가운데 매듭, 아래로 짧게 늘어진 두 끈.",
+     "back": "옆모습에서는 리본을 옆에서 본 모양으로, 뒷모습에서는 리본 뒤쪽이 보이게 합니다."
+    },
+    "en": {
+     "item": "ribbon bow",
+     "look": "colour and shape (two loops, centre knot, short tails)",
+     "both": "the pink ribbon bow from image 2: two round loops, a knot in the middle, two short tails hanging down.",
+     "back": "in the side view show the bow from the side; in the back view show its back."
+    }
+   },
+   "sharedPicture": true
+  },
+  "hat:cat_ears": {
+   "class": "hat/sit-on",
+   "status": "hat batch 2026-10-15 (shared picture)",
+   "sexes": [
+    "m",
+    "f"
+   ],
+   "ci": {
+    "m": 9,
+    "f": 9
+   },
+   "names": {
+    "m": "고양이 귀",
+    "f": "고양이 귀"
+   },
+   "colour": {
+    "m": "#556074",
+    "f": "#556074"
+   },
+   "display": {
+    "m": "#556074",
+    "f": "#556074"
+   },
+   "mirrorSafe": true,
+   "designRef": "ref-hat-cat_ears-design.png",
+   "notes": {
+    "ko": {
+     "item": "고양이 귀",
+     "look": "색과 모양(세모난 두 귀와 안쪽 분홍)",
+     "both": "두 번째 그림의 검정 고양이 귀 두 개. 정수리 양쪽에 세모나게 선 귀, 귀 안쪽의 분홍색.",
+     "back": "옆모습에서는 두 귀가 앞뒤로 조금 겹쳐 보이고, 뒷모습에서는 귀 뒤쪽(검정)이 보이게 합니다."
+    },
+    "en": {
+     "item": "cat ears",
+     "look": "colour and shape (two triangular ears, pink inside)",
+     "both": "the two black cat ears from image 2: triangular ears standing on both sides of the crown, pink inside.",
+     "back": "in the side view the two ears overlap slightly front to back; in the back view show the backs of the ears (black)."
+    }
+   },
+   "sharedPicture": true
+  },
+  "hat:flower": {
+   "class": "hat/sit-on",
+   "status": "hat batch 2026-10-15 (shared picture)",
+   "sexes": [
+    "m",
+    "f"
+   ],
+   "ci": {
+    "m": 7,
+    "f": 7
+   },
+   "names": {
+    "m": "꽃핀",
+    "f": "꽃핀"
+   },
+   "colour": {
+    "m": "#ff8ad4",
+    "f": "#ff8ad4"
+   },
+   "display": {
+    "m": "#ff8ad4",
+    "f": "#ff8ad4"
+   },
+   "mirrorSafe": false,
+   "designRef": "ref-hat-flower-design.png",
+   "notes": {
+    "ko": {
+     "item": "꽃핀",
+     "look": "색과 모양(분홍 꽃 두 송이와 잎)",
+     "both": "두 번째 그림의 분홍 꽃핀. 머리 한쪽(그림의 오른쪽)에 꽂은 분홍 꽃 두 송이와 초록 잎.",
+     "back": "옆모습과 뒷모습에서도 꽃은 같은 쪽 머리에 꽂혀 보이게 합니다."
+    },
+    "en": {
+     "item": "flower pin",
+     "look": "colour and shape (two pink flowers and leaves)",
+     "both": "the pink flower pin from image 2: two pink flowers and green leaves pinned on one side of the head (the right side of the picture).",
+     "back": "in the side and back views the flowers stay pinned on the same side of the head."
+    }
+   },
+   "sharedPicture": true
+  },
+  "hat:horn": {
+   "class": "hat/sit-on",
+   "status": "hat batch 2026-10-15 (shared picture)",
+   "sexes": [
+    "m",
+    "f"
+   ],
+   "ci": {
+    "m": 0,
+    "f": 0
+   },
+   "names": {
+    "m": "악마 뿔",
+    "f": "악마 뿔"
+   },
+   "colour": {
+    "m": "#ff6f91",
+    "f": "#ff6f91"
+   },
+   "display": {
+    "m": "#ff6f91",
+    "f": "#ff6f91"
+   },
+   "mirrorSafe": true,
+   "designRef": "ref-hat-horn-design.png",
+   "notes": {
+    "ko": {
+     "item": "악마 뿔",
+     "look": "색과 모양(정수리 양쪽의 작은 뿔 두 개)",
+     "both": "두 번째 그림의 빨간 악마 뿔 두 개. 정수리 양쪽에 살짝 휘어 솟은 작고 뾰족한 뿔.",
+     "back": "옆모습에서는 두 뿔이 앞뒤로 조금 겹쳐 보이고, 뒷모습에서는 두 뿔 뒤쪽이 보이게 합니다."
+    },
+    "en": {
+     "item": "devil horns",
+     "look": "colour and shape (two small horns on the crown)",
+     "both": "the two red devil horns from image 2: small pointed horns curving up on both sides of the crown.",
+     "back": "in the side view the two horns overlap slightly front to back; in the back view show the backs of both horns."
+    }
+   },
+   "sharedPicture": true,
+   "refSvg": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"220\" height=\"150\" viewBox=\"0 0 220 150\"><path d=\"M56 112 Q44 70 70 34 Q68 72 86 108Z\" fill=\"#ff6f91\" stroke=\"#c2405f\" stroke-width=\"3\"/><path d=\"M164 112 Q176 70 150 34 Q152 72 134 108Z\" fill=\"#ff6f91\" stroke=\"#c2405f\" stroke-width=\"3\"/><path d=\"M62 92 Q58 72 66 54 M158 92 Q162 72 154 54\" fill=\"none\" stroke=\"#ffb3c4\" stroke-width=\"3\"/></svg>"
+  },
+  "hat:hairband": {
+   "class": "hat/band",
+   "status": "hat batch 2026-10-15 (shared picture)",
+   "sexes": [
+    "m",
+    "f"
+   ],
+   "ci": {
+    "m": 7,
+    "f": 7
+   },
+   "names": {
+    "m": "머리띠",
+    "f": "머리띠"
+   },
+   "colour": {
+    "m": "#ff8ad4",
+    "f": "#ff8ad4"
+   },
+   "display": {
+    "m": "#ff8ad4",
+    "f": "#ff8ad4"
+   },
+   "mirrorSafe": true,
+   "designRef": "ref-hat-hairband-design.png",
+   "notes": {
+    "ko": {
+     "item": "머리띠",
+     "look": "색과 모양(머리 위를 가로지르는 띠)",
+     "both": "두 번째 그림의 분홍 머리띠. 정수리를 가로질러 양쪽 귀 위까지 내려오는 매끈한 띠.",
+     "back": "옆모습에서는 귀 앞쪽 위로 내려오는 띠가, 뒷모습에서는 정수리를 넘는 띠의 윗부분만 조금 보이게 합니다."
+    },
+    "en": {
+     "item": "hairband",
+     "look": "colour and shape (a band across the head)",
+     "both": "the pink hairband from image 2: a smooth band across the crown reaching down to just above both ears.",
+     "back": "in the side view the band comes down in front of the ear; in the back view only a little of the band shows over the crown."
+    }
+   },
+   "sharedPicture": true,
+   "refSvg": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"220\" height=\"150\" viewBox=\"0 0 220 150\"><path d=\"M30 132 Q30 22 110 20 Q190 22 190 132\" fill=\"none\" stroke=\"#c75aa6\" stroke-width=\"20\" stroke-linecap=\"round\"/><path d=\"M30 132 Q30 22 110 20 Q190 22 190 132\" fill=\"none\" stroke=\"#ff8ad4\" stroke-width=\"14\" stroke-linecap=\"round\"/><path d=\"M44 80 Q60 34 110 30\" fill=\"none\" stroke=\"#ffc2e8\" stroke-width=\"4\" stroke-linecap=\"round\"/></svg>"
+  },
+  "hat:halo_hat": {
+   "class": "hat/halo",
+   "status": "hat batch 2026-10-15 (shared picture)",
+   "sexes": [
+    "m",
+    "f"
+   ],
+   "ci": {
+    "m": 2,
+    "f": 2
+   },
+   "names": {
+    "m": "천사 고리",
+    "f": "천사 고리"
+   },
+   "colour": {
+    "m": "#ffd24a",
+    "f": "#ffd24a"
+   },
+   "display": {
+    "m": "#ffd24a",
+    "f": "#ffd24a"
+   },
+   "mirrorSafe": true,
+   "designRef": "ref-hat-halo_hat-design.png",
+   "notes": {
+    "ko": {
+     "item": "천사 고리",
+     "look": "색과 모양(머리 위에 뜬 빛나는 고리)",
+     "both": "두 번째 그림의 노란 천사 고리. 정수리 위에 살짝 떠서 빛나는 둥근 고리.",
+     "back": "옆모습에서는 고리를 옆에서 본 납작한 타원으로, 뒷모습에서는 앞모습과 같은 고리가 보이게 합니다."
+    },
+    "en": {
+     "item": "halo",
+     "look": "colour and shape (a glowing ring above the head)",
+     "both": "the yellow halo from image 2: a glowing round ring floating just above the crown.",
+     "back": "in the side view show the ring as a flat ellipse from the side; in the back view show the same ring as in front."
+    }
+   },
+   "sharedPicture": true,
+   "refSvg": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"220\" height=\"150\" viewBox=\"0 0 220 150\"><ellipse cx=\"110\" cy=\"70\" rx=\"76\" ry=\"22\" fill=\"none\" stroke=\"#fff3b0\" stroke-width=\"26\" opacity=\".5\"/><ellipse cx=\"110\" cy=\"70\" rx=\"72\" ry=\"20\" fill=\"none\" stroke=\"#e8b830\" stroke-width=\"14\"/><ellipse cx=\"110\" cy=\"70\" rx=\"72\" ry=\"20\" fill=\"none\" stroke=\"#ffd24a\" stroke-width=\"8\"/></svg>"
   }
  }
 }

@@ -1,0 +1,2279 @@
+{
+ "army": {
+  "kind": "full",
+  "views": {
+   "m": {
+    "front": {
+     "src": "assets/hat-art/army-m-front.png",
+     "rect": [
+      1.457,
+      0.14,
+      28.658,
+      17.252
+     ],
+     "hide": {
+      "src": "assets/hat-art/army-m-front-hide.png",
+      "rect": [
+       -25.917,
+       -8.272,
+       83.407,
+       53.038
+      ]
+     },
+     "hideTop": [
+      -25.917,
+      -20.0,
+      83.407,
+      12.128
+     ]
+    },
+    "right": {
+     "src": "assets/hat-art/army-m-right.png",
+     "rect": [
+      2.295,
+      3.31,
+      27.495,
+      17.542
+     ],
+     "hide": {
+      "src": "assets/hat-art/army-m-right-hide.png",
+      "rect": [
+       -21.592,
+       -4.03,
+       75.269,
+       48.769
+      ]
+     },
+     "hideTop": [
+      -21.592,
+      -20.0,
+      75.269,
+      16.37
+     ]
+    },
+    "back": {
+     "src": "assets/hat-art/army-m-back.png",
+     "rect": [
+      5.042,
+      4.771,
+      22.388,
+      17.792
+     ],
+     "hide": {
+      "src": "assets/hat-art/army-m-back-hide.png",
+      "rect": [
+       -17.582,
+       -2.181,
+       67.635,
+       47.368
+      ]
+     },
+     "hideTop": [
+      -17.582,
+      -20.0,
+      67.635,
+      18.219
+     ]
+    }
+   },
+   "f": {
+    "front": {
+     "src": "assets/hat-art/army-f-front.png",
+     "rect": [
+      2.313,
+      3.489,
+      27.945,
+      15.968
+     ],
+     "hide": {
+      "src": "assets/hat-art/army-f-front-hide.png",
+      "rect": [
+       -25.062,
+       -4.923,
+       82.694,
+       51.755
+      ]
+     },
+     "hideTop": [
+      -25.062,
+      -20.0,
+      82.694,
+      15.477
+     ]
+    },
+    "right": {
+     "src": "assets/hat-art/army-f-right.png",
+     "rect": [
+      1.742,
+      2.759,
+      28.23,
+      17.822
+     ],
+     "hide": {
+      "src": "assets/hat-art/army-f-right-hide.png",
+      "rect": [
+       -25.632,
+       -5.653,
+       82.979,
+       53.608
+      ]
+     },
+     "hideTop": [
+      -25.632,
+      -20.0,
+      82.979,
+      14.747
+     ]
+    },
+    "back": {
+     "src": "assets/hat-art/army-f-back.png",
+     "rect": [
+      3.787,
+      4.697,
+      25.621,
+      18.453
+     ],
+     "hide": {
+      "src": "assets/hat-art/army-f-back-hide.png",
+      "rect": [
+       -21.702,
+       -3.135,
+       76.598,
+       51.773
+      ]
+     },
+     "hideTop": [
+      -21.702,
+      -20.0,
+      76.598,
+      17.265
+     ]
+    }
+   }
+  }
+ },
+ "beanie": {
+  "kind": "full",
+  "views": {
+   "m": {
+    "front": {
+     "src": "assets/hat-art/beanie-m-front.png",
+     "rect": [
+      1.457,
+      -4.565,
+      29.656,
+      23.382
+     ],
+     "hide": {
+      "src": "assets/hat-art/beanie-m-front-hide.png",
+      "rect": [
+       -25.917,
+       -12.977,
+       84.405,
+       59.169
+      ]
+     },
+     "hideTop": [
+      -25.917,
+      -20.0,
+      84.405,
+      7.423
+     ]
+    },
+    "right": {
+     "src": "assets/hat-art/beanie-m-right.png",
+     "rect": [
+      1.424,
+      -0.547,
+      25.629,
+      22.518
+     ],
+     "hide": {
+      "src": "assets/hat-art/beanie-m-right-hide.png",
+      "rect": [
+       -22.463,
+       -7.887,
+       73.403,
+       53.746
+      ]
+     },
+     "hideTop": [
+      -22.463,
+      -20.0,
+      73.403,
+      12.513
+     ]
+    },
+    "back": {
+     "src": "assets/hat-art/beanie-m-back.png",
+     "rect": [
+      4.924,
+      0.175,
+      23.095,
+      22.152
+     ],
+     "hide": {
+      "src": "assets/hat-art/beanie-m-back-hide.png",
+      "rect": [
+       -17.7,
+       -6.777,
+       68.342,
+       51.728
+      ]
+     },
+     "hideTop": [
+      -17.7,
+      -20.0,
+      68.342,
+      13.623
+     ]
+    }
+   },
+   "f": {
+    "front": {
+     "src": "assets/hat-art/beanie-f-front.png",
+     "rect": [
+      2.028,
+      -0.503,
+      28.658,
+      21.244
+     ],
+     "hide": {
+      "src": "assets/hat-art/beanie-f-front-hide.png",
+      "rect": [
+       -25.347,
+       -8.915,
+       83.407,
+       57.03
+      ]
+     },
+     "hideTop": [
+      -25.347,
+      -20.0,
+      83.407,
+      11.485
+     ]
+    },
+    "right": {
+     "src": "assets/hat-art/beanie-f-right.png",
+     "rect": [
+      1.03,
+      -0.805,
+      26.234,
+      22.099
+     ],
+     "hide": {
+      "src": "assets/hat-art/beanie-f-right-hide.png",
+      "rect": [
+       -26.345,
+       -9.217,
+       80.983,
+       57.886
+      ]
+     },
+     "hideTop": [
+      -26.345,
+      -20.0,
+      80.983,
+      11.183
+     ]
+    },
+    "back": {
+     "src": "assets/hat-art/beanie-f-back.png",
+     "rect": [
+      3.521,
+      1.113,
+      25.356,
+      22.17
+     ],
+     "hide": {
+      "src": "assets/hat-art/beanie-f-back-hide.png",
+      "rect": [
+       -21.967,
+       -6.719,
+       76.332,
+       55.49
+      ]
+     },
+     "hideTop": [
+      -21.967,
+      -20.0,
+      76.332,
+      13.681
+     ]
+    }
+   }
+  }
+ },
+ "cap": {
+  "kind": "full",
+  "views": {
+   "m": {
+    "front": {
+     "src": "assets/hat-art/cap-m-front.png",
+     "rect": [
+      2.088,
+      -0.027,
+      26.657,
+      16.328
+     ],
+     "hide": {
+      "src": "assets/hat-art/cap-m-front-hide.png",
+      "rect": [
+       -26.791,
+       -0.804,
+       84.415,
+       45.984
+      ]
+     },
+     "hideTop": [
+      -26.791,
+      -20.0,
+      84.415,
+      19.596
+     ]
+    },
+    "right": {
+     "src": "assets/hat-art/cap-m-right.png",
+     "rect": [
+      4.138,
+      4.529,
+      28.055,
+      13.643
+     ],
+     "hide": {
+      "src": "assets/hat-art/cap-m-right-hide.png",
+      "rect": [
+       -20.842,
+       2.703,
+       78.016,
+       40.449
+      ]
+     },
+     "hideTop": [
+      -20.842,
+      -20.0,
+      78.016,
+      23.103
+     ]
+    },
+    "back": {
+     "src": "assets/hat-art/cap-m-back.png",
+     "rect": [
+      6.139,
+      4.307,
+      20.836,
+      15.604
+     ],
+     "hide": {
+      "src": "assets/hat-art/cap-m-back-hide.png",
+      "rect": [
+       -17.313,
+       3.495,
+       67.74,
+       39.868
+      ]
+     },
+     "hideTop": [
+      -17.313,
+      -20.0,
+      67.74,
+      23.895
+     ]
+    }
+   },
+   "f": {
+    "front": {
+     "src": "assets/hat-art/cap-f-front.png",
+     "rect": [
+      4.935,
+      6.432,
+      21.704,
+      12.797
+     ],
+     "hide": {
+      "src": "assets/hat-art/cap-f-front-hide.png",
+      "rect": [
+       -21.684,
+       4.896,
+       74.942,
+       40.952
+      ]
+     },
+     "hideTop": [
+      -21.684,
+      -20.0,
+      74.942,
+      25.296
+     ]
+    },
+    "right": {
+     "src": "assets/hat-art/cap-f-right.png",
+     "rect": [
+      4.932,
+      8.015,
+      24.191,
+      10.422
+     ],
+     "hide": {
+      "src": "assets/hat-art/cap-f-right-hide.png",
+      "rect": [
+       -19.929,
+       5.721,
+       73.913,
+       37.578
+      ]
+     },
+     "hideTop": [
+      -19.929,
+      -20.0,
+      73.913,
+      26.121
+     ]
+    },
+    "back": {
+     "src": "assets/hat-art/cap-f-back.png",
+     "rect": [
+      5.624,
+      7.05,
+      19.231,
+      15.054
+     ],
+     "hide": {
+      "src": "assets/hat-art/cap-f-back-hide.png",
+      "rect": [
+       -19.628,
+       5.885,
+       69.736,
+       41.472
+      ]
+     },
+     "hideTop": [
+      -19.628,
+      -20.0,
+      69.736,
+      26.285
+     ]
+    }
+   }
+  }
+ },
+ "capback": {
+  "kind": "full",
+  "views": {
+   "m": {
+    "front": {
+     "src": "assets/hat-art/capback-m-front.png",
+     "rect": [
+      2.455,
+      -0.573,
+      27.517,
+      16.681
+     ],
+     "hide": {
+      "src": "assets/hat-art/capback-m-front-hide.png",
+      "rect": [
+       -24.919,
+       -8.985,
+       82.266,
+       52.468
+      ]
+     },
+     "hideTop": [
+      -24.919,
+      -20.0,
+      82.266,
+      11.415
+     ]
+    },
+    "right": {
+     "src": "assets/hat-art/capback-m-right.png",
+     "rect": [
+      -1.313,
+      3.186,
+      27.993,
+      19.408
+     ],
+     "hide": {
+      "src": "assets/hat-art/capback-m-right-hide.png",
+      "rect": [
+       -25.2,
+       -4.155,
+       75.767,
+       50.635
+      ]
+     },
+     "hideTop": [
+      -25.2,
+      -20.0,
+      75.767,
+      16.245
+     ]
+    },
+    "back": {
+     "src": "assets/hat-art/capback-m-back.png",
+     "rect": [
+      4.924,
+      3.592,
+      22.152,
+      19.206
+     ],
+     "hide": {
+      "src": "assets/hat-art/capback-m-back-hide.png",
+      "rect": [
+       -17.7,
+       -3.36,
+       67.399,
+       48.782
+      ]
+     },
+     "hideTop": [
+      -17.7,
+      -20.0,
+      67.399,
+      17.04
+     ]
+    }
+   },
+   "f": {
+    "front": {
+     "src": "assets/hat-art/capback-f-front.png",
+     "rect": [
+      2.455,
+      3.489,
+      27.375,
+      16.539
+     ],
+     "hide": {
+      "src": "assets/hat-art/capback-f-front-hide.png",
+      "rect": [
+       -24.919,
+       -4.923,
+       82.124,
+       52.325
+      ]
+     },
+     "hideTop": [
+      -24.919,
+      -20.0,
+      82.124,
+      15.477
+     ]
+    },
+    "right": {
+     "src": "assets/hat-art/capback-f-right.png",
+     "rect": [
+      -3.105,
+      3.472,
+      30.511,
+      19.818
+     ],
+     "hide": {
+      "src": "assets/hat-art/capback-f-right-hide.png",
+      "rect": [
+       -30.48,
+       -4.94,
+       85.26,
+       55.605
+      ]
+     },
+     "hideTop": [
+      -30.48,
+      -20.0,
+      85.26,
+      15.46
+     ]
+    },
+    "back": {
+     "src": "assets/hat-art/capback-f-back.png",
+     "rect": [
+      3.654,
+      4.83,
+      24.161,
+      18.453
+     ],
+     "hide": {
+      "src": "assets/hat-art/capback-f-back-hide.png",
+      "rect": [
+       -21.834,
+       -3.002,
+       75.138,
+       51.773
+      ]
+     },
+     "hideTop": [
+      -21.834,
+      -20.0,
+      75.138,
+      17.398
+     ]
+    }
+   }
+  }
+ },
+ "cat_ears": {
+  "kind": "sit",
+  "views": {
+   "m": {
+    "front": {
+     "src": "assets/hat-art/cat_ears-m-front.png",
+     "rect": [
+      3.453,
+      -0.573,
+      25.093,
+      7.271
+     ]
+    },
+    "right": {
+     "src": "assets/hat-art/cat_ears-m-right.png",
+     "rect": [
+      11.129,
+      2.315,
+      9.206,
+      7.714
+     ]
+    },
+    "back": {
+     "src": "assets/hat-art/cat_ears-m-back.png",
+     "rect": [
+      6.927,
+      3.71,
+      19.56,
+      6.834
+     ]
+    }
+   },
+   "f": {
+    "front": {
+     "src": "assets/hat-art/cat_ears-f-front.png",
+     "rect": [
+      4.451,
+      4.202,
+      23.24,
+      8.269
+     ]
+    },
+    "right": {
+     "src": "assets/hat-art/cat_ears-f-right.png",
+     "rect": [
+      11.723,
+      3.33,
+      8.697,
+      8.84
+     ]
+    },
+    "back": {
+     "src": "assets/hat-art/cat_ears-f-back.png",
+     "rect": [
+      5.513,
+      4.564,
+      21.108,
+      7.567
+     ]
+    }
+   }
+  }
+ },
+ "chef": {
+  "kind": "full",
+  "views": {
+   "m": {
+    "front": {
+     "src": "assets/hat-art/chef-m-front.png",
+     "rect": [
+      -1.109,
+      -5.563,
+      33.933,
+      23.097
+     ],
+     "hide": {
+      "src": "assets/hat-art/chef-m-front-hide.png",
+      "rect": [
+       -28.484,
+       -13.975,
+       88.682,
+       58.884
+      ]
+     },
+     "hideTop": [
+      -28.484,
+      -20.0,
+      88.682,
+      6.425
+     ]
+    },
+    "right": {
+     "src": "assets/hat-art/chef-m-right.png",
+     "rect": [
+      -1.064,
+      -3.532,
+      27.868,
+      24.758
+     ],
+     "hide": {
+      "src": "assets/hat-art/chef-m-right-hide.png",
+      "rect": [
+       -24.951,
+       -10.873,
+       75.642,
+       55.985
+      ]
+     },
+     "hideTop": [
+      -24.951,
+      -20.0,
+      75.642,
+      9.527
+     ]
+    },
+    "back": {
+     "src": "assets/hat-art/chef-m-back.png",
+     "rect": [
+      1.389,
+      -1.828,
+      28.044,
+      22.034
+     ],
+     "hide": {
+      "src": "assets/hat-art/chef-m-back-hide.png",
+      "rect": [
+       -21.235,
+       -8.78,
+       73.291,
+       51.61
+      ]
+     },
+     "hideTop": [
+      -21.235,
+      -20.0,
+      73.291,
+      11.62
+     ]
+    }
+   },
+   "f": {
+    "front": {
+     "src": "assets/hat-art/chef-f-front.png",
+     "rect": [
+      -0.681,
+      -4.637,
+      33.648,
+      22.099
+     ],
+     "hide": {
+      "src": "assets/hat-art/chef-f-front-hide.png",
+      "rect": [
+       -28.056,
+       -13.049,
+       88.397,
+       57.886
+      ]
+     },
+     "hideTop": [
+      -28.056,
+      -20.0,
+      88.397,
+      7.351
+     ]
+    },
+    "right": {
+     "src": "assets/hat-art/chef-f-right.png",
+     "rect": [
+      -2.963,
+      -6.508,
+      30.083,
+      26.804
+     ],
+     "hide": {
+      "src": "assets/hat-art/chef-f-right-hide.png",
+      "rect": [
+       -30.337,
+       -14.92,
+       84.833,
+       62.591
+      ]
+     },
+     "hideTop": [
+      -30.337,
+      -20.0,
+      84.833,
+      5.48
+     ]
+    },
+    "back": {
+     "src": "assets/hat-art/chef-f-back.png",
+     "rect": [
+      -0.461,
+      -3.002,
+      31.462,
+      23.099
+     ],
+     "hide": {
+      "src": "assets/hat-art/chef-f-back-hide.png",
+      "rect": [
+       -25.95,
+       -10.835,
+       82.439,
+       56.42
+      ]
+     },
+     "hideTop": [
+      -25.95,
+      -20.0,
+      82.439,
+      9.565
+     ]
+    }
+   }
+  }
+ },
+ "cowboy": {
+  "kind": "full",
+  "views": {
+   "m": {
+    "front": {
+     "src": "assets/hat-art/cowboy-m-front.png",
+     "rect": [
+      -3.533,
+      -0.145,
+      39.066,
+      18.107
+     ],
+     "hide": {
+      "src": "assets/hat-art/cowboy-m-front-hide.png",
+      "rect": [
+       -30.907,
+       -8.557,
+       93.815,
+       53.894
+      ]
+     },
+     "hideTop": [
+      -30.907,
+      -20.0,
+      93.815,
+      11.843
+     ]
+    },
+    "right": {
+     "src": "assets/hat-art/cowboy-m-right.png",
+     "rect": [
+      -2.806,
+      2.813,
+      34.338,
+      16.298
+     ],
+     "hide": {
+      "src": "assets/hat-art/cowboy-m-right-hide.png",
+      "rect": [
+       -26.693,
+       -4.528,
+       82.112,
+       47.525
+      ]
+     },
+     "hideTop": [
+      -26.693,
+      -20.0,
+      82.112,
+      15.872
+     ]
+    },
+    "back": {
+     "src": "assets/hat-art/cowboy-m-back.png",
+     "rect": [
+      -0.379,
+      3.946,
+      31.814,
+      17.557
+     ],
+     "hide": {
+      "src": "assets/hat-art/cowboy-m-back-hide.png",
+      "rect": [
+       -23.002,
+       -3.006,
+       77.062,
+       47.132
+      ]
+     },
+     "hideTop": [
+      -23.002,
+      -20.0,
+      77.062,
+      17.394
+     ]
+    }
+   },
+   "f": {
+    "front": {
+     "src": "assets/hat-art/cowboy-f-front.png",
+     "rect": [
+      -2.677,
+      2.634,
+      37.355,
+      18.392
+     ],
+     "hide": {
+      "src": "assets/hat-art/cowboy-f-front-hide.png",
+      "rect": [
+       -30.052,
+       -5.778,
+       92.104,
+       54.179
+      ]
+     },
+     "hideTop": [
+      -30.052,
+      -20.0,
+      92.104,
+      14.622
+     ]
+    },
+    "right": {
+     "src": "assets/hat-art/cowboy-f-right.png",
+     "rect": [
+      -4.246,
+      2.474,
+      35.501,
+      17.822
+     ],
+     "hide": {
+      "src": "assets/hat-art/cowboy-f-right-hide.png",
+      "rect": [
+       -31.62,
+       -5.938,
+       90.25,
+       53.608
+      ]
+     },
+     "hideTop": [
+      -31.62,
+      -20.0,
+      90.25,
+      14.462
+     ]
+    },
+    "back": {
+     "src": "assets/hat-art/cowboy-f-back.png",
+     "rect": [
+      -1.391,
+      4.432,
+      34.648,
+      15.532
+     ],
+     "hide": {
+      "src": "assets/hat-art/cowboy-f-back-hide.png",
+      "rect": [
+       -26.879,
+       -3.401,
+       85.625,
+       48.853
+      ]
+     },
+     "hideTop": [
+      -26.879,
+      -20.0,
+      85.625,
+      16.999
+     ]
+    }
+   }
+  }
+ },
+ "crown": {
+  "kind": "sit",
+  "views": {
+   "m": {
+    "front": {
+     "src": "assets/hat-art/crown-m-front.png",
+     "rect": [
+      8.308,
+      -0.138,
+      12.44,
+      6.886
+     ]
+    },
+    "right": {
+     "src": "assets/hat-art/crown-m-right.png",
+     "rect": [
+      12.017,
+      3.183,
+      6.822,
+      6.918
+     ]
+    },
+    "back": {
+     "src": "assets/hat-art/crown-m-back.png",
+     "rect": [
+      11.009,
+      4.578,
+      10.102,
+      5.683
+     ]
+    }
+   },
+   "f": {
+    "front": {
+     "src": "assets/hat-art/crown-f-front.png",
+     "rect": [
+      10.361,
+      4.896,
+      10.852,
+      6.04
+     ]
+    },
+    "right": {
+     "src": "assets/hat-art/crown-f-right.png",
+     "rect": [
+      12.677,
+      6.007,
+      6.311,
+      6.311
+     ]
+    },
+    "back": {
+     "src": "assets/hat-art/crown-f-back.png",
+     "rect": [
+      10.48,
+      5.885,
+      10.198,
+      6.022
+     ]
+    }
+   }
+  }
+ },
+ "flower": {
+  "kind": "sit",
+  "views": {
+   "m": {
+    "front": {
+     "src": "assets/hat-art/flower-m-front.png",
+     "rect": [
+      18.709,
+      4.417,
+      10.693,
+      9.41
+     ]
+    },
+    "right": {
+     "src": "assets/hat-art/flower-m-right.png",
+     "rect": [
+      5.903,
+      7.043,
+      12.317,
+      8.584
+     ]
+    },
+    "back": {
+     "src": "assets/hat-art/flower-m-back.png",
+     "rect": [
+      7.045,
+      7.834,
+      11.076,
+      8.602
+     ]
+    }
+   },
+   "f": {
+    "front": {
+     "src": "assets/hat-art/flower-f-front.png",
+     "rect": [
+      18.709,
+      9.335,
+      11.406,
+      9.125
+     ]
+    },
+    "right": {
+     "src": "assets/hat-art/flower-f-right.png",
+     "rect": [
+      6.875,
+      9.888,
+      12.832,
+      9.125
+     ]
+    },
+    "back": {
+     "src": "assets/hat-art/flower-f-back.png",
+     "rect": [
+      5.513,
+      10.538,
+      12.08,
+      9.027
+     ]
+    }
+   }
+  }
+ },
+ "grad": {
+  "kind": "full",
+  "views": {
+   "m": {
+    "front": {
+     "src": "assets/hat-art/grad-m-front.png",
+     "rect": [
+      -3.961,
+      -1.571,
+      39.493,
+      22.955
+     ],
+     "hide": {
+      "src": "assets/hat-art/grad-m-front-hide.png",
+      "rect": [
+       -31.335,
+       -9.983,
+       94.243,
+       58.741
+      ]
+     },
+     "hideTop": [
+      -31.335,
+      -20.0,
+      94.243,
+      10.417
+     ]
+    },
+    "right": {
+     "src": "assets/hat-art/grad-m-right.png",
+     "rect": [
+      -2.806,
+      2.19,
+      33.342,
+      15.303
+     ],
+     "hide": {
+      "src": "assets/hat-art/grad-m-right-hide.png",
+      "rect": [
+       -26.693,
+       -5.15,
+       81.116,
+       46.53
+      ]
+     },
+     "hideTop": [
+      -26.693,
+      -20.0,
+      81.116,
+      15.25
+     ]
+    },
+    "back": {
+     "src": "assets/hat-art/grad-m-back.png",
+     "rect": [
+      -0.85,
+      2.768,
+      33.582,
+      18.971
+     ],
+     "hide": {
+      "src": "assets/hat-art/grad-m-back-hide.png",
+      "rect": [
+       -23.473,
+       -4.184,
+       78.829,
+       48.546
+      ]
+     },
+     "hideTop": [
+      -23.473,
+      -20.0,
+      78.829,
+      16.216
+     ]
+    }
+   },
+   "f": {
+    "front": {
+     "src": "assets/hat-art/grad-f-front.png",
+     "rect": [
+      -2.25,
+      -1.216,
+      37.64,
+      21.671
+     ],
+     "hide": {
+      "src": "assets/hat-art/grad-f-front-hide.png",
+      "rect": [
+       -29.624,
+       -9.628,
+       92.389,
+       57.458
+      ]
+     },
+     "hideTop": [
+      -29.624,
+      -20.0,
+      92.389,
+      10.772
+     ]
+    },
+    "right": {
+     "src": "assets/hat-art/grad-f-right.png",
+     "rect": [
+      -5.529,
+      -0.805,
+      38.068,
+      24.095
+     ],
+     "hide": {
+      "src": "assets/hat-art/grad-f-right-hide.png",
+      "rect": [
+       -32.903,
+       -9.217,
+       92.817,
+       59.882
+      ]
+     },
+     "hideTop": [
+      -32.903,
+      -20.0,
+      92.817,
+      11.183
+     ]
+    },
+    "back": {
+     "src": "assets/hat-art/grad-f-back.png",
+     "rect": [
+      -2.054,
+      0.449,
+      36.241,
+      20.444
+     ],
+     "hide": {
+      "src": "assets/hat-art/grad-f-back-hide.png",
+      "rect": [
+       -27.543,
+       -7.383,
+       87.218,
+       53.765
+      ]
+     },
+     "hideTop": [
+      -27.543,
+      -20.0,
+      87.218,
+      13.017
+     ]
+    }
+   }
+  }
+ },
+ "hairband": {
+  "kind": "sit",
+  "views": {
+   "m": {
+    "front": {
+     "src": "assets/hat-art/hairband-m-front.png",
+     "rect": [
+      6.305,
+      2.279,
+      19.533,
+      7.129
+     ]
+    },
+    "right": {
+     "src": "assets/hat-art/hairband-m-right.png",
+     "rect": [
+      11.004,
+      5.176,
+      9.082,
+      14.805
+     ]
+    },
+    "back": {
+     "src": "assets/hat-art/hairband-m-back.png",
+     "rect": [
+      8.694,
+      5.831,
+      14.493,
+      4.831
+     ]
+    }
+   },
+   "f": {
+    "front": {
+     "src": "assets/hat-art/hairband-f-front.png",
+     "rect": [
+      6.59,
+      7.196,
+      19.533,
+      6.986
+     ]
+    },
+    "right": {
+     "src": "assets/hat-art/hairband-f-right.png",
+     "rect": [
+      11.438,
+      7.749,
+      8.982,
+      12.832
+     ]
+    },
+    "back": {
+     "src": "assets/hat-art/hairband-f-back.png",
+     "rect": [
+      7.902,
+      7.883,
+      16.063,
+      5.31
+     ]
+    }
+   }
+  }
+ },
+ "halo_hat": {
+  "kind": "sit",
+  "views": {
+   "m": {
+    "front": {
+     "src": "assets/hat-art/halo_hat-m-front.png",
+     "rect": [
+      6.59,
+      -6.276,
+      18.392,
+      5.56
+     ]
+    },
+    "right": {
+     "src": "assets/hat-art/halo_hat-m-right.png",
+     "rect": [
+      6.65,
+      -2.288,
+      15.676,
+      4.728
+     ]
+    },
+    "back": {
+     "src": "assets/hat-art/halo_hat-m-back.png",
+     "rect": [
+      7.634,
+      -1.474,
+      16.143,
+      4.713
+     ]
+    }
+   },
+   "f": {
+    "front": {
+     "src": "assets/hat-art/halo_hat-f-front.png",
+     "rect": [
+      6.875,
+      -2.214,
+      18.25,
+      5.56
+     ]
+    },
+    "right": {
+     "src": "assets/hat-art/halo_hat-f-right.png",
+     "rect": [
+      6.162,
+      -2.944,
+      17.965,
+      5.418
+     ]
+    },
+    "back": {
+     "src": "assets/hat-art/halo_hat-f-back.png",
+     "rect": [
+      6.707,
+      -1.011,
+      17.922,
+      5.177
+     ]
+    }
+   }
+  }
+ },
+ "horn": {
+  "kind": "sit",
+  "views": {
+   "m": {
+    "front": {
+     "src": "assets/hat-art/horn-m-front.png",
+     "rect": [
+      6.733,
+      -0.002,
+      18.677,
+      7.557
+     ]
+    },
+    "right": {
+     "src": "assets/hat-art/horn-m-right.png",
+     "rect": [
+      13.492,
+      2.937,
+      7.34,
+      6.843
+     ]
+    },
+    "back": {
+     "src": "assets/hat-art/horn-m-back.png",
+     "rect": [
+      8.577,
+      4.064,
+      15.082,
+      5.892
+     ]
+    }
+   },
+   "f": {
+    "front": {
+     "src": "assets/hat-art/horn-f-front.png",
+     "rect": [
+      6.875,
+      4.773,
+      17.109,
+      6.986
+     ]
+    },
+    "right": {
+     "src": "assets/hat-art/horn-f-right.png",
+     "rect": [
+      13.291,
+      4.755,
+      7.699,
+      6.844
+     ]
+    },
+    "back": {
+     "src": "assets/hat-art/horn-f-back.png",
+     "rect": [
+      8.433,
+      5.228,
+      15.532,
+      6.505
+     ]
+    }
+   }
+  }
+ },
+ "pirate": {
+  "kind": "full",
+  "views": {
+   "m": {
+    "front": {
+     "src": "assets/hat-art/pirate-m-front.png",
+     "rect": [
+      1.885,
+      0.283,
+      32.935,
+      21.386
+     ],
+     "hide": {
+      "src": "assets/hat-art/pirate-m-front-hide.png",
+      "rect": [
+       -25.49,
+       -8.129,
+       87.684,
+       57.173
+      ]
+     },
+     "hideTop": [
+      -25.49,
+      -20.0,
+      87.684,
+      12.271
+     ]
+    },
+    "right": {
+     "src": "assets/hat-art/pirate-m-right.png",
+     "rect": [
+      -0.317,
+      2.564,
+      27.495,
+      20.03
+     ],
+     "hide": {
+      "src": "assets/hat-art/pirate-m-right-hide.png",
+      "rect": [
+       -24.204,
+       -4.777,
+       75.269,
+       51.258
+      ]
+     },
+     "hideTop": [
+      -24.204,
+      -20.0,
+      75.269,
+      15.623
+     ]
+    },
+    "back": {
+     "src": "assets/hat-art/pirate-m-back.png",
+     "rect": [
+      5.395,
+      4.064,
+      21.563,
+      18.735
+     ],
+     "hide": {
+      "src": "assets/hat-art/pirate-m-back-hide.png",
+      "rect": [
+       -17.228,
+       -2.888,
+       66.81,
+       48.311
+      ]
+     },
+     "hideTop": [
+      -17.228,
+      -20.0,
+      66.81,
+      17.512
+     ]
+    }
+   },
+   "f": {
+    "front": {
+     "src": "assets/hat-art/pirate-f-front.png",
+     "rect": [
+      2.598,
+      3.632,
+      31.794,
+      19.248
+     ],
+     "hide": {
+      "src": "assets/hat-art/pirate-f-front-hide.png",
+      "rect": [
+       -24.777,
+       -4.78,
+       86.543,
+       55.034
+      ]
+     },
+     "hideTop": [
+      -24.777,
+      -20.0,
+      86.543,
+      15.62
+     ]
+    },
+    "right": {
+     "src": "assets/hat-art/pirate-f-right.png",
+     "rect": [
+      -2.392,
+      2.332,
+      29.656,
+      20.959
+     ],
+     "hide": {
+      "src": "assets/hat-art/pirate-f-right-hide.png",
+      "rect": [
+       -29.767,
+       -6.08,
+       84.405,
+       56.745
+      ]
+     },
+     "hideTop": [
+      -29.767,
+      -20.0,
+      84.405,
+      14.32
+     ]
+    },
+    "back": {
+     "src": "assets/hat-art/pirate-f-back.png",
+     "rect": [
+      3.92,
+      5.361,
+      24.559,
+      17.922
+     ],
+     "hide": {
+      "src": "assets/hat-art/pirate-f-back-hide.png",
+      "rect": [
+       -21.569,
+       -2.471,
+       75.536,
+       51.242
+      ]
+     },
+     "hideTop": [
+      -21.569,
+      -20.0,
+      75.536,
+      17.929
+     ]
+    }
+   }
+  }
+ },
+ "police": {
+  "kind": "full",
+  "views": {
+   "m": {
+    "front": {
+     "src": "assets/hat-art/police-m-front.png",
+     "rect": [
+      1.6,
+      -0.002,
+      28.373,
+      15.541
+     ],
+     "hide": {
+      "src": "assets/hat-art/police-m-front-hide.png",
+      "rect": [
+       -25.775,
+       -8.414,
+       83.122,
+       51.327
+      ]
+     },
+     "hideTop": [
+      -25.775,
+      -20.0,
+      83.122,
+      11.986
+     ]
+    },
+    "right": {
+     "src": "assets/hat-art/police-m-right.png",
+     "rect": [
+      1.673,
+      2.937,
+      25.629,
+      14.805
+     ],
+     "hide": {
+      "src": "assets/hat-art/police-m-right-hide.png",
+      "rect": [
+       -22.214,
+       -4.403,
+       73.403,
+       46.032
+      ]
+     },
+     "hideTop": [
+      -22.214,
+      -20.0,
+      73.403,
+      15.997
+     ]
+    },
+    "back": {
+     "src": "assets/hat-art/police-m-back.png",
+     "rect": [
+      4.57,
+      4.064,
+      23.331,
+      16.143
+     ],
+     "hide": {
+      "src": "assets/hat-art/police-m-back-hide.png",
+      "rect": [
+       -18.053,
+       -2.888,
+       68.578,
+       45.718
+      ]
+     },
+     "hideTop": [
+      -18.053,
+      -20.0,
+      68.578,
+      17.512
+     ]
+    }
+   },
+   "f": {
+    "front": {
+     "src": "assets/hat-art/police-f-front.png",
+     "rect": [
+      2.17,
+      2.491,
+      27.517,
+      15.113
+     ],
+     "hide": {
+      "src": "assets/hat-art/police-f-front-hide.png",
+      "rect": [
+       -25.204,
+       -5.921,
+       82.266,
+       50.9
+      ]
+     },
+     "hideTop": [
+      -25.204,
+      -20.0,
+      82.266,
+      14.479
+     ]
+    },
+    "right": {
+     "src": "assets/hat-art/police-f-right.png",
+     "rect": [
+      0.459,
+      2.046,
+      27.66,
+      14.97
+     ],
+     "hide": {
+      "src": "assets/hat-art/police-f-right-hide.png",
+      "rect": [
+       -26.915,
+       -6.366,
+       82.409,
+       50.757
+      ]
+     },
+     "hideTop": [
+      -26.915,
+      -20.0,
+      82.409,
+      14.034
+     ]
+    },
+    "back": {
+     "src": "assets/hat-art/police-f-back.png",
+     "rect": [
+      3.389,
+      4.033,
+      25.223,
+      16.196
+     ],
+     "hide": {
+      "src": "assets/hat-art/police-f-back-hide.png",
+      "rect": [
+       -22.1,
+       -3.799,
+       76.2,
+       49.517
+      ]
+     },
+     "hideTop": [
+      -22.1,
+      -20.0,
+      76.2,
+      16.601
+     ]
+    }
+   }
+  }
+ },
+ "ribbon": {
+  "kind": "sit",
+  "views": {
+   "m": {
+    "front": {
+     "src": "assets/hat-art/ribbon-m-front.png",
+     "rect": [
+      9.584,
+      -1.143,
+      13.687,
+      9.41
+     ]
+    },
+    "right": {
+     "src": "assets/hat-art/ribbon-m-right.png",
+     "rect": [
+      10.382,
+      2.19,
+      7.34,
+      7.962
+     ]
+    },
+    "back": {
+     "src": "assets/hat-art/ribbon-m-back.png",
+     "rect": [
+      10.698,
+      3.121,
+      10.723,
+      8.013
+     ]
+    }
+   },
+   "f": {
+    "front": {
+     "src": "assets/hat-art/ribbon-f-front.png",
+     "rect": [
+      9.727,
+      3.632,
+      13.117,
+      8.982
+     ]
+    },
+    "right": {
+     "src": "assets/hat-art/ribbon-f-right.png",
+     "rect": [
+      9.869,
+      3.33,
+      8.412,
+      9.553
+     ]
+    },
+    "back": {
+     "src": "assets/hat-art/ribbon-f-back.png",
+     "rect": [
+      10.026,
+      4.166,
+      12.08,
+      9.16
+     ]
+    }
+   }
+  }
+ },
+ "santa": {
+  "kind": "full",
+  "views": {
+   "m": {
+    "front": {
+     "src": "assets/hat-art/santa-m-front.png",
+     "rect": [
+      1.172,
+      -2.997,
+      32.507,
+      17.822
+     ],
+     "hide": {
+      "src": "assets/hat-art/santa-m-front-hide.png",
+      "rect": [
+       -26.202,
+       -11.409,
+       87.256,
+       53.608
+      ]
+     },
+     "hideTop": [
+      -26.202,
+      -20.0,
+      87.256,
+      8.991
+     ]
+    },
+    "right": {
+     "src": "assets/hat-art/santa-m-right.png",
+     "rect": [
+      -0.193,
+      0.698,
+      26.251,
+      19.657
+     ],
+     "hide": {
+      "src": "assets/hat-art/santa-m-right-hide.png",
+      "rect": [
+       -24.08,
+       -6.643,
+       74.025,
+       50.884
+      ]
+     },
+     "hideTop": [
+      -24.08,
+      -20.0,
+      74.025,
+      13.757
+     ]
+    },
+    "back": {
+     "src": "assets/hat-art/santa-m-back.png",
+     "rect": [
+      1.035,
+      1.471,
+      26.394,
+      17.91
+     ],
+     "hide": {
+      "src": "assets/hat-art/santa-m-back-hide.png",
+      "rect": [
+       -21.588,
+       -5.481,
+       71.641,
+       47.486
+      ]
+     },
+     "hideTop": [
+      -21.588,
+      -20.0,
+      71.641,
+      14.919
+     ]
+    }
+   },
+   "f": {
+    "front": {
+     "src": "assets/hat-art/santa-f-front.png",
+     "rect": [
+      2.17,
+      0.353,
+      30.369,
+      15.256
+     ],
+     "hide": {
+      "src": "assets/hat-art/santa-f-front-hide.png",
+      "rect": [
+       -25.204,
+       -8.059,
+       85.118,
+       51.042
+      ]
+     },
+     "hideTop": [
+      -25.204,
+      -20.0,
+      85.118,
+      12.341
+     ]
+    },
+    "right": {
+     "src": "assets/hat-art/santa-f-right.png",
+     "rect": [
+      -2.392,
+      0.193,
+      28.515,
+      18.963
+     ],
+     "hide": {
+      "src": "assets/hat-art/santa-f-right-hide.png",
+      "rect": [
+       -29.767,
+       -8.219,
+       83.264,
+       54.749
+      ]
+     },
+     "hideTop": [
+      -29.767,
+      -20.0,
+      83.264,
+      12.181
+     ]
+    },
+    "back": {
+     "src": "assets/hat-art/santa-f-back.png",
+     "rect": [
+      -0.328,
+      1.644,
+      28.542,
+      18.187
+     ],
+     "hide": {
+      "src": "assets/hat-art/santa-f-back-hide.png",
+      "rect": [
+       -25.817,
+       -6.188,
+       79.518,
+       51.508
+      ]
+     },
+     "hideTop": [
+      -25.817,
+      -20.0,
+      79.518,
+      14.212
+     ]
+    }
+   }
+  }
+ },
+ "straw": {
+  "kind": "full",
+  "views": {
+   "m": {
+    "front": {
+     "src": "assets/hat-art/straw-m-front.png",
+     "rect": [
+      -5.101,
+      -1.713,
+      41.632,
+      22.955
+     ],
+     "hide": {
+      "src": "assets/hat-art/straw-m-front-hide.png",
+      "rect": [
+       -32.476,
+       -10.125,
+       96.381,
+       58.741
+      ]
+     },
+     "hideTop": [
+      -32.476,
+      -20.0,
+      96.381,
+      10.275
+     ]
+    },
+    "right": {
+     "src": "assets/hat-art/straw-m-right.png",
+     "rect": [
+      -1.561,
+      1.817,
+      32.596,
+      20.777
+     ],
+     "hide": {
+      "src": "assets/hat-art/straw-m-right-hide.png",
+      "rect": [
+       -25.448,
+       -5.523,
+       80.37,
+       52.004
+      ]
+     },
+     "hideTop": [
+      -25.448,
+      -20.0,
+      80.37,
+      14.877
+     ]
+    },
+    "back": {
+     "src": "assets/hat-art/straw-m-back.png",
+     "rect": [
+      -0.025,
+      2.178,
+      31.697,
+      18.382
+     ],
+     "hide": {
+      "src": "assets/hat-art/straw-m-back-hide.png",
+      "rect": [
+       -22.649,
+       -4.774,
+       76.944,
+       47.957
+      ]
+     },
+     "hideTop": [
+      -22.649,
+      -20.0,
+      76.944,
+      15.626
+     ]
+    }
+   },
+   "f": {
+    "front": {
+     "src": "assets/hat-art/straw-f-front.png",
+     "rect": [
+      -4.103,
+      1.493,
+      40.491,
+      21.386
+     ],
+     "hide": {
+      "src": "assets/hat-art/straw-f-front-hide.png",
+      "rect": [
+       -31.478,
+       -6.919,
+       95.241,
+       57.173
+      ]
+     },
+     "hideTop": [
+      -31.478,
+      -20.0,
+      95.241,
+      13.481
+     ]
+    },
+    "right": {
+     "src": "assets/hat-art/straw-f-right.png",
+     "rect": [
+      -3.39,
+      1.191,
+      35.644,
+      22.099
+     ],
+     "hide": {
+      "src": "assets/hat-art/straw-f-right-hide.png",
+      "rect": [
+       -30.765,
+       -7.221,
+       90.393,
+       57.886
+      ]
+     },
+     "hideTop": [
+      -30.765,
+      -20.0,
+      90.393,
+      13.179
+     ]
+    },
+    "back": {
+     "src": "assets/hat-art/straw-f-back.png",
+     "rect": [
+      -1.258,
+      2.839,
+      34.516,
+      20.178
+     ],
+     "hide": {
+      "src": "assets/hat-art/straw-f-back-hide.png",
+      "rect": [
+       -26.746,
+       -4.994,
+       85.492,
+       53.499
+      ]
+     },
+     "hideTop": [
+      -26.746,
+      -20.0,
+      85.492,
+      15.406
+     ]
+    }
+   }
+  }
+ },
+ "witch": {
+  "kind": "full",
+  "views": {
+   "m": {
+    "front": {
+     "src": "assets/hat-art/witch-m-front.png",
+     "rect": [
+      -5.671,
+      -11.266,
+      42.345,
+      31.937
+     ],
+     "hide": {
+      "src": "assets/hat-art/witch-m-front-hide.png",
+      "rect": [
+       -33.046,
+       -19.678,
+       97.094,
+       67.723
+      ]
+     },
+     "hideTop": [
+      -33.046,
+      -20.0,
+      97.094,
+      0.722
+     ]
+    },
+    "right": {
+     "src": "assets/hat-art/witch-m-right.png",
+     "rect": [
+      -0.566,
+      -3.408,
+      33.093,
+      26.002
+     ],
+     "hide": {
+      "src": "assets/hat-art/witch-m-right-hide.png",
+      "rect": [
+       -24.453,
+       -10.748,
+       80.867,
+       57.229
+      ]
+     },
+     "hideTop": [
+      -24.453,
+      -20.0,
+      80.867,
+      9.652
+     ]
+    },
+    "back": {
+     "src": "assets/hat-art/witch-m-back.png",
+     "rect": [
+      -0.261,
+      -4.067,
+      33.111,
+      22.859
+     ],
+     "hide": {
+      "src": "assets/hat-art/witch-m-back-hide.png",
+      "rect": [
+       -22.884,
+       -11.019,
+       78.358,
+       52.435
+      ]
+     },
+     "hideTop": [
+      -22.884,
+      -20.0,
+      78.358,
+      9.381
+     ]
+    }
+   },
+   "f": {
+    "front": {
+     "src": "assets/hat-art/witch-f-front.png",
+     "rect": [
+      -5.386,
+      -5.636,
+      41.49,
+      26.804
+     ],
+     "hide": {
+      "src": "assets/hat-art/witch-f-front-hide.png",
+      "rect": [
+       -32.761,
+       -14.047,
+       96.239,
+       62.591
+      ]
+     },
+     "hideTop": [
+      -32.761,
+      -20.0,
+      96.239,
+      6.353
+     ]
+    },
+    "right": {
+     "src": "assets/hat-art/witch-f-right.png",
+     "rect": [
+      -2.82,
+      -4.94,
+      35.359,
+      26.091
+     ],
+     "hide": {
+      "src": "assets/hat-art/witch-f-right-hide.png",
+      "rect": [
+       -30.195,
+       -13.352,
+       90.108,
+       61.878
+      ]
+     },
+     "hideTop": [
+      -30.195,
+      -20.0,
+      90.108,
+      7.048
+     ]
+    },
+    "back": {
+     "src": "assets/hat-art/witch-f-back.png",
+     "rect": [
+      -2.851,
+      -2.87,
+      38.498,
+      22.17
+     ],
+     "hide": {
+      "src": "assets/hat-art/witch-f-back-hide.png",
+      "rect": [
+       -28.339,
+       -10.702,
+       89.475,
+       55.49
+      ]
+     },
+     "hideTop": [
+      -28.339,
+      -20.0,
+      89.475,
+      9.698
+     ]
+    }
+   }
+  }
+ }
+}

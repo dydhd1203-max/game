@@ -1,0 +1,63 @@
+{
+ "kind": "sit",
+ "views": {
+  "m": {
+   "front": {
+    "src": "assets/hat-art/flower-m-front.png",
+    "rect": [
+     18.709,
+     4.417,
+     10.693,
+     9.41
+    ]
+   },
+   "right": {
+    "src": "assets/hat-art/flower-m-right.png",
+    "rect": [
+     5.903,
+     7.043,
+     12.317,
+     8.584
+    ]
+   },
+   "back": {
+    "src": "assets/hat-art/flower-m-back.png",
+    "rect": [
+     7.045,
+     7.834,
+     11.076,
+     8.602
+    ]
+   }
+  },
+  "f": {
+   "front": {
+    "src": "assets/hat-art/flower-f-front.png",
+    "rect": [
+     18.709,
+     9.335,
+     11.406,
+     9.125
+    ]
+   },
+   "right": {
+    "src": "assets/hat-art/flower-f-right.png",
+    "rect": [
+     6.875,
+     9.888,
+     12.832,
+     9.125
+    ]
+   },
+   "back": {
+    "src": "assets/hat-art/flower-f-back.png",
+    "rect": [
+     5.513,
+     10.538,
+     12.08,
+     9.027
+    ]
+   }
+  }
+ }
+}

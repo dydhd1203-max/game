@@ -1,0 +1,45 @@
+{
+ "kind": "sticker",
+ "views": {
+  "m": {
+   "front": {
+    "src": "assets/face-art/face-bruise-m-front.png",
+    "rect": [
+     19.819,
+     22.772,
+     3.923,
+     3.362
+    ]
+   },
+   "right": {
+    "src": "assets/face-art/face-bruise-m-right.png",
+    "rect": [
+     19.706,
+     21.175,
+     3.075,
+     3.747
+    ]
+   }
+  },
+  "f": {
+   "front": {
+    "src": "assets/face-art/face-bruise-f-front.png",
+    "rect": [
+     19.001,
+     23.462,
+     3.114,
+     3.114
+    ]
+   },
+   "right": {
+    "src": "assets/face-art/face-bruise-f-right.png",
+    "rect": [
+     18.93,
+     20.497,
+     2.964,
+     4.494
+    ]
+   }
+  }
+ }
+}

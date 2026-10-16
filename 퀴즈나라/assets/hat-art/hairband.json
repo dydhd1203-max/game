@@ -1,0 +1,63 @@
+{
+ "kind": "sit",
+ "views": {
+  "m": {
+   "front": {
+    "src": "assets/hat-art/hairband-m-front.png",
+    "rect": [
+     6.305,
+     2.279,
+     19.533,
+     7.129
+    ]
+   },
+   "right": {
+    "src": "assets/hat-art/hairband-m-right.png",
+    "rect": [
+     11.004,
+     5.176,
+     9.082,
+     14.805
+    ]
+   },
+   "back": {
+    "src": "assets/hat-art/hairband-m-back.png",
+    "rect": [
+     8.694,
+     5.831,
+     14.493,
+     4.831
+    ]
+   }
+  },
+  "f": {
+   "front": {
+    "src": "assets/hat-art/hairband-f-front.png",
+    "rect": [
+     6.59,
+     7.196,
+     19.533,
+     6.986
+    ]
+   },
+   "right": {
+    "src": "assets/hat-art/hairband-f-right.png",
+    "rect": [
+     11.438,
+     7.749,
+     8.982,
+     12.832
+    ]
+   },
+   "back": {
+    "src": "assets/hat-art/hairband-f-back.png",
+    "rect": [
+     7.902,
+     7.883,
+     16.063,
+     5.31
+    ]
+   }
+  }
+ }
+}

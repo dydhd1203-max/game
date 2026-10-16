@@ -1,0 +1,4 @@
+# 검색 제외(rg·Grep·Glob): 원본을 그대로 복사한 배포 폴더와 다시 만들 수 있는 캡처.
+# 배포 폴더를 확인할 때는 node tools/build-deployment.cjs --check 를 쓴다.
+배포용/
+검증/

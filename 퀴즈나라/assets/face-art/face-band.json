@@ -1,0 +1,45 @@
+{
+ "kind": "sticker",
+ "views": {
+  "m": {
+   "front": {
+    "src": "assets/face-art/face-band-m-front.png",
+    "rect": [
+     20.268,
+     23.22,
+     3.81,
+     2.914
+    ]
+   },
+   "right": {
+    "src": "assets/face-art/face-band-m-right.png",
+    "rect": [
+     17.304,
+     23.481,
+     3.459,
+     2.018
+    ]
+   }
+  },
+  "f": {
+   "front": {
+    "src": "assets/face-art/face-band-f-front.png",
+    "rect": [
+     19.302,
+     24.165,
+     2.913,
+     2.411
+    ]
+   },
+   "right": {
+    "src": "assets/face-art/face-band-f-right.png",
+    "rect": [
+     17.209,
+     20.975,
+     4.016,
+     4.494
+    ]
+   }
+  }
+ }
+}

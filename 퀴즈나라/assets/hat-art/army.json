@@ -1,0 +1,153 @@
+{
+ "kind": "full",
+ "views": {
+  "m": {
+   "front": {
+    "src": "assets/hat-art/army-m-front.png",
+    "rect": [
+     1.457,
+     0.14,
+     28.658,
+     17.252
+    ],
+    "hide": {
+     "src": "assets/hat-art/army-m-front-hide.png",
+     "rect": [
+      -25.917,
+      -8.272,
+      83.407,
+      53.038
+     ]
+    },
+    "hideTop": [
+     -25.917,
+     -20.0,
+     83.407,
+     12.128
+    ]
+   },
+   "right": {
+    "src": "assets/hat-art/army-m-right.png",
+    "rect": [
+     2.295,
+     3.31,
+     27.495,
+     17.542
+    ],
+    "hide": {
+     "src": "assets/hat-art/army-m-right-hide.png",
+     "rect": [
+      -21.592,
+      -4.03,
+      75.269,
+      48.769
+     ]
+    },
+    "hideTop": [
+     -21.592,
+     -20.0,
+     75.269,
+     16.37
+    ]
+   },
+   "back": {
+    "src": "assets/hat-art/army-m-back.png",
+    "rect": [
+     5.042,
+     4.771,
+     22.388,
+     17.792
+    ],
+    "hide": {
+     "src": "assets/hat-art/army-m-back-hide.png",
+     "rect": [
+      -17.582,
+      -2.181,
+      67.635,
+      47.368
+     ]
+    },
+    "hideTop": [
+     -17.582,
+     -20.0,
+     67.635,
+     18.219
+    ]
+   }
+  },
+  "f": {
+   "front": {
+    "src": "assets/hat-art/army-f-front.png",
+    "rect": [
+     2.313,
+     3.489,
+     27.945,
+     15.968
+    ],
+    "hide": {
+     "src": "assets/hat-art/army-f-front-hide.png",
+     "rect": [
+      -25.062,
+      -4.923,
+      82.694,
+      51.755
+     ]
+    },
+    "hideTop": [
+     -25.062,
+     -20.0,
+     82.694,
+     15.477
+    ]
+   },
+   "right": {
+    "src": "assets/hat-art/army-f-right.png",
+    "rect": [
+     1.742,
+     2.759,
+     28.23,
+     17.822
+    ],
+    "hide": {
+     "src": "assets/hat-art/army-f-right-hide.png",
+     "rect": [
+      -25.632,
+      -5.653,
+      82.979,
+      53.608
+     ]
+    },
+    "hideTop": [
+     -25.632,
+     -20.0,
+     82.979,
+     14.747
+    ]
+   },
+   "back": {
+    "src": "assets/hat-art/army-f-back.png",
+    "rect": [
+     3.787,
+     4.697,
+     25.621,
+     18.453
+    ],
+    "hide": {
+     "src": "assets/hat-art/army-f-back-hide.png",
+     "rect": [
+      -21.702,
+      -3.135,
+      76.598,
+      51.773
+     ]
+    },
+    "hideTop": [
+     -21.702,
+     -20.0,
+     76.598,
+     17.265
+    ]
+   }
+  }
+ }
+}

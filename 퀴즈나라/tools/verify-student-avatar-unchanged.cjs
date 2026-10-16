@@ -50,7 +50,8 @@ const H=require('./verify-harness.cjs'),M=require('./foundation-matrix.cjs');
 const ROOT=path.resolve(__dirname,'..');
 // New URLs a student page may request after stage 3 (plan, runtime: one inert script tag; H3's
 // head module). Anything else new is a failure. Add here only with a plan change.
-const ALLOW_NEW=['/avatar-foundation-garments.js','/avatar-foundation-head.js'];
+// New foundation-only data the page loads but the student avatar never draws (2026-10-15 face and hat art).
+const ALLOW_NEW=['/avatar-foundation-garments.js','/avatar-foundation-head.js','/avatar-hat-art.js','/avatar-face-art.js'];
 // Never on a student page: garment/hair atlases and bundles, foundation body art.
 const FORBIDDEN=[/\/assets\/sd-garment/,/\/assets\/sd-garments-index/,/\/assets\/sd-hair/,/\/assets\/avatar-file-data-garment/,/\/assets\/avatar-file-data-foundation/,/\/assets\/sd-foundation-ref-[a-z]+\.png/];
 const PROTECTED=[/^avatar-pixel\.js$/,/^avatar-direction\.js$/,/^avatar-clothes\.js$/,/^avatar-shoes\.js$/,/^avatar-poses\.js$/,/^assets\/avatar-file-data\.js$/,/^assets\/sd-heads[^/]*\.png$/,/^assets\/sd-clothes[^/]*\.png$/,/^assets\/sd-tops[^/]*\.png$/];

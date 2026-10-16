@@ -1,0 +1,153 @@
+{
+ "kind": "full",
+ "views": {
+  "m": {
+   "front": {
+    "src": "assets/hat-art/pirate-m-front.png",
+    "rect": [
+     1.885,
+     0.283,
+     32.935,
+     21.386
+    ],
+    "hide": {
+     "src": "assets/hat-art/pirate-m-front-hide.png",
+     "rect": [
+      -25.49,
+      -8.129,
+      87.684,
+      57.173
+     ]
+    },
+    "hideTop": [
+     -25.49,
+     -20.0,
+     87.684,
+     12.271
+    ]
+   },
+   "right": {
+    "src": "assets/hat-art/pirate-m-right.png",
+    "rect": [
+     -0.317,
+     2.564,
+     27.495,
+     20.03
+    ],
+    "hide": {
+     "src": "assets/hat-art/pirate-m-right-hide.png",
+     "rect": [
+      -24.204,
+      -4.777,
+      75.269,
+      51.258
+     ]
+    },
+    "hideTop": [
+     -24.204,
+     -20.0,
+     75.269,
+     15.623
+    ]
+   },
+   "back": {
+    "src": "assets/hat-art/pirate-m-back.png",
+    "rect": [
+     5.395,
+     4.064,
+     21.563,
+     18.735
+    ],
+    "hide": {
+     "src": "assets/hat-art/pirate-m-back-hide.png",
+     "rect": [
+      -17.228,
+      -2.888,
+      66.81,
+      48.311
+     ]
+    },
+    "hideTop": [
+     -17.228,
+     -20.0,
+     66.81,
+     17.512
+    ]
+   }
+  },
+  "f": {
+   "front": {
+    "src": "assets/hat-art/pirate-f-front.png",
+    "rect": [
+     2.598,
+     3.632,
+     31.794,
+     19.248
+    ],
+    "hide": {
+     "src": "assets/hat-art/pirate-f-front-hide.png",
+     "rect": [
+      -24.777,
+      -4.78,
+      86.543,
+      55.034
+     ]
+    },
+    "hideTop": [
+     -24.777,
+     -20.0,
+     86.543,
+     15.62
+    ]
+   },
+   "right": {
+    "src": "assets/hat-art/pirate-f-right.png",
+    "rect": [
+     -2.392,
+     2.332,
+     29.656,
+     20.959
+    ],
+    "hide": {
+     "src": "assets/hat-art/pirate-f-right-hide.png",
+     "rect": [
+      -29.767,
+      -6.08,
+      84.405,
+      56.745
+     ]
+    },
+    "hideTop": [
+     -29.767,
+     -20.0,
+     84.405,
+     14.32
+    ]
+   },
+   "back": {
+    "src": "assets/hat-art/pirate-f-back.png",
+    "rect": [
+     3.92,
+     5.361,
+     24.559,
+     17.922
+    ],
+    "hide": {
+     "src": "assets/hat-art/pirate-f-back-hide.png",
+     "rect": [
+      -21.569,
+      -2.471,
+      75.536,
+      51.242
+     ]
+    },
+    "hideTop": [
+     -21.569,
+     -20.0,
+     75.536,
+     17.929
+    ]
+   }
+  }
+ }
+}

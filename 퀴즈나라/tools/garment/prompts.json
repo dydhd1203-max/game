@@ -162,17 +162,17 @@
     "wear": "씁니다",
     "pose": "팔·다리 위치, 옷과 신발",
     "keep": "앞머리 끝과 옆머리·뒷머리",
-    "length": "{item|은} 머리에 푹 눌러 씁니다. 머리카락 위에 떠 있거나 얹혀 보이지 않게, 모자 아래 테두리가 머리를 감싸며 이마 위(눈썹보다 조금 위)와 귀 바로 위를 지나게 합니다. 모자 아래로 나오는 앞머리 끝, 옆머리, 뒷머리는 지금 모양과 길이 그대로 두고, 모자에 덮인 머리카락이 모자 밖으로 삐져나오지 않게 합니다. 모자는 머리 둘레에 꼭 맞는 크기로, 머리보다 훨씬 크거나 작게 그리지 않습니다. 눈썹·눈·귀는 가리지 않습니다."
+    "length": "{item|은} 머리에 푹 눌러 씁니다. 머리카락 위에 떠 있거나 얹혀 보이지 않게, 모자 아래 테두리가 머리를 감싸며 이마 위(눈썹보다 조금 위)와 귀 바로 위를 지나게 합니다. 모자 아래로 나오는 앞머리 끝, 옆머리, 뒷머리는 지금 모양과 길이 그대로 두고, 모자에 덮인 머리카락이 모자 밖으로 삐져나오지 않게 합니다. 모자는 머리 둘레에 꼭 맞는 크기로, 머리보다 훨씬 크거나 작게 그리지 않습니다. 눈썹·눈·귀는 가리지 않습니다. 한 아이의 앞모습, 옆모습, 뒷모습에서 {item|은} 같은 크기의 같은 모자입니다. 뒷모습의 모자 폭은 앞모습의 모자 폭과 같게, 뒤통수 전체를 왼쪽 귀 바로 위에서 오른쪽 귀 바로 위까지 덮게 그립니다."
    },
    "en": {
     "slot": "hats",
     "things": "hats",
     "pose": "arm and leg positions, clothes and shoes",
     "keep": "the fringe tips, side hair and back hair below the hat",
-    "length": "The {item} is pulled down onto the head, never floating on or perched on top of the hair: its lower rim wraps the head, passing just above the eyebrows and just above the ears. The fringe tips, side hair and back hair below the hat keep their current shape and length; no hair covered by the hat sticks out of it. Size the hat to fit the head snugly, never much larger or smaller than the head. Do not cover the eyebrows, eyes or ears."
+    "length": "The {item} is pulled down onto the head, never floating on or perched on top of the hair: its lower rim wraps the head, passing just above the eyebrows and just above the ears. The fringe tips, side hair and back hair below the hat keep their current shape and length; no hair covered by the hat sticks out of it. Size the hat to fit the head snugly, never much larger or smaller than the head. Do not cover the eyebrows, eyes or ears. In one child's front, side and back views the {item} is the same hat at the same size: in the back view it is as wide as in the front view and covers the whole back of the head from just above the left ear to just above the right ear."
    },
    "limits": [],
-   "why": "Hats (2026-10-15 user decision): the game hides the hair above the hat's lower rim and keeps each hair style's hair below it, so a hat must sit on the skull (not on the hair volume) and leave the hair below its rim as drawn; the template's heads are the game's own head paintings (m short, f bob)."
+   "why": "Hats (2026-10-15 user decision): the game hides the hair above the hat's lower rim and keeps each hair style's hair below it, so a hat must sit on the skull (not on the hair volume) and leave the hair below its rim as drawn; the template's heads are the game's own head paintings (m short, f bob). 2026-10-15: the first cap (M1) drew the boy's back view much narrower than the front; the size line fixed it (M1R)."
   },
   "hat/sit-on": {
    "ko": {
@@ -273,6 +273,46 @@
    },
    "limits": [],
    "why": "Face parts (2026-10-15): the mouth sits on the fixed face frame above the chin hint; expressions may later draw over it."
+  },
+  "hat/band": {
+   "ko": {
+    "slot": "머리 장식",
+    "thing": "장식",
+    "verb": "얹어",
+    "wear": "씁니다",
+    "pose": "팔·다리 위치, 옷과 신발",
+    "keep": "머리카락",
+    "length": "{item|은} 정수리의 머리카락 위를 가로질러 양쪽 귀 바로 위까지 내려오게 씁니다. 머리카락 위에 살짝 눌려 닿아 있게 하고, 떠 있지 않게 합니다. 머리 모양은 바꾸지 않고, 머리카락을 가리는 부분은 띠의 폭만큼입니다. 얼굴과 눈썹을 가리지 않습니다. 앞·옆·뒤 세 모습에서 같은 크기로 그립니다."
+   },
+   "en": {
+    "slot": "head ornaments",
+    "things": "ornaments",
+    "pose": "arm and leg positions, clothes and shoes",
+    "keep": "the hair",
+    "length": "The {item} goes across the hair at the crown and comes down to just above both ears, pressed lightly onto the hair, never floating. Do not change the hair style; it covers the hair only as wide as its band. Do not cover the face or eyebrows. Draw it at the same size in the front, side and back views."
+   },
+   "limits": [],
+   "why": "A band over the head (hairband, headphones, 2026-10-15): it sits on the hair and reaches the ears, so the half-head-width size of the ornament line does not fit; the game does not hide hair under it."
+  },
+  "hat/halo": {
+   "ko": {
+    "slot": "머리 장식",
+    "thing": "장식",
+    "verb": "얹어",
+    "wear": "씁니다",
+    "pose": "팔·다리 위치, 옷과 신발",
+    "keep": "머리카락",
+    "length": "{item|은} 정수리 바로 위에 머리카락에 닿지 않고 손가락 한 마디쯤 떠 있게 그립니다. 고리의 폭은 머리 폭의 3분의 2쯤이고, 앞·옆·뒤 세 모습에서 같은 크기입니다. 머리 모양은 바꾸지 않습니다."
+   },
+   "en": {
+    "slot": "head ornaments",
+    "things": "ornaments",
+    "pose": "arm and leg positions, clothes and shoes",
+    "keep": "the hair",
+    "length": "The {item} floats just above the crown, a fingertip's width above the hair without touching it. The ring is about two thirds of the head's width and the same size in the front, side and back views. Do not change the hair style."
+   },
+   "limits": [],
+   "why": "A floating halo (2026-10-15): it must not sink into the hair like the ornaments; the game draws it above each hair style's top edge."
   }
  },
  "v1": {

@@ -1,0 +1,681 @@
+{
+ "about": "Per sex, view and hair style: iris centres (head-native; front left and right eye) and offsets (the face's shift from the default hair, front: midway between the eyes). From tools/hair/measure-head-skin.cjs + fit-head-skin.py. Generated; do not edit.",
+ "default": {
+  "m": "short",
+  "f": "bob"
+ },
+ "eyes": {
+  "m": {
+   "front": {
+    "short": [
+     [
+      11.384,
+      22.278
+     ],
+     [
+      20.661,
+      22.239
+     ]
+    ],
+    "spiky": [
+     [
+      11.339,
+      22.248
+     ],
+     [
+      20.772,
+      22.27
+     ]
+    ],
+    "part": [
+     [
+      11.365,
+      22.351
+     ],
+     [
+      20.572,
+      22.315
+     ]
+    ],
+    "messy": [
+     [
+      11.676,
+      22.448
+     ],
+     [
+      20.512,
+      22.415
+     ]
+    ],
+    "crop": [
+     [
+      11.367,
+      22.455
+     ],
+     [
+      20.701,
+      22.483
+     ]
+    ],
+    "bowl": [
+     [
+      11.282,
+      22.424
+     ],
+     [
+      20.743,
+      22.441
+     ]
+    ],
+    "fade": [
+     [
+      11.342,
+      22.484
+     ],
+     [
+      20.795,
+      22.505
+     ]
+    ],
+    "undercut": [
+     [
+      11.4,
+      22.624
+     ],
+     [
+      20.652,
+      22.455
+     ]
+    ],
+    "slick": [
+     [
+      11.409,
+      22.405
+     ],
+     [
+      20.661,
+      22.38
+     ]
+    ],
+    "curlm": [
+     [
+      11.562,
+      22.61
+     ],
+     [
+      20.494,
+      22.602
+     ]
+    ],
+    "comma": [
+     [
+      11.406,
+      22.502
+     ],
+     [
+      20.744,
+      22.521
+     ]
+    ],
+    "wolf": [
+     [
+      11.431,
+      22.431
+     ],
+     [
+      20.6,
+      22.427
+     ]
+    ]
+   },
+   "right": {
+    "short": [
+     [
+      21.546,
+      21.795
+     ]
+    ],
+    "spiky": [
+     [
+      21.645,
+      21.834
+     ]
+    ],
+    "part": [
+     [
+      21.69,
+      21.777
+     ]
+    ],
+    "messy": [
+     [
+      21.477,
+      21.625
+     ]
+    ],
+    "crop": [
+     [
+      22.05,
+      21.899
+     ]
+    ],
+    "bowl": [
+     [
+      21.884,
+      21.902
+     ]
+    ],
+    "fade": [
+     [
+      21.959,
+      21.782
+     ]
+    ],
+    "undercut": [
+     [
+      22.092,
+      21.871
+     ]
+    ],
+    "slick": [
+     [
+      22.183,
+      21.638
+     ]
+    ],
+    "curlm": [
+     [
+      21.731,
+      21.773
+     ]
+    ],
+    "comma": [
+     [
+      21.842,
+      21.73
+     ]
+    ],
+    "wolf": [
+     [
+      21.141,
+      21.838
+     ]
+    ]
+   }
+  },
+  "f": {
+   "front": {
+    "short": [
+     [
+      12.219,
+      23.734
+     ],
+     [
+      19.53,
+      23.714
+     ]
+    ],
+    "bob": [
+     [
+      12.431,
+      23.641
+     ],
+     [
+      19.715,
+      23.564
+     ]
+    ],
+    "long": [
+     [
+      12.327,
+      23.578
+     ],
+     [
+      19.372,
+      23.404
+     ]
+    ],
+    "twin": [
+     [
+      12.488,
+      23.757
+     ],
+     [
+      19.512,
+      23.694
+     ]
+    ],
+    "pony": [
+     [
+      12.38,
+      23.547
+     ],
+     [
+      19.645,
+      23.525
+     ]
+    ],
+    "curly": [
+     [
+      12.282,
+      23.529
+     ],
+     [
+      19.613,
+      23.4
+     ]
+    ],
+    "bun": [
+     [
+      12.364,
+      23.449
+     ],
+     [
+      19.671,
+      23.489
+     ]
+    ],
+    "hime": [
+     [
+      12.4,
+      23.473
+     ],
+     [
+      19.458,
+      23.485
+     ]
+    ],
+    "part": [
+     [
+      12.359,
+      23.456
+     ],
+     [
+      19.497,
+      23.303
+     ]
+    ],
+    "messy": [
+     [
+      12.445,
+      23.479
+     ],
+     [
+      19.601,
+      23.591
+     ]
+    ],
+    "spiky": [
+     [
+      12.395,
+      23.606
+     ],
+     [
+      19.603,
+      23.608
+     ]
+    ],
+    "braid": [
+     [
+      12.302,
+      23.451
+     ],
+     [
+      19.55,
+      23.417
+     ]
+    ]
+   },
+   "right": {
+    "short": [
+     [
+      20.571,
+      22.052
+     ]
+    ],
+    "bob": [
+     [
+      20.534,
+      21.998
+     ]
+    ],
+    "long": [
+     [
+      21.423,
+      21.905
+     ]
+    ],
+    "twin": [
+     [
+      20.297,
+      21.819
+     ]
+    ],
+    "pony": [
+     [
+      21.482,
+      21.951
+     ]
+    ],
+    "curly": [
+     [
+      20.407,
+      21.873
+     ]
+    ],
+    "bun": [
+     [
+      21.264,
+      21.942
+     ]
+    ],
+    "hime": [
+     [
+      19.64,
+      22.739
+     ]
+    ],
+    "part": [
+     [
+      20.717,
+      21.992
+     ]
+    ],
+    "messy": [
+     [
+      20.401,
+      21.998
+     ]
+    ],
+    "spiky": [
+     [
+      20.293,
+      21.973
+     ]
+    ],
+    "braid": [
+     [
+      20.6,
+      20.179
+     ]
+    ]
+   }
+  }
+ },
+ "offsets": {
+  "m": {
+   "front": {
+    "short": [
+     0.0,
+     0.0
+    ],
+    "spiky": [
+     0.033,
+     0.001
+    ],
+    "part": [
+     -0.054,
+     0.075
+    ],
+    "messy": [
+     0.072,
+     0.173
+    ],
+    "crop": [
+     0.011,
+     0.211
+    ],
+    "bowl": [
+     -0.01,
+     0.174
+    ],
+    "fade": [
+     0.046,
+     0.236
+    ],
+    "undercut": [
+     0.003,
+     0.281
+    ],
+    "slick": [
+     0.012,
+     0.134
+    ],
+    "curlm": [
+     0.005,
+     0.348
+    ],
+    "comma": [
+     0.052,
+     0.253
+    ],
+    "wolf": [
+     -0.007,
+     0.171
+    ]
+   },
+   "right": {
+    "short": [
+     0.0,
+     0.0
+    ],
+    "spiky": [
+     0.099,
+     0.039
+    ],
+    "part": [
+     0.144,
+     -0.018
+    ],
+    "messy": [
+     -0.069,
+     -0.17
+    ],
+    "crop": [
+     0.504,
+     0.104
+    ],
+    "bowl": [
+     0.338,
+     0.107
+    ],
+    "fade": [
+     0.413,
+     -0.013
+    ],
+    "undercut": [
+     0.546,
+     0.076
+    ],
+    "slick": [
+     0.637,
+     -0.157
+    ],
+    "curlm": [
+     0.185,
+     -0.022
+    ],
+    "comma": [
+     0.296,
+     -0.065
+    ],
+    "wolf": [
+     -0.405,
+     0.043
+    ]
+   }
+  },
+  "f": {
+   "front": {
+    "short": [
+     -0.198,
+     0.122
+    ],
+    "bob": [
+     0.0,
+     0.0
+    ],
+    "long": [
+     -0.224,
+     -0.111
+    ],
+    "twin": [
+     -0.073,
+     0.123
+    ],
+    "pony": [
+     -0.061,
+     -0.066
+    ],
+    "curly": [
+     -0.126,
+     -0.138
+    ],
+    "bun": [
+     -0.056,
+     -0.133
+    ],
+    "hime": [
+     -0.144,
+     -0.123
+    ],
+    "part": [
+     -0.145,
+     -0.223
+    ],
+    "messy": [
+     -0.05,
+     -0.067
+    ],
+    "spiky": [
+     -0.074,
+     0.005
+    ],
+    "braid": [
+     -0.147,
+     -0.168
+    ]
+   },
+   "right": {
+    "short": [
+     0.037,
+     0.054
+    ],
+    "bob": [
+     0.0,
+     0.0
+    ],
+    "long": [
+     0.889,
+     -0.093
+    ],
+    "twin": [
+     -0.237,
+     -0.179
+    ],
+    "pony": [
+     0.948,
+     -0.047
+    ],
+    "curly": [
+     -0.127,
+     -0.125
+    ],
+    "bun": [
+     0.73,
+     -0.056
+    ],
+    "hime": [
+     -0.894,
+     0.741
+    ],
+    "part": [
+     0.183,
+     -0.006
+    ],
+    "messy": [
+     -0.133,
+     0.0
+    ],
+    "spiky": [
+     -0.241,
+     -0.025
+    ],
+    "braid": [
+     0.066,
+     -1.819
+    ]
+   }
+  }
+ },
+ "fringe": {
+  "rect": [
+   2.0,
+   6.0,
+   28.0,
+   22.0
+  ],
+  "files": {
+   "f": {
+    "front": {
+     "short": "assets/face-art/fringe/f-front-short.png",
+     "bob": "assets/face-art/fringe/f-front-bob.png",
+     "long": "assets/face-art/fringe/f-front-long.png",
+     "twin": "assets/face-art/fringe/f-front-twin.png",
+     "pony": "assets/face-art/fringe/f-front-pony.png",
+     "curly": "assets/face-art/fringe/f-front-curly.png",
+     "bun": "assets/face-art/fringe/f-front-bun.png",
+     "hime": "assets/face-art/fringe/f-front-hime.png",
+     "part": "assets/face-art/fringe/f-front-part.png",
+     "messy": "assets/face-art/fringe/f-front-messy.png",
+     "spiky": "assets/face-art/fringe/f-front-spiky.png",
+     "braid": "assets/face-art/fringe/f-front-braid.png"
+    },
+    "right": {
+     "short": "assets/face-art/fringe/f-right-short.png",
+     "bob": "assets/face-art/fringe/f-right-bob.png",
+     "long": "assets/face-art/fringe/f-right-long.png",
+     "twin": "assets/face-art/fringe/f-right-twin.png",
+     "pony": "assets/face-art/fringe/f-right-pony.png",
+     "curly": "assets/face-art/fringe/f-right-curly.png",
+     "bun": "assets/face-art/fringe/f-right-bun.png",
+     "hime": "assets/face-art/fringe/f-right-hime.png",
+     "part": "assets/face-art/fringe/f-right-part.png",
+     "messy": "assets/face-art/fringe/f-right-messy.png",
+     "spiky": "assets/face-art/fringe/f-right-spiky.png",
+     "braid": "assets/face-art/fringe/f-right-braid.png"
+    }
+   },
+   "m": {
+    "front": {
+     "short": "assets/face-art/fringe/m-front-short.png",
+     "spiky": "assets/face-art/fringe/m-front-spiky.png",
+     "part": "assets/face-art/fringe/m-front-part.png",
+     "messy": "assets/face-art/fringe/m-front-messy.png",
+     "crop": "assets/face-art/fringe/m-front-crop.png",
+     "bowl": "assets/face-art/fringe/m-front-bowl.png",
+     "fade": "assets/face-art/fringe/m-front-fade.png",
+     "undercut": "assets/face-art/fringe/m-front-undercut.png",
+     "slick": "assets/face-art/fringe/m-front-slick.png",
+     "curlm": "assets/face-art/fringe/m-front-curlm.png",
+     "comma": "assets/face-art/fringe/m-front-comma.png",
+     "wolf": "assets/face-art/fringe/m-front-wolf.png"
+    },
+    "right": {
+     "short": "assets/face-art/fringe/m-right-short.png",
+     "spiky": "assets/face-art/fringe/m-right-spiky.png",
+     "part": "assets/face-art/fringe/m-right-part.png",
+     "messy": "assets/face-art/fringe/m-right-messy.png",
+     "crop": "assets/face-art/fringe/m-right-crop.png",
+     "bowl": "assets/face-art/fringe/m-right-bowl.png",
+     "fade": "assets/face-art/fringe/m-right-fade.png",
+     "undercut": "assets/face-art/fringe/m-right-undercut.png",
+     "slick": "assets/face-art/fringe/m-right-slick.png",
+     "curlm": "assets/face-art/fringe/m-right-curlm.png",
+     "comma": "assets/face-art/fringe/m-right-comma.png",
+     "wolf": "assets/face-art/fringe/m-right-wolf.png"
+    }
+   }
+  }
+ }
+}
