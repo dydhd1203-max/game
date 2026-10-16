@@ -119,6 +119,73 @@ def fit_view(sex, view, rec, fixture=None):
     return [round(s, 4), d[0], round(c1 - (c0 - d[0]) * s, 3), d[2], e[2], HAT_LINE[view]]
 
 
+# Hats sized by the face instead (2026-10-16 user: "양갈래 머리를 기준으로하지말고 얼굴 크기를 기준으로"): on the
+# styles with drawn under-hat hair the hat is scaled so its crown (the hat's width CROWN_ROW above its rim) is
+# `crown` times the face's width (skin at eye height, the same for every style) and lowered so its rim lies `above`
+# units over the eyes; the police cap fitted on twin tails (approved) measures crown 1.5 x face, rim 6.4-7 over the
+# eyes. The straw hat drawn on the bob sat 11.8 over the eyes, its crown 2 x the face: afloat and too wide.
+FACE_FIT = {'straw': dict(crown=1.5, above=7.0, front_x=.85, styles={'twin': .92})}
+# styles: a style's own further scale (twin tails a little smaller, 2026-10-16 user: "양갈래머리는 조금 더 줄이면돼")
+# front_x: the front view narrowed further across only (the straw hat's brim, 2026-10-16 user: "정면모습에서 모자 챙을
+# 더 줄여야돼"); the crown's height and the other views keep s
+CROWN_ROW = 1.5
+
+
+def hat_width_at(v, y):
+    im = np.asarray(Image.open(os.path.join(ROOT, v['src'])).convert('RGBA'))[..., 3] > 127
+    r = v['rect']; py = int((y - r[1]) / r[3] * im.shape[0])
+    c = np.nonzero(im[min(max(py, 0), im.shape[0] - 1)])[0]
+    return ((c.max() - c.min() + 1) / im.shape[1] * r[2], r[0] + (c.min() + c.max() + 1) / 2 / im.shape[1] * r[2]) if len(c) else (None, None)
+
+
+def face_fits(hats, style='twin'):
+    """faceFit per hat in FACE_FIT and sex: [s, cx, rim, dy, sx] per view (x' = cx + (x - cx) * s * sx,
+    y' = rim + (y - rim) * s + dy), from the front view (the face) and used for every view; sx is FACE_FIT
+    front_x in front, else 1."""
+    hs = json.load(open(os.path.join(ROOT, 'tools', 'fixtures', 'head-skin.json')))
+    fa = json.load(open(os.path.join(ROOT, 'tools', 'fixtures', 'face-anchor.json')))
+    out = {}
+    for shape, want in FACE_FIT.items():
+        rec = hats.get(shape)
+        if not rec:
+            continue
+        for sex in rec['views']:
+            if sex not in fa['eyes'] or style not in fa['eyes'][sex]['front']:
+                continue
+            eyes = fa['eyes'][sex]['front'][style]; ey = (eyes[0][1] + eyes[1][1]) / 2
+            sk = np.asarray(Image.open(os.path.join(ROOT, 'tools', 'fixtures', hs['maps'][sex + '-front'])).convert('L')) > 127
+            xs = np.nonzero(sk[int((ey - hs['rect'][1]) * hs['res'])])[0]
+            face = (xs.max() - xs.min()) / hs['res']
+            fv = rec['views'][sex]['front']
+            crown, _ = hat_width_at(fv, fv['rim'] - CROWN_ROW)
+            s = round(want['crown'] * face / crown, 4)
+            dy = round((ey - want['above']) - fv['rim'], 3)  # the front rim onto its line over the eyes
+            views = {}
+            for view, v in rec['views'][sex].items():
+                _, cx = hat_width_at(v, v['rim'] - CROWN_ROW)
+                views[view] = [s, round(cx, 3), v['rim'], dy, want.get('front_x', 1.0) if view == 'front' else 1.0]
+            for style_, k_ in want.get('styles', {}).items():
+                views['scale:' + style_] = k_
+            out.setdefault(shape, {})[sex] = views
+            print('face fit', shape, sex, 'face %.2f crown %.2f -> s %.3f, rim %.2f -> %.2f' % (face, crown, s, fv['rim'], fv['rim'] + dy))
+    return out
+
+
+def apply_face_fits():
+    """Writes faceFit into assets/hat-art/<shape>.json (and drops it from hats no longer in FACE_FIT)."""
+    d = os.path.join(ROOT, 'assets', 'hat-art')
+    hats = {n[:-5]: json.load(open(os.path.join(d, n))) for n in os.listdir(d) if n.endswith('.json') and n != 'hat-art.json'}
+    fits = face_fits(hats)
+    for shape, rec in hats.items():
+        new = fits.get(shape)
+        if rec.get('faceFit') != new:
+            if new:
+                rec['faceFit'] = new
+            else:
+                rec.pop('faceFit', None)
+            json.dump(rec, open(os.path.join(d, shape + '.json'), 'w'), ensure_ascii=False, indent=1)
+
+
 def main(argv):
     ap = argparse.ArgumentParser()
     ap.add_argument('dir', nargs='?', help='measure-hat-fit.cjs output (default: refit from the fixture)')
@@ -151,6 +218,7 @@ def main(argv):
     if a.dir:
         json.dump(fixture, open(FIXTURE, 'w'), indent=1)
     json.dump(allrec, open(HAIR_JSON, 'w'), ensure_ascii=False, indent=1)
+    apply_face_fits()
     spec = importlib.util.spec_from_file_location('build_hat', os.path.join(HERE, 'build-hat.py'))
     BH = importlib.util.module_from_spec(spec); spec.loader.exec_module(BH)
     BH.write_runtime(os.path.join(ROOT, 'assets', 'hat-art'))

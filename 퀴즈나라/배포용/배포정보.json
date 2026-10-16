@@ -1,7 +1,7 @@
 {
   "project": "퀴즈나라",
   "format": 1,
-  "builtAt": "2026-10-16T13:24:33.915Z",
+  "builtAt": "2026-10-16T14:10:53.468Z",
   "instructions": "Cloudflare Pages 또는 Netlify 수동 배포에는 이 배포용 폴더 전체를 올리세요. index.html만 올리지 마세요.",
   "files": [
     {
@@ -546,8 +546,8 @@
     },
     {
       "path": "avatar-foundation.js",
-      "bytes": 136255,
-      "sha256": "507d5f835ae794fe91a6d2fc2f7e3393750076a72db0fd14c4debaceb74d8a06"
+      "bytes": 136817,
+      "sha256": "bed32cf975fa19ef102221df24c13f731c44d3db1b091e057067cf587dc84f8d"
     },
     {
       "path": "avatar-foundation.css",
@@ -1461,8 +1461,8 @@
     },
     {
       "path": "avatar-hat-art.js",
-      "bytes": 46919,
-      "sha256": "53877a81e137e12e06270643402ce17b560b9449d7e9fa88f2584f19b773c3d8"
+      "bytes": 47830,
+      "sha256": "72431e625b43aaecf3c766552f66a5f6dc669d9262d4253f3b51fe87176a8edd"
     },
     {
       "path": "assets/hat-art/army-m-front.png",
@@ -1786,13 +1786,13 @@
     },
     {
       "path": "assets/hat-art/chef-f-back.png",
-      "bytes": 42188,
-      "sha256": "5447fdab726937c5fe4c26685457e5accf60df007c9c48f1eb954f6f94d5aab5"
+      "bytes": 41851,
+      "sha256": "44effc7a45de82910b4aa872085a59de73d1f0257e3ada164a20e4d5edaedeab"
     },
     {
       "path": "assets/hat-art/chef-f-back-hide.png",
-      "bytes": 4449,
-      "sha256": "628a7ed7c7d806c96e2c500d805dbfdaf49b18e49e418dd97c079891f51ce827"
+      "bytes": 4703,
+      "sha256": "ef167b1748d2410b0e65d99189c8ae53800d70ed4388ab1a67b3d081f94a2cbb"
     },
     {
       "path": "assets/hat-art/cowboy-m-front.png",
@@ -2423,6 +2423,36 @@
       "path": "assets/hat-art/witch-f-back-hide.png",
       "bytes": 3932,
       "sha256": "3bbd718fe9e00840ce6d9399947262869d5acbefec4f80ecda059f28651b4f36"
+    },
+    {
+      "path": "assets/hat-art/witch-f-front-narrow.png",
+      "bytes": 51272,
+      "sha256": "13d976a7ba6d87e716e3641923848670ce16b6c3d82fad001d0fd588e0edb849"
+    },
+    {
+      "path": "assets/hat-art/witch-f-front-narrow-hide.png",
+      "bytes": 4199,
+      "sha256": "e1e06abb4e3cf46671dcf1a3e122a52f336175ad7dbf48d58b41d5ea08d0c812"
+    },
+    {
+      "path": "assets/hat-art/witch-f-right-narrow.png",
+      "bytes": 51877,
+      "sha256": "f86cdbbd2e9ccfc82ed19740e2f26cc3940d20fd9ea34160bba1634a3727d4d9"
+    },
+    {
+      "path": "assets/hat-art/witch-f-right-narrow-hide.png",
+      "bytes": 4285,
+      "sha256": "6828c6fd0699a1135ddae5db2d8024062a4425981248b3d1491376e37ad44308"
+    },
+    {
+      "path": "assets/hat-art/witch-f-back-narrow.png",
+      "bytes": 41946,
+      "sha256": "409d8cba338099bedc785d356a5913c0ae640b45dee79191a6c7b787bc88c181"
+    },
+    {
+      "path": "assets/hat-art/witch-f-back-narrow-hide.png",
+      "bytes": 4028,
+      "sha256": "b1694c58211da497cb036d16b3dc660ba45e317282b5b51253140c283649e773"
     },
     {
       "path": "assets/hat-art/hair/f-twin-front.png",

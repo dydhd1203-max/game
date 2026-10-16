@@ -155,5 +155,84 @@
     "rim": 19.3
    }
   }
+ },
+ "narrow": {
+  "f": {
+   "front": {
+    "src": "assets/hat-art/witch-f-front-narrow.png",
+    "rect": [
+     -3.961,
+     2.206,
+     38.21,
+     23.24
+    ],
+    "hide": {
+     "src": "assets/hat-art/witch-f-front-narrow-hide.png",
+     "rect": [
+      -31.335,
+      -6.206,
+      92.959,
+      59.026
+     ]
+    },
+    "hideTop": [
+     -31.335,
+     -20.0,
+     92.959,
+     14.194
+    ],
+    "rim": 18.317
+   },
+   "right": {
+    "src": "assets/hat-art/witch-f-right-narrow.png",
+    "rect": [
+     -2.392,
+     0.763,
+     35.501,
+     24.808
+    ],
+    "hide": {
+     "src": "assets/hat-art/witch-f-right-narrow-hide.png",
+     "rect": [
+      -29.767,
+      -7.649,
+      90.25,
+      60.595
+     ]
+    },
+    "hideTop": [
+     -29.767,
+     -20.0,
+     90.25,
+     12.751
+    ],
+    "rim": 17.587
+   },
+   "back": {
+    "src": "assets/hat-art/witch-f-back-narrow.png",
+    "rect": [
+     -0.992,
+     3.635,
+     35.445,
+     21.904
+    ],
+    "hide": {
+     "src": "assets/hat-art/witch-f-back-narrow-hide.png",
+     "rect": [
+      -26.481,
+      -4.197,
+      86.422,
+      55.225
+     ]
+    },
+    "hideTop": [
+     -26.481,
+     -20.0,
+     86.422,
+     16.203
+    ],
+    "rim": 24.477
+   }
+  }
  }
 }

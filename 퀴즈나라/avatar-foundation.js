@@ -852,7 +852,10 @@
   function hatArtOf(av,sex,view){
     const shape=String(av.hat||'').split(':')[0],rec=shape&&root.QPHatArt?.[shape],vw=view==='profile'?'right':view;
     const narrow=rec?.kind==='full'&&root.QPHatHair?.[sex]?.[String(av.hair||'').split(':')[0]]?.[vw]&&rec.narrow?.[sex]?.[vw];
-    const art=narrow||rec?.views?.[sex]?.[vw];return art?{shape,kind:rec.kind,...art,...(narrow?{narrow:true}:{})}:null;
+    // or a face fit (rec.faceFit, fit-hat-hair.py FACE_FIT: a hat sized by the face, which every style shares)
+    const style=String(av.hair||'').split(':')[0],ffs=rec?.faceFit?.[sex],k=ffs?.['scale:'+style]??1;
+    const face=!narrow&&rec?.kind==='full'&&root.QPHatHair?.[sex]?.[style]?.[vw]&&ffs?.[vw]&&(k===1?ffs[vw]:[ffs[vw][0]*k,...ffs[vw].slice(1)]);
+    const art=narrow||rec?.views?.[sex]?.[vw];return art?{shape,kind:rec.kind,...art,...(narrow?{narrow:true}:{}),...(face?{faceFit:face}:{})}:null;
   }
   // Hair drawn under a pulled-on hat (QPHatHair, tools/hair/build-hat-hair.py)
   // for a style the hide mask cannot cut (twin tails, a pony tied above the
@@ -882,8 +885,9 @@
     // On a style whose hair under the hat lies close to the skull (fit [s, a0, a1, t0, t1, line], tools/hair/fit-hat-hair.py)
     // the hat and its hide mask shrink onto that smaller, lower head: the default hair's edge a0 and crown t0 go to
     // the style's a1, t1, and a rim still above the line comes down to it (twin tails: too wide and afloat).
-    const f=art.narrow?null:hair?.fit,low=f&&f[5]!=null&&art.rim!=null?Math.max(0,f[5]-(f[4]+(art.rim-f[3])*f[0])):0,
-      fit=f?.length===6&&f[0]<=1?`matrix(${f[0]} 0 0 ${f[0]} ${+(f[2]-f[1]*f[0]).toFixed(3)} ${+(f[4]-f[3]*f[0]+low).toFixed(3)})`:'';
+    const f=art.narrow||art.faceFit?null:hair?.fit,low=f&&f[5]!=null&&art.rim!=null?Math.max(0,f[5]-(f[4]+(art.rim-f[3])*f[0])):0,ff=art.faceFit,
+      sx=ff?ff[0]*(ff[4]??1):1,fit=ff?`matrix(${+sx.toFixed(4)} 0 0 ${ff[0]} ${+(ff[1]*(1-sx)).toFixed(3)} ${+(ff[2]*(1-ff[0])+ff[3]).toFixed(3)})`
+        :f?.length===6&&f[0]<=1?`matrix(${f[0]} 0 0 ${f[0]} ${+(f[2]-f[1]*f[0]).toFixed(3)} ${+(f[4]-f[3]*f[0]+low).toFixed(3)})`:'';
     const paint=el('g',{'data-foundation-hat-under':view});paint.append(...v.childNodes);v.append(paint);
     if(hair){
       const mid=id+'-hat-keep-'+view,m=el('mask',{id:mid,maskUnits:'userSpaceOnUse',x:-20,y:-30,width:72,height:100});
