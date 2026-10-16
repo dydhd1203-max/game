@@ -2680,7 +2680,7 @@
   },
   "top:knit": {
    "class": "top/long-sleeve",
-   "status": "long sleeve L (requested 2026-10-16); dark-skin template pilot (2026-10-16)",
+   "status": "long sleeve L; dark-skin pilot sheet kept (user 2026-10-16), assets/garment-sources/top-knit-dark-chatgpt-2026-10-16.png",
    "base": "dark",
    "sexes": [
     "m",
