@@ -103,6 +103,31 @@
    ],
    "why": "Sleeves: the arm art above the old cuff is copied skin (SLEEVE_SHORT) and the legacy arms carry the old cuff line (REDTEAM ghost line), so a sleeve may only end at the current cuff or a little lower; a folded forearm caps it at the elbow (SLEEVE_LONG). Hem: seated breathing needs the top to overlap the shorts (HEM_HIGH) and to end above the legs (HEM_LOW). Neckline: the torso has no skin art below the neck painting (NECK_OPEN); a higher collar meets the head and the bob (COLLAR_HIGH). Batch A (2026-10-15): ChatGPT drew the vest and sailor hems 2-5 px above the T-shirt hem (HEM_HIGH); the 'never shorter in any view' line was added."
   },
+  "top/long-sleeve": {
+   "ko": {
+    "slot": "윗옷",
+    "thing": "옷",
+    "verb": "바꿔 입혀",
+    "wear": "입습니다",
+    "pose": "팔 위치",
+    "keep": "반바지, 신발",
+    "length": "소매는 손목까지 내려오는 긴소매로, 소매 끝(끝동)은 손목 바로 위에서 끝나고 손은 그대로 보입니다. 팔의 위치·굵기·길이와 손 모양은 첫 번째 그림과 똑같이 두고, 소매가 팔 밖으로 부풀거나 손을 덮지 않게 합니다. 어깨는 지금 반팔과 같은 높이에서 시작합니다. {item} 밑단은 지금 티셔츠 밑단과 같은 높이로, 반바지 허리를 덮게 내어 입습니다. 앞·옆·뒤 어느 모습에서도 지금 티셔츠보다 짧게 하지 않습니다. 목둘레는 지금 옷깃보다 높이지도 깊게 파지도 않습니다(후드의 모자는 목 뒤에 내려 둡니다)."
+   },
+   "en": {
+    "slot": "tops",
+    "things": "garments",
+    "pose": "arm positions",
+    "keep": "shorts and shoes",
+    "length": "Long sleeves down to the wrists: the cuffs end just above the wrists and the hands stay visible. Keep the arms' position, thickness and length and the hands exactly as in image 1; the sleeves do not puff out beyond the arms or cover the hands. The shoulders start at the same height as the current short sleeves. {item^} hem at the same height as the current T-shirt hem, worn over the shorts' waistband, never shorter than the current T-shirt in any view. Do not raise the neckline or cut it deeper than the current collar (a hood lies down behind the neck)."
+   },
+   "limits": [
+    "HEM_HIGH",
+    "HEM_LOW",
+    "COLLAR_HIGH",
+    "NECK_OPEN"
+   ],
+   "why": "Long sleeves (2026-10-16): the game warps a sleeve strip along each arm like the painted arm (avatar-foundation-outfit.js top.armSleeves), so the sleeve must lie on the arm as drawn (same position and width, cuff above the wrist, hands bare); the hem and neckline rules are the short-sleeve ones."
+  },
   "bottom/shorts": {
    "ko": {
     "slot": "반바지",
