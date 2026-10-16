@@ -109,7 +109,7 @@ DRAWN_PAIRS = (('sleeves', 'arms', 1), ('shirt', 'neck', 2), ('shorts', 'legs', 
 # q80 template, the geometric positives and the real top:shirt:10 sheet).
 P = dict(
     tauMin=7.0, zoneGrow=20, prodErode=3, prodDeep=4.0,
-    growLR=1.5, exposeLR=2.0, exposeSpan=.35, creamShare=.085, exposeNear=24, skinGateLR=3.0, skinGrow=4,
+    growLR=1.5, neighNear=24, exposeLR=2.0, exposeSpan=.35, creamShare=.085, exposeNear=24, skinGateLR=3.0, skinGrow=4,
     lineDark=.5, lineNear=2, hairLR=2.0, hairStrong=10.0, hairSpeck=60, neighbourStrong=20.0, skinStrong=20.0,
     minIsland=20, kSkin=3, kProduct=6, kNeighbour=4, kHair=3, cuffOuter=0.0, cuffInner=0.5, hemBand=12,
 )
@@ -492,7 +492,7 @@ class Context:
             self.Blab[sl] = R.lab(Bwhite[sl])
             self.D[sl] = median3(R.winmin_de(R.blur3(self.Ut[sl], 1), R.blur3(self.Tlab[sl], 1), 2, .7))
             self.DB[sl] = R.de(self.Ut[sl], self.Blab[sl], .7)
-        spec = R.garment_spec(slot, sexes, base)
+        spec = R.garment_spec(slot, sexes, base, tuple(res.get('spec', {}).get('cover', ())))
         st = np.zeros(self.D.shape, bool)
         for k in CELLS:
             st |= spec['stable'][k]
@@ -531,6 +531,10 @@ class Context:
         new = M.erode(fgr & (O == 0) & M.dilate(foot, P['zoneGrow']), 2) & changed
         prod |= new
         neigh = M.erode(np.isin(O, SLOT[self.slot]['neighbour']), 3) & fgr & ~M.dilate(foot, 4)
+        if fz.base == 'dark' and self.slot == 'top':
+            # the shorts a top's hem meets are their waist, not their cuffs: the girl's cream shorts cuffs in the
+            # model made a cream ribbed hem 'shorts' and the hem seam cut it at the body's edge (hood, 2026-10-16)
+            neigh &= M.dilate(foot, P['neighNear'])
         hair = M.erode(O == HEAD, 3) & fgr & (self.lum < 150)
         cy = R.COLLAR_Y[sex]
         band = np.zeros(O.shape, bool)
@@ -731,6 +735,19 @@ def segment_cell(ctx, key, seams=True):
         grow = M.connected_to(cand | seed, seed) & cand
         label[grow] = 1
         diag['grownPx'] = int(grow.sum())
+    # 2b. dark base (make-dark-template.py): new paint over the neighbouring slot that its own model does not
+    # explain better than the product's and the skin model does not either is the garment's (the hood girl's
+    # cream ribbed hem drawn over the shorts' waistband: the product model never learns the band next to the
+    # neighbour, so step 2 left it to the shorts, a gap at the waist, 2026-10-16). A belly under a short top is
+    # dark skin here, which the skin model takes.
+    if fz.base == 'dark':
+        over = fg & np.isin(O, SLOT[slot]['neighbour']) & zone & ~head & changed & (ctx.DB[sl] > ctx.tau) & \
+            (nll['neighbour'] - nll['product'] > -P['growLR']) & (nll['skin'] - nll['product'] > -P['growLR'])
+        if over.any():
+            seed = label == 1
+            grow = M.connected_to(over | seed, seed) & over
+            label[grow] = 1
+            diag['grownOverNeighbourPx'] = int(grow.sum())
     # 3. exposure
     # changed pixel by pixel too: next to the body the window minimum finds
     # the template's own skin within 2 px and calls a narrower collar's

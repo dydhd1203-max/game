@@ -631,6 +631,7 @@ def long_static(ctx, figs, keys):
     art = M.dilate((fz.clean['arms'][..., 3] > 64) | (fz.layers['arms'][..., 3] > 64), LONG_GROW)
     cap = M.dilate(fz.drawn['sleeves'][..., 3] > 127, LONG_GROW)
     shirt = M.dilate(fz.drawn['shirt'][..., 3] > 127, LONG_GROW)
+    near_arm = M.dilate((fz.clean['arms'][..., 3] > 64) | (fz.layers['arms'][..., 3] > 64), LONG_WIDE + LONG_NEAR)
     for key in keys:
         x0, y0, x1, y1 = SG.CELLS[key]
         sl = np.s_[y0:y1, x0:x1]
@@ -651,11 +652,31 @@ def long_static(ctx, figs, keys):
                 p['a'] = p['a'] * (cap[sl] & (proj < max(LONG_CAP, start + 2 * LONG_CAP)))
             elif name == 'torso':
                 p['a'] = p['a'] * ~(art[sl] & ~shirt[sl])
-                # what the arm painting cut off the torso (a puffed sleeve's edge, its bow) is the strip's now
-                p['a'], _ = FL.drop_detached(p['a'], near=LONG_NEAR, keep=10 ** 9)
+                # what the arm painting cut off the torso (a puffed sleeve's edge, its bow) is the strip's now:
+                # pieces apart from the torso's main piece that lie mostly beside the arm (a separate hem band, the
+                # hood girl's ribbed hem 1 px under the body, stays: dropping every piece cut it, 2026-10-16)
+                p['a'] = drop_arm_pieces(p['a'], near_arm[sl])
                 hidden = figs[key].get('hidden', {}).get('torso')
                 if hidden is not None:
                     knit_rows(p, hidden)
+
+
+def drop_arm_pieces(a, arm):
+    """Pieces of a long sleeve's torso apart from its main piece (more than LONG_NEAR px) and lying mostly
+    (over half) beside the arm: cut off it by the arm painting, they stayed on the torso when the arm rose."""
+    m = a > .5
+    lab_, comps = M.components(m)
+    if len(comps) <= 1:
+        return a
+    big = max(comps, key=lambda c: c['size'])
+    grown = M.dilate(lab_ == big['label'], LONG_NEAR)
+    drop = np.zeros(m.shape, bool)
+    for c in comps:
+        comp = lab_ == c['label']
+        if c is big or (comp & grown).any() or (comp & arm).sum() * 2 < c['size']:
+            continue
+        drop |= comp
+    return np.where(M.dilate(drop, 1) & ~m | drop, 0, a).astype(np.float32)
 
 
 def knit_rows(p, hidden):
@@ -720,7 +741,8 @@ def build(sheet, product, sexes=None, date=None, res=None, prod_override=None, k
     if problems:
         raise SystemExit('frozen body mismatch, not building:\n  ' + '\n  '.join(problems))
     if res is None:
-        res = R.register(sheet, slot=slot, sexes=sexes, base=prod.get('base'))
+        # a long sleeve covers the arm: it is no stable mark for the registration's checks (BODY_DRIFT, POSE_ARM, tau)
+        res = R.register(sheet, slot=slot, sexes=sexes, base=prod.get('base'), cover=(3,) if cls == 'top/long-sleeve' else ())
     if res.get('spec', {}).get('base') != prod.get('base'):
         raise SystemExit('%s is drawn on the %s template, the registration used %s' % (product, prod.get('base') or 'light', res.get('spec', {}).get('base') or 'light'))
     timing['register'] = round(time.time() - t0, 2)

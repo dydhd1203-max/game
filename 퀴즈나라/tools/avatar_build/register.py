@@ -198,16 +198,17 @@ def _read_data_js(path=DATA_JS):
 _SPEC_CACHE = {}
 
 
-def garment_spec(slot='top', sexes=('m', 'f'), base=None):
+def garment_spec(slot='top', sexes=('m', 'f'), base=None, cover=()):
     """The ChatGPT garment template: 2 rows (boy, girl) x front/right/back.
     slot: the product slot ('top' | 'bottom' | 'shoes'); sexes: the rows the
     product changes (a single-sex product leaves the other row untouched);
-    base: the template the sheet was drawn on (TEMPLATE_PATHS; None the light one)."""
+    base: the template the sheet was drawn on (TEMPLATE_PATHS; None the light one); cover: further owners
+    the product covers (a long sleeve: the arm, 3), left out of the stable and part-shift masks."""
     if slot not in SLOT_OWNERS:
         raise ValueError('unknown slot %r' % slot)
     if base not in TEMPLATE_PATHS:
         raise ValueError('unknown template base %r' % base)
-    key = (slot, tuple(sexes), base)
+    key = (slot, tuple(sexes), base, tuple(cover))
     if key in _SPEC_CACHE:
         return _SPEC_CACHE[key]
     tpl = np.asarray(Image.open(TEMPLATE_PATHS[base]).convert('RGB')).astype(np.float32)
@@ -220,7 +221,7 @@ def garment_spec(slot='top', sexes=('m', 'f'), base=None):
     hair_occ = np.asarray(Image.open(os.path.join(FROZEN, 'hair-occlusion.png'))) > 127
     zones = json.load(open(os.path.join(FROZEN, 'zones.json'), encoding='utf-8'))
     data = _read_data_js()['figures']
-    product = np.isin(owner, SLOT_OWNERS[slot])
+    product = np.isin(owner, tuple(SLOT_OWNERS[slot]) + tuple(cover))
     guard = M.dilate(product, 12)
     yy = np.arange(SHEET['height'])[:, None]
     stable = {}
@@ -244,7 +245,7 @@ def garment_spec(slot='top', sexes=('m', 'f'), base=None):
         J = data[k]['joints']
         pts = [p for name in ('shoulder', 'elbow', 'wrist', 'hip', 'knee', 'ankle') for p in J[name]]
         anchors[k] = np.array(pts, np.float64)
-    spec = dict(kind='garment', slot=slot, sexes=tuple(sexes), base=base, template=t, templateFg=fg, owner=owner,
+    spec = dict(kind='garment', slot=slot, sexes=tuple(sexes), base=base, cover=tuple(cover), template=t, templateFg=fg, owner=owner,
                 hairOcclusion=hair_occ, cells=CELLS, layout=LAYOUT, stable=stable, fit=fit, anchors=anchors,
                 zones=zones['figures'], data=data, canvas=(TEMPLATE['width'], TEMPLATE['height']),
                 offset=(float(TEMPLATE['left']), 0.0), productMask=product)
@@ -972,7 +973,7 @@ FIG_KO = {'m-front': '남자아이 앞모습', 'm-right': '남자아이 옆모�
           'f-front': '여자아이 앞모습', 'f-right': '여자아이 옆모습', 'f-back': '여자아이 뒷모습'}
 
 
-def register(path, spec=None, slot='top', sexes=('m', 'f'), keep_images=True, min_long_side=None, base=None):
+def register(path, spec=None, slot='top', sexes=('m', 'f'), keep_images=True, min_long_side=None, base=None, cover=()):
     """Register one upload. Returns a result dict; result['ok'] is False when
     any failure code was raised. With keep_images, result['images'] holds
     numpy arrays (registered RGBA in sheet space, masks) for the report and
@@ -980,11 +981,13 @@ def register(path, spec=None, slot='top', sexes=('m', 'f'), keep_images=True, mi
     precision only; production keeps matte.SIZE_MIN)."""
     t_all = time.time()
     timing = {}
-    spec = spec or garment_spec(slot, sexes, base)
+    spec = spec or garment_spec(slot, sexes, base, cover)
     res = dict(version=1, spec=dict(kind=spec['kind'], slot=spec['slot'], sexes=list(spec['sexes'])),
                codes=[], warnings=[], figures={}, timing=timing, thresholds=T)
     if spec.get('base'):
         res['spec']['base'] = spec['base']
+    if spec.get('cover'):
+        res['spec']['cover'] = list(spec['cover'])
     rec, im = M.read_input(path)
     res['input'] = rec
     size_min = M.SIZE_MIN if min_long_side is None else min_long_side
