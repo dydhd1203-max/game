@@ -1,7 +1,7 @@
 {
   "project": "퀴즈나라",
   "format": 1,
-  "builtAt": "2026-10-16T07:36:28.614Z",
+  "builtAt": "2026-10-16T07:42:16.217Z",
   "instructions": "Cloudflare Pages 또는 Netlify 수동 배포에는 이 배포용 폴더 전체를 올리세요. index.html만 올리지 마세요.",
   "files": [
     {
@@ -486,13 +486,13 @@
     },
     {
       "path": "avatar-foundation-garments.js",
-      "bytes": 12388,
-      "sha256": "a468e65509414eb1b40926e3bb138dc63292ba482997b157e3b4801eb352648f"
+      "bytes": 12406,
+      "sha256": "90aa6be5d1249412824c2d34eabdcb119569205b6687582bc6e7197afa2223e7"
     },
     {
       "path": "avatar-foundation-outfit.js",
-      "bytes": 61638,
-      "sha256": "5989ad933e2101ae0d507d639e8ca871ba20322c7af9a94322053fbd9e2c6842"
+      "bytes": 62828,
+      "sha256": "c72c5554b1044c9fd086b6041688e2618a80c9d4babd0b92c6749fec30ee8baa"
     },
     {
       "path": "assets/avatar-file-data-foundation.js",
@@ -536,8 +536,8 @@
     },
     {
       "path": "avatar-foundation-skin.js",
-      "bytes": 32312,
-      "sha256": "236eb0d078b3f6b2a03c1874245a3f45850daa8cd789d52b1dc20e12d912dd31"
+      "bytes": 32521,
+      "sha256": "e99ba6d6784811bbef8cc9f42b8db783ace7c92ffacf66e2ff9aaf2e7d75573b"
     },
     {
       "path": "assets/sd-foundation-ref-neck.png",
@@ -3466,8 +3466,8 @@
     },
     {
       "path": "assets/sd-garments-index.js",
-      "bytes": 3056,
-      "sha256": "0052272d31327cdd75bd36f3c3593e14cab7bd44289f310f3c927f07a4ac720d"
+      "bytes": 3074,
+      "sha256": "434a4a6f9cac183ab6916c636294c6866e9a90a5e1da50f0919c697d738d3d97"
     },
     {
       "path": "assets/sd-garment-bottom-shorts.js",

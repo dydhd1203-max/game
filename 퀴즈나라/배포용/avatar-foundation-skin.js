@@ -80,7 +80,9 @@
  // the run showed skin where the background had shown (R0 2026-10-15).
  const LEG_UNDER_SHOE=8;
  const textures=new Map();
- function texture(d){const under=d.under||0,key=(d.variant?d.variant+'/':'')+d.rect.join()+(under?'+'+under:'');if(textures.has(key))return textures.get(key);const c=document.createElement('canvas');c.width=d.rect[2];c.height=d.rect[3]+under;c.getContext('2d').drawImage(d.image,d.rect[0],d.rect[1],d.rect[2],d.rect[3]+under,0,0,c.width,c.height);textures.set(key,c);return c;}
+ // d.at: the strip lies at that point of d.image (a garment atlas: a long sleeve along the arm, outfit.js)
+ // instead of at its sheet rect (the body paintings are sheet-sized).
+ function texture(d){const under=d.under||0,key=(d.variant?d.variant+'/':'')+d.rect.join()+(under?'+'+under:''),at=d.at||d.rect;if(textures.has(key))return textures.get(key);const c=document.createElement('canvas');c.width=d.rect[2];c.height=d.rect[3]+under;c.getContext('2d').drawImage(d.image,at[0],at[1],d.rect[2],d.rect[3]+under,0,0,c.width,c.height);textures.set(key,c);return c;}
  // The bob hides the female back neck on the sheet; the male one stands in
  // for hairstyles that show it.
  function neckFigure(sex,view){const F=R.figures[sex+'-'+VIEW[view]];return F.rects.neck?F:R.figures[(sex==='m'?'f':'m')+'-'+VIEW[view]];}
@@ -268,5 +270,5 @@
  function destroy(r){r.skinPaintFilter?.remove();r.neckPainting?.remove();for(const e of [r.neckSurface,r.neckEdge,r.neckShade])e.style.display='';for(const part of [...r.arms,...r.legs]){part.contour.style.visibility='';part.paintFrame?.remove();part.painting?.remove();part.paintClip?.parentNode.remove();part.forearm?.remove();part.forearmArt?.remove();part.forearmClip?.parentNode.remove();part.openHand?.remove();part.handCut?.parentNode.remove();r.svg.querySelector('[id="'+r.svg.dataset.foundationId+'-hand-fade-'+r.arms.indexOf(part)+'"]')?.remove();delete part.forearm;delete part.forearmArt;delete part.forearmClip;delete part.openHand;delete part.handStrokes;delete part.handCut;}}
  // A bare foot under an open shoe: its sheet rect and the clean art it lies on (null before loadClean is ready).
  function foot(sex,view,i){const list=FEET[sex+'-'+VIEW[view]];if(!list||!images.feetClean)return null;return{rect:list[Math.min(i,list.length-1)],image:images.feetClean};}
- root.QPFoundationSkin=Object.freeze({atlas,files,cleanFiles,clean,load,loadClean,apply,destroy,toneMatrix,limbDef,paintCache,paint,paintStats,emptyPaint,CLEAN_NECK,FEET,foot});
+ root.QPFoundationSkin=Object.freeze({atlas,files,cleanFiles,clean,load,loadClean,apply,destroy,toneMatrix,limbDef,limbPainting:painting,paintCache,paint,paintStats,emptyPaint,CLEAN_NECK,FEET,foot});
 })(window);

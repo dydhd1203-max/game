@@ -97,7 +97,7 @@ const index={
    "shoes":"shoes:sneaker:8"
   }
  },
- "runtimeClasses":["bottom/shorts","shoes/low","shoes/sandals","top/short-sleeve"]
+ "runtimeClasses":["bottom/shorts","shoes/low","shoes/sandals","top/long-sleeve","top/short-sleeve"]
 };
 const freeze=o=>{if(o&&typeof o==='object'&&!Object.isFrozen(o)){Object.freeze(o);for(const v of Object.values(o))freeze(v);}return o;};
 root.QPFoundationGarmentIndex=freeze(index);

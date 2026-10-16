@@ -468,6 +468,7 @@ def colour_codes(ctx, segs, figs, prod, masks=None):
 # ---------------------------------------------------------------------------
 # Build
 # ---------------------------------------------------------------------------
+BUILDER_TODO = {'top/long-sleeve': 'the sleeve strip along the arm (sleeves[i].arm) is not segmented yet; runtime tested with tools/boards/longsleeve-board.cjs'}
 OPEN_SHOE_CODES = ('SOLE_OFF_FLOOR', 'SHOE_MISSING')
 OPEN_CHANGED = 12.0   # Lab change (blurred) from the bare feet that is the shoe
 OPEN_ZONE = 8         # px round the pipeline's own shoe part where an open shoe may lie
@@ -570,6 +571,8 @@ def build(sheet, product, sexes=None, date=None, res=None, prod_override=None, k
     prod = product_entry(cat, shape, prod_override)
     slot = CAT_SLOT[cat]
     cls = prod['class']
+    if cls in BUILDER_TODO:
+        raise SystemExit('class %s: the game draws it (runtime) but the builder cannot cut it yet (%s)' % (cls, BUILDER_TODO[cls]))
     if cls not in SCHEMA['x-classes']['runtime']:
         raise SystemExit('class %s is reserved: the stage-3 builder makes only %s' % (cls, ', '.join(SCHEMA['x-classes']['runtime'])))
     sexes = tuple(sexes or prod.get('sexes', ('m', 'f')))
