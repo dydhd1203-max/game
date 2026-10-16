@@ -1821,6 +1821,9 @@ const CURATED_COLOURS = {
 };
 function itemForSex(it, sex){
   if(!it)return false;
+  // 배경은 상점에서 내렸다(2026-10-16 사용자 "배경은 없애줘 이상해"). 산 기록은 지우지 않고
+  // 착용한 배경도 그리지 않는다(avatarForSex가 off 분류의 없는 상품을 비운다).
+  if(it.cat==='bg')return false;
   sex=avatarSex(sex);
   if(it.cat==='hair')return AVATAR_HAIR[sex].includes(HAIR_ALIAS[it.shape]||it.shape);
   if(it.cat==='top'||it.cat==='bottom')return AVATAR_CLOTHES[sex][it.cat].includes(it.shape);
@@ -2688,7 +2691,7 @@ SCREENS.home = function(st){
     <div class="ticker"><span>📢</span><span id="tick"></span></div></div>
   </div>`;
   wireTop();
-  el('meStage').innerHTML = `<div class="wood-backdrop">${window.QPAvatar?.backdrop(ME.av.bg)||''}</div><div class="wood-stump" aria-hidden="true"></div>`
+  el('meStage').innerHTML = `<div class="wood-backdrop"></div><div class="wood-stump" aria-hidden="true"></div>`
     + avatarSVG(Object.assign({},ME.av,{bg:''}),250,3).replace('class="qp-pixel-avatar','class="wood-avatar qp-pixel-avatar');
   const left = Math.max(0, R.practiceCap - ((ME.day&&ME.day.d===today())?ME.day.g:0));
   el('capLeft').textContent = left + '골드';
@@ -2703,7 +2706,6 @@ SCREENS.home = function(st){
     '문제를 <em>10개</em> 맞히면 <em>100골드</em>! 옷 한 벌 값이에요',
     '금요일은 <em>패션왕 대회</em> 날 — 미리 예쁘게 꾸며 두세요',
     '옷 가게에는 <em>'+ITEM_COUNT+'가지</em>가 있어요. 색을 바꾸면 또 달라져요',
-    '<em>배경 장식</em>을 사면 내 캐릭터 뒤가 예뻐집니다',
     'QUIZQUIZ 무대에서는 <em>빨리 맞힐수록</em> 점수가 높아요',
     '띄어쓰기나 물음표는 틀려도 괜찮아요. <em>답만</em> 맞으면 정답!',
     '<em>펫</em>을 사면 내 옆에 따라다녀요 — 강아지·고양이·펭귄·공룡…',
@@ -2893,7 +2895,7 @@ function showRank(){
    ═══════════════════════════════════════════════════════════════════ */
 SCREENS.shop = function(st,arg){
   const S = { cat:arg?.fitting?'top':'hair', sel:null, pv:avatarForSex(ME.av,null,ME.owned) };
-  const groups=[{name:'머리 · 얼굴',icon:'hair',cats:['hair','expression']},{name:'한벌옷',icon:'outfit',cats:['outfit']},{name:'상의',icon:'top',cats:['top']},{name:'하의',icon:'bottom',cats:['bottom']},{name:'신발',icon:'shoes',cats:['shoes']},{name:'장신구',icon:'glass',cats:['hat','glass','face','ear','neck','frame']},{name:'날개 · 펫 · 효과',icon:'pet',cats:['back','pet','effect','bg']}];
+  const groups=[{name:'머리 · 얼굴',icon:'hair',cats:['hair','expression']},{name:'한벌옷',icon:'outfit',cats:['outfit']},{name:'상의',icon:'top',cats:['top']},{name:'하의',icon:'bottom',cats:['bottom']},{name:'신발',icon:'shoes',cats:['shoes']},{name:'장신구',icon:'glass',cats:['hat','glass','face','ear','neck','frame']},{name:'날개 · 펫 · 효과',icon:'pet',cats:['back','pet','effect']}];
 
   st.innerHTML = `<section class="starlight-shop forest-shop" aria-label="숲속 옷 가게">
     <header class="starlight-header"><button class="btn" id="tbBack">← 뒤로</button><h1 class="forest-shop-title">${QPCandy.html('숲속 옷 가게',{arc:.22})}</h1><div class="f1"></div><button class="icb" id="tbSnd" aria-label="소리 설정">${uiIcon('sound')}</button><div class="gold">${uiIcon('coin')}<span class="sr-only">보유 골드</span><b id="goldNum">${(ME.gold||0).toLocaleString()}</b></div><button class="btn starlight-close" id="shopClose" aria-label="상점 닫고 마을로">×</button></header>
