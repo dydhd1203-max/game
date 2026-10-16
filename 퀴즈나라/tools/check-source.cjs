@@ -7,6 +7,14 @@ require('./build-map-library.cjs').build(true);
 // Garment records (stage 3): every record valid against tools/garment/schema.json
 // (with the frozen body), the index fresh; their file:// bundles are checked above.
 require('./garment/build-index.cjs')(true);
+// The basic records carry the sha of tools/garment/frozen/limits.json: a change
+// there must repack them (python3 tools/garment/pack-basic.py), or they go stale
+// unnoticed (2026-10-16, limits.json changed in 810e0f5 without a repack).
+{
+  const r=require('node:child_process').spawnSync('python3',['-B',path.join(__dirname,'garment/pack-basic.py'),'--check'],{cwd:root,encoding:'utf8'});
+  if(r.error&&r.error.code==='ENOENT')console.log('pack-basic --check skipped: python3 not found');
+  else{assert.equal(r.status,0,'Basic garment records stale or wrong:\n'+(r.stdout+r.stderr).split('\n').filter(l=>/FAIL|stale|differ|missing/.test(l)).join('\n'));console.log('Basic garment records match a fresh pack');}
+}
 // The frozen reference body (tools/garment/frozen/frozen-body.json, written by
 // make-frozen.py; full check: python3 tools/garment/verify-body-freeze.py):
 // body art, legacy basic layers, clean art and frozen artifacts byte-equal,

@@ -12,7 +12,7 @@ const index={
    "status":"approved",
    "legacy":true,
    "sexes":["f","m"],
-   "sha256":"851a598efade8f53e94e882fec369e5d48735b3a38cb33a313e752cfaa178a6a",
+   "sha256":"d30024f54e6b451f68b2e7f5a8a85de8ca8d37a946708309ace7d67ce027e072",
    "files":{
     "data":"assets/sd-garment-bottom-shorts.js",
     "f":"assets/sd-garment-bottom-shorts-f.png",
@@ -26,7 +26,7 @@ const index={
    "status":"approved",
    "legacy":true,
    "sexes":["f","m"],
-   "sha256":"d7f42116c2ddd4caa23ad2b5dcc6aa06126f47bb0301ba5c98dbfbdf111ae785",
+   "sha256":"c1ba5a7f401b8965656884434de2606423c68eac8cb7e9afbdd5d9c51513392b",
    "files":{
     "data":"assets/sd-garment-shoes-sneaker.js",
     "f":"assets/sd-garment-shoes-sneaker-f.png",
@@ -40,7 +40,7 @@ const index={
    "status":"approved",
    "legacy":false,
    "sexes":["f","m"],
-   "sha256":"c1fc1e1cc6e0316ef7e5e05d380634014200cfab5c84017ab5b14e460928a4fe",
+   "sha256":"32e61b77af495b58b445e40379b3ffb38543e76ea8acbe0c41986f2544092efb",
    "files":{
     "data":"assets/sd-garment-top-shirt.js",
     "f":"assets/sd-garment-top-shirt-f.png",
@@ -54,7 +54,7 @@ const index={
    "status":"approved",
    "legacy":true,
    "sexes":["f","m"],
-   "sha256":"81ec148eb3150c3ed2532c39fcdd610a542695b18bb5536b171345551b04c554",
+   "sha256":"9f07a976c61335b3701710bcae0e5ba7d95aff8cc5e134dc4a21a7b9b569644b",
    "files":{
     "data":"assets/sd-garment-top-tee.js",
     "f":"assets/sd-garment-top-tee-f.png",

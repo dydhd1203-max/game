@@ -77,7 +77,7 @@ const record={
   "hiddenRebuiltPct":null,
   "limits":{
    "path":"tools/garment/frozen/limits.json",
-   "sha256":"d9ef43b32278a3ecd20a559b5214d9686ad347fd207b5800df9272e6b8ea2272",
+   "sha256":"15bfc44f0629cd6b6f51c848aa2a8932c51e705ecf56055f99ecec2ccbe73c11",
    "minMarginPx":{
     "m":3.0,
     "f":3.0

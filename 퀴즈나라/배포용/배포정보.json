@@ -1,7 +1,7 @@
 {
   "project": "퀴즈나라",
   "format": 1,
-  "builtAt": "2026-10-16T15:01:03.623Z",
+  "builtAt": "2026-10-16T21:29:50.706Z",
   "instructions": "Cloudflare Pages 또는 Netlify 수동 배포에는 이 배포용 폴더 전체를 올리세요. index.html만 올리지 마세요.",
   "files": [
     {
@@ -3497,12 +3497,12 @@
     {
       "path": "assets/sd-garments-index.js",
       "bytes": 3074,
-      "sha256": "434a4a6f9cac183ab6916c636294c6866e9a90a5e1da50f0919c697d738d3d97"
+      "sha256": "b8689337cbcc183b6f89ca71da6a6c6980cabcdd81593180340b8d1b8b3106f8"
     },
     {
       "path": "assets/sd-garment-bottom-shorts.js",
       "bytes": 4816,
-      "sha256": "851a598efade8f53e94e882fec369e5d48735b3a38cb33a313e752cfaa178a6a"
+      "sha256": "d30024f54e6b451f68b2e7f5a8a85de8ca8d37a946708309ace7d67ce027e072"
     },
     {
       "path": "assets/sd-garment-bottom-shorts-f.png",
@@ -3522,7 +3522,7 @@
     {
       "path": "assets/sd-garment-shoes-sneaker.js",
       "bytes": 4894,
-      "sha256": "d7f42116c2ddd4caa23ad2b5dcc6aa06126f47bb0301ba5c98dbfbdf111ae785"
+      "sha256": "c1ba5a7f401b8965656884434de2606423c68eac8cb7e9afbdd5d9c51513392b"
     },
     {
       "path": "assets/sd-garment-shoes-sneaker-f.png",
@@ -3541,28 +3541,28 @@
     },
     {
       "path": "assets/sd-garment-top-shirt.js",
-      "bytes": 44149,
-      "sha256": "c1fc1e1cc6e0316ef7e5e05d380634014200cfab5c84017ab5b14e460928a4fe"
+      "bytes": 44201,
+      "sha256": "32e61b77af495b58b445e40379b3ffb38543e76ea8acbe0c41986f2544092efb"
     },
     {
       "path": "assets/sd-garment-top-shirt-f.png",
-      "bytes": 138675,
-      "sha256": "54850b718697f08648831853ace3a77ce277acd4dfc762c163e81c45edfae5ff"
+      "bytes": 141538,
+      "sha256": "e3f3c2cb43040ce5e8774048095981d9cb0ec7983306fd313e9d837f1248476c"
     },
     {
       "path": "assets/sd-garment-top-shirt-m.png",
-      "bytes": 143803,
-      "sha256": "f46466a3d8fba3dbb2b602548bee4f655ccf7fabc9d31a0ebf96596188f555d6"
+      "bytes": 151023,
+      "sha256": "63ba89f0dcda3dd022ad04c33ab700d6851fe8f552aacfc037e38b0323e7b661"
     },
     {
       "path": "assets/avatar-file-data-garment-top-shirt.js",
-      "bytes": 377279,
-      "sha256": "c440708e930a15e4635f18aab126cc2fe102f4686213e3d7bb38b01b14bdef46"
+      "bytes": 390723,
+      "sha256": "70b53fd780859e5bab3e42ba194dcad78dcde4fdebcd3880c92776bfaf55eb1d"
     },
     {
       "path": "assets/sd-garment-top-tee.js",
       "bytes": 6858,
-      "sha256": "81ec148eb3150c3ed2532c39fcdd610a542695b18bb5536b171345551b04c554"
+      "sha256": "9f07a976c61335b3701710bcae0e5ba7d95aff8cc5e134dc4a21a7b9b569644b"
     },
     {
       "path": "assets/sd-garment-top-tee-f.png",
