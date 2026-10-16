@@ -48,6 +48,7 @@ HIDE_FLARE = 1.6  # beside the hat the hidden edge drops this many px per px out
                   # rim starts as wide as the rim and widens downward, as a cap presses it (2026-10-15:
                   # a rising edge left 'wings' of hair beside the rim)
 HIDE_SOFT = 6.0   # px of the hidden edge's soft fall-off
+HIDE_GAP = 4      # px (template scale): a gap in a column of the hat this short is still the hat (hide_mask)
 SKIN_ABOVE = 10   # px above the rim's edge where the head's skin (an ear) is still kept
 BAND_L, BAND_C = 25.0, 12.0  # Lab lightness, chroma: a near-black neutral piece (a police cap's visor, unlike the
                              # brown of hair) ...
@@ -167,7 +168,7 @@ def drop_wisps(hat, px=1.0):
     """The hat less thin strands hanging below its body (WISP): pixels of the hat outside its opening by
     WISP px that lie more than WISP_DROP px below the opened hat's lowest pixel in their column (or
     beside it), and then the pieces left hanging alone."""
-    r = max(1, int(round(WISP * px)))
+    r = max(2, int(round(WISP * px)))  # at least 2: a 3 px strand stayed 'body' on the hat kit's 0.74 scale
     body = M.dilate(M.erode(hat, r), r) & hat
     if not body.any():
         return hat
@@ -277,7 +278,12 @@ def cut_zone(u, a, t, head, low, x0, y0, box, px=1.0, diff=False):
             lab_, comps = M.components(dh & ~colour['mask'])
             bands = band_pieces(lab_, comps, colour['mask'], R.lab(u))
             if not bands:
-                return colour
+                # the page's haze and thin strands the colour cut took with the hat's light colours (a straw
+                # hat's haze under its brim, 2026-10-16)
+                clean = drop_wisps(peel_page(colour['mask'], u, t), px)
+                if (clean == colour['mask']).all():
+                    return colour
+                return pack(u, clean, fill_holes(clean) & ~clean, x0, y0, box, px)
             band = np.isin(lab_, list(bands)) & (np.hypot(*R.lab(u)[..., 1:].transpose(2, 0, 1)) < BAND_PX_C)
             dh = colour['mask'] | band
             colour = dict(colour, px=0)  # the cut below stands on dh, which already holds the colour cut
@@ -290,13 +296,7 @@ def cut_zone(u, a, t, head, low, x0, y0, box, px=1.0, diff=False):
                 opening = np.isin(lab_, [c['label'] for c in comps if c['size'] > 40 * px * px])
                 opening &= ~badge_holes(opening, R.lab(u), kmeans(R.lab(t)[head].reshape(-1, 3)[::7], 10), px)
             hat = drop_wisps(peel_page(trim_head(dh, u, t, head, px) | band, u, t), px) & ~opening
-            alpha = hat.astype(np.float32)
-            ys, xs = np.nonzero(hat)
-            bx = (int(xs.min()), int(ys.min()), int(xs.max()) + 1, int(ys.max()) + 1)
-            rgba = np.dstack([u, alpha * 255]).clip(0, 255).astype(np.uint8)[bx[1]:bx[3], bx[0]:bx[2]]
-            return dict(rgba=rgba, box=[x0 + bx[0], y0 + bx[1], x0 + bx[2], y0 + bx[3]], px=int(hat.sum()), scale=px,
-                        mask=hat, cell=box, hide=hide_mask(hat, opening, x0, y0, side=int(HIDE_SIDE * px), top=int(HIDE_TOP * px),
-                                                           soft=HIDE_SOFT * px))
+            return pack(u, hat, opening, x0, y0, box, px)
     Ul, Tl = R.lab(u), R.lab(t)
     head_cols = kmeans(Tl[head].reshape(-1, 3)[::7], 10)
     fg = (a > .5) & zone
@@ -332,6 +332,16 @@ def cut_zone(u, a, t, head, low, x0, y0, box, px=1.0, diff=False):
                                                    soft=HIDE_SOFT * px))
 
 
+def pack(u, hat, opening, x0, y0, box, px):
+    """A cut figure from its hat mask (opaque): RGBA crop, box in sheet px, the hair-hide mask."""
+    ys, xs = np.nonzero(hat)
+    bx = (int(xs.min()), int(ys.min()), int(xs.max()) + 1, int(ys.max()) + 1)
+    rgba = np.dstack([u, hat.astype(np.float32) * 255]).clip(0, 255).astype(np.uint8)[bx[1]:bx[3], bx[0]:bx[2]]
+    return dict(rgba=rgba, box=[x0 + bx[0], y0 + bx[1], x0 + bx[2], y0 + bx[3]], px=int(hat.sum()), scale=px,
+                mask=hat, cell=box, hide=hide_mask(hat, opening, x0, y0, side=int(HIDE_SIDE * px), top=int(HIDE_TOP * px),
+                                                   soft=HIDE_SOFT * px))
+
+
 def hide_mask(hat, opening, x0, y0, side=HIDE_SIDE, top=HIDE_TOP, flare=HIDE_FLARE, soft=HIDE_SOFT):
     """Where a pulled-on hat hides the wearer's own hair (any hair style):
     in the hat's columns everything down to its lower edge, the opening it
@@ -343,8 +353,17 @@ def hide_mask(hat, opening, x0, y0, side=HIDE_SIDE, top=HIDE_TOP, flare=HIDE_FLA
     cols = np.nonzero(hat.any(0))[0]
     rows = np.nonzero(hat.any(1))[0]
     bottom = np.full(hat.shape[1], -1)
+    whole = hat | opening
+    gap = max(2, int(round(HIDE_GAP * soft / HIDE_SOFT)))
+    low_half = rows.min() + .5 * (rows.max() - rows.min())
     for c in cols:
-        bottom[c] = np.nonzero(hat[:, c])[0].max()
+        # the end of the hat's first run from the top (a gap of a few px bridged): below it the column may hold
+        # a separate piece (a wide brim's end curling down beside the head, a tassel), and the hair between
+        # shows (2026-10-16: hiding down to the brim's tip cut the hair square under a straw hat)
+        # (only a gap in the hat's lower half: a notch high up, a bandana's skull on its edge, shows no hair)
+        rr = np.nonzero(whole[:, c])[0]
+        cut = [i for i in np.nonzero(np.diff(rr) > gap)[0] if rr[i] >= low_half]
+        bottom[c] = rr[cut[0]] if cut else rr[-1]
     # the box may reach past the figure's cell (a twin tail): columns outside it are beside the hat
     fx0, fx1 = cols.min() - side, cols.max() + 1 + side
     fy0, fy1 = max(0, rows.min() - top), rows.max() + 1 + side

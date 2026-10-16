@@ -43,19 +43,19 @@
    "right": {
     "src": "assets/hat-art/flower-f-right.png",
     "rect": [
-     6.733,
+     6.875,
      9.888,
-     12.974,
+     12.832,
      9.125
     ]
    },
    "back": {
     "src": "assets/hat-art/flower-f-back.png",
     "rect": [
-     5.38,
-     10.406,
-     12.213,
-     9.16
+     5.513,
+     10.538,
+     12.08,
+     9.027
     ]
    }
   }
