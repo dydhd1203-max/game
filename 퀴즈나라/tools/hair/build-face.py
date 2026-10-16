@@ -59,6 +59,8 @@ CLOSE = 14            # px the face's skin is closed over the eyes
 PART_SHARE = .12      # a part's piece is at least this share of its biggest piece
 STICKER_SHARE = .2    # a sticker's piece: a plaster, a dot of a pair (a hair tip, an eye-line bit are smaller)
 STICKER_GROW = 4      # px a sticker grows from its own colours over the changed pixels (its outline)
+STICKER_NEAR = 8      # px from a kept sticker piece where another piece belongs to it
+NEAR_COLOUR = 12.0    # Lab distance of such a piece's mean colour to the kept pieces' mean colour
 EDGE = 6              # px inside the face edge where a sticker's piece lies (a hair tip lies on it)
 PAINTED = 25.0        # Lab change on the template's bare skin that is a sticker even in a colour the head has
                       # (dark whiskers = the outline colour, red paint dots = the lips' red; F6·F7 2026-10-16)
@@ -73,6 +75,7 @@ BROW_NEAR = 14.0      # Lab distance to the template's hair colours that is an e
 FIGURES = ('m-front', 'm-right', 'f-front', 'f-right')
 EAR_FIGURES = ('m-front', 'm-right', 'm-back', 'f-front', 'f-right', 'f-back')
 EAR_ROWS = (.45, .08) # from this share of the head's height to this share below its lowest row: the lobes and a drop
+GLASS_MIN_STEP = 25.0 # Lab: a rim nearer the template's skin than this is unmixed against this much
 EAR_NEAR = 30.0       # Lab distance to the product's colour where an earring starts (its gold, light and shade)
 KINDS = {'face/sticker': 'sticker', 'face/mask': 'mask', 'ear/earring': 'ear', 'face/glasses': 'glasses', 'face/eyes': 'part', 'face/nose': 'part', 'face/mouth': 'part'}
 
@@ -202,7 +205,20 @@ def cut(U, T, O, cells, slot, kind, debug=None, colour=None):
             def keep(c):
                 m = lab_ == c['label']
                 return (inner & m).sum() >= share * c['size'] or BH.nearest(lu[m].mean(0)[None], hair_cols)[0] > BROW_NEAR
-            item = np.isin(lab_, [c['label'] for c in comps if keep(c)])
+            kept = [c['label'] for c in comps if keep(c)]
+            # a piece beside a kept one and in its colour is the same decoration: the girl's lower whiskers lie on
+            # her cheeks' edge (under the bob, 4 of 85 px inside), where a hair tip would, and were lost while the
+            # upper ones 5 px above were kept (F7 f-front); a hair tip there is in the hair's colour, not the item's
+            if kept:
+                km = np.isin(lab_, kept); near = M.dilate(km, STICKER_NEAR); kcol = lu[km].mean(0)
+                added = [c['label'] for c in comps if c['label'] not in kept and (near & (lab_ == c['label'])).any()
+                         and np.sqrt(((lu[lab_ == c['label']].mean(0) - kcol) ** 2).sum()) < NEAR_COLOUR]
+                # only its pixels on the face and in that colour: the whisker ran on into the bob's redrawn strand
+                # edge, a hook at its end
+                extra = np.isin(lab_, added) & face & (np.sqrt(((lu - kcol) ** 2).sum(-1)) < 2 * NEAR_COLOUR)
+            else:
+                extra = np.zeros_like(face)
+            item = np.isin(lab_, kept) | extra
             if debug is not None:  # --debug: what started the item and what was kept out
                 debug[k] = dict(u=u.astype(np.uint8), face=face, features=features, eyezone=eyezone, seeds=seeds, item=item)
         else:
@@ -234,10 +250,22 @@ def cut(U, T, O, cells, slot, kind, debug=None, colour=None):
         if kind in ('sticker', 'mask', 'glasses'):
             # thin strokes keep their full alpha: the soft edge alone left a 2 px whisker at half strength (F7)
             thin = item & ~M.dilate(M.erode(item, 2), 2)
-            if kind == 'glasses':  # a brown rim is as close to the skin's shade as to skin: keep the product's colour
-                # opaque (the round glasses' rims had gaps where they crossed the lid's shade, G1 2026-10-16)
-                nonskin = np.maximum(nonskin, (np.sqrt(((lu - colour) ** 2).sum(-1)) < EAR_NEAR).astype(np.float32))
             alpha = np.maximum(soft(item), thin.astype(np.float32)) * nonskin; cover = None
+            if kind == 'glasses':
+                # a rim is a few px wide and its edge pixels are the rim mixed with the template's light skin: cut by
+                # skin distance they kept that light shade and showed as a pale double line on dark skin (G1 on
+                # skin 4, 2026-10-16). The template under the glasses is known, so the edge is unmixed against it:
+                # the alpha is how far the pixel moved from the template towards the rim's colour, and the colour
+                # is what was painted over it. A lens highlight (far from the template) stays opaque.
+                cover_t = np.sqrt(((colour - lt) ** 2).sum(-1))
+                matte = np.clip(d / np.maximum(cover_t, GLASS_MIN_STEP), 0, 1)
+                # (where the template is itself near the rim's colour, the lid's shade, the change is too small to
+                # measure: a rim of the product's colour stays opaque there, or it had gaps, G1)
+                near = (np.sqrt(((lu - colour) ** 2).sum(-1)) < EAR_NEAR) & (cover_t < GLASS_MIN_STEP)
+                matte = np.where(near, 1.0, matte).astype(np.float32)
+                alpha = np.maximum(soft(item), thin.astype(np.float32)) * matte
+                tf = t.astype(np.float32); a_ = np.maximum(matte, .05)[..., None]
+                u = np.where((matte > .05)[..., None], np.clip(tf + (u.astype(np.float32) - tf) / a_, 0, 255), u)
         else:
             cover = M.dilate(item, COVER_GROW[slot]) & zone
             alpha = soft(cover) * nonskin
