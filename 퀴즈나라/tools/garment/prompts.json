@@ -234,6 +234,26 @@
    "limits": [],
    "why": "A face mask (2026-10-16, shop face:mask): like a sticker it lies on the face between the face and the fringe (front and profile only) and is cut the same way (tools/hair/build-face.py), but it covers the nose and mouth on purpose."
   },
+  "ear/earring": {
+   "ko": {
+    "slot": "귀걸이",
+    "thing": "귀걸이",
+    "verb": "달아",
+    "wear": "합니다",
+    "pose": "팔·다리 위치, 옷과 신발",
+    "keep": "머리카락과 귀 모양",
+    "length": "{item|은} 양쪽 귓불에 하나씩, 얼굴 크기에 맞게 작게 매답니다. 귀가 머리카락에 가려진 아이는 귀걸이가 귓불 자리의 머리카락 아래 끝으로 내려와 보이게 하고, 머리 모양은 바꾸지 않습니다. 얼굴, 머리카락, 귀의 모양과 위치는 바꾸지 않습니다. 앞모습에는 양쪽 귀걸이, 오른쪽을 보는 옆모습에는 보이는 귀의 귀걸이 하나를 그리고, 뒷모습에서는 귀가 보이는 아이만 그 자리에 뒤에서 본 귀걸이를 그립니다(귀가 머리카락에 가려지면 뒷모습은 그림틀 그대로)."
+   },
+   "en": {
+    "slot": "earrings",
+    "things": "earrings",
+    "pose": "arm and leg positions, clothes and shoes",
+    "keep": "the hair and ear shape",
+    "length": "Hang one {item} on each earlobe, small enough for the face. When a child's ears are hidden by hair, let the earring hang down below the hair at the earlobe's place without changing the hairstyle. Do not change the face, hair or ears. The front view shows both earrings and the right-facing side view the one on the visible ear; in the back view draw the earring from behind only where an ear is visible (ears hidden by hair: the back view stays exactly as in image 1)."
+   },
+   "limits": [],
+   "why": "Earrings (2026-10-16 pilot, shop ear:star_e, ear:long_e): drawn on the template heads (boy short hair with visible ears, girl bob hiding them), cut like a face sticker around the ears, and placed per hair style with the face anchor (tools/fixtures/face-anchor.json) since the ears move with the head painting."
+  },
   "face/eyes": {
    "ko": {
     "slot": "눈",

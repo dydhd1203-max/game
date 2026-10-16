@@ -57,7 +57,7 @@ function resolve(id,products){
     '. The basic outfit (top:tee, bottom:shorts, shoes:sneaker) needs no ChatGPT sheet: the template already wears it.');
   if(ci!==undefined&&!product.sexes.some(sex=>String(product.ci[sex])===ci))
     throw new Error(id+': the shop sells '+key+' only as '+product.sexes.map(sex=>(sex==='m'?'boys ':'girls ')+key+':'+product.ci[sex]).join(', '));
-  if(!/^(top\/short-sleeve|bottom\/shorts|shoes\/low|hat\/full|hat\/sit-on|hat\/band|hat\/halo|face\/sticker|face\/mask|face\/eyes|face\/nose|face\/mouth)$/.test(product.class))throw new Error(key+': class '+product.class+' has no stage-3 prompt');
+  if(!/^(top\/short-sleeve|bottom\/shorts|shoes\/low|hat\/full|hat\/sit-on|hat\/band|hat\/halo|face\/sticker|face\/mask|ear\/earring|face\/eyes|face\/nose|face\/mouth)$/.test(product.class))throw new Error(key+': class '+product.class+' has no stage-3 prompt');
   return {key,product};
 }
 

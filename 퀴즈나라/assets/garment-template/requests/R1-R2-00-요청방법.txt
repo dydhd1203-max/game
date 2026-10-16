@@ -1,0 +1,94 @@
+귀걸이 시범 2종 요청 (R1·R2, 2026-10-16)
+=========================================
+
+[꼭 지킬 것 - 모든 결과에 공통]
+- 모든 결과 그림은 '1-그림틀(모든 귀걸이 공통).png'에서 새로 그립니다. 앞에서 만든 그림 위에 다음 귀걸이를 덧그리지 않습니다. 그림마다 귀걸이만 바뀌고 나머지(얼굴·머리·몸·옷·배경·위치·크기)는 그림틀과 같아야 합니다.
+- 결과는 그린 원본 그대로 줍니다. 크기 조정, 자르기, 색·위치 보정을 하지 않습니다(붙이는 도구가 해상도 차이를 자동으로 맞춥니다).
+- 결과는 가로로 긴 그림 한 장에 위 남자아이·아래 여자아이, 앞·옆·뒤 여섯 모습입니다(그림틀과 같은 배치).
+
+[왜 2종만 먼저 받나]
+귀걸이는 상점에 9종이 있습니다. 붙박이 장식(별)과 늘어지는 장식(긴 귀걸이) 2종으로 먼저 자르기·자리 맞추기를 확인한 뒤 나머지 7종을 한 번에 요청합니다.
+
+[보낼 것 2장]
+1) 별귀걸이 (R1): 첨부 1-그림틀(모든 귀걸이 공통).png, 2-R1-별귀걸이-참고.png
+   결과 파일 이름: ear-star_e.png
+2) 긴귀걸이 (R2): 첨부 1-그림틀(모든 귀걸이 공통).png, 2-R2-긴귀걸이-참고.png
+   결과 파일 이름: ear-long_e.png
+
+----------------------------------------------------------------
+1) 별귀걸이 (R1) - 요청 문장 (그대로 붙여 넣기)
+----------------------------------------------------------------
+첫 번째 그림은 게임 캐릭터 설정 시트입니다. 윗줄은 남자아이, 아랫줄은 여자아이이고, 왼쪽부터 앞모습, 오른쪽을 보는 옆모습, 뒷모습입니다. 두 번째 그림은 새로 입힐 별 귀걸이 디자인입니다(두 아이가 같은 귀걸이를 합니다). 색과 모양만 참고하고, 몸과 그림체는 첫 번째 그림을 따릅니다.
+
+첫 번째 그림의 두 아이에게 귀걸이만 달아 주세요.
+- 두 아이: 두 번째 그림의 별 귀걸이. 귓불에 붙은 작은 동그란 장식 바로 아래에 네 꼭지 반짝이 별이 하나씩 달려 있습니다. 반짝이는 금색 금속 느낌.
+
+꼭 지켜 주세요.
+1. 얼굴, 머리 모양, 몸 크기와 비율, 자세, 팔·다리 위치, 옷과 신발, 머리카락과 귀 모양은 첫 번째 그림과 똑같이 둡니다.
+2. 여섯 그림의 위치, 크기, 간격을 그대로 둡니다. 그림을 자르거나 옮기지 않습니다.
+3. 별 귀걸이는 양쪽 귓불에 하나씩, 얼굴 크기에 맞게 작게 매답니다. 귀가 머리카락에 가려진 아이는 귀걸이가 귓불 자리의 머리카락 아래 끝으로 내려와 보이게 하고, 머리 모양은 바꾸지 않습니다. 얼굴, 머리카락, 귀의 모양과 위치는 바꾸지 않습니다. 앞모습에는 양쪽 귀걸이, 오른쪽을 보는 옆모습에는 보이는 귀의 귀걸이 하나를 그리고, 뒷모습에서는 귀가 보이는 아이만 그 자리에 뒤에서 본 귀걸이를 그립니다(귀가 머리카락에 가려지면 뒷모습은 그림틀 그대로).
+4. 앞·옆·뒤 세 모습이 같은 별 귀걸이로 보이게 그립니다. 옆모습에서는 보이는 귀에 같은 귀걸이를 그리고, 뒷모습은 위 규칙을 따릅니다.
+5. 그림체(부드러운 채색, 외곽선 굵기, 명암)는 첫 번째 그림과 같게 합니다.
+6. 배경은 아무것도 없는 흰색입니다. 그림자, 글자, 테두리를 넣지 않고, 귀걸이에도 글자나 로고를 넣지 않습니다.
+7. 결과는 가로로 긴 그림 한 장으로 주세요.
+
+English (same request):
+Image 1 is a game character sheet: top row a boy, bottom row a girl; from left to right front view, right-facing side view, back view. Image 2 shows only the new earrings (both children wear the same star earrings). Use their colour and shape; keep the bodies and art style of image 1.
+
+Change ONLY the earrings of both children in image 1:
+- Both children: the star earrings from image 2: a small round stud on the earlobe with a four-pointed sparkle star hanging just below it; shiny gold metal.
+
+Rules:
+1. Keep faces, hair, body size and proportions, pose, arm and leg positions, clothes and shoes, the hair and ear shape exactly as in image 1.
+2. Keep the position, size and spacing of all six figures. Do not crop or move them.
+3. Hang one star earrings on each earlobe, small enough for the face. When a child's ears are hidden by hair, let the earring hang down below the hair at the earlobe's place without changing the hairstyle. Do not change the face, hair or ears. The front view shows both earrings and the right-facing side view the one on the visible ear; in the back view draw the earring from behind only where an ear is visible (ears hidden by hair: the back view stays exactly as in image 1).
+4. Front, side and back must show the same star earrings; in the side view show the same earring on the visible ear; the back view follows the rule above.
+5. Same art style as image 1 (soft painting, outline weight, shading).
+6. Plain white background. No shadows, text or frames, and no lettering or logos on the earrings.
+7. Return one landscape image.
+
+----------------------------------------------------------------
+2) 긴귀걸이 (R2) - 요청 문장 (그대로 붙여 넣기)
+----------------------------------------------------------------
+첫 번째 그림은 게임 캐릭터 설정 시트입니다. 윗줄은 남자아이, 아랫줄은 여자아이이고, 왼쪽부터 앞모습, 오른쪽을 보는 옆모습, 뒷모습입니다. 두 번째 그림은 새로 입힐 긴 귀걸이 디자인입니다(두 아이가 같은 귀걸이를 합니다). 색과 모양만 참고하고, 몸과 그림체는 첫 번째 그림을 따릅니다.
+
+첫 번째 그림의 두 아이에게 귀걸이만 달아 주세요.
+- 두 아이: 두 번째 그림의 긴 귀걸이. 귓불의 작은 동그란 장식에서 가는 줄이 아래로 내려오고, 끝에 물방울 모양 장식이 달려 있습니다. 턱선 높이를 넘지 않는 길이, 반짝이는 금속 느낌.
+
+꼭 지켜 주세요.
+1. 얼굴, 머리 모양, 몸 크기와 비율, 자세, 팔·다리 위치, 옷과 신발, 머리카락과 귀 모양은 첫 번째 그림과 똑같이 둡니다.
+2. 여섯 그림의 위치, 크기, 간격을 그대로 둡니다. 그림을 자르거나 옮기지 않습니다.
+3. 긴 귀걸이는 양쪽 귓불에 하나씩, 얼굴 크기에 맞게 작게 매답니다. 귀가 머리카락에 가려진 아이는 귀걸이가 귓불 자리의 머리카락 아래 끝으로 내려와 보이게 하고, 머리 모양은 바꾸지 않습니다. 얼굴, 머리카락, 귀의 모양과 위치는 바꾸지 않습니다. 앞모습에는 양쪽 귀걸이, 오른쪽을 보는 옆모습에는 보이는 귀의 귀걸이 하나를 그리고, 뒷모습에서는 귀가 보이는 아이만 그 자리에 뒤에서 본 귀걸이를 그립니다(귀가 머리카락에 가려지면 뒷모습은 그림틀 그대로).
+4. 앞·옆·뒤 세 모습이 같은 긴 귀걸이로 보이게 그립니다. 옆모습에서는 보이는 귀에 같은 귀걸이를 그리고, 뒷모습은 위 규칙을 따릅니다.
+5. 그림체(부드러운 채색, 외곽선 굵기, 명암)는 첫 번째 그림과 같게 합니다.
+6. 배경은 아무것도 없는 흰색입니다. 그림자, 글자, 테두리를 넣지 않고, 귀걸이에도 글자나 로고를 넣지 않습니다.
+7. 결과는 가로로 긴 그림 한 장으로 주세요.
+
+English (same request):
+Image 1 is a game character sheet: top row a boy, bottom row a girl; from left to right front view, right-facing side view, back view. Image 2 shows only the new earrings (both children wear the same long drop earrings). Use their colour and shape; keep the bodies and art style of image 1.
+
+Change ONLY the earrings of both children in image 1:
+- Both children: the long earrings from image 2: from a small round stud on the earlobe a thin chain hangs down to a drop-shaped charm; no longer than the jaw line; shiny metal.
+
+Rules:
+1. Keep faces, hair, body size and proportions, pose, arm and leg positions, clothes and shoes, the hair and ear shape exactly as in image 1.
+2. Keep the position, size and spacing of all six figures. Do not crop or move them.
+3. Hang one long drop earrings on each earlobe, small enough for the face. When a child's ears are hidden by hair, let the earring hang down below the hair at the earlobe's place without changing the hairstyle. Do not change the face, hair or ears. The front view shows both earrings and the right-facing side view the one on the visible ear; in the back view draw the earring from behind only where an ear is visible (ears hidden by hair: the back view stays exactly as in image 1).
+4. Front, side and back must show the same long drop earrings; in the side view show the same earring on the visible ear; the back view follows the rule above.
+5. Same art style as image 1 (soft painting, outline weight, shading).
+6. Plain white background. No shadows, text or frames, and no lettering or logos on the earrings.
+7. Return one landscape image.
+
+----------------------------------------------------------------
+결과가 이러면 다시 요청 (그대로 붙여 넣기)
+----------------------------------------------------------------
+- 귀걸이 말고 얼굴·머리·몸·옷이 바뀌었거나 인물이 움직였을 때:
+  "귀걸이 말고는 첫 번째 그림과 완전히 같아야 합니다. 얼굴·머리·몸·옷·위치·크기를 바꾸지 말고 같은 그림틀에서 다시 그려 주세요."
+- 여자아이 머리를 걷어 귀를 드러냈거나 머리 모양을 바꿨을 때:
+  "머리 모양을 바꾸지 마세요. 귀가 머리카락에 가려진 그대로 두고, 귀걸이만 귓불 자리의 머리카락 아래 끝으로 내려와 보이게 다시 그려 주세요."
+- 귀걸이가 너무 클 때(눈보다 클 때):
+  "귀걸이를 얼굴 크기에 맞게 작게, 눈보다 작게 다시 그려 주세요."
+- 옆모습에 귀걸이가 없거나 앞모습에 한쪽만 있을 때:
+  "앞모습에는 양쪽 귓불에, 오른쪽을 보는 옆모습에는 보이는 귀에 귀걸이를 그려 다시 주세요."
+- 색이 참고 그림과 많이 다를 때:
+  "귀걸이 색을 두 번째 그림과 같은 금색으로 맞춰 다시 그려 주세요."

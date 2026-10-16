@@ -1,7 +1,7 @@
 {
  "note": "Products for the ChatGPT garment kit (stage 3, WP4). The worker fills this from the shop catalogue and the design reference; the user reviews it. Keyed 'cat:shape' like the garment records. Checked against the live shop for both sexes by `node tools/garment/design-ref.cjs --verify-products` (headless ?demo=1). Used by tools/garment/prompt.cjs.",
  "fields": {
-  "class": "top/short-sleeve | bottom/shorts | shoes/low (stage 3). Other classes exist as schema only. Hats (2026-10-15): hat/full (pulled onto the head, hair above its rim hidden by the game) | hat/sit-on (an ornament seated on the hair). Face decorations (2026-10-15): face/sticker (on the facial skin, front and profile) | face/mask (2026-10-16: covers the nose and mouth, loops to the ears; cut like a sticker). Face parts (2026-10-15): face/eyes | face/nose | face/mouth (one part changed, front and profile).",
+  "class": "top/short-sleeve | bottom/shorts | shoes/low (stage 3). Other classes exist as schema only. Hats (2026-10-15): hat/full (pulled onto the head, hair above its rim hidden by the game) | hat/sit-on (an ornament seated on the hair). Face decorations (2026-10-15): face/sticker (on the facial skin, front and profile) | face/mask (2026-10-16: covers the nose and mouth, loops to the ears; cut like a sticker). Earrings (2026-10-16): ear/earring (on both earlobes, placed per hair with the face anchor). Face parts (2026-10-15): face/eyes | face/nose | face/mouth (one part changed, front and profile).",
   "sexes": "who the shop sells it to (QPGame.getCatalog().curatedItem(cat, shape, sex) is not null). A single-sex product changes only that child; the prompt says the other child stays as it is.",
   "ci": "the fixed colour index per sex (index.html CURATED_COLOURS / fixedColour).",
   "names": "the shop name per sex (curatedItem(...).name).",
@@ -1547,6 +1547,88 @@
    },
    "sharedPicture": true,
    "refSvg": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"180\" height=\"60\" viewBox=\"0 0 180 60\"><defs><radialGradient id=\"g\" cx=\"50%\" cy=\"50%\" r=\"50%\"><stop offset=\"0\" stop-color=\"#f291c6\" stop-opacity=\".95\"/><stop offset=\".6\" stop-color=\"#f291c6\" stop-opacity=\".7\"/><stop offset=\"1\" stop-color=\"#f291c6\" stop-opacity=\"0\"/></radialGradient></defs><ellipse cx=\"38\" cy=\"30\" rx=\"30\" ry=\"18\" fill=\"url(#g)\"/><ellipse cx=\"142\" cy=\"30\" rx=\"30\" ry=\"18\" fill=\"url(#g)\"/><g fill=\"#d8559b\"><circle cx=\"26\" cy=\"32\" r=\"3.4\"/><circle cx=\"38\" cy=\"24\" r=\"3.4\"/><circle cx=\"48\" cy=\"34\" r=\"3.4\"/><circle cx=\"132\" cy=\"34\" r=\"3.4\"/><circle cx=\"142\" cy=\"24\" r=\"3.4\"/><circle cx=\"154\" cy=\"32\" r=\"3.4\"/></g></svg>"
+  },
+  "ear:star_e": {
+   "class": "ear/earring",
+   "status": "earring pilot R1 (shared picture)",
+   "sexes": [
+    "m",
+    "f"
+   ],
+   "ci": {
+    "m": 0,
+    "f": 0
+   },
+   "names": {
+    "m": "별 귀걸이",
+    "f": "별 귀걸이"
+   },
+   "colour": {
+    "m": "#ffd24a",
+    "f": "#ffd24a"
+   },
+   "display": {
+    "m": "#ffd24a",
+    "f": "#ffd24a"
+   },
+   "mirrorSafe": true,
+   "designRef": "ref-ear-star_e-design.png",
+   "notes": {
+    "ko": {
+     "item": "별 귀걸이",
+     "look": "색과 모양",
+     "both": "두 번째 그림의 별 귀걸이. 귓불에 붙은 작은 동그란 장식 바로 아래에 네 꼭지 반짝이 별이 하나씩 달려 있습니다. 반짝이는 금색 금속 느낌.",
+     "back": "옆모습에서는 보이는 귀에 같은 귀걸이를 그리고, 뒷모습은 위 규칙을 따릅니다."
+    },
+    "en": {
+     "item": "star earrings",
+     "look": "colour and shape",
+     "both": "the star earrings from image 2: a small round stud on the earlobe with a four-pointed sparkle star hanging just below it; shiny gold metal.",
+     "back": "in the side view show the same earring on the visible ear; the back view follows the rule above."
+    }
+   },
+   "sharedPicture": true
+  },
+  "ear:long_e": {
+   "class": "ear/earring",
+   "status": "earring pilot R2 (shared picture)",
+   "sexes": [
+    "m",
+    "f"
+   ],
+   "ci": {
+    "m": 0,
+    "f": 0
+   },
+   "names": {
+    "m": "긴 귀걸이",
+    "f": "긴 귀걸이"
+   },
+   "colour": {
+    "m": "#ffd24a",
+    "f": "#ffd24a"
+   },
+   "display": {
+    "m": "#ffd24a",
+    "f": "#ffd24a"
+   },
+   "mirrorSafe": true,
+   "designRef": "ref-ear-long_e-design.png",
+   "notes": {
+    "ko": {
+     "item": "긴 귀걸이",
+     "look": "색과 모양",
+     "both": "두 번째 그림의 긴 귀걸이. 귓불의 작은 동그란 장식에서 가는 줄이 아래로 내려오고, 끝에 물방울 모양 장식이 달려 있습니다. 턱선 높이를 넘지 않는 길이, 반짝이는 금속 느낌.",
+     "back": "옆모습에서는 보이는 귀에 같은 귀걸이를 그리고, 뒷모습은 위 규칙을 따릅니다."
+    },
+    "en": {
+     "item": "long drop earrings",
+     "look": "colour and shape",
+     "both": "the long earrings from image 2: from a small round stud on the earlobe a thin chain hangs down to a drop-shaped charm; no longer than the jaw line; shiny metal.",
+     "back": "in the side view show the same earring on the visible ear; the back view follows the rule above."
+    }
+   },
+   "sharedPicture": true
   }
  }
 }
