@@ -473,6 +473,7 @@ OPEN_SHOE_CODES = ('SOLE_OFF_FLOOR', 'SHOE_MISSING')
 OPEN_CHANGED = 12.0   # Lab change (blurred) from the bare feet that is the shoe
 OPEN_ZONE = 8         # px round the pipeline's own shoe part where an open shoe may lie
 OPEN_MIN = 20         # px of a kept piece
+OPEN_FEET = 3         # px round the feet layer where an open shoe may lie
 OPEN_SKIN = 10.0      # Lab to the dark feet's colours under which a changed pixel is a redrawn toe, not the shoe
 
 
@@ -527,7 +528,9 @@ def open_shoes(res, figs, keys):
             # between them were baked in, 2026-10-16 sandal; the skin is sampled on the feet layer only, the
             # legs above stay light.)
             skin = zone & feet & (b[..., :3].sum(-1) < 735)
-            m = changed
+            # only on the feet (a few px round them): the sheet repaints the border of the dark feet and the light
+            # legs above, and that light skin came in over the ankle strap (light blotches on dark legs, 2026-10-16)
+            m = changed & M.dilate(feet, OPEN_FEET)
             if skin.sum() > 50:
                 skin_cols = KM(Bl[skin].reshape(-1, 3)[::3], 8)
                 m = m & (NEAREST(Ul, skin_cols) > OPEN_SKIN)
