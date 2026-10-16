@@ -8,7 +8,7 @@ const L=require(require('node:path').resolve(__dirname,'..','foundation-garment-
   const hairs=[['m','short'],['m','spiky'],['m','slick'],['f','bob'],['f','twin'],['f','long']];
   const cells=[];
   for(const hat of HATS)for(const [sex,h] of hairs)for(const d of ['front','right','back'])cells.push({av:{sex,sk:0,hair:h+':1',expression:'bright:0',hat},state:{action:'idle',direction:d,time:0,reducedMotion:true},size:220});
-  const g=await page.evaluate(spec=>__fg.grid(spec),{cells,cols:18,cellW:120,cellH:150,top:-6,labelW:0});
+  const g=await page.evaluate(spec=>__fg.grid(spec),{cells,cols:18,cellW:120,cellH:200,top:44,labelW:0});
   await L.capture(page,g,OUT);
   if(report.errors.length)console.error(report.errors.join('\n'));
   await browser.close();await server.close();

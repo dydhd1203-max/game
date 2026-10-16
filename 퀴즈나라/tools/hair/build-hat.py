@@ -483,6 +483,57 @@ def build(sheet, out, pid=None, kind=None, out_assets=None):
     return report
 
 
+CHECK_HOLE = 40     # px (template scale): a hole of new paint this big is a lost badge (HAT_HOLE)
+CHECK_DROP = .5     # share of the hat's width a dropped changed piece may span (WIDE_DROP: a lost visor)
+CHECK_PAGE = .002   # share of the cut that may be page haze joined to the outside (PAGE_IN_HAT)
+CHECK_NOTCH = 20    # px (template scale): closing radius that finds a notch in the hat's upper part ...
+CHECK_NOTCH_PX = 150  # ... of this many px (template scale, squared with px) (HAT_NOTCH) ...
+CHECK_NOTCH_LAB = 10.0  # ... drawn within this Lab distance of the hat's own colours
+
+
+def page_like(u):
+    """Near-white neutral pixels (PAGE_*)."""
+    return (u.min(-1) >= PAGE_MIN) & (u.max(-1) - u.min(-1) <= PAGE_SPREAD)
+
+
+def cut_checks(mask, u, t, head, dh, px=1.0, kind=None):
+    """Codes for the ways a hat cut went wrong (2026-10-16, each seen once on a contact sheet before):
+    HAT_HOLE a hole painted in a new colour (a police cap's star), WIDE_DROP a changed piece across half
+    the hat left out (its visor), PAGE_IN_HAT the page's haze kept (white arcs beside a brim), HAT_NOTCH a
+    notch in the hat's upper part (a cowboy hat over hair of its brown, a bandana's skull on its edge)."""
+    codes = []
+    if not mask.any():
+        return codes
+    Ul = R.lab(u)
+    head_cols = kmeans(R.lab(t)[head].reshape(-1, 3)[::7], 10)
+    novel = nearest(Ul, head_cols) > NOVEL
+    lab_, comps = M.components(fill_holes(mask) & ~mask)
+    if any(c['size'] > CHECK_HOLE * px * px and novel[lab_ == c['label']].mean() > .5 for c in comps):
+        codes.append('HAT_HOLE')
+    cols = np.nonzero(mask.any(0))[0]; width = cols.max() - cols.min() + 1
+    C = np.hypot(Ul[..., 1], Ul[..., 2])
+    unhair = novel | ((Ul[..., 0] < BAND_L) & (C < BAND_C))  # not the hair a drawing redid under the hat
+    lab_, comps = M.components(dh & ~mask)
+    if any(c['bbox'][2] - c['bbox'][0] >= CHECK_DROP * width and (lab_ == c['label']).sum() > CHECK_HOLE * px * px
+           and unhair[lab_ == c['label']].mean() > .5 for c in comps):
+        codes.append('WIDE_DROP')
+    page = page_like(u) & mask
+    haze = M.connected_to(page, page & M.dilate(~mask & (np.abs(t - 255).sum(-1) < 15), 1))
+    if haze.sum() > CHECK_PAGE * mask.sum():
+        codes.append('PAGE_IN_HAT')
+    if kind not in (None, 'full'):
+        return codes  # an ornament sitting on the hair shows hair between its parts (ribbon loops, petals)
+    r = max(1, int(round(CHECK_NOTCH * px)))
+    rows = np.nonzero(mask.any(1))[0]; upper = np.zeros_like(mask); upper[rows.min():rows.min() + int(.6 * (rows.max() - rows.min()))] = True
+    # painted in the hat's own colours (a natural concavity, beside a brim or a tassel, is page)
+    hat_cols = kmeans(Ul[mask][::5], 6, seed=1)
+    notch = M.erode(M.dilate(mask, r), r) & ~fill_holes(mask) & upper & ~page_like(u) & (nearest(Ul, hat_cols) < CHECK_NOTCH_LAB)
+    lab_, comps = M.components(notch)
+    if any(c['size'] > CHECK_NOTCH_PX * px * px for c in comps):
+        codes.append('HAT_NOTCH')
+    return codes
+
+
 NECK_HN = 29.0     # head-native row taken as the neck in a base figure (the chin is about 30)
 
 
@@ -525,6 +576,11 @@ def build_base(sheet, base_dir, out, pid=None, kind=None, out_assets=None):
                                                            face=face_in_hat(f['mask'], u, tt, head))
         if f is not None and report['figures'][k]['face'] > MAX_FACE:
             report.setdefault('codes', []).append(['FACE_IN_HAT', k])
+        if f is not None:
+            zone = np.zeros(head.shape, bool); hx = np.nonzero(head.any(0))[0]; side = int(round(60 * px))
+            zone[:low, max(0, hx.min() - side):hx.max() + side + 1] = True
+            for code in cut_checks(f['mask'], u, tt, head, diff_hat(u, tt, zone, px), px, kind):
+                report.setdefault('codes', []).append([code, k])
         frames[k] = dict(cell0=[0, 0], unitsPerSheetPx=1 / ppu, cellOrigin=[-box['x'] / ppu, -box['y'] / ppu], toViewBox=t)
         if f is None:
             continue
