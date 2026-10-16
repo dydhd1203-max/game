@@ -106,7 +106,7 @@ def cut(key,out,image=None,outfit=OUTFIT,name='basic'):
     meta['outfits'][outfit]=entry
     json.dump(meta,open(path,'w'),ensure_ascii=False,indent=1);print(key,outfit,json.dumps(entry))
 
-# Item sheets (인계/앉은옷-요청문.md): the reference's three seated views
+# Item sheets (assets/garment-template/requests/앉은옷-요청문.md): the reference's three seated views
 # (front, right profile, back) redrawn with one shop item. Each figure is
 # placed onto its basic reference by head width (top two fifths of the
 # figure), head centre and lowest row, then cut like the basic drawing.

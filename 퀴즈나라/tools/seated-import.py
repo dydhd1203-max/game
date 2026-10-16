@@ -2,7 +2,7 @@
 
   python3 tools/seated-import.py BATCH.zip|DIR [--date YYYY-MM-DD] [--dry]
 
-The user returns ChatGPT sheets named by the numbers of 인계/앉은옷-요청문.md
+The user returns ChatGPT sheets named by the numbers of assets/garment-template/requests/앉은옷-요청문.md
 (09.png, 17.webp, ...). For every numbered picture this:
 
   1. finds its item in the request table (number -> sex, slot, item id from
@@ -30,7 +30,7 @@ import sys, os, re, json, zipfile, tempfile, datetime, importlib.util, traceback
 from PIL import Image
 
 HERE = os.path.dirname(os.path.abspath(__file__)); ROOT = os.path.dirname(HERE)
-REQUEST = os.path.join(ROOT, '인계', '앉은옷-요청문.md')
+REQUEST = os.path.join(ROOT, 'assets', 'garment-template', 'requests', '앉은옷-요청문.md')
 PICS = ('.png', '.jpg', '.jpeg', '.webp')
 
 
