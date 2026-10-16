@@ -162,17 +162,17 @@
     "wear": "신습니다",
     "pose": "팔·다리 위치",
     "keep": "윗옷, 반바지, 맨발의 모양(발가락·발등·뒤꿈치)",
-    "length": "첫 번째 그림의 아이들은 맨발입니다. 그 맨발 위에 {item|을} 신깁니다. 발 크기·위치·모양과 바닥선은 그대로 두고, 밑창은 지금 발바닥이 닿는 바닥선에 둡니다. 신발에 가리지 않는 발가락·발등·뒤꿈치는 첫 번째 그림의 맨발과 똑같이 두고 다시 그리지 않습니다. 앞모습과 뒷모습에서는 두 발에 모두 신깁니다."
+    "length": "첫 번째 그림의 아이들은 맨발이고, 발은 진한 갈색으로 칠해 두었습니다(양말이 아니라 맨발입니다). 그 맨발 위에 {item|을} 신깁니다. 발 크기·위치·모양·색과 바닥선은 그대로 두고, 밑창은 지금 발바닥이 닿는 바닥선에 둡니다. 신발에 가리지 않는 발가락·발등·뒤꿈치는 첫 번째 그림의 갈색 맨발과 똑같이 두고 다시 그리거나 색을 바꾸지 않습니다. 앞모습과 뒷모습에서는 두 발에 모두 신깁니다."
    },
    "en": {
     "slot": "shoes",
     "things": "shoes",
     "pose": "arm and leg positions",
     "keep": "tops, shorts and the bare feet (toes, insteps, heels)",
-    "length": "The children in image 1 are barefoot. Put the {item} on those bare feet. Keep the feet's size, position and shape and the floor line; the soles lie on the floor line where the feet stand now. Toes, insteps and heels the shoes leave bare stay exactly as the bare feet of image 1 and are not redrawn. Put shoes on both feet in the front and back views."
+    "length": "The children in image 1 are barefoot; their feet are painted dark brown (bare feet, not socks). Put the {item} on those bare feet. Keep the feet's size, position, shape and colour and the floor line; the soles lie on the floor line where the feet stand now. Toes, insteps and heels the shoes leave bare stay exactly as the brown bare feet of image 1 and are not redrawn or recoloured. Put shoes on both feet in the front and back views."
    },
    "limits": [],
-   "why": "Open shoes (slippers, sandals, 2026-10-16): drawn on the barefoot sheet (assets/garment-sources/standing-barefoot-chatgpt-2026-10-16.png) so the shoe is what changed from the bare feet, and the bare skin left shows the game's feet layer (sd-foundation-ref-feet.png) in every skin tone. Cut by tools/build-open-shoes.py, not the garment pipeline."
+   "why": "Open shoes (slippers, sandals, 2026-10-16): drawn on the barefoot sheet with dark feet (assets/garment-template/barefoot-dark-sheet.png: on light feet a cream strap was the skin's colour, 2026-10-16) so the shoe is what changed from the bare feet, and the bare skin left shows the game's feet layer (sd-foundation-ref-feet.png) in every skin tone. Cut by tools/build-open-shoes.py, not the garment pipeline."
   },
   "hat/full": {
    "ko": {

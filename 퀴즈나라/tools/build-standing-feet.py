@@ -1,7 +1,8 @@
 """Standing bare feet (2026-10-16): the skin under an open shoe (slippers, sandals) cut from the returned sheet
 assets/garment-sources/standing-barefoot-chatgpt-2026-10-16.png (the garment template with the shoes taken off).
 
-  python3 -B tools/build-standing-feet.py          write assets/sd-foundation-ref-feet.png and -feet.js
+  python3 -B tools/build-standing-feet.py          write assets/sd-foundation-ref-feet.png, tools/fixtures/standing-feet.json
+                                                   and the open-shoe request's image 1 assets/garment-template/barefoot-dark-sheet.png
   python3 -B tools/build-standing-feet.py --check  rebuild in memory and compare with the committed files
 
 The sheet is registered to the frozen body with the garment pipeline's shoe slot (tools/avatar_build/register.py),
@@ -49,14 +50,34 @@ def sneaker():
     return json.loads(s[:s.index('\n};') + 2].rstrip(';'))
 
 
-def registered():
+DARK_BASE = 'assets/garment-template/barefoot-dark-sheet.png'
+DARK = (0xa4, 0x69, 0x3f)  # the darkest shop skin (index.html PAL.skin 진한)
+
+
+def dark_base():
+    """The barefoot sheet with its feet painted the darkest skin (image 1 of an open-shoe request): a cream
+    strap is the light skin's colour within Lab ~9, so on light feet the cut could not tell strap from skin
+    (2026-10-16 sandal); on dark feet it can. The feet are this layer's own pixels mapped back onto the sheet."""
+    from PIL import ImageFilter
+    src = np.asarray(Image.open(os.path.join(ROOT, SHEET)).convert('RGB')).astype(np.float32)
+    H, W = src.shape[:2]
+    feet = Image.fromarray(((np.asarray(Image.open(os.path.join(ROOT, OUT_PNG)).convert('RGBA'))[..., 3] > 40) * 255).astype(np.uint8))
+    canvas = Image.new('L', (1629, 1086), 0); canvas.paste(feet, (90, 0))  # body sheet -> template (make-template.py)
+    mask = np.asarray(canvas.resize((W, H), Image.NEAREST).filter(ImageFilter.MaxFilter(5))) > 0
+    skin = mask & (src.sum(-1) < PAGE)
+    gain = np.array(DARK, np.float32) / np.array([252, 217, 196], np.float32)  # sheet skin -> dark (shading kept)
+    out = src.copy(); out[skin] = np.clip(src[skin] * gain, 0, 255)
+    return out.round().astype(np.uint8)
+
+
+def registered(sheet=SHEET):
     h = hashlib.sha256()
-    for f in (os.path.join(ROOT, SHEET), R.TEMPLATE_PATH, R.__file__):
+    for f in (os.path.join(ROOT, sheet), R.TEMPLATE_PATH, R.__file__):
         h.update(open(f, 'rb').read())
     path = os.path.join(CACHE, h.hexdigest()[:24] + '.npy')
     if os.path.exists(path):
         return np.load(path)
-    res = R.register(os.path.join(ROOT, SHEET), slot='shoes', sexes=('m', 'f'))
+    res = R.register(os.path.join(ROOT, sheet), slot='shoes', sexes=('m', 'f'))
     codes = [c['code'] for c in res['codes']]
     if codes:
         raise SystemExit('registration codes: %s' % codes)
@@ -134,7 +155,11 @@ def main(argv):
     ap.add_argument('--check', action='store_true')
     a = ap.parse_args(argv)
     img, data = build()
+    dark = dark_base()
     if a.check:
+        same_dark = np.array_equal(np.asarray(Image.open(os.path.join(ROOT, DARK_BASE)).convert('RGB')), dark)
+        if not same_dark:
+            print('feet: %s CHANGED' % DARK_BASE); return 1
         old = np.asarray(Image.open(os.path.join(ROOT, OUT_PNG)).convert('RGBA'))
         same = old.shape == img.shape and np.array_equal(old, img) and open(os.path.join(ROOT, OUT_JSON), encoding='utf-8').read() == record(data)
         rects = {k: [f['rect'] for f in v['feet']] for k, v in data.items()}
@@ -143,6 +168,7 @@ def main(argv):
         same = same and game
         return 0 if same else 1
     Image.fromarray(img).save(os.path.join(ROOT, OUT_PNG), optimize=True)
+    Image.fromarray(dark_base()).save(os.path.join(ROOT, DARK_BASE), optimize=True)
     open(os.path.join(ROOT, OUT_JSON), 'w', encoding='utf-8').write(record(data))
     if skin_literal() != {k: [f['rect'] for f in v['feet']] for k, v in data.items()}:
         print('copy the rects into avatar-foundation-skin.js FEET (then --check)')

@@ -472,11 +472,31 @@ OPEN_SHOE_CODES = ('SOLE_OFF_FLOOR', 'SHOE_MISSING')
 OPEN_CHANGED = 12.0   # Lab change (blurred) from the bare feet that is the shoe
 OPEN_ZONE = 8         # px round the pipeline's own shoe part where an open shoe may lie
 OPEN_MIN = 20         # px of a kept piece
+OPEN_SKIN = 10.0      # Lab to the dark feet's colours under which a changed pixel is a redrawn toe, not the shoe
+
+
+def KM(X, k):
+    """k-means colour clusters (Lab rows), as tools/hair/build-hat.py kmeans."""
+    X = np.asarray(X, np.float32)
+    if len(X) <= k:
+        return X
+    rng = np.random.default_rng(0); C = X[rng.choice(len(X), k, replace=False)]
+    for _ in range(12):
+        lab_ = np.argmin(((X[:, None] - C[None]) ** 2).sum(-1), 1)
+        for j in range(k):
+            if (lab_ == j).any():
+                C[j] = X[lab_ == j].mean(0)
+    return C
+
+
+def NEAREST(L, C):
+    """Lab distance of each pixel to its nearest colour of C."""
+    return np.sqrt(((L[..., None, :] - C) ** 2).sum(-1)).min(-1)
 
 
 def open_shoes(res, figs, keys):
-    """Open shoes (class shoes/sandals, 2026-10-16) are drawn on the barefoot sheet
-    (assets/garment-sources/standing-barefoot-chatgpt-2026-10-16.png): the shoe is what changed from those bare
+    """Open shoes (class shoes/sandals, 2026-10-16) are drawn on the barefoot sheet with dark feet
+    (assets/garment-template/barefoot-dark-sheet.png, tools/build-standing-feet.py): the shoe is what changed from those bare
     feet, both registered to the body. The bare skin the straps leave stays out of the record (no baked skin
     colour); the game draws its own feet layer there (record.feet, avatar-foundation-outfit.js). Replaces each
     figure's shoe parts in place; the zone is the pipeline's own shoe part, grown."""
@@ -484,7 +504,8 @@ def open_shoes(res, figs, keys):
     from PIL import ImageFilter
     spec = importlib.util.spec_from_file_location('standing_feet', os.path.join(ROOT, 'tools', 'build-standing-feet.py'))
     SF = importlib.util.module_from_spec(spec); spec.loader.exec_module(SF)
-    bare = SF.registered()
+    bare = SF.registered(SF.DARK_BASE)  # the open shoe was drawn on dark feet (image 1 of its request)
+    feet_all = np.asarray(Image.open(os.path.join(ROOT, SF.OUT_PNG)).convert('RGBA'))[..., 3] > 40
     reg = res['images']['registered'].astype(np.float32)
     blur = lambda x: np.asarray(Image.fromarray(np.clip(x, 0, 255).astype(np.uint8)).filter(ImageFilter.GaussianBlur(1))).astype(np.float32)
     for key in keys:
@@ -492,20 +513,25 @@ def open_shoes(res, figs, keys):
         u, b = reg[y0:y1, x0:x1], bare[y0:y1, x0:x1]
         d = np.sqrt(((R.lab(blur(u[..., :3])) - R.lab(blur(b[..., :3]))) ** 2).sum(-1))
         page = (u[..., :3].sum(-1) > 735) | (u[..., 3] < 128)
+        Ul, Bl = R.lab(u[..., :3]), R.lab(b[..., :3])
+        feet = feet_all[y0:y1, x0:x1]
         for name, part in figs[key]['parts'].items():
             if not name.startswith('shoe'):
                 continue
-            zone = M.dilate(part['a'] > .1, OPEN_ZONE)
-            m = zone & (d > OPEN_CHANGED) & ~page
+            zone = M.dilate(part['a'] > .1, OPEN_ZONE) & ~page
+            changed = zone & (d > OPEN_CHANGED)
+            # On the dark feet a cream strap changes plainly; the skin left between straps is unchanged. A toe
+            # the sheet redrew a little changed too: it is dropped when its colour is the dark feet's. (On light
+            # feet a cream strap was the skin's colour within Lab ~9: straps came out hollow or the light toes
+            # between them were baked in, 2026-10-16 sandal; the skin is sampled on the feet layer only, the
+            # legs above stay light.)
+            skin = zone & feet & (b[..., :3].sum(-1) < 735)
+            m = changed
+            if skin.sum() > 50:
+                skin_cols = KM(Bl[skin].reshape(-1, 3)[::3], 8)
+                m = m & (NEAREST(Ul, skin_cols) > OPEN_SKIN)
             lab_, comps = M.components(m)
             m = np.isin(lab_, [c['label'] for c in comps if c['size'] >= OPEN_MIN])
-            # a cream strap is the light skin's colour (Lab under OPEN_CHANGED): its middle read as unchanged and
-            # the strap came out hollow. Holes enclosed by one piece are filled; skin between two pieces (toes
-            # between a strap and the sole) is not enclosed and stays out (closing bridged it; fake sandal, 2026-10-16)
-            lab_, comps = M.components(m)
-            for c in comps:
-                piece = lab_ == c['label']
-                m |= FL.fill_holes(piece) & zone & ~page
             part['a'] = m.astype(np.float32) * (u[..., 3] / 255.0)
             part['rgb'] = u[..., :3].copy()
 
