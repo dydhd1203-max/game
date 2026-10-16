@@ -1,0 +1,48 @@
+원화 요청 1가지 - 서 있는 맨발 (2026-10-16)
+==========================================
+
+[왜 필요한가]
+- 상점 슬리퍼·샌들은 발가락과 발등이 드러납니다. 게임의 서 있는 몸에는 신발 속 맨발 그림이 없어서, 신발을 벗긴 맨발을 먼저 받아 '발 피부 층'을 만듭니다.
+
+[꼭 지킬 것]
+- ChatGPT 새 대화: 01-옷-그림틀.png 첨부 → 아래 요청 문장(한국어) 붙여 넣기 → 결과만 standing-barefoot.png 로 저장해 보내 주세요(zip 하나).
+- 결과는 그린 원본 그대로 줍니다. 크기 조정, 자르기, 색·위치 보정을 하지 않습니다.
+- 이 요청 묶음을 그대로 다시 보내지 않습니다.
+
+----------------------------------------------------------------
+요청 문장
+----------------------------------------------------------------
+첨부한 그림은 게임 캐릭터 설정 시트입니다. 윗줄은 남자아이, 아랫줄은 여자아이이고, 왼쪽부터 앞모습, 오른쪽을 보는 옆모습, 뒷모습입니다.
+
+여섯 그림 모두 신발만 벗겨 맨발로 다시 그려 주세요.
+
+꼭 지켜 주세요.
+1. 얼굴, 머리, 몸 크기와 비율, 자세, 팔·다리 위치, 윗옷과 반바지는 첨부 그림과 똑같이 둡니다. 바뀌는 곳은 발뿐입니다.
+2. 여섯 그림의 위치, 크기, 간격을 그대로 둡니다. 그림을 자르거나 옮기지 않습니다.
+3. 발목 위치와 발바닥이 닿는 바닥 높이는 지금 신발과 같게 둡니다. 맨발은 지금 신발보다 조금 작게, 신발 안에 들어가던 발 크기로 그립니다.
+4. 앞모습은 발등과 다섯 발가락이 앞을 향해 보이고, 오른쪽을 보는 옆모습은 발 옆면(뒤꿈치에서 발가락까지)이 오른쪽을 향하고, 뒷모습은 뒤꿈치와 발바닥 뒤쪽이 조금 보이게 그립니다.
+5. 발의 피부색, 명암, 외곽선은 다리와 똑같이 이어지게 그립니다. 양말, 발찌, 매니큐어, 반창고 같은 것은 넣지 않습니다.
+6. 그림체(부드러운 채색, 외곽선 굵기, 명암)는 첨부 그림과 같게 합니다. 배경은 아무것도 없는 흰색이고, 바닥 그림자, 글자, 테두리를 넣지 않습니다.
+7. 결과는 가로로 긴 그림 한 장으로 주세요.
+
+English (same request):
+The attached image is a game character sheet: top row a boy, bottom row a girl; from left to right front view, right-facing side view, back view.
+
+Redraw all six figures barefoot: take off only the shoes.
+
+Rules:
+1. Keep the face, hair, body size and proportions, pose, arm and leg positions, top and shorts exactly as in the attached image. Only the feet change.
+2. Keep the position, size and spacing of all six figures. Do not crop or move them.
+3. Keep the ankles and the floor line where the soles touch exactly where the shoes have them now. Draw the bare feet a little smaller than the shoes, the size of the feet that were inside them.
+4. Front view: the tops of the feet and all five toes face forward. Right-facing side view: the side of each foot, heel to toes, points right. Back view: the heels and a little of the back of the soles show.
+5. The feet's skin colour, shading and outline continue the legs exactly. No socks, anklets, nail polish or plasters.
+6. Same art style as the attached image (soft painting, outline weight, shading). Plain white background, no floor shadow, text or frame.
+7. Return one landscape image.
+
+----------------------------------------------------------------
+결과가 이러면 다시 요청 (그대로 붙여 넣기)
+----------------------------------------------------------------
+- 발이 크거나 바닥 높이·발목 위치가 바뀌었을 때:
+  "발목과 바닥 높이는 첨부 그림의 신발과 같게, 발은 신발 안에 들어가는 크기로 다시 그려 주세요."
+- 반바지·다리·몸이 바뀌었을 때:
+  "발 말고는 첨부 그림과 완전히 같아야 합니다. 같은 그림에서 신발만 벗겨 다시 그려 주세요."

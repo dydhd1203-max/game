@@ -7,7 +7,8 @@
 //   node tools/hair/make-hat-hair-base.cjs OUTDIR --hat m:short f:bob   the hat kit's first picture: smaller figures
 //        with room above each head for a tall hat (a witch's hat, a chef's hat, a halo), on a 3:2 sheet like
 //        ChatGPT's landscape output (tools/hair/build-hat.py --base reads it back)
-const fs=require('node:fs'),path=require('node:path');const ROOT=path.resolve(__dirname,'..','..'),OUT=process.argv[2],HAT=process.argv.includes('--hat'),LIST=process.argv.slice(3).filter(a=>a!=='--hat');fs.mkdirSync(OUT,{recursive:true});
+//   --colour N   the hair in shop colour N instead of 1 (make-flat-hat-base.py: the pixels that change are the hair)
+const fs=require('node:fs'),path=require('node:path');const ROOT=path.resolve(__dirname,'..','..'),OUT=process.argv[2],HAT=process.argv.includes('--hat'),CI=process.argv.includes('--colour')?process.argv[process.argv.indexOf('--colour')+1]:'1',LIST=process.argv.slice(3).filter((a,i,all)=>a!=='--hat'&&a!=='--colour'&&all[i-1]!=='--colour');fs.mkdirSync(OUT,{recursive:true});
 // --hat: 420 px figures (465 px tall) in 660 x 660 cells, 175 px above each figure (about one head: a witch's hat)
 const SIZE=HAT?420:620,CELL_W=660,CELL_H=HAT?660:700,TOP=HAT?175:undefined;
 const L=require(ROOT+'/tools/foundation-garment-lib.cjs'),H=L.H;
@@ -16,7 +17,7 @@ const L=require(ROOT+'/tools/foundation-garment-lib.cjs'),H=L.H;
   const {page}=await L.openRuntime(browser,server.base,report,{viewport:{width:2400,height:(CELL_H+40)*Math.max(1,LIST.length)}});
   await L.install(page,{});
   const rows=LIST.map(s=>s.split(':')),views=['front','right','back'];
-  const cells=rows.flatMap(([sex,hair])=>views.map(view=>({av:{sex,sk:0,hair:hair+':1',expression:'bright:0'},state:{action:'idle',direction:view,time:0,reducedMotion:true},size:SIZE})));
+  const cells=rows.flatMap(([sex,hair])=>views.map(view=>({av:{sex,sk:0,hair:hair+':'+CI,expression:'bright:0'},state:{action:'idle',direction:view,time:0,reducedMotion:true},size:SIZE})));
   const g=await page.evaluate(spec=>__fg.grid(spec),{cells,cols:3,cellW:CELL_W,cellH:CELL_H,top:TOP,labelW:0,bg:'#ffffff'});
   const boxes=await page.evaluate(n=>[...document.querySelectorAll('svg.qp-foundation-avatar')].filter(s=>s.getBoundingClientRect().width>0).slice(-n).map(s=>{const r=s.getBoundingClientRect();return {x:r.left+scrollX,y:r.top+scrollY,w:r.width,h:r.height};}),cells.length);
   await L.capture(page,g,path.join(OUT,'base.png'));

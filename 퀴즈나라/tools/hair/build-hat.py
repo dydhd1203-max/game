@@ -40,6 +40,8 @@ GAP_FILL = 30     # px (template scale) of a gap in a column bridged as hat
 MAX_FACE = .003   # share of a hat cut that may be the base figure's unchanged face (face_in_hat)
 BROWN_HAT = 11.5  # Lab: hat colours this near the head's are the hair's own (kept whole, trim_head)
 COLOUR_SHARE = .8 # the colour cut stands when it finds this share of what changed
+HOLE_UNLIKE = 25.0 # Lab: an unchanged hole this unlike the hat round it is the page seen through it (cut_flat)
+FLAT_NEAR = 30.0  # Lab distance to a flat-hair base's colour that is still the placeholder (cut_flat)
 GROW = 3          # px the hat mask grows over its own outline
 ZONE = .75        # share of head top -> neck the hat may reach down to (a cap's back strap, a profile brim)
 HIDE_SIDE = 260   # px beside the hat the hair-hide mask reaches (hide_mask; a twin tail, a pony)
@@ -332,6 +334,67 @@ def cut_zone(u, a, t, head, low, x0, y0, box, px=1.0, diff=False):
                                                    soft=HIDE_SOFT * px))
 
 
+def cut_flat(u, t, flat, head, low, x0, y0, box, px=1.0):
+    """The hat on a flat-hair base (tools/hair/make-flat-hat-base.py, 2026-10-16): what changed from the base
+    figure and is not the flat colour. A hat the hair's brown, a black visor, a white crown need no colour rule,
+    and the hair redrawn under it stays flat (the sheet keeps the placeholder). The hat's edge over the flat
+    hair is unmixed from it (no magenta fringe); flat hair the hat encloses is its opening (a cap's back)."""
+    ys, xs = np.nonzero(head)
+    side = int(round(60 * px))
+    zone = np.zeros(head.shape, bool)
+    zone[:low, max(0, xs.min() - side):xs.max() + side + 1] = True
+    Ul, Fl = R.lab(u), R.lab(np.array(flat, np.float32)[None, None])[0, 0]
+    dflat = np.sqrt(((Ul - Fl) ** 2).sum(-1))
+    flat_now = dflat < FLAT_NEAR
+    dh = diff_hat(u, t, zone, px)
+    # diff_hat fills every hole (a white crown on the white page changes only along its outline); here a hole
+    # stays open when it is unchanged and unlike the hat round it (a halo's gold ring round the page, 2026-10-16
+    # flat check: the ring came out a disc)
+    raw = np.sqrt(((Ul - R.lab(t)) ** 2).sum(-1)) > DIFF
+    core = M.erode(M.dilate(dh & raw, 1), 1)
+    lab_, comps = M.components(fill_holes(core) & ~core)
+    for c in comps:
+        m = lab_ == c['label']
+        if (raw & m).sum() > .5 * m.sum():  # mostly repainted: the hat
+            continue
+        ring = M.dilate(m, 3) & core
+        if ring.any() and np.sqrt(((Ul[m].mean(0) - Ul[ring].mean(0)) ** 2).sum()) > HOLE_UNLIKE:
+            dh = dh & ~m
+    hat = dh & ~flat_now
+    r = max(1, int(round(2 * px)))
+    lab_, comps = M.components(M.erode(M.dilate(hat, r), r))
+    hat = np.isin(lab_, [c['label'] for c in comps if c['size'] >= SEED_MIN * px * px]) & ~flat_now
+    if hat.sum() < SEED_MIN * px * px:
+        return None
+    opening = fill_holes(hat) & flat_now
+    lab_, comps = M.components(opening)
+    opening = np.isin(lab_, [c['label'] for c in comps if c['size'] > 40 * px * px])
+    hat = drop_wisps(peel_page(hat & ~opening, u, t), px)
+    if not hat.any():
+        return None
+    # the edge over the flat hair: u = a*hat + (1-a)*flat, the hat's colour taken from its inside a few px in
+    inner = M.erode(hat, 2) if M.erode(hat, 2).any() else hat
+    col, have = np.where(inner[..., None], u, 0).astype(np.float32), inner.copy()
+    for _ in range(6):
+        grow = M.dilate(have, 1) & ~have
+        if not grow.any():
+            break
+        acc = np.zeros_like(col); n = np.zeros(have.shape, np.float32)
+        for dy in (-1, 0, 1):
+            for dx in (-1, 0, 1):
+                acc += np.roll(np.roll(col * have[..., None], dy, 0), dx, 1); n += np.roll(np.roll(have, dy, 0), dx, 1)
+        col = np.where(grow[..., None], acc / np.maximum(n, 1)[..., None], col); have |= grow
+    f = np.array(flat, np.float32)
+    span = np.sqrt(((col - f) ** 2).sum(-1)); moved = np.sqrt(((u.astype(np.float32) - f) ** 2).sum(-1))
+    edge = hat & ~inner & M.dilate(flat_now, 2)
+    a = np.where(edge, np.clip(moved / np.maximum(span, 30), 0, 1), 1.0).astype(np.float32)
+    clean = np.where(edge[..., None], np.clip(f + (u - f) / np.maximum(a, .05)[..., None], 0, 255), u)
+    out = pack(clean, hat, opening, x0, y0, box, px)
+    bx = out['box']
+    out['rgba'][..., 3] = (np.where(hat, a, 0) * 255).astype(np.uint8)[bx[1] - y0:bx[3] - y0, bx[0] - x0:bx[2] - x0]
+    return out
+
+
 def cut_enclosed(u, x0, y0, box, px=1.0):
     """A light object with a dark outline (white headphones, 2026-10-16): its light parts are the near-white
     pixels the page does not reach from the cell's edge (the outline closes them), plus the low-colour outline
@@ -616,6 +679,9 @@ def build_base(sheet, base_dir, out, pid=None, kind=None, out_assets=None):
         a = (np.abs(u - 255).sum(-1) > 30).astype(np.float32)
         if kind == 'band':  # headphones: the object itself, not what changed (the sheet pressed the hair under it)
             f = cut_enclosed(u, x0, y0, [x0, y0, x1, neck], px)
+        elif meta.get('flat'):  # the hair painted one colour (make-flat-hat-base.py)
+            fc = [int(meta['flat'][i:i + 2], 16) for i in (1, 3, 5)]
+            f = cut_flat(u, tt, fc, head, low, x0, y0, [x0, y0, x1, neck], px)
         else:
             f = cut_zone(u, a, tt, head, low, x0, y0, [x0, y0, x1, neck], px, diff=True)
         report['figures'][k] = None if f is None else dict(box=f['box'], px=f['px'], shift=[dx, dy], legsError=round(err, 2),
