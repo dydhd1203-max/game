@@ -1,7 +1,7 @@
 {
   "project": "퀴즈나라",
   "format": 1,
-  "builtAt": "2026-10-16T01:55:18.806Z",
+  "builtAt": "2026-10-16T02:31:11.209Z",
   "instructions": "Cloudflare Pages 또는 Netlify 수동 배포에는 이 배포용 폴더 전체를 올리세요. index.html만 올리지 마세요.",
   "files": [
     {
@@ -1456,8 +1456,8 @@
     },
     {
       "path": "avatar-hat-art.js",
-      "bytes": 45178,
-      "sha256": "d8e7af7b10b740e6785b4dbd36c5f2aaf76f8480810d926aef10d62bc9fdca98"
+      "bytes": 45173,
+      "sha256": "541aed22800f9e6bf6eed4ff008da7e28b0d7a2260018989b2c68532ae153c96"
     },
     {
       "path": "assets/hat-art/army-m-front.png",
@@ -2391,28 +2391,28 @@
     },
     {
       "path": "assets/hat-art/hair/f-twin-front.png",
-      "bytes": 73043,
-      "sha256": "6e0cfc7d6766aa65330b449706dbcec6994f8c634f42493367332baef39ce9d6"
+      "bytes": 100423,
+      "sha256": "4f16e38f2262c90f26bdcc9e1f12590389b3507f9c23bf0ad282615a0372a04e"
     },
     {
       "path": "assets/hat-art/hair/f-twin-front-keep.png",
-      "bytes": 5417,
-      "sha256": "58cce6ee12afb14186df33c93424a3b6ad9f4353aa8ca52e0e2e08637be0e89e"
+      "bytes": 5363,
+      "sha256": "1f6e0da7dfb9aab77635faa2cd523f450ccf1c1217e6e9c635e0beb839a73c68"
     },
     {
       "path": "assets/hat-art/hair/f-twin-right.png",
-      "bytes": 45002,
-      "sha256": "d2cedb5e62ff4155802f641287ba8f5991eebcaed1f7661b6d7212935db6c3fc"
+      "bytes": 73913,
+      "sha256": "4e0632781df7c40c8ffb17a82f8c8ccdb0da9dbe43076f101bdacecb5129fd29"
     },
     {
       "path": "assets/hat-art/hair/f-twin-right-keep.png",
-      "bytes": 5637,
-      "sha256": "6bd55e1b2774c74e65ceb2dcd9e59c47831c5ad3b2874243847e2337e49f8067"
+      "bytes": 5557,
+      "sha256": "026310cca221abf6f82154a6dbaf6e5781fc899e25e23a77476de1077abb6a40"
     },
     {
       "path": "assets/hat-art/hair/f-twin-back.png",
-      "bytes": 73795,
-      "sha256": "ec592414eab98b63e68bfc8837d507d0f8b56d0b2cd7f462ddf641468c8818a9"
+      "bytes": 98426,
+      "sha256": "670aa085005e1a164998a50b63c5683941a6270aaa8db593348fbd6c8fba2cdd"
     },
     {
       "path": "assets/hat-art/hair/f-twin-back-keep.png",
@@ -2421,28 +2421,28 @@
     },
     {
       "path": "assets/hat-art/hair/f-pony-front.png",
-      "bytes": 45301,
-      "sha256": "a008a24c800971ca56af02bfff2d72930b79dfcc51c67dd5dc483197ea703c8d"
+      "bytes": 80825,
+      "sha256": "7724ed112bf142bf52f72a4a5e306c8b17ade8299d4bc7114da9d03c91ca3ba3"
     },
     {
       "path": "assets/hat-art/hair/f-pony-front-keep.png",
-      "bytes": 5498,
-      "sha256": "0312ccad8598e6e55c534587f8d68513eff12e1d1d5ed7562c845f2010656018"
+      "bytes": 5431,
+      "sha256": "c67559f3d7cd9ddd263204fe1473be26956277c462b6e7a862f9914c340d01f6"
     },
     {
       "path": "assets/hat-art/hair/f-pony-right.png",
-      "bytes": 52184,
-      "sha256": "e9fc0de621c72fdafc5f5c139848926157899851855e9dbc9f3975b4105ea2df"
+      "bytes": 90344,
+      "sha256": "90737575e79f87184b395f370c16487dde918b37df5b3666ee869d45bb3c71d2"
     },
     {
       "path": "assets/hat-art/hair/f-pony-right-keep.png",
-      "bytes": 5612,
-      "sha256": "04799db24021fac4a362049ffe8e5ab385925c0e0b6b58114fef6857b6e5092f"
+      "bytes": 5575,
+      "sha256": "0fca688f80300e171727984f85d4b46ed673850b38339e58490caada115049ba"
     },
     {
       "path": "assets/hat-art/hair/f-pony-back.png",
-      "bytes": 67027,
-      "sha256": "80155c2199c53e4988a538cb7fb32d026ec19e7d36943edaa1da6aa6746e8712"
+      "bytes": 98248,
+      "sha256": "2092b8f54f9ca9084777ebe9744d302d4073b3b7cee91d1dea516b76b2776a4d"
     },
     {
       "path": "assets/hat-art/hair/f-pony-back-keep.png",
