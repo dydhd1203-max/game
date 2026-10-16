@@ -536,18 +536,26 @@ def template_frames():
     return {k: dict(frame[k], cell0=spec['cells'][k][:2]) for k in frame}
 
 
-def export(pid, kind, figures, out_assets, frames=None):
+def export(pid, kind, figures, out_assets, frames=None, narrow=False):
     """assets/hat-art/<shape>-<sex>-<view>.png (+ -hide.png for pulled-on hats) and
     their records (head-native rects) for avatar-hat-art.js. frames: sheet px -> head-native per
-    figure (default: the garment template's, template_frames)."""
+    figure (default: the garment template's, template_frames). narrow: the sheet was drawn on the
+    styles close to the skull (a kit made with make-hat-hair-base.cjs --under-hat): its figures go to
+    the record's 'narrow' views (<shape>-<sex>-<view>-narrow.png), which the game uses on those styles,
+    and the record's own views stay (2026-10-16: a wide brim drawn on the bob had no underside where the
+    bob's hair hid it, a bite under the brim on twin tails)."""
     frames = frames or template_frames()
     shape = pid.split(':')[1]
     os.makedirs(out_assets, exist_ok=True)
+    path = os.path.join(out_assets, shape + '.json')
     rec = dict(kind=kind, views={})
+    if narrow:
+        rec = json.load(open(path))
+        rec['narrow'] = {}
     for k, f in figures.items():
         sex, view = k.split('-')
         fr = frames[k]
-        name = '%s-%s-%s' % (shape, sex, view)
+        name = '%s-%s-%s%s' % (shape, sex, view, '-narrow' if narrow else '')
         Image.fromarray(f['rgba']).save(os.path.join(out_assets, name + '.png'), optimize=True)
         v = dict(src='assets/hat-art/%s.png' % name, rect=to_head(fr, f['box']))
         if kind == 'full':
@@ -558,8 +566,8 @@ def export(pid, kind, figures, out_assets, frames=None):
             h = v['hide']['rect']
             v['hideTop'] = [h[0], -20.0, h[2], round(h[1] + 20.4, 3)]  # overlaps the mask's top rows (all hidden) so its soft edge never shows hair
             v['rim'] = hat_rim(f['rgba'][..., 3], v['rect'])
-        rec['views'].setdefault(sex, {})[view] = v
-    json.dump(rec, open(os.path.join(out_assets, shape + '.json'), 'w'), ensure_ascii=False, indent=1)
+        rec['narrow' if narrow else 'views'].setdefault(sex, {})[view] = v
+    json.dump(rec, open(path, 'w'), ensure_ascii=False, indent=1)
     write_runtime(out_assets)
     return rec
 
@@ -799,7 +807,7 @@ def build_base(sheet, base_dir, out, pid=None, kind=None, out_assets=None):
             sheet_im.paste(t, (x, 0)); x += t.width + 6
         sheet_im.save(os.path.join(out, '모자-조각.png'))
     if pid:
-        report['record'] = export(pid, kind, cut, out_assets, frames)
+        report['record'] = export(pid, kind, cut, out_assets, frames, narrow=bool(meta.get('underHat')))
     return report
 
 

@@ -1,0 +1,98 @@
+양갈래용 밀짚모자·마녀 모자 다시 요청 (2026-10-16)
+================================================
+
+[꼭 지킬 것 - 모든 결과에 공통]
+- 항목마다 ChatGPT 새 대화를 엽니다: '1-그림틀-양갈래-모자아래.png'와 그 모자의 참고 그림을 첨부하고, 아래 요청 문장(한국어)을 붙여 넣은 뒤, 결과만 아래 이름으로 저장합니다.
+- 모든 결과 그림은 '1-그림틀-양갈래-모자아래.png'에서 새로 그립니다. 앞에서 만든 그림 위에 다음 모자를 덧그리지 않습니다. 그림마다 모자만 더해지고 나머지는 그림틀과 같아야 합니다.
+- 결과는 그린 원본 그대로 줍니다. 크기 조정, 자르기, 색·위치 보정을 하지 않습니다(붙이는 도구가 해상도 차이를 자동으로 맞춥니다).
+- 2장을 받으면 한 zip으로 묶어 보내 주세요. 이 요청 묶음을 그대로 다시 보내지 않습니다.
+
+[왜 다시 받나]
+지금 밀짚모자·마녀 모자는 단발머리 아이 위에 그려 받았습니다. 단발의 부푼 옆머리가 넓은 챙 아랫면을 가려서 그 부분이 그려지지 않았고, 양갈래·포니테일(두피에 붙은 머리)에 씌우면 챙 밑 양옆이 물린 듯 비어 보였습니다. 이번에는 두피에 붙은 양갈래 머리 위에 같은 모자를 그려, 챙 아랫면까지 온전히 받습니다. 이 그림은 양갈래·포니테일에만 씁니다.
+
+[보낼 것 2장]
+1) 밀짚모자: 첨부 1-그림틀-양갈래-모자아래.png, 2-밀짚모자-참고.png → 결과 이름 hat-straw-narrow.png
+2) 마녀 모자: 첨부 1-그림틀-양갈래-모자아래.png, 3-마녀모자-참고.png → 결과 이름 hat-witch-narrow.png
+
+----------------------------------------------------------------
+1) 밀짚모자 - 요청 문장 (그대로 붙여 넣기)
+----------------------------------------------------------------
+첫 번째 그림은 게임 캐릭터 설정 시트입니다. 여자아이 한 명의 앞모습, 오른쪽을 보는 옆모습, 뒷모습입니다. 두 번째 그림은 이 아이가 쓸 밀짚모자입니다. 모자의 색과 모양(둥근 꼭대기, 넓게 처진 챙, 분홍 띠와 오른쪽 앞의 분홍 리본)만 참고하고, 아이와 그림체는 첫 번째 그림을 따릅니다. 두 번째 그림의 단발머리는 따라 그리지 않습니다.
+
+첫 번째 그림의 아이에게 모자만 씌워 주세요.
+
+꼭 지켜 주세요.
+1. 얼굴, 머리 모양(두피에 붙은 머리와 귀 아래에서 낮게 묶은 양갈래), 몸 크기와 비율, 자세, 옷과 신발은 첫 번째 그림과 똑같이 둡니다. 머리카락을 부풀리거나 새로 그리지 않습니다.
+2. 세 그림의 위치, 크기, 간격을 그대로 둡니다. 그림을 자르거나 옮기지 않습니다. 머리 위의 빈 공간은 모자를 그리라고 남겨 둔 자리입니다.
+3. 모자는 머리에 푹 눌러 씁니다. 머리 위에 떠 있지 않게, 모자 아래 테두리가 머리를 감싸며 이마 위(눈썹보다 조금 위)와 귀 바로 위를 지나게 합니다. 모자 아래 둘레는 이 머리 둘레에 꼭 맞게 그립니다(두 번째 그림의 단발보다 머리가 작으니 모자 아래 둘레도 그만큼 작습니다).
+4. 넓은 챙은 머리보다 바깥으로 나옵니다. 챙 안쪽 아랫면(머리 양옆과 뒤로 보이는 챙 밑면)을 끝까지 온전히 그립니다. 챙 밑면 위에 머리카락을 겹쳐 그리지 않고, 챙과 머리 사이에 머리카락을 새로 채워 넣지 않습니다. 챙 끝은 둥글게 끝까지 그리고 그림 칸 밖으로 잘리지 않게 합니다.
+5. 앞·옆·뒤 세 모습이 같은 크기의 같은 밀짚모자입니다. 옆모습에서는 챙이 앞뒤로, 뒷모습에서는 챙과 분홍 띠가 보이게 합니다. 묶은 양갈래는 챙 아래로 그대로 보입니다.
+6. 그림체(부드러운 채색, 외곽선 굵기, 명암)는 첫 번째 그림과 같게 합니다.
+7. 배경은 아무것도 없는 흰색입니다. 그림자, 글자, 테두리를 넣지 않습니다.
+8. 결과는 가로로 긴 그림 한 장으로 주세요.
+
+English (same request):
+Image 1 is a game character sheet: one girl, front view, right-facing side view, back view. Image 2 shows the straw hat she will wear. Use only its colour and shape (round crown, wide drooping brim, pink band with a pink bow at the front right); keep the girl and the art style of image 1. Do not copy the bob haircut of image 2.
+
+Add ONLY the hat to the girl in image 1.
+Rules:
+1. Keep the face, the hair (close to the head, twin tails tied low below the ears), body size and proportions, pose, clothes and shoes exactly as in image 1. Do not puff up or redraw the hair.
+2. Keep the position, size and spacing of the three figures. Do not crop or move them. The empty space above each head is room for the hat.
+3. The hat is pulled down onto the head, never floating: its lower rim wraps the head, passing just above the eyebrows and just above the ears, sized to fit this head snugly (the head is smaller than the bob in image 2, so the rim is smaller too).
+4. The wide brim reaches out beyond the head. Draw the brim's underside completely, all the way to its tips, where it shows beside and behind the head. Do not draw hair over the brim's underside and do not fill the space between the brim and the head with new hair. Draw the brim tips round and complete, never cut off at the edge of the picture.
+5. Front, side and back show the same straw hat at the same size; the side view shows the brim front and back, the back view shows the brim and the pink band. The low twin tails stay visible below the brim.
+6. Same art style as image 1 (soft painting, outline weight, shading).
+7. Plain white background. No shadows, text or frames.
+8. Return one landscape image.
+
+----------------------------------------------------------------
+2) 마녀 모자 - 요청 문장 (그대로 붙여 넣기)
+----------------------------------------------------------------
+첫 번째 그림은 게임 캐릭터 설정 시트입니다. 여자아이 한 명의 앞모습, 오른쪽을 보는 옆모습, 뒷모습입니다. 두 번째 그림은 이 아이가 쓸 보라색 마녀 모자입니다. 모자의 색과 모양(끝이 휘어진 뾰족한 꼭대기, 연보라 띠와 앞의 금색 버클, 넓은 챙)만 참고하고, 아이와 그림체는 첫 번째 그림을 따릅니다. 두 번째 그림의 단발머리는 따라 그리지 않습니다.
+
+첫 번째 그림의 아이에게 모자만 씌워 주세요.
+
+꼭 지켜 주세요.
+1. 얼굴, 머리 모양(두피에 붙은 머리와 귀 아래에서 낮게 묶은 양갈래), 몸 크기와 비율, 자세, 옷과 신발은 첫 번째 그림과 똑같이 둡니다. 머리카락을 부풀리거나 새로 그리지 않습니다.
+2. 세 그림의 위치, 크기, 간격을 그대로 둡니다. 그림을 자르거나 옮기지 않습니다. 머리 위의 빈 공간은 모자를 그리라고 남겨 둔 자리입니다.
+3. 모자는 머리에 푹 눌러 씁니다. 머리 위에 떠 있지 않게, 모자 아래 테두리가 머리를 감싸며 이마 위(눈썹보다 조금 위)와 귀 바로 위를 지나게 합니다. 모자 아래 둘레는 이 머리 둘레에 꼭 맞게 그립니다(두 번째 그림의 단발보다 머리가 작으니 모자 아래 둘레도 그만큼 작습니다).
+4. 넓은 챙은 머리보다 바깥으로 나옵니다. 챙 안쪽 아랫면(머리 양옆과 뒤로 보이는 챙 밑면)을 끝까지 온전히 그립니다. 챙 밑면 위에 머리카락을 겹쳐 그리지 않고, 챙과 머리 사이에 머리카락을 새로 채워 넣지 않습니다. 챙 끝은 끝까지 그리고 그림 칸 밖으로 잘리지 않게 합니다.
+5. 앞·옆·뒤 세 모습이 같은 크기의 같은 마녀 모자입니다. 옆모습에서는 챙이 앞뒤로, 뒷모습에서는 챙과 띠가 보이게 합니다. 묶은 양갈래는 챙 아래로 그대로 보입니다.
+6. 그림체(부드러운 채색, 외곽선 굵기, 명암)는 첫 번째 그림과 같게 합니다.
+7. 배경은 아무것도 없는 흰색입니다. 그림자, 글자, 테두리를 넣지 않습니다.
+8. 결과는 가로로 긴 그림 한 장으로 주세요.
+
+English (same request):
+Image 1 is a game character sheet: one girl, front view, right-facing side view, back view. Image 2 shows the purple witch hat she will wear. Use only its colour and shape (pointed crown with a bent tip, light purple band with a gold buckle at the front, wide brim); keep the girl and the art style of image 1. Do not copy the bob haircut of image 2.
+
+Add ONLY the hat to the girl in image 1.
+Rules:
+1. Keep the face, the hair (close to the head, twin tails tied low below the ears), body size and proportions, pose, clothes and shoes exactly as in image 1. Do not puff up or redraw the hair.
+2. Keep the position, size and spacing of the three figures. Do not crop or move them. The empty space above each head is room for the hat.
+3. The hat is pulled down onto the head, never floating: its lower rim wraps the head, passing just above the eyebrows and just above the ears, sized to fit this head snugly (the head is smaller than the bob in image 2, so the rim is smaller too).
+4. The wide brim reaches out beyond the head. Draw the brim's underside completely, all the way to its tips, where it shows beside and behind the head. Do not draw hair over the brim's underside and do not fill the space between the brim and the head with new hair. Draw the brim tips complete, never cut off at the edge of the picture.
+5. Front, side and back show the same witch hat at the same size; the side view shows the brim front and back, the back view shows the brim and the band. The low twin tails stay visible below the brim.
+6. Same art style as image 1 (soft painting, outline weight, shading).
+7. Plain white background. No shadows, text or frames.
+8. Return one landscape image.
+
+----------------------------------------------------------------
+결과가 이러면 다시 요청 (그대로 붙여 넣기)
+----------------------------------------------------------------
+- 머리카락을 부풀리거나 단발로 바꿔 그렸을 때:
+  "머리 모양은 첫 번째 그림과 똑같이, 두피에 붙은 머리와 귀 아래에서 낮게 묶은 양갈래 그대로 두고 모자만 다시 씌워 주세요."
+- 챙 밑면이 머리카락에 가려졌거나 챙과 머리 사이를 머리카락으로 채웠을 때:
+  "챙 안쪽 아랫면을 머리카락으로 가리지 말고 끝까지 그려 주세요. 챙과 머리 사이에 새 머리카락을 넣지 않습니다."
+- 모자가 머리 위에 떠 있거나 머리보다 훨씬 클 때:
+  "모자를 머리에 푹 눌러 써서 아래 테두리가 이마 위와 귀 바로 위를 지나게, 이 머리 둘레에 꼭 맞는 크기로 다시 그려 주세요."
+- 챙 끝이 그림 칸 밖으로 잘렸을 때:
+  "챙 끝까지 잘리지 않게, 세 그림의 위치와 크기는 그대로 두고 다시 그려 주세요."
+- 얼굴·몸·옷이 바뀌었거나 아이가 움직였을 때:
+  "모자 말고는 첫 번째 그림과 완전히 같아야 합니다. 얼굴·머리·몸·옷·위치·크기를 바꾸지 말고 같은 그림틀에서 다시 그려 주세요."
+- 앞·옆·뒤 모자 크기가 서로 다를 때:
+  "세 모습의 모자가 같은 크기의 같은 모자로 보이게 다시 그려 주세요."
+
+[받은 뒤 (작업자용)]
+python3 -B tools/hair/build-hat.py hat-straw-narrow.png --base tools/fixtures/hat-base-twin --id hat:straw
+python3 -B tools/hair/build-hat.py hat-witch-narrow.png --base tools/fixtures/hat-base-twin --id hat:witch
+(그림틀 base.json의 underHat이 있어 모자 기록의 narrow 칸에만 들어감. 양갈래·포니테일이 씀. 확인판 node tools/boards/hathair-board.cjs . OUT.png straw:11,witch:9)
