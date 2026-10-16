@@ -60,11 +60,18 @@ PART_SHARE = .12      # a part's piece is at least this share of its biggest pie
 STICKER_SHARE = .2    # a sticker's piece: a plaster, a dot of a pair (a hair tip, an eye-line bit are smaller)
 STICKER_GROW = 4      # px a sticker grows from its own colours over the changed pixels (its outline)
 EDGE = 6              # px inside the face edge where a sticker's piece lies (a hair tip lies on it)
+PAINTED = 25.0        # Lab change on the template's bare skin that is a sticker even in a colour the head has
+                      # (dark whiskers = the outline colour, red paint dots = the lips' red; F6·F7 2026-10-16)
+FEATURE_L = 65.0      # Lab lightness under which a template face pixel is a feature line (eye, brow, mouth)
+PAINT_EDGE = 2        # px inside the face edge where such a seed may start
+EYE_GAP = 3           # px round the template's eyes where no sticker starts (a redrawn iris or lash tip)
+FEATURE_GAP = 3       # px round the template's eyes, brows, nose and mouth where such a change is a redrawn line
+MASK_REACH = 10       # px below/around the face a mask reaches: its chin edge lies on the neck's owner (F4)
 EYE_KEEP = 4          # px round the new eye where unchanged template dark pixels may be its own lid
 BROW_LINE = .45       # eye gaps above the irises where the eyebrows start
 BROW_NEAR = 14.0      # Lab distance to the template's hair colours that is an eyebrow
 FIGURES = ('m-front', 'm-right', 'f-front', 'f-right')
-KINDS = {'face/sticker': 'sticker', 'face/mask': 'sticker', 'face/eyes': 'part', 'face/nose': 'part', 'face/mouth': 'part'}
+KINDS = {'face/sticker': 'sticker', 'face/mask': 'mask', 'face/eyes': 'part', 'face/nose': 'part', 'face/mouth': 'part'}
 
 
 def face_mask(lt, head):
@@ -133,20 +140,50 @@ def cut(U, T, O, cells, slot, kind):
         lu, lt, u = LU[y0:y1, x0:x1], LT[y0:y1, x0:x1], U[y0:y1, x0:x1]
         t = T[y0:y1, x0:x1]
         head = O[y0:y1, x0:x1] == HEAD
+        if kind == 'mask':  # the mask's lower edge covers the chin, which the owner map gives the neck
+            head = head | (M.dilate(face, MASK_REACH) & (O[y0:y1, x0:x1] == R.OWNER['neck']))
         zone = M.dilate(face, 8) & head
         d = np.sqrt(((lu - lt) ** 2).sum(-1))
         changed = (d > CHANGED) & zone
-        if kind == 'sticker':
+        if kind in ('sticker', 'mask'):
             # novel against the whole head (hair, lashes, skin): a redrawn hair tip is not the sticker
             head_cols = BH.kmeans(lt[head].reshape(-1, 3)[::7], 12)
-            novel = changed & face & (BH.nearest(lu, head_cols) > NOVEL)
-            lab_, comps = M.components(novel)
-            seeds = np.isin(lab_, [c['label'] for c in comps if c['size'] >= MIN_PX])
+            # (a mask starts over the chin too: seeded on the face only, its chin edge on the neck owner was cut
+            # square, F4 2026-10-16)
+            seedable = M.dilate(face, MASK_REACH) & head if kind == 'mask' else face
+            novel = changed & seedable & (BH.nearest(lu, head_cols) > NOVEL)
+            # or bare skin plainly painted over, away from the template's features: a sticker in a colour the
+            # head already has (dark whiskers, red dots) was no seed and was lost (F6·F7, 2026-10-16)
+            # (the features are the template's dark lines and irises: a girl's blush is no feature, and paint
+            # dots on it were lost while blush counted as one)
+            features = face & (lt[..., 0] < FEATURE_L)
+            # and never in the eyes' zone: a redrawn eye or lash tip is no sticker (F7 f-right, f-front 2026-10-16)
+            # (the template's eyes themselves, lashes and irises, a few px round: a box cut a bruise below the eye flat)
+            ex0, ey0, ex1, ey1 = (int(round(v)) for v in part_zone('eyes', None, eyes, gaps[sex], view))
+            box = np.zeros(face.shape, bool); box[max(0, ey0):max(0, ey1), max(0, ex0):max(0, ex1)] = True
+            tr, tg, tb = (t[..., i].astype(int) for i in range(3))
+            eyes_px = box & face & ((lt[..., 0] < FEATURE_L) | ((tg > tr + 25) & (tb > tr + 15)))
+            eyezone = M.dilate(BH.fill_holes(eyes_px), EYE_GAP)
+            # (it starts a little inside the face: a hair tip redrawn over the face's edge is no seed, while red dots
+            # and whiskers on a girl's narrow cheeks lie within EDGE of it; by colour they read as hair or ear)
+            painted = M.erode(face, PAINT_EDGE) & (d > PAINTED) & ~M.dilate(features, FEATURE_GAP)
+            novel = (novel | painted) & ~eyezone
+            # sized across 1 px gaps: a thin whisker line breaks into short runs, each under MIN_PX (F7 f-front)
+            lab_, comps = M.components(M.dilate(novel, 1))
+            seeds = novel & np.isin(lab_, [c['label'] for c in comps if (novel & (lab_ == c['label'])).sum() >= MIN_PX])
             # grown a few px only (its own outline), not along a redrawn eye line
-            item = M.dilate(seeds, STICKER_GROW) & changed & M.dilate(face, 3)
+            item = M.dilate(seeds, STICKER_GROW) & changed & (M.dilate(face, MASK_REACH) & head if kind == 'mask' else M.dilate(face, 3))
             lab_, comps = M.components(item)
             inner = M.erode(face, EDGE)
-            item = np.isin(lab_, [c['label'] for c in comps if (inner & (lab_ == c['label'])).sum() >= .5 * c['size']])
+            # (a mask is mostly on the face but reaches over the chin and to the ears: a third inside is enough)
+            share = .3 if kind == 'mask' else .5
+            # a piece near the face edge is a redrawn hair tip only when it is hair coloured: a girl's bob covers
+            # her cheeks, and red paint dots there lay on the edge and were lost (F6 f-front, 2026-10-16)
+            hair_cols = BH.kmeans(lt[head & ~M.dilate(face, 2)].reshape(-1, 3)[::7], 8)
+            def keep(c):
+                m = lab_ == c['label']
+                return (inner & m).sum() >= share * c['size'] or BH.nearest(lu[m].mean(0)[None], hair_cols)[0] > BROW_NEAR
+            item = np.isin(lab_, [c['label'] for c in comps if keep(c)])
         else:
             zx0, zy0, zx1, zy1 = (int(round(v)) for v in part_zone(slot, None, eyes, gaps[sex], view))
             box = np.zeros(changed.shape, bool); box[max(0, zy0):zy1, max(0, zx0):zx1] = True
@@ -161,7 +198,7 @@ def cut(U, T, O, cells, slot, kind):
             item = changed & box & ~browlike
         lab_, comps = M.components(item)
         # a part keeps its big pieces only (an eye, a nose): a redrawn eyebrow tip or blush speck stays out
-        least = MIN_PX if not comps else max(MIN_PX, (STICKER_SHARE if kind == 'sticker' else PART_SHARE) * max(c['size'] for c in comps))
+        least = MIN_PX if not comps else max(MIN_PX, (STICKER_SHARE if kind in ('sticker', 'mask') else PART_SHARE) * max(c['size'] for c in comps))
         item = np.isin(lab_, [c['label'] for c in comps if c['size'] >= least])
         if item.sum() < 2 * MIN_PX:
             out[k] = None
@@ -173,8 +210,10 @@ def cut(U, T, O, cells, slot, kind):
         skin_only = head & (np.sqrt(((lt - SKIN_LAB) ** 2).sum(-1)) < SKIN_NEAR)
         skin_cols = BH.kmeans(lt[skin_only].reshape(-1, 3)[::5], 10)
         nonskin = np.clip((BH.nearest(lu, skin_cols) - SKIN_SOFT[0]) / SKIN_SOFT[1], 0, 1)
-        if kind == 'sticker':
-            alpha = soft(item) * nonskin; cover = None
+        if kind in ('sticker', 'mask'):
+            # thin strokes keep their full alpha: the soft edge alone left a 2 px whisker at half strength (F7)
+            thin = item & ~M.dilate(M.erode(item, 2), 2)
+            alpha = np.maximum(soft(item), thin.astype(np.float32)) * nonskin; cover = None
         else:
             cover = M.dilate(item, COVER_GROW[slot]) & zone
             alpha = soft(cover) * nonskin
@@ -216,13 +255,15 @@ def eye_fit(fr, eyes, game):
     return fix
 
 
-def export(pid, kind, figures, out_assets):
+def export(pid, kind, figures, out_assets, sheet=None):
     frame = json.load(open(os.path.join(ROOT, 'tools', 'fixtures', 'hat-frame.json')))['figures']
     spec = R.garment_spec('hat', ('m', 'f'))
     slot, shape = pid.split(':')
     os.makedirs(out_assets, exist_ok=True)
     anchor = json.load(open(os.path.join(ROOT, 'tools', 'fixtures', 'face-anchor.json')))
     rec = dict(kind=kind, views={})
+    if sheet:  # the source sheet, for --check (re-cut every item, compare with the saved pictures)
+        rec['sheet'] = os.path.relpath(os.path.abspath(sheet), ROOT).replace(os.sep, '/')
     for k, f in figures.items():
         if f is None:
             continue
@@ -293,16 +334,53 @@ def build(sheet, out, pid, out_assets=None):
         for t in tiles:
             im.paste(t, (0, y)); y += t.height + 6
         im.save(os.path.join(out, '얼굴-조각.png'))
-    report['record'] = export(pid, kind, figs, out_assets or os.path.join(ROOT, 'assets', 'face-art'))
+    report['record'] = export(pid, kind, figs, out_assets or os.path.join(ROOT, 'assets', 'face-art'), sheet)
     return report
+
+
+def check():
+    """Every item of assets/face-art re-cut from its sheet with the current rules into a temp folder and
+    compared with the saved pictures (max channel difference, alpha pixels moved by more than 8). A rule
+    change for a new item must leave the others as they were, or the change is reviewed on a board
+    (2026-10-16: the whisker and paint rules first changed the bandage and bruise; done by hand then)."""
+    import tempfile
+    assets = os.path.join(ROOT, 'assets', 'face-art')
+    bad = 0
+    for name in sorted(os.listdir(assets)):
+        if not name.endswith('.json') or name == 'face-art.json':
+            continue
+        rec = json.load(open(os.path.join(assets, name)))
+        slot, shape = name[:-5].split('-', 1)
+        if not rec.get('sheet'):
+            print('NO_SHEET %s:%s (re-cut it once to record its sheet)' % (slot, shape)); bad += 1; continue
+        with tempfile.TemporaryDirectory() as tmp:
+            build(os.path.join(ROOT, rec['sheet']), os.path.join(tmp, 'board'), '%s:%s' % (slot, shape), os.path.join(tmp, 'art'))
+            for sex, views in rec['views'].items():
+                for view, v in views.items():
+                    for key in ('src', 'cover'):
+                        if key not in v:
+                            continue
+                        a = np.asarray(Image.open(os.path.join(ROOT, v[key]))).astype(int)
+                        b = np.asarray(Image.open(os.path.join(tmp, 'art', os.path.basename(v[key])))).astype(int)
+                        if a.shape != b.shape:
+                            print('CHANGED %s size %s -> %s' % (v[key], a.shape[:2], b.shape[:2])); bad += 1
+                        elif np.abs(a - b).max() > 0:
+                            print('CHANGED %s max %d, alpha moved %d px' % (v[key], np.abs(a - b).max(), int((np.abs(a[..., 3] - b[..., 3]) > 8).sum()))); bad += 1
+    print('face check: %s' % ('OK' if not bad else '%d problem(s)' % bad))
+    return 1 if bad else 0
 
 
 def main(argv):
     ap = argparse.ArgumentParser()
-    ap.add_argument('sheet')
-    ap.add_argument('--id', required=True, help='slot:shape of products.json (face:band, eyes:cat, ...)')
+    ap.add_argument('sheet', nargs='?')
+    ap.add_argument('--id', help='slot:shape of products.json (face:band, eyes:cat, ...)')
     ap.add_argument('--out')
+    ap.add_argument('--check', action='store_true', help='re-cut every saved item from its sheet into a temp folder and compare')
     a = ap.parse_args(argv)
+    if a.check:
+        return check()
+    if not a.sheet or not a.id:
+        ap.error('SHEET and --id are needed (or --check)')
     name = os.path.splitext(os.path.basename(a.sheet))[0]
     r = build(a.sheet, a.out or os.path.join(ROOT, '검증', '얼굴', name), a.id)
     print(json.dumps(r, ensure_ascii=False))

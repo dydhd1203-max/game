@@ -1,0 +1,46 @@
+{
+ "kind": "sticker",
+ "views": {
+  "m": {
+   "front": {
+    "src": "assets/face-art/face-whisker-m-front.png",
+    "rect": [
+     8.5,
+     23.333,
+     15.13,
+     2.578
+    ]
+   },
+   "right": {
+    "src": "assets/face-art/face-whisker-m-right.png",
+    "rect": [
+     17.688,
+     16.852,
+     7.302,
+     8.455
+    ]
+   }
+  },
+  "f": {
+   "front": {
+    "src": "assets/face-art/face-whisker-f-front.png",
+    "rect": [
+     9.759,
+     24.668,
+     12.356,
+     1.607
+    ]
+   },
+   "right": {
+    "src": "assets/face-art/face-whisker-f-right.png",
+    "rect": [
+     16.922,
+     22.887,
+     3.729,
+     2.39
+    ]
+   }
+  }
+ },
+ "sheet": "assets/garment-sources/face-whisker-0-chatgpt-2026-10-16.png"
+}

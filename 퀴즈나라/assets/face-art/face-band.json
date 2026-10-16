@@ -34,12 +34,13 @@
    "right": {
     "src": "assets/face-art/face-band-f-right.png",
     "rect": [
-     17.209,
-     20.975,
-     4.016,
-     4.494
+     18.356,
+     23.652,
+     2.869,
+     1.817
     ]
    }
   }
- }
+ },
+ "sheet": "assets/garment-sources/face-band-3-chatgpt-2026-10-15.png"
 }

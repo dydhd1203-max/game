@@ -15,9 +15,9 @@
     "src": "assets/face-art/face-bruise-m-right.png",
     "rect": [
      19.706,
-     21.175,
+     22.04,
      3.075,
-     3.747
+     2.882
     ]
    }
   },
@@ -35,11 +35,12 @@
     "src": "assets/face-art/face-bruise-f-right.png",
     "rect": [
      18.93,
-     20.497,
-     2.964,
-     4.494
+     22.313,
+     2.869,
+     2.677
     ]
    }
   }
- }
+ },
+ "sheet": "assets/garment-sources/face-bruise-3-chatgpt-2026-10-15.png"
 }
