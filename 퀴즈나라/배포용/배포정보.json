@@ -1,7 +1,7 @@
 {
   "project": "퀴즈나라",
   "format": 1,
-  "builtAt": "2026-10-16T05:09:08.956Z",
+  "builtAt": "2026-10-16T05:39:10.406Z",
   "instructions": "Cloudflare Pages 또는 Netlify 수동 배포에는 이 배포용 폴더 전체를 올리세요. index.html만 올리지 마세요.",
   "files": [
     {
@@ -1456,8 +1456,8 @@
     },
     {
       "path": "avatar-hat-art.js",
-      "bytes": 45173,
-      "sha256": "541aed22800f9e6bf6eed4ff008da7e28b0d7a2260018989b2c68532ae153c96"
+      "bytes": 45757,
+      "sha256": "ee2fe18cdf1e77cce6c1bda9be3f543a5fbcd708f82a3552f2b98f01f0e8acc5"
     },
     {
       "path": "assets/hat-art/army-m-front.png",
@@ -2030,6 +2030,36 @@
       "sha256": "ea94d9d57c5ededa843be41ced9d1cd34ff34dc120c8f869d1634dd9139ca7f4"
     },
     {
+      "path": "assets/hat-art/headphone-m-front.png",
+      "bytes": 57647,
+      "sha256": "4953cdc9ab6b3b23e74056f894a8c655279ef9df9f06eb386d7000ec96f44997"
+    },
+    {
+      "path": "assets/hat-art/headphone-m-right.png",
+      "bytes": 22014,
+      "sha256": "64b527db803adbb585519aad028f0f2aa5b30932fd75fb3575b4f80ee51b110f"
+    },
+    {
+      "path": "assets/hat-art/headphone-m-back.png",
+      "bytes": 47228,
+      "sha256": "544c1416932e6a37bd7eea52032fb747e29ce195a982294d8a8e4985b35616b0"
+    },
+    {
+      "path": "assets/hat-art/headphone-f-front.png",
+      "bytes": 49115,
+      "sha256": "c2c92bfdf8c87744610f3cb5f0cfa6ab72cee367790c97b300a4714ca852b4c4"
+    },
+    {
+      "path": "assets/hat-art/headphone-f-right.png",
+      "bytes": 19154,
+      "sha256": "ae68e861f21eb0df7db773ff4463c28a44d9895e36316f116802a2972cdcc6c3"
+    },
+    {
+      "path": "assets/hat-art/headphone-f-back.png",
+      "bytes": 42743,
+      "sha256": "2e0ef9938c6bab231fd148c0bd913183ebc7a6822a5ecf7c11f65cd86774c6c4"
+    },
+    {
       "path": "assets/hat-art/horn-m-front.png",
       "bytes": 12167,
       "sha256": "b0cba7ed6d58e7965e38a0dabddd683fd352696510503d6673aadd1b6cbdeade"
@@ -2451,8 +2481,8 @@
     },
     {
       "path": "avatar-face-art.js",
-      "bytes": 15151,
-      "sha256": "e60b66f6f2b77447e0218b3ab6ec80b1135e1a537b5d9142dc44ecae96d28dbe"
+      "bytes": 16134,
+      "sha256": "2d721744cf1d6c56cdb2fc0c7e2c1c2c6d0873a004238c123fee861638d661de"
     },
     {
       "path": "assets/face-art/fringe/f-front-short.png",
@@ -3118,6 +3148,46 @@
       "path": "assets/face-art/face-whisker-f-right.png",
       "bytes": 2512,
       "sha256": "afaab99da0db75133133be1ddc36bdd8a9736ffc1fc948a47927199ca387e527"
+    },
+    {
+      "path": "assets/face-art/glass-round-m-front.png",
+      "bytes": 28413,
+      "sha256": "5e97da4f6259a1f62f8ca15277b525fdfa6ec5965224a56b962e347314337ade"
+    },
+    {
+      "path": "assets/face-art/glass-round-m-right.png",
+      "bytes": 13184,
+      "sha256": "5321eeb086cc69cff50c929474144e94e097cfa0cab05246b9875c27db7e84ca"
+    },
+    {
+      "path": "assets/face-art/glass-round-f-front.png",
+      "bytes": 24188,
+      "sha256": "a9fb038a6a02efdc56baf5425b1d2048374bdfa2d7c46fee849d33792de0a5f6"
+    },
+    {
+      "path": "assets/face-art/glass-round-f-right.png",
+      "bytes": 13472,
+      "sha256": "8d74caed03a0875c92720f5f481b2702fa9cb8d97643881c8b38d8a36bdd1e7f"
+    },
+    {
+      "path": "assets/face-art/glass-sun-m-front.png",
+      "bytes": 19370,
+      "sha256": "51b1c6663acfe7538cbc135afec5b96f3758ee384c6c563040eb3b8a84397530"
+    },
+    {
+      "path": "assets/face-art/glass-sun-m-right.png",
+      "bytes": 11734,
+      "sha256": "9bb476107968eb81791e50df2ac1083d92b35edd991cd7bbbf3922d9963bfc98"
+    },
+    {
+      "path": "assets/face-art/glass-sun-f-front.png",
+      "bytes": 15839,
+      "sha256": "0947dd418534094fd19c934e82cde8be7cbe429ac18996d73919a2c40335b9c1"
+    },
+    {
+      "path": "assets/face-art/glass-sun-f-right.png",
+      "bytes": 9672,
+      "sha256": "139c0cd0c3422daca7454d74c2c5efba5a687a00cc5fd20854aa34c239c76766"
     },
     {
       "path": "assets/face-art/mouth-cat-m-front.png",

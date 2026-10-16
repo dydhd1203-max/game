@@ -58,3 +58,8 @@
 | `ear-flower_e-0-chatgpt-2026-10-16.png` | `ear:flower_e:0` 남녀 '꽃 귀걸이' | 2026-10-16 | 1536×1024 | `6dea8ee4a2b3b5b179f1f78c56b1e7ee5ec92e1adf81333d97667bf028b0faee` | 귀걸이 R3~R9, 첫 원화로 사용. |
 | `ear-cross_e-0-chatgpt-2026-10-16.png` | `ear:cross_e:0` 남녀 '십자 귀걸이' | 2026-10-16 | 1536×1024 | `8bd9cc9effa999aa0a2d721705b7dccf1d7a180f3066450c37235bc841d9eb05` | 귀걸이 R3~R9, 첫 원화로 사용. |
 | `ear-bell-0-chatgpt-2026-10-16.png` | `ear:bell:0` 남녀 '방울' | 2026-10-16 | 1536×1024 | `1be50cd3e627c320a5b0ba92f7ca8df1c832ed8467d77d7d52f6bf44a879d24e` | 귀걸이 R3~R9, 첫 원화로 사용. |
+| `glass-round-11-chatgpt-2026-10-16.png` | `glass:round:11` '동그란 안경' | 2026-10-16 | 1536×1024 | `0fbd776da96107fb56d988bc11c1b60ab731a53a6e576e0fe95bb48852556d04` | 안경 시범 G1, 첫 원화로 사용. |
+| `glass-sun-9-chatgpt-2026-10-16.png` | `glass:sun:9` '선글라스' | 2026-10-16 | 1536×1024 | `6f4705727f556d19dc2662b4b6caba0f91edf20676de03b04eea3d0c6518d8d7` | 안경 시범 G2, 첫 원화로 사용. |
+| `hat-headphone-8-chatgpt-2026-10-16.png` | `hat:headphone:8` '헤드폰(흰색)' | 2026-10-16 | 1536×1024 | `9c64c9470dfce51116fae03e2f36153d024e7dd1820d9121652c56389b16c707` | 첫 원화로 사용. ChatGPT가 띠 아래 머리를 눌러 다시 그렸지만, 헤드폰만 잘라 게임 머리 위에 얹으므로 그대로 씀. |
+| `seated-side-m-chatgpt-2026-10-16.png` | `앉은 기준 몸 남` '옆모습 양반다리' | 2026-10-16 | 1740×904 | `b23397dd170bde6c4b661760f43eb85f8734a819a6eb4c713693e6827c424eba` | 옆모습 다리를 정강이가 엇갈리게 다시 그림. 아직 게임에 넣지 않음(앉은 옷 옆모습과 함께 결정). |
+| `seated-side-f-chatgpt-2026-10-16.png` | `앉은 기준 몸 여` '옆모습 양반다리' | 2026-10-16 | 1782×883 | `8df42af285f7df43abb36898cddb7bdbb35751c417231e99999c135aec2a6684` | 위와 같음. |

@@ -913,6 +913,98 @@
    },
    "sheet": "assets/garment-sources/face-whisker-0-chatgpt-2026-10-16.png"
   },
+  "glass:round": {
+   "kind": "glasses",
+   "views": {
+    "m": {
+     "front": {
+      "src": "assets/face-art/glass-round-m-front.png",
+      "rect": [
+       6.595,
+       16.72,
+       18.604,
+       8.517
+      ]
+     },
+     "right": {
+      "src": "assets/face-art/glass-round-m-right.png",
+      "rect": [
+       17.592,
+       16.948,
+       7.014,
+       7.206
+      ]
+     }
+    },
+    "f": {
+     "front": {
+      "src": "assets/face-art/glass-round-f-front.png",
+      "rect": [
+       8.755,
+       19.444,
+       14.866,
+       6.931
+      ]
+     },
+     "right": {
+      "src": "assets/face-art/glass-round-f-right.png",
+      "rect": [
+       15.392,
+       17.724,
+       7.936,
+       6.502
+      ]
+     }
+    }
+   },
+   "sheet": "assets/garment-sources/glass-round-11-chatgpt-2026-10-16.png"
+  },
+  "glass:sun": {
+   "kind": "glasses",
+   "views": {
+    "m": {
+     "front": {
+      "src": "assets/face-art/glass-sun-m-front.png",
+      "rect": [
+       5.698,
+       17.953,
+       20.846,
+       6.612
+      ]
+     },
+     "right": {
+      "src": "assets/face-art/glass-sun-m-right.png",
+      "rect": [
+       14.133,
+       17.812,
+       10.377,
+       5.957
+      ]
+     }
+    },
+    "f": {
+     "front": {
+      "src": "assets/face-art/glass-sun-f-front.png",
+      "rect": [
+       7.751,
+       20.348,
+       16.273,
+       5.224
+      ]
+     },
+     "right": {
+      "src": "assets/face-art/glass-sun-f-right.png",
+      "rect": [
+       15.392,
+       18.393,
+       8.128,
+       5.546
+      ]
+     }
+    }
+   },
+   "sheet": "assets/garment-sources/glass-sun-9-chatgpt-2026-10-16.png"
+  },
   "mouth:cat": {
    "kind": "part",
    "views": {

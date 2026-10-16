@@ -332,6 +332,30 @@ def cut_zone(u, a, t, head, low, x0, y0, box, px=1.0, diff=False):
                                                    soft=HIDE_SOFT * px))
 
 
+def cut_enclosed(u, x0, y0, box, px=1.0):
+    """A light object with a dark outline (white headphones, 2026-10-16): its light parts are the near-white
+    pixels the page does not reach from the cell's edge (the outline closes them), plus the low-colour outline
+    and padding round them. A cut by difference took the hair ChatGPT pressed under the band, and the zone
+    under the rim line cut the ear cups off. Eye highlights and other small specks stay out by size."""
+    mx, mn = u.max(-1), u.min(-1)
+    light = (mn > 222) & (mx - mn < 28)
+    lab_, comps = M.components(light)
+    hgt, wid = light.shape
+    edge = set(np.unique(np.concatenate([lab_[0], lab_[-1], lab_[:, 0], lab_[:, -1]]))) - {0}
+    inner = [c for c in comps if c['label'] not in edge]
+    if not inner:
+        return None
+    big = max(c['size'] for c in inner)
+    keep = np.isin(lab_, [c['label'] for c in inner if c['size'] >= max(40 * px * px, .08 * big)])
+    page = np.isin(lab_, list(edge))
+    grey = (mx - mn < 34) & ~page  # outline and cup padding: grey, not the brown hair or the skin
+    obj = keep | (M.dilate(keep, max(2, int(round(5 * px)))) & grey)
+    obj = fill_holes(obj) & ~page
+    if obj.sum() < 50:
+        return None
+    return pack(u, obj, np.zeros_like(obj), x0, y0, box, px)
+
+
 def pack(u, hat, opening, x0, y0, box, px):
     """A cut figure from its hat mask (opaque): RGBA crop, box in sheet px, the hair-hide mask."""
     ys, xs = np.nonzero(hat)
@@ -590,7 +614,10 @@ def build_base(sheet, base_dir, out, pid=None, kind=None, out_assets=None):
         hy = np.nonzero(head.any(1))[0]
         low = int(hy.min() + ZONE * (len(head) - hy.min()))
         a = (np.abs(u - 255).sum(-1) > 30).astype(np.float32)
-        f = cut_zone(u, a, tt, head, low, x0, y0, [x0, y0, x1, neck], px, diff=True)
+        if kind == 'band':  # headphones: the object itself, not what changed (the sheet pressed the hair under it)
+            f = cut_enclosed(u, x0, y0, [x0, y0, x1, neck], px)
+        else:
+            f = cut_zone(u, a, tt, head, low, x0, y0, [x0, y0, x1, neck], px, diff=True)
         report['figures'][k] = None if f is None else dict(box=f['box'], px=f['px'], shift=[dx, dy], legsError=round(err, 2),
                                                            face=face_in_hat(f['mask'], u, tt, head))
         if f is not None and report['figures'][k]['face'] > MAX_FACE:

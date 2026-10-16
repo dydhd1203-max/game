@@ -1385,6 +1385,69 @@
    }
   }
  },
+ "headphone": {
+  "kind": "band",
+  "views": {
+   "m": {
+    "front": {
+     "src": "assets/hat-art/headphone-m-front.png",
+     "rect": [
+      0.459,
+      0.425,
+      30.654,
+      22.812
+     ]
+    },
+    "right": {
+     "src": "assets/hat-art/headphone-m-right.png",
+     "rect": [
+      7.769,
+      4.057,
+      10.326,
+      20.155
+     ]
+    },
+    "back": {
+     "src": "assets/hat-art/headphone-m-back.png",
+     "rect": [
+      3.863,
+      5.124,
+      24.391,
+      18.028
+     ]
+    }
+   },
+   "f": {
+    "front": {
+     "src": "assets/hat-art/headphone-f-front.png",
+     "rect": [
+      1.457,
+      4.915,
+      29.085,
+      19.39
+     ]
+    },
+    "right": {
+     "src": "assets/hat-art/headphone-f-right.png",
+     "rect": [
+      7.303,
+      5.041,
+      11.263,
+      19.675
+     ]
+    },
+    "back": {
+     "src": "assets/hat-art/headphone-f-back.png",
+     "rect": [
+      2.858,
+      6.423,
+      26.55,
+      18.054
+     ]
+    }
+   }
+  }
+ },
  "horn": {
   "kind": "sit",
   "views": {

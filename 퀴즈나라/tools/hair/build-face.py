@@ -158,7 +158,9 @@ def cut(U, T, O, cells, slot, kind, debug=None, colour=None):
             seeds = (d > CHANGED) & reach & near
             lab_, comps = M.components(M.dilate(seeds, 1))
             seeds = seeds & np.isin(lab_, [c['label'] for c in comps if (seeds & (lab_ == c['label'])).sum() >= MIN_PX])
-            item = M.dilate(seeds, 2) & (d > CHANGED) & reach
+            # a rim crossing the lashes breaks into arcs: closed over gaps of a few px before it is trimmed to the
+            # changed pixels (G1 2026-10-16: the upper outer rims had gaps)
+            item = M.erode(M.dilate(seeds, 4), 2) & (d > CHANGED) & reach
             if debug is not None:
                 debug[k] = dict(u=u.astype(np.uint8), face=face, features=face & (lt[..., 0] < FEATURE_L), eyezone=np.zeros_like(face), seeds=seeds, item=item)
         elif kind in ('sticker', 'mask'):
@@ -232,6 +234,9 @@ def cut(U, T, O, cells, slot, kind, debug=None, colour=None):
         if kind in ('sticker', 'mask', 'glasses'):
             # thin strokes keep their full alpha: the soft edge alone left a 2 px whisker at half strength (F7)
             thin = item & ~M.dilate(M.erode(item, 2), 2)
+            if kind == 'glasses':  # a brown rim is as close to the skin's shade as to skin: keep the product's colour
+                # opaque (the round glasses' rims had gaps where they crossed the lid's shade, G1 2026-10-16)
+                nonskin = np.maximum(nonskin, (np.sqrt(((lu - colour) ** 2).sum(-1)) < EAR_NEAR).astype(np.float32))
             alpha = np.maximum(soft(item), thin.astype(np.float32)) * nonskin; cover = None
         else:
             cover = M.dilate(item, COVER_GROW[slot]) & zone
