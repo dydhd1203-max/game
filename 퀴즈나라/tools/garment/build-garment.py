@@ -309,6 +309,13 @@ def hex_lab(h):
     return R.lab(np.array([[int(h[1:3], 16), int(h[3:5], 16), int(h[5:7], 16)]], np.float32))[0]
 
 
+def shop_display(prod, sex):
+    """The colour the new avatar's shop shows: products.json artDisplay (the art's own colour where the user chose it
+    over the legacy shop's painted colour: the girl's cardigan #faa6c9, 2026-10-16) or display (= the legacy shop's,
+    which design-ref.cjs checks; the student screen keeps it until stage 5)."""
+    return (prod.get('artDisplay') or {}).get(sex) or prod.get('display', {}).get(sex)
+
+
 def colour_codes(ctx, segs, figs, prod, masks=None):
     """UNTINTED_SKIN, VIEW_INCONSISTENT, COLOUR_FAR and COLOUR_OFF (warning).
 
@@ -430,7 +437,7 @@ def colour_codes(ctx, segs, figs, prod, masks=None):
             codes.append(dict(code='VIEW_INCONSISTENT', figures=far, stage='garment',
                               value=round(max((float(np.linalg.norm(main[k] - med)) if k in main and med is not None else 99.0)
                                               for k in far), 1)))
-        disp = prod.get('display', {}).get(sex)
+        disp = shop_display(prod, sex)
         if disp and med is not None:
             # The shop colour must be one of the garment's own large colours
             # (a group holding >= COLOUR_SHARE of the three views' garment
@@ -951,7 +958,7 @@ def make_record(b, crops, meta, atlases, measured, figs, sheet, date, kind, stem
     for sex in sexes:
         c = prod['ci'][sex]
         catalog[sex] = {'item': '%s:%d' % (gid, c), 'ci': c, 'name': prod['names'][sex], 'colour': prod['colour'][sex],
-                        'display': prod['display'][sex], 'legacyIds': []}
+                        'display': shop_display(prod, sex), 'legacyIds': []}
         mirror[sex] = bool(prod.get('mirrorSafe', True))
     reg = {}
     for key, fr in res['figures'].items():

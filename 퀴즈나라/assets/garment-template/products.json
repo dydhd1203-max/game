@@ -2612,6 +2612,9 @@
     "m": "#6c8054",
     "f": "#ff8ad4"
    },
+   "artDisplay": {
+    "f": "#faa6c9"
+   },
    "mirrorSafe": true,
    "designRef": "ref-top-cardi-design.png",
    "notes": {
