@@ -2635,7 +2635,7 @@
   },
   "top:jacket": {
    "class": "top/long-sleeve",
-   "status": "long sleeve L; dark-skin sheet received 2026-10-16, assets/garment-sources/top-jacket-dark-chatgpt-2026-10-16.png",
+   "status": "long sleeve L; dark-skin sheet re-requested and received 2026-10-16, assets/garment-sources/top-jacket-dark2-chatgpt-2026-10-16.png",
    "base": "dark",
    "sexes": [
     "m",
@@ -2682,6 +2682,7 @@
    "class": "top/long-sleeve",
    "status": "long sleeve L; dark-skin pilot sheet kept (user 2026-10-16), assets/garment-sources/top-knit-dark-chatgpt-2026-10-16.png",
    "base": "dark",
+   "forearmBare": true,
    "sexes": [
     "m",
     "f"

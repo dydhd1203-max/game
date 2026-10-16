@@ -286,7 +286,13 @@ function pageLib(cfg){
     const wc=document.createElement('canvas');wc.width=width;wc.height=height;const wx=wc.getContext('2d');wx.fillStyle='rgb(255,255,255)';
     for(const cell of cellsNow){if(!cell)continue;const {svg}=cell,rig=api.prepare(svg),pose=api.inspect(svg);if(!rig||!pose)continue;const S=api.specFor(svg.dataset.qpxSex),m=rig.parts.pelvis.getScreenCTM(),half=pose.profile?.9:1.7;
       const q=[[16-half,S.waist-1.1],[16+half,S.waist-1.1],[16+half,S.waist+.5],[16-half,S.waist+.5]].map(p=>map(m,p));wx.beginPath();q.forEach((p,i)=>i?wx.lineTo(...p):wx.moveTo(...p));wx.closePath();wx.fill();}
-    return{limbs:c.toDataURL('image/png'),waist:wc.toDataURL('image/png')};
+    // The forearm (elbow to .75 of the way to the wrist, core radius): a long sleeve covers it in every pose, so
+    // skin there is the bare forearm painted over the sleeve (a folded run/jump arm before r.sleeveFold, 2026-10-16).
+    const fc=document.createElement('canvas');fc.width=width;fc.height=height;const fx=fc.getContext('2d');fx.lineCap='butt';fx.strokeStyle='rgb(255,255,255)';
+    for(const cell of cellsNow){if(!cell)continue;const {svg}=cell,rig=api.prepare(svg),pose=api.inspect(svg);if(!rig||!pose)continue;
+      pose.arms.forEach((arm,i)=>{const m=rig.arms[i].parent.getScreenCTM(),a=map(m,arm.elbow),b=map(m,[arm.elbow[0]+(arm.wrist[0]-arm.elbow[0])*.75,arm.elbow[1]+(arm.wrist[1]-arm.elbow[1])*.75]);
+        fx.lineWidth=2*Math.min(api.armRadii[1],api.armRadii[2])*core*scale(m);fx.beginPath();fx.moveTo(...a);fx.lineTo(...b);fx.stroke();});}
+    return{limbs:c.toDataURL('image/png'),waist:wc.toDataURL('image/png'),forearm:fc.toDataURL('image/png')};
   }
   // Per cell: what was posed (arm lifts, raised arms, view) for the probes.
   function cellPoses(){return cellsNow.map(cell=>{if(!cell)return null;const p=api.inspect(cell.svg);return p?{view:p.profile?'profile':p.back?'back':'front',lift:p.arms.map(a=>a.lift||0),action:p.action,gesture:p.gesture||'',floor:p.floor,desk:p.desk}:null;});}

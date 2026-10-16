@@ -109,7 +109,7 @@ DRAWN_PAIRS = (('sleeves', 'arms', 1), ('shirt', 'neck', 2), ('shorts', 'legs', 
 # q80 template, the geometric positives and the real top:shirt:10 sheet).
 P = dict(
     tauMin=7.0, zoneGrow=20, prodErode=3, prodDeep=4.0,
-    growLR=1.5, neighNear=24, exposeLR=2.0, exposeSpan=.35, creamShare=.085, exposeNear=24, skinGateLR=3.0, skinGrow=4,
+    growLR=1.5, neighNear=24, seamSlit=True, exposeLR=2.0, exposeSpan=.35, creamShare=.085, exposeNear=24, skinGateLR=3.0, skinGrow=4,
     lineDark=.5, lineNear=2, hairLR=2.0, hairStrong=10.0, hairSpeck=60, neighbourStrong=20.0, skinStrong=20.0,
     minIsland=20, kSkin=3, kProduct=6, kNeighbour=4, kHair=3, cuffOuter=0.0, cuffInner=0.5, hemBand=12,
 )
@@ -786,7 +786,7 @@ def segment_cell(ctx, key, seams=True):
         r = S.solve(ctx, key, b, nll, O, fg)
         results.append(r)
         S.assign(b, r, label, O, fg, fixed)
-    if fz.base == 'dark' and bands:
+    if fz.base == 'dark' and bands and P['seamSlit']:
         # a seam column along a vertical drawn line (a zipper's edge across the hem) finds its ridge everywhere
         # and cuts the column high: a 1-2 px slit with the garment on both sides is the garment (hood boy,
         # 2026-10-16)

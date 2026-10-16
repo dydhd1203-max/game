@@ -63,6 +63,9 @@ function resolve(id,products){
   return {key,product};
 }
 
+// A garment product requested without the dark-skin template (prompt.cjs --kit refuses it).
+const needsDark=product=>/^(top|bottom|shoes|outfit)\//.test(product.class)&&product.class!=='shoes/sandals'&&product.base!=='dark';
+
 // The filled prompt lines for one language.
 function build(product,lang,P){
   const notes=product.notes[lang],cls=P.classes[product.class][lang],ch=P.children[lang];
@@ -162,7 +165,7 @@ function header(r){
 
 async function main(){
   const H=require('../verify-harness.cjs'),a=H.args();
-  for(const flag of ['check','v1','no-image'])if(typeof a[flag]==='string'){a._.push(a[flag]);a[flag]=true;}
+  for(const flag of ['check','v1','no-image','light'])if(typeof a[flag]==='string'){a._.push(a[flag]);a[flag]=true;}
   if(a.check){
     const r=check();
     for(const d of r.v1)console.log('v1 '+d.lang+' rule '+d.rule+':\n  v1:  '+d.v1+'\n  now: '+d.now);
@@ -189,6 +192,10 @@ async function main(){
     if(result.catalog.problems.length)process.exitCode=1;
   }
   if(typeof a.kit==='string'){
+    // A garment drawn on the light skin loses cream and beige edges to the skin (top:shirt, hood hem, 2026-10-16):
+    // every new garment request uses the dark-skin template ("base": "dark" in products.json). --light only to
+    // redo an old light-template sheet. Open shoes have their own dark-feet sheet (barefoot-dark-sheet.png).
+    if(needsDark(r.product)&&!a.light){console.error(r.key+': 옷 요청은 진한 피부 그림틀로 합니다. products.json의 이 상품에 "base": "dark"를 넣고 다시 실행하세요(밝은 틀 원화를 다시 받을 때만 --light).');process.exit(1);}
     const dir=path.resolve(a.kit);fs.mkdirSync(dir,{recursive:true});
     fs.copyFileSync(templateOf(r.product),path.join(dir,'1-그림틀.png'));
     fs.copyFileSync(path.join(KIT,r.product.designRef),path.join(dir,'2-옷참고-'+r.product.designRef));
@@ -198,5 +205,5 @@ async function main(){
   }
 }
 
-module.exports={prompts,v1Diff,check,particle,fill,docBlocks};
+module.exports={prompts,v1Diff,check,particle,fill,docBlocks,needsDark};
 if(require.main===module)main().catch(e=>{console.error(e.message||e);process.exit(1);});

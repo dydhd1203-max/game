@@ -468,6 +468,11 @@ def colour_codes(ctx, segs, figs, prod, masks=None):
 # Build
 # ---------------------------------------------------------------------------
 BUILDER_TODO = {}
+# Body owners (register.OWNER) a class covers beyond its slot: no stable mark for the registration's checks
+# (BODY_DRIFT, POSE_ARM/POSE_LEG, the change threshold tau). A long sleeve over the arm raised false POSE_ARM
+# (up to 11 px), BODY_DRIFT (p95 31.8) and a tau of 22 (2026-10-16). Add the new class here when it opens
+# (long trousers: the leg, 5; boots: the leg's lower run).
+CLASS_COVER = {'top/long-sleeve': (3,)}
 LONG_GROW = 3        # px round the arm painting (clean and legacy) over the basic shirt where a long sleeve's strip may lie
 LONG_WIDE = 8        # px round it elsewhere (a sleeve wider than the arm: the knit's outline lay 4-7 px out, 2026-10-16)
 LONG_SKIN = 2.0      # nll margin by which the skin model must beat the product model for a strip pixel to be skin
@@ -622,6 +627,57 @@ def arm_strips(ctx, segs, keys):
     return out
 
 
+NEIGH_RAISED_PX = 120  # px of the top's frozen footprint the art gave to the shorts (NEIGHBOUR_RAISED)
+SLIT_MIN_H = 4         # rows of a 1-2 px slit in a torso (THIN_SLIT)
+STRIP_EDGE_ROWS = 10   # rows of a long sleeve's strip opaque on its rect's side (STRIP_CLIPPED)
+
+
+def system_codes(ctx, segs, figs, strips, slot, keys):
+    """Checks for the faults found on the long sleeves and the dark template (2026-10-16), each raised on the
+    result the old rule gave and silent on the fixed ones (옷파이프라인-검수.md):
+      NEIGHBOUR_RAISED  the art drew the shorts up into the top's place (the jacket's short inner T-shirt): pixels
+                        of the frozen top footprint below the collar that the cut gave to the other slot and its
+                        model explains better than the product by exposeLR, over NEIGH_RAISED_PX per figure
+      THIN_SLIT         a torso with a 1-2 px vertical slit below the collar + 30 px (garment within 3 px on both
+                        sides, SLIT_MIN_H rows or more): a seam column cut along a drawn line (the hood's zipper)
+      STRIP_CLIPPED     a long sleeve's strip opaque on its rect's left or right column over STRIP_EDGE_ROWS
+                        rows: a sleeve wider than the strip's rect (the knit before LONG_WIDE)"""
+    codes, warns = [], []
+    fz = ctx.fz
+    for key in keys:
+        x0, y0, x1, y1 = SG.CELLS[key]
+        sl = np.s_[y0:y1, x0:x1]
+        s = segs[key]
+        if slot == 'top':
+            O = fz.O[sl]
+            nll = s['nll']
+            yy = np.arange(O.shape[0])[:, None] + y0
+            under = np.isin(O, SG.SLOT[slot]['labels']) & (s['label'] == 2) & (yy > R.COLLAR_Y[key[0]] + 40) & \
+                (nll['product'] - nll['neighbour'] > SG.P['exposeLR'])
+            n = int(under.sum())
+            if n > NEIGH_RAISED_PX:
+                codes.append(dict(code='NEIGHBOUR_RAISED', figure=key, value=n, stage='garment'))
+            t = figs[key]['parts'].get('torso')
+            if t is not None:
+                m = t['a'] > .5
+                left = np.zeros_like(m); right = np.zeros_like(m)
+                for d in (1, 2, 3):
+                    left[:, d:] |= m[:, :-d]; right[:, :-d] |= m[:, d:]
+                slit = ~m & left & right & ~M.dilate(M.erode(~m & left & right, 1), 1)
+                slit &= yy > R.COLLAR_Y[key[0]] + 30  # the neck opening's inner corners are no slit
+                lab_, comps = M.components(slit)
+                tall = sum(c['size'] for c in comps if c['bbox'][3] - c['bbox'][1] >= SLIT_MIN_H and c['bbox'][2] - c['bbox'][0] <= 2)
+                if tall:
+                    codes.append(dict(code='THIN_SLIT', figure=key, part='torso', value=int(tall), stage='garment'))
+        if strips is not None:
+            for i in (0, 1):
+                a = strips[(key, i)][0][..., 3] > 128
+                rows = int(max(a[:, 0].sum(), a[:, -1].sum()))
+                if rows > STRIP_EDGE_ROWS and not any(w['code'] == 'STRIP_CLIPPED' and w['figure'] == key for w in warns):
+                    warns.append(dict(code='STRIP_CLIPPED', figure=key, value=rows, stage='garment'))
+    return codes, warns
+
+
 def long_static(ctx, figs, keys):
     """A long sleeve's static parts (top/long-sleeve): the sleeve caps keep the basic sleeve's footprint (the
     drawn basic sleeves grown LONG_GROW px) down to LONG_CAP px past the shoulder line, and the torso gives up the arm painting outside the basic shirt's:
@@ -657,7 +713,9 @@ def long_static(ctx, figs, keys):
                 # hood girl's ribbed hem 1 px under the body, stays: dropping every piece cut it, 2026-10-16)
                 p['a'] = drop_arm_pieces(p['a'], near_arm[sl])
                 hidden = figs[key].get('hidden', {}).get('torso')
-                if hidden is not None:
+                # front and back only: the profile's arm hides a wide run, whose copy smeared the zipper and the
+                # pocket into stripes (jacket, 2026-10-16); there the plain rebuild shows when the arm swings
+                if hidden is not None and not key.endswith('right'):
                     knit_rows(p, hidden)
 
 
@@ -741,8 +799,7 @@ def build(sheet, product, sexes=None, date=None, res=None, prod_override=None, k
     if problems:
         raise SystemExit('frozen body mismatch, not building:\n  ' + '\n  '.join(problems))
     if res is None:
-        # a long sleeve covers the arm: it is no stable mark for the registration's checks (BODY_DRIFT, POSE_ARM, tau)
-        res = R.register(sheet, slot=slot, sexes=sexes, base=prod.get('base'), cover=(3,) if cls == 'top/long-sleeve' else ())
+        res = R.register(sheet, slot=slot, sexes=sexes, base=prod.get('base'), cover=CLASS_COVER.get(cls, ()))
     if res.get('spec', {}).get('base') != prod.get('base'):
         raise SystemExit('%s is drawn on the %s template, the registration used %s' % (product, prod.get('base') or 'light', res.get('spec', {}).get('base') or 'light'))
     timing['register'] = round(time.time() - t0, 2)
@@ -773,6 +830,8 @@ def build(sheet, product, sexes=None, date=None, res=None, prod_override=None, k
         lcodes = [c for c in lcodes if c['code'] in OPEN_SHOE_CODES]
     skin_masks = {}
     ccodes, cwarn, cinfo = colour_codes(ctx, segs, figs, prod, skin_masks)
+    scodes, swarn = system_codes(ctx, segs, figs, strips, slot, keys)
+    ccodes, cwarn = ccodes + scodes, cwarn + swarn
     timing['codes'] = round(time.time() - t, 2)
     t = time.time()
     crops = crops_of(figs)
