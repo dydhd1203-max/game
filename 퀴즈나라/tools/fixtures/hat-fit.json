@@ -1,0 +1,57 @@
+{
+ "about": "The default hair's ({'m': 'short', 'f': 'bob'}) left and right edge and crown per sex and view, head-native, median over rows {'front': (12.0, 18.0), 'right': (12.0, 18.0), 'back': (19.0, 24.0)} (tools/hair/measure-hat-fit.cjs + fit-hat-hair.py). Generated; do not edit.",
+ "default": {
+  "m": "short",
+  "f": "bob"
+ },
+ "rows": {
+  "front": [
+   12.0,
+   18.0
+  ],
+  "right": [
+   12.0,
+   18.0
+  ],
+  "back": [
+   19.0,
+   24.0
+  ]
+ },
+ "edges": {
+  "m": {
+   "front": [
+    1.95,
+    29.75,
+    0.8
+   ],
+   "right": [
+    1.9,
+    26.7,
+    4.25
+   ],
+   "back": [
+    6.05,
+    25.35,
+    5.2
+   ]
+  },
+  "f": {
+   "front": [
+    3.05,
+    29.2,
+    5.9
+   ],
+   "right": [
+    3.1,
+    25.8,
+    6.75
+   ],
+   "back": [
+    2.0,
+    29.25,
+    7.35
+   ]
+  }
+ }
+}

@@ -875,6 +875,11 @@
   function hatLayer(v,defs,id,base,sex,view,hairColor){
     const art=hatArtOf(base,sex,view);if(!art)return false;
     const rect=r=>({x:r[0],y:r[1],width:r[2],height:r[3]}),hair=hatHair(base,sex,view,art);
+    // On a style whose hair under the hat lies close to the skull (fit [s, a0, a1, t0, t1, line], tools/hair/fit-hat-hair.py)
+    // the hat and its hide mask shrink onto that smaller, lower head: the default hair's edge a0 and crown t0 go to
+    // the style's a1, t1, and a rim still above the line comes down to it (twin tails: too wide and afloat).
+    const f=hair?.fit,low=f&&f[5]!=null&&art.rim!=null?Math.max(0,f[5]-(f[4]+(art.rim-f[3])*f[0])):0,
+      fit=f?.length===6&&f[0]<=1?`matrix(${f[0]} 0 0 ${f[0]} ${+(f[2]-f[1]*f[0]).toFixed(3)} ${+(f[4]-f[3]*f[0]+low).toFixed(3)})`:'';
     const paint=el('g',{'data-foundation-hat-under':view});paint.append(...v.childNodes);v.append(paint);
     if(hair){
       const mid=id+'-hat-keep-'+view,m=el('mask',{id:mid,maskUnits:'userSpaceOnUse',x:-20,y:-30,width:72,height:100});
@@ -883,7 +888,7 @@
       const fid=id+'-hat-hair-tint';if(!defs.querySelector('#'+fid))hairTint(defs,fid,hairColor);
       // The hat's own hide shape cuts it too: the drawn cap was wider than ours beside the rim.
       const drawn=el('g',{'data-foundation-hat-hair':base.hair.split(':')[0]});drawn.append(el('image',{href:hair.src,...rect(hair.rect),preserveAspectRatio:'none',filter:'url(#'+fid+')'}));
-      if(art.hide){const hid=id+'-hat-hair-hide-'+view,h=el('mask',{id:hid,maskUnits:'userSpaceOnUse',x:-20,y:-30,width:72,height:100});h.append(el('rect',{x:-20,y:-30,width:72,height:100,fill:'#fff'}),el('image',{href:art.hide.src,...rect(art.hide.rect),preserveAspectRatio:'none'}));if(art.hideTop)h.append(el('rect',{...rect(art.hideTop),fill:'#000'}));defs.append(h);drawn.setAttribute('mask','url(#'+hid+')');}
+      if(art.hide){const hid=id+'-hat-hair-hide-'+view,h=el('mask',{id:hid,maskUnits:'userSpaceOnUse',x:-20,y:-30,width:72,height:100}),hg=el('g',fit?{transform:fit}:{});hg.append(el('image',{href:art.hide.src,...rect(art.hide.rect),preserveAspectRatio:'none'}));if(art.hideTop)hg.append(el('rect',{...rect(art.hideTop),fill:'#000'}));h.append(el('rect',{x:-20,y:-30,width:72,height:100,fill:'#fff'}),hg);defs.append(h);drawn.setAttribute('mask','url(#'+hid+')');}
       v.append(drawn);
     }else if(art.hide){
       const m=el('mask',{id:id+'-hat-hide-'+view,maskUnits:'userSpaceOnUse',x:-20,y:-30,width:72,height:100});
@@ -895,7 +900,7 @@
     // cups stay at the ears, so it stretches about its bottom instead of moving (a bun lifted the cups to the eyes).
     const lift=art.kind==='sit'||art.kind==='band'?hairLift(base,sex,view,art.rect):0,bottom=art.rect[1]+art.rect[3];
     const move=!lift?'':art.kind==='band'?`translate(0 ${bottom}) scale(1 ${((art.rect[3]-lift)/art.rect[3]).toFixed(4)}) translate(0 ${-bottom})`:`translate(0 ${lift})`;
-    v.append(el('image',{href:art.src,...rect(art.rect),preserveAspectRatio:'none','data-foundation-hat':art.shape,...(move?{transform:move}:{})}));
+    v.append(el('image',{href:art.src,...rect(art.rect),preserveAspectRatio:'none','data-foundation-hat':art.shape,...(move||fit?{transform:move||fit}:{})}));
     return Boolean(hair);
   }
   // Face art (avatar-face-art.js, tools/hair/build-face.py): face parts

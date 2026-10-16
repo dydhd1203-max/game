@@ -1,7 +1,7 @@
 {
   "project": "퀴즈나라",
   "format": 1,
-  "builtAt": "2026-10-16T09:18:51.858Z",
+  "builtAt": "2026-10-16T11:18:05.122Z",
   "instructions": "Cloudflare Pages 또는 Netlify 수동 배포에는 이 배포용 폴더 전체를 올리세요. index.html만 올리지 마세요.",
   "files": [
     {
@@ -546,8 +546,8 @@
     },
     {
       "path": "avatar-foundation.js",
-      "bytes": 135111,
-      "sha256": "996afcc5f5731c60a9ed14e5734213e5c84a9bdb82986cc4df0989a8407e0559"
+      "bytes": 135761,
+      "sha256": "368c958c7883127e7d771c4967960e1e26acfbfc4fc746aa6560d153a05a159e"
     },
     {
       "path": "avatar-foundation.css",
@@ -1461,8 +1461,8 @@
     },
     {
       "path": "avatar-hat-art.js",
-      "bytes": 45757,
-      "sha256": "ee2fe18cdf1e77cce6c1bda9be3f543a5fbcd708f82a3552f2b98f01f0e8acc5"
+      "bytes": 46916,
+      "sha256": "8c03b76cf93d5ed8549fb0b48951ca12cefd03c6778096deef4ce4839e2d8f4d"
     },
     {
       "path": "assets/hat-art/army-m-front.png",
