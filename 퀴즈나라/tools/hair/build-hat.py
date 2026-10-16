@@ -47,6 +47,9 @@ HOLE_UNLIKE = 25.0 # Lab: an unchanged hole this unlike the hat round it is the 
 FLAT_NEAR = 30.0  # Lab distance to a flat-hair base's colour that is still the placeholder (cut_flat)
 GROW = 3          # px the hat mask grows over its own outline
 ZONE = .75        # share of head top -> neck the hat may reach down to (a cap's back strap, a profile brim)
+ZONE_SIDE = 60    # px (template scale) beside the head the hat may reach (cut_zone, cut_flat)
+ZONE_WIDE, ZONE_SIDE_WIDE = .85, 130  # the zone a hat at the usual one's edge is cut again in (build_base)
+ZONE_EDGE_PX = 4  # px of the hat on the zone's side column that mean the brim ran past it (HAT_AT_ZONE_EDGE)
 HIDE_SIDE = 260   # px beside the hat the hair-hide mask reaches (hide_mask; a twin tail, a pony)
 HIDE_TOP = 80     # px above the hat (spiky hair above the crown)
 HIDE_FLARE = 1.6  # beside the hat the hidden edge drops this many px per px outward: the hair under the
@@ -261,19 +264,19 @@ def brown_hat(hat, u, t, px=1.0):
     return drop_wisps(fill, px)
 
 
-def cut_zone(u, a, t, head, low, x0, y0, box, px=1.0, diff=False):
+def cut_zone(u, a, t, head, low, x0, y0, box, px=1.0, diff=False, side_px=None):
     """The hat in one figure: u the drawn figure, t the unchanged one, head its head pixels, low the
     zone's last row; px the figure's scale against the template sheet (sizes in px scale with it).
     diff: t is the figure itself to a pixel (a base sheet), so the hat is also what changed (diff_hat)."""
     ys, xs = np.nonzero(head)
-    side = int(round(60 * px))
+    side = int(round((side_px or ZONE_SIDE) * px))
     zone = np.zeros(head.shape, bool)
     zone[:low, max(0, xs.min() - side):xs.max() + side + 1] = True
     if diff:
         dh = diff_hat(u, t, zone, px)
         band = np.zeros_like(dh)  # a band taken in beside the colour cut: trim_head does not judge it again
         # only where the hat's own colours miss it: a colour cut keeps a cap's back opening
-        colour = cut_zone(u, a, t, head, low, x0, y0, box, px)
+        colour = cut_zone(u, a, t, head, low, x0, y0, box, px, side_px=side_px)
         if dh.sum() < SEED_MIN * px * px:
             return colour
         # a hat with colours of its own: the colour cut finds most of what changed and keeps out the
@@ -337,13 +340,13 @@ def cut_zone(u, a, t, head, low, x0, y0, box, px=1.0, diff=False):
                                                    soft=HIDE_SOFT * px))
 
 
-def cut_flat(u, t, flat, head, low, x0, y0, box, px=1.0):
+def cut_flat(u, t, flat, head, low, x0, y0, box, px=1.0, side_px=None):
     """The hat on a flat-hair base (tools/hair/make-flat-hat-base.py, 2026-10-16): what changed from the base
     figure and is not the flat colour. A hat the hair's brown, a black visor, a white crown need no colour rule,
     and the hair redrawn under it stays flat (the sheet keeps the placeholder). The hat's edge over the flat
     hair is unmixed from it (no magenta fringe); flat hair the hat encloses is its opening (a cap's back)."""
     ys, xs = np.nonzero(head)
-    side = int(round(60 * px))
+    side = int(round((side_px or ZONE_SIDE) * px))
     zone = np.zeros(head.shape, bool)
     zone[:low, max(0, xs.min() - side):xs.max() + side + 1] = True
     Ul, Fl = R.lab(u), R.lab(np.array(flat, np.float32)[None, None])[0, 0]
@@ -662,6 +665,15 @@ def page_like(u):
     return (u.min(-1) >= PAGE_MIN) & (u.max(-1) - u.min(-1) <= PAGE_SPREAD)
 
 
+def zone_edge(mask, hx, side, low, px=1.0):
+    """Where a cut hat lies straight along its zone's edge (HAT_AT_ZONE_EDGE): a side column (its brim ran past
+    ZONE_SIDE: a witch's brim tips) or the last row (a brim drooping below ZONE: a straw hat's tips beside the
+    cheeks), more than ZONE_EDGE_PX px of it (2026-10-16: both read as straight cuts once twin tails showed
+    the brim's ends)."""
+    edge = [c for c in (max(0, hx.min() - side), min(mask.shape[1] - 1, hx.max() + side)) if mask[:, c].sum() > ZONE_EDGE_PX * px]
+    return edge + (['low'] if mask[low - 1].sum() > ZONE_EDGE_PX * px else [])
+
+
 def cut_checks(mask, u, t, head, dh, px=1.0, kind=None):
     """Codes for the ways a hat cut went wrong (2026-10-16, each seen once on a contact sheet before):
     HAT_HOLE a hole painted in a new colour (a police cap's star), WIDE_DROP a changed piece across half
@@ -735,22 +747,39 @@ def build_base(sheet, base_dir, out, pid=None, kind=None, out_assets=None):
         u = moved[y0:neck, x0:x1].astype(np.float32); tt = base[y0:neck, x0:x1].astype(np.float32)
         head = (np.abs(tt - 255).sum(-1) > 40)
         hy = np.nonzero(head.any(1))[0]
-        low = int(hy.min() + ZONE * (len(head) - hy.min()))
+        hx = np.nonzero(head.any(0))[0]
         a = (np.abs(u - 255).sum(-1) > 30).astype(np.float32)
-        if kind == 'band':  # headphones: the object itself, not what changed (the sheet pressed the hair under it)
-            f = cut_enclosed(u, x0, y0, [x0, y0, x1, neck], px)
-        elif meta.get('flat'):  # the hair painted one colour (make-flat-hat-base.py)
-            fc = [int(meta['flat'][i:i + 2], 16) for i in (1, 3, 5)]
-            f = cut_flat(u, tt, fc, head, low, x0, y0, [x0, y0, x1, neck], px)
-        else:
-            f = cut_zone(u, a, tt, head, low, x0, y0, [x0, y0, x1, neck], px, diff=True)
+        # the usual zone first; a hat cut straight at its edge (HAT_AT_ZONE_EDGE: a brim drooping past it) is cut
+        # again in the wide one (a straw hat's and a witch's brim tips, 2026-10-16). Only those: the wide zone takes
+        # in more of the redrawn hair under a brim (a few strands in a straw hat's curled back brim)
+        for share, side_px in ((ZONE, ZONE_SIDE), (ZONE_WIDE, ZONE_SIDE_WIDE)):
+            low = int(hy.min() + share * (len(head) - hy.min()))
+            if kind == 'band':  # headphones: the object itself, not what changed (the sheet pressed the hair under it)
+                f = cut_enclosed(u, x0, y0, [x0, y0, x1, neck], px)
+            elif meta.get('flat'):  # the hair painted one colour (make-flat-hat-base.py)
+                fc = [int(meta['flat'][i:i + 2], 16) for i in (1, 3, 5)]
+                f = cut_flat(u, tt, fc, head, low, x0, y0, [x0, y0, x1, neck], px, side_px)
+            else:
+                f = cut_zone(u, a, tt, head, low, x0, y0, [x0, y0, x1, neck], px, diff=True, side_px=side_px)
+            side = int(round(side_px * px))
+            edge = [] if f is None or kind == 'band' else zone_edge(f['mask'], hx, side, low, px)
+            if not edge:
+                break
+            if side_px == ZONE_SIDE:
+                first = (f, low, side, edge)
+        if edge and side_px != ZONE_SIDE:  # at the wide zone's edge too (a bandana's long ties): the usual cut stands
+            f, low, side, edge = first
+        elif side_px != ZONE_SIDE:
+            report.setdefault('wideZone', []).append(k)
         report['figures'][k] = None if f is None else dict(box=f['box'], px=f['px'], shift=[dx, dy], legsError=round(err, 2),
                                                            face=face_in_hat(f['mask'], u, tt, head))
         if f is not None and report['figures'][k]['face'] > MAX_FACE:
             report.setdefault('codes', []).append(['FACE_IN_HAT', k])
         if f is not None:
-            zone = np.zeros(head.shape, bool); hx = np.nonzero(head.any(0))[0]; side = int(round(60 * px))
+            zone = np.zeros(head.shape, bool)
             zone[:low, max(0, hx.min() - side):hx.max() + side + 1] = True
+            if edge:  # still at the wide zone's edge: drawn too big for the base, re-request
+                report.setdefault('codes', []).append(['HAT_AT_ZONE_EDGE', k])
             for code in cut_checks(f['mask'], u, tt, head, diff_hat(u, tt, zone, px), px, kind):
                 report.setdefault('codes', []).append([code, k])
         frames[k] = dict(cell0=[0, 0], unitsPerSheetPx=1 / ppu, cellOrigin=[-box['x'] / ppu, -box['y'] / ppu], toViewBox=t)

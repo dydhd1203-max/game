@@ -107,27 +107,27 @@
    "right": {
     "src": "assets/hat-art/grad-f-right.png",
     "rect": [
-     -5.529,
+     -5.671,
      -0.805,
-     38.068,
-     24.095
+     38.21,
+     24.523
     ],
     "hide": {
      "src": "assets/hat-art/grad-f-right-hide.png",
      "rect": [
-      -32.903,
+      -33.046,
       -9.217,
-      92.817,
-      59.882
+      92.959,
+      60.31
      ]
     },
     "hideTop": [
-     -32.903,
+     -33.046,
      -20.0,
-     92.817,
+     92.959,
      11.183
     ],
-    "rim": 15.52
+    "rim": 15.591
    },
    "back": {
     "src": "assets/hat-art/grad-f-back.png",

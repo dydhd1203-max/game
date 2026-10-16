@@ -1,7 +1,7 @@
 {
   "project": "퀴즈나라",
   "format": 1,
-  "builtAt": "2026-10-16T11:18:05.122Z",
+  "builtAt": "2026-10-16T12:58:37.602Z",
   "instructions": "Cloudflare Pages 또는 Netlify 수동 배포에는 이 배포용 폴더 전체를 올리세요. index.html만 올리지 마세요.",
   "files": [
     {
@@ -1461,8 +1461,8 @@
     },
     {
       "path": "avatar-hat-art.js",
-      "bytes": 46916,
-      "sha256": "8c03b76cf93d5ed8549fb0b48951ca12cefd03c6778096deef4ce4839e2d8f4d"
+      "bytes": 46919,
+      "sha256": "53877a81e137e12e06270643402ce17b560b9449d7e9fa88f2584f19b773c3d8"
     },
     {
       "path": "assets/hat-art/army-m-front.png",
@@ -1576,13 +1576,13 @@
     },
     {
       "path": "assets/hat-art/beanie-f-back.png",
-      "bytes": 50960,
-      "sha256": "87f2ad8f2dbdca205a2e010fbcc79b8f35be82f70004a04e47f79e1563f01e4d"
+      "bytes": 52697,
+      "sha256": "2fdc4a2ae6bb35c5f4c760d38ab8aaff819674e99fa5ea1ab01e4635e2baf54a"
     },
     {
       "path": "assets/hat-art/beanie-f-back-hide.png",
-      "bytes": 3583,
-      "sha256": "ab25d2fdb10a8aa8be2ba93fcda6774f17e397f7943647e485e2c29ed440ed58"
+      "bytes": 3886,
+      "sha256": "e6a3c010eb45001c75fc5d3a87cb67f0ecddfbd62c2473e1a5e4f65031786606"
     },
     {
       "path": "assets/hat-art/cap-m-front.png",
@@ -1656,23 +1656,23 @@
     },
     {
       "path": "assets/hat-art/capback-m-right.png",
-      "bytes": 51834,
-      "sha256": "14bbdda88b3d7605810063f6bc5ae7db38dca0171feef33a2747b3dc0300de15"
+      "bytes": 53313,
+      "sha256": "23b2e9dc059d32be2a61b654501c219428ad3bc5f8b9dde6389452e25bb602c4"
     },
     {
       "path": "assets/hat-art/capback-m-right-hide.png",
-      "bytes": 4280,
-      "sha256": "ca0133bce059ebf843f823477a26782114b1ad28ecd94f06e039e700e1b6c9b8"
+      "bytes": 4367,
+      "sha256": "1f93c2ae0f92fc6a6573e18ab398682a227bb38e03b47f090a75f2da17e0271a"
     },
     {
       "path": "assets/hat-art/capback-m-back.png",
-      "bytes": 38046,
-      "sha256": "6eb683c8efe703b09eaf3a18bf3c56c8e52bbb9172f0972834eafbd08f53e044"
+      "bytes": 43367,
+      "sha256": "70593e09a038c7a5e3d8f4dbb629e68aa8133c8d37366477f727cd657d103323"
     },
     {
       "path": "assets/hat-art/capback-m-back-hide.png",
-      "bytes": 3772,
-      "sha256": "b20b1c4efa1387ece8aca887d89e006766a92bd4708694e3f45d68cd123a7315"
+      "bytes": 4140,
+      "sha256": "676d013f5ced49c6b4bd2d41c361f302775576176d031ef8c9272476ab49bc39"
     },
     {
       "path": "assets/hat-art/capback-f-front.png",
@@ -1686,13 +1686,13 @@
     },
     {
       "path": "assets/hat-art/capback-f-right.png",
-      "bytes": 43154,
-      "sha256": "8679781755c6d6f4fca71c8b0d135f18808817ca3bf5fdc725fb30443a99f91d"
+      "bytes": 47992,
+      "sha256": "cf70ae7ae5c5bdbaf783a9176f7de5b2cc13e7d42928022d093473053467fceb"
     },
     {
       "path": "assets/hat-art/capback-f-right-hide.png",
-      "bytes": 3952,
-      "sha256": "037897613577b9b77304ccd74dd4aef3a4c26568b13c429f5640001f6cbb0bce"
+      "bytes": 4187,
+      "sha256": "7ef2945b91a79378ba9c27726f37e2ff632cfb13fd28c3de0d978d07def3bf3b"
     },
     {
       "path": "assets/hat-art/capback-f-back.png",
@@ -1937,12 +1937,12 @@
     {
       "path": "assets/hat-art/grad-m-back.png",
       "bytes": 49268,
-      "sha256": "0fe48d6f49c027d72bb8934312c3c0719b816ed06a1e8c2c30827879715b1d13"
+      "sha256": "ddbe38cd33541c6b7dc945d4b0759ccfb134b95411a84f6bb3f0435ac03f8411"
     },
     {
       "path": "assets/hat-art/grad-m-back-hide.png",
-      "bytes": 4982,
-      "sha256": "8f3bcf4c9377cc3dd440bc1eb48166ad7309f21817e5165bf1b487aee5363790"
+      "bytes": 4977,
+      "sha256": "87c9b9bb69aeb4c1d17f94a1583c65c449d00848fde327db3eb79d045433095e"
     },
     {
       "path": "assets/hat-art/grad-f-front.png",
@@ -1956,13 +1956,13 @@
     },
     {
       "path": "assets/hat-art/grad-f-right.png",
-      "bytes": 54801,
-      "sha256": "3a0c024d53aa5e746536273942b3201604dd78cf32db22aec3a7e3724f945bed"
+      "bytes": 56195,
+      "sha256": "e9aee2055c6acee623f6c810b09f9400a57b14fee60bd4bacc8755afe31f2868"
     },
     {
       "path": "assets/hat-art/grad-f-right-hide.png",
-      "bytes": 5101,
-      "sha256": "2a034898ffe0c64a95d3587a8e848d0debcbd3136082ed76e2dc643e3e3a3bc8"
+      "bytes": 5053,
+      "sha256": "7500045094060003d111e074f5e72119b0da73a7f6b5d34ab232af3f94c75d6e"
     },
     {
       "path": "assets/hat-art/grad-f-back.png",
@@ -2126,13 +2126,13 @@
     },
     {
       "path": "assets/hat-art/pirate-f-front.png",
-      "bytes": 44813,
-      "sha256": "9e27d2cde8adb0763b15e60260c67703c0f5796260e99b8c754e951af075b800"
+      "bytes": 51083,
+      "sha256": "f0bbedcb064dd9aa9eb873112446a86198c615d2eb6554c043cdbb85104d7ba4"
     },
     {
       "path": "assets/hat-art/pirate-f-front-hide.png",
-      "bytes": 3671,
-      "sha256": "cf2b2fd086a06a78a8cba759742a562fb19c89f595f5a9fe64fce9e2e74f4cba"
+      "bytes": 3893,
+      "sha256": "1cecfb5d10fc2003a3f77295f4e721b03f3594601230e2c031ba0ae4dbfc1564"
     },
     {
       "path": "assets/hat-art/pirate-f-right.png",
@@ -2316,13 +2316,13 @@
     },
     {
       "path": "assets/hat-art/straw-m-right.png",
-      "bytes": 70047,
-      "sha256": "a8422786078c91e3b6c94ccd75508d76be041972eeb75fb1c91a9fecd6a0ae77"
+      "bytes": 74519,
+      "sha256": "5945015ac53e8864acd4a489c5ce006ccc0864dee303845ae19bb3bd201ad786"
     },
     {
       "path": "assets/hat-art/straw-m-right-hide.png",
-      "bytes": 4611,
-      "sha256": "bf2209e18fe34198b03307b23c95d5bbf4f53293b139606901746d95bd503bec"
+      "bytes": 4848,
+      "sha256": "ccdd928e180e5d269d67bddf535132c34136a9f4b75a4f3599e5ed46d6355c2a"
     },
     {
       "path": "assets/hat-art/straw-m-back.png",
@@ -2336,23 +2336,23 @@
     },
     {
       "path": "assets/hat-art/straw-f-front.png",
-      "bytes": 65741,
-      "sha256": "bceaf8c1c999ff4bfd8e916d5a5451f3e205819bc7da4aacfb79c60ca2d91dcb"
+      "bytes": 68249,
+      "sha256": "92b98742e22fe6ccd5e30b7bce79f7381fb58e75fd06fadce17466f1f9853bc2"
     },
     {
       "path": "assets/hat-art/straw-f-front-hide.png",
-      "bytes": 4404,
-      "sha256": "8a4a27d611b0e2c0b018f5c657220c422eeceb787b437fcab12c4cb199240882"
+      "bytes": 4492,
+      "sha256": "9076538401c87d321360833e6b35ea6d4280490e0d8fadd19cbb4042b0cf2195"
     },
     {
       "path": "assets/hat-art/straw-f-right.png",
-      "bytes": 61570,
-      "sha256": "226e1ad0c178e2982918a5a5139518e4071b7a99415bc01deafa1015ccbd16f7"
+      "bytes": 66167,
+      "sha256": "be7a718f77412178c2b73bfd2ce0e5a9e5093bfda3ae69b800adada1dd452ec5"
     },
     {
       "path": "assets/hat-art/straw-f-right-hide.png",
-      "bytes": 4337,
-      "sha256": "251fe3d7b517c92dc6db506c7546e1ee696376489e6819eedc829dd95f7ecbcb"
+      "bytes": 4597,
+      "sha256": "07fd61b080777cbd15d84302ecf0af4c1e41679884b408f66894c3e6887d36a1"
     },
     {
       "path": "assets/hat-art/straw-f-back.png",
@@ -2366,63 +2366,63 @@
     },
     {
       "path": "assets/hat-art/witch-m-front.png",
-      "bytes": 80315,
-      "sha256": "86d22dc703ab232c58e4c3943b85f3ad2aa7a4861a12cb53e532d3d3c8c48785"
+      "bytes": 81069,
+      "sha256": "d9efc00982cfa3b56e2aa064e28e656e66d34ce88f3cb1e1cb58586d3485c0d8"
     },
     {
       "path": "assets/hat-art/witch-m-front-hide.png",
-      "bytes": 4488,
-      "sha256": "126796843c009058279952f055b68c9428af3df6d37eb7b8cde17e8b28ca575f"
+      "bytes": 4591,
+      "sha256": "292f5bc76d493f8280ebfe1b7f7e65b532579fe27d9f6140711175a6ac12a19a"
     },
     {
       "path": "assets/hat-art/witch-m-right.png",
-      "bytes": 69716,
-      "sha256": "3cc491d5c430f140a18b6f49cf033aca24f3477c0760d694bcc9244d70fca6e7"
+      "bytes": 72631,
+      "sha256": "01a139fb709658d744632dc7e29ddfa335b434ff2b52d99f2d59a17ce3c43e54"
     },
     {
       "path": "assets/hat-art/witch-m-right-hide.png",
-      "bytes": 4615,
-      "sha256": "945827dd2fc411d9e76b30a0926b66c5bb353badd2b1c56ff9f148f544cde0fa"
+      "bytes": 4813,
+      "sha256": "6078018ab1267929f5e39a5531283770b5ad9e5587557fefcbd46e8de87dd256"
     },
     {
       "path": "assets/hat-art/witch-m-back.png",
-      "bytes": 55489,
-      "sha256": "4082bc23f2de1a8a397eee6be9618f139a888b883fa58be2fec2edb760060f22"
+      "bytes": 56903,
+      "sha256": "b24937523197e7a8fa4af4cc9ea96b8143a64fc45c0f8646a88e48cfea89eceb"
     },
     {
       "path": "assets/hat-art/witch-m-back-hide.png",
-      "bytes": 3953,
-      "sha256": "601a4841a6eebec8a0eff48328c923670bd3e0f80ac67becf50f0d5a0ab06886"
+      "bytes": 3985,
+      "sha256": "2f61e5da8aaf4ddefe620fa45de1bb97a0f53af108ae0ad686ad3e1e4a5d36b7"
     },
     {
       "path": "assets/hat-art/witch-f-front.png",
-      "bytes": 65292,
-      "sha256": "b0b8c58901cefdf4adec985168b119d7acd6638156d02420698f788932d96904"
+      "bytes": 66298,
+      "sha256": "88bbfa1fb94ba74f05b38d4707f6e443d366b83ed6716605f7fc3ce0b95c7ba6"
     },
     {
       "path": "assets/hat-art/witch-f-front-hide.png",
-      "bytes": 4312,
-      "sha256": "1b899f9e912d6c1902a04be846cec2e25c56e766e96f6e64806801e8cf004d9b"
+      "bytes": 4315,
+      "sha256": "e7c503af4c1e07c6b394d11f71c6eea1d31a03748ac7197d45f9c4f1592ffb56"
     },
     {
       "path": "assets/hat-art/witch-f-right.png",
-      "bytes": 56021,
-      "sha256": "8862b5299e5024a9fa82f1a9b7e2c13fab4a1df509dca959df58b595d7208ea8"
+      "bytes": 60715,
+      "sha256": "8d72d2d250a3aaad971519ce321bf2a6200cfec60f5b1bbd66598de83aa78613"
     },
     {
       "path": "assets/hat-art/witch-f-right-hide.png",
-      "bytes": 4168,
-      "sha256": "b6a78b288f91d8f2b75bd482bcfb55d084f21a32ae409b46605a61b4b1416196"
+      "bytes": 4492,
+      "sha256": "6645959d8f3372910d8cf1e0dc3ea7f02e8abc250deaacc0e224e034a86212ae"
     },
     {
       "path": "assets/hat-art/witch-f-back.png",
-      "bytes": 49546,
-      "sha256": "2be28d275d092dd01b83389f18929cbff120aefd78ec302ec3acdd3afedc5cee"
+      "bytes": 49860,
+      "sha256": "f0399c787d4ab55658dfd7354aa013f3c7b3da39b634694648889a0294924e5f"
     },
     {
       "path": "assets/hat-art/witch-f-back-hide.png",
-      "bytes": 3960,
-      "sha256": "c9efea79d9f232eb5282a4e592743e5fe6a3fd202dd3fd67c18077cf23c6a918"
+      "bytes": 3932,
+      "sha256": "3bbd718fe9e00840ce6d9399947262869d5acbefec4f80ecda059f28651b4f36"
     },
     {
       "path": "assets/hat-art/hair/f-twin-front.png",
