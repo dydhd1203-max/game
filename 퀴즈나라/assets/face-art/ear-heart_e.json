@@ -1,0 +1,55 @@
+{
+ "kind": "ear",
+ "views": {
+  "m": {
+   "front": {
+    "src": "assets/face-art/ear-heart_e-m-front.png",
+    "rect": [
+     4.802,
+     23.108,
+     22.864,
+     4.259
+    ]
+   },
+   "right": {
+    "src": "assets/face-art/ear-heart_e-m-right.png",
+    "rect": [
+     12.308,
+     23.769,
+     2.402,
+     3.363
+    ]
+   },
+   "back": {
+    "src": "assets/face-art/ear-heart_e-m-back.png",
+    "rect": [
+     6.86,
+     22.257,
+     17.95,
+     3.698
+    ]
+   }
+  },
+  "f": {
+   "front": {
+    "src": "assets/face-art/ear-heart_e-f-front.png",
+    "rect": [
+     7.249,
+     23.964,
+     17.378,
+     3.717
+    ]
+   },
+   "right": {
+    "src": "assets/face-art/ear-heart_e-f-right.png",
+    "rect": [
+     13.001,
+     23.556,
+     2.39,
+     3.06
+    ]
+   }
+  }
+ },
+ "sheet": "assets/garment-sources/ear-heart_e-0-chatgpt-2026-10-16.png"
+}

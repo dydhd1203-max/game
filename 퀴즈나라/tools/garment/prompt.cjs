@@ -57,7 +57,7 @@ function resolve(id,products){
     '. The basic outfit (top:tee, bottom:shorts, shoes:sneaker) needs no ChatGPT sheet: the template already wears it.');
   if(ci!==undefined&&!product.sexes.some(sex=>String(product.ci[sex])===ci))
     throw new Error(id+': the shop sells '+key+' only as '+product.sexes.map(sex=>(sex==='m'?'boys ':'girls ')+key+':'+product.ci[sex]).join(', '));
-  if(!/^(top\/short-sleeve|bottom\/shorts|shoes\/low|hat\/full|hat\/sit-on|hat\/band|hat\/halo|face\/sticker|face\/mask|ear\/earring|face\/eyes|face\/nose|face\/mouth)$/.test(product.class))throw new Error(key+': class '+product.class+' has no stage-3 prompt');
+  if(!/^(top\/short-sleeve|bottom\/shorts|shoes\/low|hat\/full|hat\/sit-on|hat\/band|hat\/halo|face\/sticker|face\/mask|ear\/earring|face\/glasses|face\/eyes|face\/nose|face\/mouth)$/.test(product.class))throw new Error(key+': class '+product.class+' has no stage-3 prompt');
   return {key,product};
 }
 
@@ -66,6 +66,7 @@ function build(product,lang,P){
   const notes=product.notes[lang],cls=P.classes[product.class][lang],ch=P.children[lang];
   const sexes=product.sexes,single=sexes.length===1,shared=!single&&!!product.sharedPicture;
   const values={...cls,item:notes.item,itemM:notes.itemM||notes.item,itemF:notes.itemF||notes.item,look:notes.look,back:notes.back};
+  if(notes.length)values.length=notes.length; // a product whose wearing rule differs from its class (one-eye glasses)
   if(single){
     values.child=ch[sexes[0]];values.other=ch[sexes[0]==='m'?'f':'m'];
     values.targets=fill(ch.target,values);values.singleSex=P.singleSex[lang];

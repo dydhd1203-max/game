@@ -97,7 +97,7 @@ function pageCapture({items,withPictures}){
   // head (.qpx-hair) hidden, a frame wide enough for brims and crowns,
   // cropped to the paint.
   async function headAccessory(cat,shape,ci){
-    const svg=QPAvatar.thumb(cat,shape,ci,300,'m').replace(/viewBox="[^"]*"/,'viewBox="'+(cat==='face'||cat==='ear'?'-2 10 36 26':'-2 -6 36 26')+'"').replace(/width="[^"]*"/,'width="720"')
+    const svg=QPAvatar.thumb(cat,shape,ci,300,'m').replace(/viewBox="[^"]*"/,'viewBox="'+(cat==='face'||cat==='ear'||cat==='glass'?'-2 10 36 26':'-2 -6 36 26')+'"').replace(/width="[^"]*"/,'width="720"')
       .replace(/height="[^"]*"/,'height="520"').replace('<defs>','<style>.qpx-hair{display:none}</style><defs>');
     const img=await load('data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg));
     const c=document.createElement('canvas');c.width=720;c.height=520;const g=c.getContext('2d');g.drawImage(img,0,0);
@@ -117,14 +117,14 @@ function pageCapture({items,withPictures}){
         const painted=window.QPClothes.colorFor(cat,shape,sex,it.color)||it.color;
         const av={sex,sk:0,ec:0,eyes:'round',hair:sex==='m'?'short:1':'bob:1',top:'',bottom:'',shoes:'',outfit:''};av[cat]=shape+':'+it.ci;
         const holder=document.createElement('div');holder.innerHTML=QPAvatar.render(av,120);
-        const node=cat==='hat'||cat==='face'||cat==='ear'?null:cat==='shoes'?holder.querySelector('[data-qpx-shoe-color]'):holder.querySelector('[data-qpx-clothes="'+cat+'"]');
+        const node=cat==='hat'||cat==='face'||cat==='ear'||cat==='glass'?null:cat==='shoes'?holder.querySelector('[data-qpx-shoe-color]'):holder.querySelector('[data-qpx-clothes="'+cat+'"]');
         row.catalog[sex]={id:it.id,ci:it.ci,name:it.name,price:it.price,starter:C.STARTER.includes(it.id),sexes:it.sexes,
           colour:it.color,display:painted,maleOverride:sex==='m'?window.QPClothes.colorFor(cat,shape,'m')||null:null,
-          rendered:cat==='hat'||cat==='face'||cat==='ear'?painted:node?(cat==='shoes'?node.dataset.qpxShoeColor:node.dataset.clothColor):null};  // hats, face: drawn shapes, no colour attribute
+          rendered:cat==='hat'||cat==='face'||cat==='ear'||cat==='glass'?painted:node?(cat==='shoes'?node.dataset.qpxShoeColor:node.dataset.clothColor):null};  // hats, face: drawn shapes, no colour attribute
         if(!withPictures)continue;
         let canvas;
         if(cat==='shoes')canvas=await shoes(shape,painted);
-        else if(cat==='hat'||cat==='face'||cat==='ear')canvas=await headAccessory(cat,shape,it.ci);
+        else if(cat==='hat'||cat==='face'||cat==='ear'||cat==='glass')canvas=await headAccessory(cat,shape,it.ci);
         else{const s=QPClothes.surface(cat,shape,painted,sex);canvas=s&&s.canvas;}
         row.pictures[sex]=canvas?canvas.toDataURL('image/png'):null;
       }

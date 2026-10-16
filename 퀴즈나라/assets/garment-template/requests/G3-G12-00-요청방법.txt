@@ -1,0 +1,352 @@
+안경 원화 요청 10가지 G3~G12 (2026-10-16)
+============================================
+
+[꼭 지킬 것 - 모든 결과에 공통]
+- 항목마다 ChatGPT 새 대화를 열고: 01-안경-그림틀.png 와 그 항목의 참고 그림을 첨부 → 아래 요청 문장(한국어) 붙여 넣기 → 결과만 아래 이름으로 저장합니다.
+- 결과 그림은 매번 그림틀에서 새로 그립니다. 앞에서 만든 그림 위에 덧그리지 않습니다.
+- 결과는 그린 원본 그대로 줍니다. 크기 조정, 자르기, 색·위치 보정을 하지 않습니다.
+- 10장을 모두 받으면 한 zip으로 묶어 보내 주세요. 이 요청 묶음을 그대로 다시 보내지 않습니다.
+
+[보낼 것 10장]
+1) G3 네모안경: 첨부 01-안경-그림틀.png, 02-G3-네모안경-참고.png → 결과 glass-square.png
+2) G4 하트선글라스: 첨부 01-안경-그림틀.png, 03-G4-하트선글라스-참고.png → 결과 glass-heart.png
+3) G5 별안경: 첨부 01-안경-그림틀.png, 04-G5-별안경-참고.png → 결과 glass-star_g.png
+4) G6 물안경: 첨부 01-안경-그림틀.png, 05-G6-물안경-참고.png → 결과 glass-goggle.png
+5) G7 뿔테안경: 첨부 01-안경-그림틀.png, 06-G7-뿔테안경-참고.png → 결과 glass-thick.png
+6) G8 외알안경: 첨부 01-안경-그림틀.png, 07-G8-외알안경-참고.png → 결과 glass-mono.png
+7) G9 코안경: 첨부 01-안경-그림틀.png, 08-G9-코안경-참고.png → 결과 glass-pince.png
+8) G10 스포츠고글: 첨부 01-안경-그림틀.png, 09-G10-스포츠고글-참고.png → 결과 glass-sport.png
+9) G11 반달안경: 첨부 01-안경-그림틀.png, 10-G11-반달안경-참고.png → 결과 glass-half.png
+10) G12 안대: 첨부 01-안경-그림틀.png, 11-G12-안대-참고.png → 결과 glass-eyepatch.png
+
+----------------------------------------------------------------
+1) G3 네모안경 - 요청 문장
+----------------------------------------------------------------
+첫 번째 그림은 게임 캐릭터 설정 시트입니다. 윗줄은 남자아이, 아랫줄은 여자아이이고, 왼쪽부터 앞모습, 오른쪽을 보는 옆모습, 뒷모습입니다. 두 번째 그림은 새로 입힐 네모 안경 디자인입니다(두 아이가 같은 안경을 씁니다). 색과 모양만 참고하고, 몸과 그림체는 첫 번째 그림을 따릅니다.
+
+첫 번째 그림의 두 아이에게 안경만 씌워 주세요.
+- 두 아이: 두 번째 그림의 네모 안경. 모서리가 둥근 네모난 두 렌즈를 가는 진회색 테가 두르고, 코 위 다리와 양옆 다리가 이어집니다. 렌즈는 투명해서 눈이 그대로 보입니다.
+
+꼭 지켜 주세요.
+1. 얼굴, 머리 모양, 몸 크기와 비율, 자세, 팔·다리 위치, 옷과 신발, 머리카락, 눈·눈썹·코·입과 얼굴 윤곽은 첫 번째 그림과 똑같이 둡니다.
+2. 여섯 그림의 위치, 크기, 간격을 그대로 둡니다. 그림을 자르거나 옮기지 않습니다.
+3. 네모 안경은 두 눈 앞에 쓰고 코 위에 걸칩니다. 테는 눈썹 바로 아래부터 볼 위까지, 눈 둘레에 맞는 크기로 그립니다. 눈·눈썹·코·입, 얼굴 윤곽, 머리카락의 모양과 위치는 바꾸지 않습니다(렌즈가 투명하면 그림틀의 눈이 렌즈 안에 그대로 보이게). 앞머리가 테 위로 내려와 있으면 앞머리를 테 위에 그대로 둡니다. 앞모습과 오른쪽을 보는 옆모습에 그리고, 얼굴이 보이지 않는 뒷모습은 그림틀 그대로 둡니다.
+4. 앞·옆·뒤 세 모습이 같은 네모 안경으로 보이게 그립니다. 옆모습에서는 안경을 옆에서 본 모양(앞쪽 테와 귀로 가는 다리)으로 그리고, 뒷모습은 그림틀 그대로 둡니다.
+5. 그림체(부드러운 채색, 외곽선 굵기, 명암)는 첫 번째 그림과 같게 합니다.
+6. 배경은 아무것도 없는 흰색입니다. 그림자, 글자, 테두리를 넣지 않고, 안경에도 글자나 로고를 넣지 않습니다.
+7. 결과는 가로로 긴 그림 한 장으로 주세요.
+
+English (same request):
+Image 1 is a game character sheet: top row a boy, bottom row a girl; from left to right front view, right-facing side view, back view. Image 2 shows only the new glasses (both children wear the same 네모 안경). Use their colour and shape; keep the bodies and art style of image 1.
+
+Change ONLY the glasses of both children in image 1:
+- Both children: the square glasses from image 2: two rounded-square lenses in a thin dark grey rim, a bridge over the nose and arms to the ears; clear lenses, the eyes show through unchanged.
+
+Rules:
+1. Keep faces, hair, body size and proportions, pose, arm and leg positions, clothes and shoes, the hair, eyes, eyebrows, nose, mouth and face outline exactly as in image 1.
+2. Keep the position, size and spacing of all six figures. Do not crop or move them.
+3. Put the 네모 안경 in front of both eyes, resting on the nose; the rims reach from just below the eyebrows to the top of the cheeks, sized to the eyes. Do not change the eyes, eyebrows, nose, mouth, face outline or hair (with clear lenses the eyes of image 1 show through unchanged). If the fringe falls over the rim, keep the fringe over it. Draw them in the front view and the right-facing side view; the back view shows no face and stays exactly as in image 1.
+4. Front, side and back must show the same 네모 안경; in the side view draw the glasses from the side (the front rim and the arm running to the ear); the back view stays exactly as in image 1.
+5. Same art style as image 1 (soft painting, outline weight, shading).
+6. Plain white background. No shadows, text or frames, and no lettering or logos on the glasses.
+7. Return one landscape image.
+
+----------------------------------------------------------------
+2) G4 하트선글라스 - 요청 문장
+----------------------------------------------------------------
+첫 번째 그림은 게임 캐릭터 설정 시트입니다. 윗줄은 남자아이, 아랫줄은 여자아이이고, 왼쪽부터 앞모습, 오른쪽을 보는 옆모습, 뒷모습입니다. 두 번째 그림은 새로 입힐 하트 선글라스 디자인입니다(두 아이가 같은 안경을 씁니다). 색과 모양만 참고하고, 몸과 그림체는 첫 번째 그림을 따릅니다.
+
+첫 번째 그림의 두 아이에게 안경만 씌워 주세요.
+- 두 아이: 두 번째 그림의 하트 선글라스. 하트 모양의 분홍 렌즈 두 개가 눈을 가리고, 코 위 다리와 양옆 다리가 이어집니다. 왼쪽 렌즈 위쪽에 작은 밝은 빛 반사.
+
+꼭 지켜 주세요.
+1. 얼굴, 머리 모양, 몸 크기와 비율, 자세, 팔·다리 위치, 옷과 신발, 머리카락, 눈·눈썹·코·입과 얼굴 윤곽은 첫 번째 그림과 똑같이 둡니다.
+2. 여섯 그림의 위치, 크기, 간격을 그대로 둡니다. 그림을 자르거나 옮기지 않습니다.
+3. 하트 선글라스는 두 눈 앞에 쓰고 코 위에 걸칩니다. 테는 눈썹 바로 아래부터 볼 위까지, 눈 둘레에 맞는 크기로 그립니다. 눈·눈썹·코·입, 얼굴 윤곽, 머리카락의 모양과 위치는 바꾸지 않습니다(렌즈가 투명하면 그림틀의 눈이 렌즈 안에 그대로 보이게). 앞머리가 테 위로 내려와 있으면 앞머리를 테 위에 그대로 둡니다. 앞모습과 오른쪽을 보는 옆모습에 그리고, 얼굴이 보이지 않는 뒷모습은 그림틀 그대로 둡니다.
+4. 앞·옆·뒤 세 모습이 같은 하트 선글라스로 보이게 그립니다. 옆모습에서는 안경을 옆에서 본 모양(앞쪽 테와 귀로 가는 다리)으로 그리고, 뒷모습은 그림틀 그대로 둡니다.
+5. 그림체(부드러운 채색, 외곽선 굵기, 명암)는 첫 번째 그림과 같게 합니다.
+6. 배경은 아무것도 없는 흰색입니다. 그림자, 글자, 테두리를 넣지 않고, 안경에도 글자나 로고를 넣지 않습니다.
+7. 결과는 가로로 긴 그림 한 장으로 주세요.
+
+English (same request):
+Image 1 is a game character sheet: top row a boy, bottom row a girl; from left to right front view, right-facing side view, back view. Image 2 shows only the new glasses (both children wear the same 하트 선글라스). Use their colour and shape; keep the bodies and art style of image 1.
+
+Change ONLY the glasses of both children in image 1:
+- Both children: the heart sunglasses from image 2: two pink heart-shaped lenses covering the eyes, a bridge over the nose and arms to the ears; a small light reflection near the top of the lens.
+
+Rules:
+1. Keep faces, hair, body size and proportions, pose, arm and leg positions, clothes and shoes, the hair, eyes, eyebrows, nose, mouth and face outline exactly as in image 1.
+2. Keep the position, size and spacing of all six figures. Do not crop or move them.
+3. Put the 하트 선글라스 in front of both eyes, resting on the nose; the rims reach from just below the eyebrows to the top of the cheeks, sized to the eyes. Do not change the eyes, eyebrows, nose, mouth, face outline or hair (with clear lenses the eyes of image 1 show through unchanged). If the fringe falls over the rim, keep the fringe over it. Draw them in the front view and the right-facing side view; the back view shows no face and stays exactly as in image 1.
+4. Front, side and back must show the same 하트 선글라스; in the side view draw the glasses from the side (the front rim and the arm running to the ear); the back view stays exactly as in image 1.
+5. Same art style as image 1 (soft painting, outline weight, shading).
+6. Plain white background. No shadows, text or frames, and no lettering or logos on the glasses.
+7. Return one landscape image.
+
+----------------------------------------------------------------
+3) G5 별안경 - 요청 문장
+----------------------------------------------------------------
+첫 번째 그림은 게임 캐릭터 설정 시트입니다. 윗줄은 남자아이, 아랫줄은 여자아이이고, 왼쪽부터 앞모습, 오른쪽을 보는 옆모습, 뒷모습입니다. 두 번째 그림은 새로 입힐 별 안경 디자인입니다(두 아이가 같은 안경을 씁니다). 색과 모양만 참고하고, 몸과 그림체는 첫 번째 그림을 따릅니다.
+
+첫 번째 그림의 두 아이에게 안경만 씌워 주세요.
+- 두 아이: 두 번째 그림의 별 안경. 끝이 뾰족한 네 갈래 반짝이 별 모양의 노란 렌즈 두 개가 눈을 가리고, 코 위 둥근 다리와 양옆 다리가 이어집니다. 렌즈 위쪽에 짧은 밝은 빛 반사.
+
+꼭 지켜 주세요.
+1. 얼굴, 머리 모양, 몸 크기와 비율, 자세, 팔·다리 위치, 옷과 신발, 머리카락, 눈·눈썹·코·입과 얼굴 윤곽은 첫 번째 그림과 똑같이 둡니다.
+2. 여섯 그림의 위치, 크기, 간격을 그대로 둡니다. 그림을 자르거나 옮기지 않습니다.
+3. 별 안경은 두 눈 앞에 쓰고 코 위에 걸칩니다. 테는 눈썹 바로 아래부터 볼 위까지, 눈 둘레에 맞는 크기로 그립니다. 눈·눈썹·코·입, 얼굴 윤곽, 머리카락의 모양과 위치는 바꾸지 않습니다(렌즈가 투명하면 그림틀의 눈이 렌즈 안에 그대로 보이게). 앞머리가 테 위로 내려와 있으면 앞머리를 테 위에 그대로 둡니다. 앞모습과 오른쪽을 보는 옆모습에 그리고, 얼굴이 보이지 않는 뒷모습은 그림틀 그대로 둡니다.
+4. 앞·옆·뒤 세 모습이 같은 별 안경으로 보이게 그립니다. 옆모습에서는 안경을 옆에서 본 모양(앞쪽 테와 귀로 가는 다리)으로 그리고, 뒷모습은 그림틀 그대로 둡니다.
+5. 그림체(부드러운 채색, 외곽선 굵기, 명암)는 첫 번째 그림과 같게 합니다.
+6. 배경은 아무것도 없는 흰색입니다. 그림자, 글자, 테두리를 넣지 않고, 안경에도 글자나 로고를 넣지 않습니다.
+7. 결과는 가로로 긴 그림 한 장으로 주세요.
+
+English (same request):
+Image 1 is a game character sheet: top row a boy, bottom row a girl; from left to right front view, right-facing side view, back view. Image 2 shows only the new glasses (both children wear the same 별 안경). Use their colour and shape; keep the bodies and art style of image 1.
+
+Change ONLY the glasses of both children in image 1:
+- Both children: the star glasses from image 2: two yellow four-pointed sparkle-star lenses covering the eyes, a curved bridge over the nose and arms to the ears; a short light reflection near the top of each lens.
+
+Rules:
+1. Keep faces, hair, body size and proportions, pose, arm and leg positions, clothes and shoes, the hair, eyes, eyebrows, nose, mouth and face outline exactly as in image 1.
+2. Keep the position, size and spacing of all six figures. Do not crop or move them.
+3. Put the 별 안경 in front of both eyes, resting on the nose; the rims reach from just below the eyebrows to the top of the cheeks, sized to the eyes. Do not change the eyes, eyebrows, nose, mouth, face outline or hair (with clear lenses the eyes of image 1 show through unchanged). If the fringe falls over the rim, keep the fringe over it. Draw them in the front view and the right-facing side view; the back view shows no face and stays exactly as in image 1.
+4. Front, side and back must show the same 별 안경; in the side view draw the glasses from the side (the front rim and the arm running to the ear); the back view stays exactly as in image 1.
+5. Same art style as image 1 (soft painting, outline weight, shading).
+6. Plain white background. No shadows, text or frames, and no lettering or logos on the glasses.
+7. Return one landscape image.
+
+----------------------------------------------------------------
+4) G6 물안경 - 요청 문장
+----------------------------------------------------------------
+첫 번째 그림은 게임 캐릭터 설정 시트입니다. 윗줄은 남자아이, 아랫줄은 여자아이이고, 왼쪽부터 앞모습, 오른쪽을 보는 옆모습, 뒷모습입니다. 두 번째 그림은 새로 입힐 물안경 디자인입니다(두 아이가 같은 안경을 씁니다). 색과 모양만 참고하고, 몸과 그림체는 첫 번째 그림을 따릅니다.
+
+첫 번째 그림의 두 아이에게 안경만 씌워 주세요.
+- 두 아이: 두 번째 그림의 물안경. 밝은 파란 테를 두른 동그란 진한 파란 렌즈 두 개가 눈을 가리고, 코 위 둥근 다리와 양옆 다리가 이어집니다. 렌즈 위쪽에 짧고 밝은 빛 반사 한 줄.
+
+꼭 지켜 주세요.
+1. 얼굴, 머리 모양, 몸 크기와 비율, 자세, 팔·다리 위치, 옷과 신발, 머리카락, 눈·눈썹·코·입과 얼굴 윤곽은 첫 번째 그림과 똑같이 둡니다.
+2. 여섯 그림의 위치, 크기, 간격을 그대로 둡니다. 그림을 자르거나 옮기지 않습니다.
+3. 물안경은 두 눈 앞에 쓰고 코 위에 걸칩니다. 테는 눈썹 바로 아래부터 볼 위까지, 눈 둘레에 맞는 크기로 그립니다. 눈·눈썹·코·입, 얼굴 윤곽, 머리카락의 모양과 위치는 바꾸지 않습니다(렌즈가 투명하면 그림틀의 눈이 렌즈 안에 그대로 보이게). 앞머리가 테 위로 내려와 있으면 앞머리를 테 위에 그대로 둡니다. 앞모습과 오른쪽을 보는 옆모습에 그리고, 얼굴이 보이지 않는 뒷모습은 그림틀 그대로 둡니다.
+4. 앞·옆·뒤 세 모습이 같은 물안경으로 보이게 그립니다. 옆모습에서는 안경을 옆에서 본 모양(앞쪽 테와 귀로 가는 다리)으로 그리고, 뒷모습은 그림틀 그대로 둡니다.
+5. 그림체(부드러운 채색, 외곽선 굵기, 명암)는 첫 번째 그림과 같게 합니다.
+6. 배경은 아무것도 없는 흰색입니다. 그림자, 글자, 테두리를 넣지 않고, 안경에도 글자나 로고를 넣지 않습니다.
+7. 결과는 가로로 긴 그림 한 장으로 주세요.
+
+English (same request):
+Image 1 is a game character sheet: top row a boy, bottom row a girl; from left to right front view, right-facing side view, back view. Image 2 shows only the new glasses (both children wear the same 물안경). Use their colour and shape; keep the bodies and art style of image 1.
+
+Change ONLY the glasses of both children in image 1:
+- Both children: the swimming goggles from image 2: two round deep blue lenses in a bright blue rim covering the eyes, a curved bridge over the nose and arms to the ears; one short light reflection near the top of each lens.
+
+Rules:
+1. Keep faces, hair, body size and proportions, pose, arm and leg positions, clothes and shoes, the hair, eyes, eyebrows, nose, mouth and face outline exactly as in image 1.
+2. Keep the position, size and spacing of all six figures. Do not crop or move them.
+3. Put the 물안경 in front of both eyes, resting on the nose; the rims reach from just below the eyebrows to the top of the cheeks, sized to the eyes. Do not change the eyes, eyebrows, nose, mouth, face outline or hair (with clear lenses the eyes of image 1 show through unchanged). If the fringe falls over the rim, keep the fringe over it. Draw them in the front view and the right-facing side view; the back view shows no face and stays exactly as in image 1.
+4. Front, side and back must show the same 물안경; in the side view draw the glasses from the side (the front rim and the arm running to the ear); the back view stays exactly as in image 1.
+5. Same art style as image 1 (soft painting, outline weight, shading).
+6. Plain white background. No shadows, text or frames, and no lettering or logos on the glasses.
+7. Return one landscape image.
+
+----------------------------------------------------------------
+5) G7 뿔테안경 - 요청 문장
+----------------------------------------------------------------
+첫 번째 그림은 게임 캐릭터 설정 시트입니다. 윗줄은 남자아이, 아랫줄은 여자아이이고, 왼쪽부터 앞모습, 오른쪽을 보는 옆모습, 뒷모습입니다. 두 번째 그림은 새로 입힐 뿔테 안경 디자인입니다(두 아이가 같은 안경을 씁니다). 색과 모양만 참고하고, 몸과 그림체는 첫 번째 그림을 따릅니다.
+
+첫 번째 그림의 두 아이에게 안경만 씌워 주세요.
+- 두 아이: 두 번째 그림의 뿔테 안경. 두꺼운 진회색 테의 모서리가 둥근 네모 렌즈 두 개, 코 위 다리와 양옆 다리. 렌즈는 투명해서 눈이 그대로 보입니다.
+
+꼭 지켜 주세요.
+1. 얼굴, 머리 모양, 몸 크기와 비율, 자세, 팔·다리 위치, 옷과 신발, 머리카락, 눈·눈썹·코·입과 얼굴 윤곽은 첫 번째 그림과 똑같이 둡니다.
+2. 여섯 그림의 위치, 크기, 간격을 그대로 둡니다. 그림을 자르거나 옮기지 않습니다.
+3. 뿔테 안경은 두 눈 앞에 쓰고 코 위에 걸칩니다. 테는 눈썹 바로 아래부터 볼 위까지, 눈 둘레에 맞는 크기로 그립니다. 눈·눈썹·코·입, 얼굴 윤곽, 머리카락의 모양과 위치는 바꾸지 않습니다(렌즈가 투명하면 그림틀의 눈이 렌즈 안에 그대로 보이게). 앞머리가 테 위로 내려와 있으면 앞머리를 테 위에 그대로 둡니다. 앞모습과 오른쪽을 보는 옆모습에 그리고, 얼굴이 보이지 않는 뒷모습은 그림틀 그대로 둡니다.
+4. 앞·옆·뒤 세 모습이 같은 뿔테 안경으로 보이게 그립니다. 옆모습에서는 안경을 옆에서 본 모양(앞쪽 테와 귀로 가는 다리)으로 그리고, 뒷모습은 그림틀 그대로 둡니다.
+5. 그림체(부드러운 채색, 외곽선 굵기, 명암)는 첫 번째 그림과 같게 합니다.
+6. 배경은 아무것도 없는 흰색입니다. 그림자, 글자, 테두리를 넣지 않고, 안경에도 글자나 로고를 넣지 않습니다.
+7. 결과는 가로로 긴 그림 한 장으로 주세요.
+
+English (same request):
+Image 1 is a game character sheet: top row a boy, bottom row a girl; from left to right front view, right-facing side view, back view. Image 2 shows only the new glasses (both children wear the same 뿔테 안경). Use their colour and shape; keep the bodies and art style of image 1.
+
+Change ONLY the glasses of both children in image 1:
+- Both children: the thick-rimmed glasses from image 2: two rounded-square lenses in a thick dark grey rim, a bridge over the nose and arms to the ears; clear lenses, the eyes show through unchanged.
+
+Rules:
+1. Keep faces, hair, body size and proportions, pose, arm and leg positions, clothes and shoes, the hair, eyes, eyebrows, nose, mouth and face outline exactly as in image 1.
+2. Keep the position, size and spacing of all six figures. Do not crop or move them.
+3. Put the 뿔테 안경 in front of both eyes, resting on the nose; the rims reach from just below the eyebrows to the top of the cheeks, sized to the eyes. Do not change the eyes, eyebrows, nose, mouth, face outline or hair (with clear lenses the eyes of image 1 show through unchanged). If the fringe falls over the rim, keep the fringe over it. Draw them in the front view and the right-facing side view; the back view shows no face and stays exactly as in image 1.
+4. Front, side and back must show the same 뿔테 안경; in the side view draw the glasses from the side (the front rim and the arm running to the ear); the back view stays exactly as in image 1.
+5. Same art style as image 1 (soft painting, outline weight, shading).
+6. Plain white background. No shadows, text or frames, and no lettering or logos on the glasses.
+7. Return one landscape image.
+
+----------------------------------------------------------------
+6) G8 외알안경 - 요청 문장
+----------------------------------------------------------------
+첫 번째 그림은 게임 캐릭터 설정 시트입니다. 윗줄은 남자아이, 아랫줄은 여자아이이고, 왼쪽부터 앞모습, 오른쪽을 보는 옆모습, 뒷모습입니다. 두 번째 그림은 새로 입힐 외알 안경 디자인입니다(두 아이가 같은 안경을 씁니다). 색과 모양만 참고하고, 몸과 그림체는 첫 번째 그림을 따릅니다.
+
+첫 번째 그림의 두 아이에게 안경만 씌워 주세요.
+- 두 아이: 두 번째 그림의 외알 안경. 한쪽 눈에만 가는 노란(금색) 동그란 테를 끼우고, 테에서 가는 노란 줄이 볼 옆으로 늘어집니다. 렌즈는 투명해서 눈이 그대로 보입니다. 다른 쪽 눈에는 아무것도 없습니다.
+
+꼭 지켜 주세요.
+1. 얼굴, 머리 모양, 몸 크기와 비율, 자세, 팔·다리 위치, 옷과 신발, 머리카락, 눈·눈썹·코·입과 얼굴 윤곽은 첫 번째 그림과 똑같이 둡니다.
+2. 여섯 그림의 위치, 크기, 간격을 그대로 둡니다. 그림을 자르거나 옮기지 않습니다.
+3. 외알 안경은 한쪽 눈 앞에만 씁니다. 눈 둘레에 맞는 크기로, 눈썹 바로 아래부터 볼 위까지 그립니다. 눈·눈썹·코·입, 얼굴 윤곽, 머리카락의 모양과 위치는 바꾸지 않습니다(렌즈가 투명해서 그림틀의 눈이 렌즈 안에 그대로 보이게). 앞머리가 테 위로 내려와 있으면 앞머리를 테 위에 그대로 둡니다. 앞모습과 오른쪽을 보는 옆모습에 그리고, 얼굴이 보이지 않는 뒷모습은 그림틀 그대로 둡니다.
+4. 앞·옆·뒤 세 모습이 같은 외알 안경으로 보이게 그립니다. 앞모습에서는 그림의 왼쪽 눈(아이의 오른쪽 눈)에 그리고, 오른쪽을 보는 옆모습에서는 보이는 쪽(가까운) 눈에 그립니다. 뒷모습은 그림틀 그대로 둡니다. 왼쪽을 보는 옆모습은 이 옆모습을 좌우로 뒤집어 쓰므로, 한쪽에만 있는 장식은 뒤집어도 어색하지 않게 그립니다.
+5. 그림체(부드러운 채색, 외곽선 굵기, 명암)는 첫 번째 그림과 같게 합니다.
+6. 배경은 아무것도 없는 흰색입니다. 그림자, 글자, 테두리를 넣지 않고, 안경에도 글자나 로고를 넣지 않습니다.
+7. 결과는 가로로 긴 그림 한 장으로 주세요.
+
+English (same request):
+Image 1 is a game character sheet: top row a boy, bottom row a girl; from left to right front view, right-facing side view, back view. Image 2 shows only the new glasses (both children wear the same 외알 안경). Use their colour and shape; keep the bodies and art style of image 1.
+
+Change ONLY the glasses of both children in image 1:
+- Both children: the monocle from image 2: a thin round yellow (gold) rim over one eye only, a thin yellow chain hanging from it down beside the cheek; clear lens, the eye shows through unchanged. Nothing on the other eye.
+
+Rules:
+1. Keep faces, hair, body size and proportions, pose, arm and leg positions, clothes and shoes, the hair, eyes, eyebrows, nose, mouth and face outline exactly as in image 1.
+2. Keep the position, size and spacing of all six figures. Do not crop or move them.
+3. Put the 외알 안경 in front of one eye only, sized to the eye, from just below the eyebrow to the top of the cheek. Do not change the eyes, eyebrows, nose, mouth, face outline or hair (the clear lens shows the eye of image 1 unchanged). If the fringe falls over the rim, keep the fringe over it. Draw it in the front view and the right-facing side view; the back view shows no face and stays exactly as in image 1.
+4. Front, side and back must show the same 외알 안경; in the front view put it on the eye on the left of the picture (the child's right eye); in the right-facing side view put it on the near, visible eye; the back view stays exactly as in image 1. The left-facing view is made by mirroring this side view, so any one-sided decoration must still look right when mirrored.
+5. Same art style as image 1 (soft painting, outline weight, shading).
+6. Plain white background. No shadows, text or frames, and no lettering or logos on the glasses.
+7. Return one landscape image.
+
+----------------------------------------------------------------
+7) G9 코안경 - 요청 문장
+----------------------------------------------------------------
+첫 번째 그림은 게임 캐릭터 설정 시트입니다. 윗줄은 남자아이, 아랫줄은 여자아이이고, 왼쪽부터 앞모습, 오른쪽을 보는 옆모습, 뒷모습입니다. 두 번째 그림은 새로 입힐 코안경 디자인입니다(두 아이가 같은 안경을 씁니다). 색과 모양만 참고하고, 몸과 그림체는 첫 번째 그림을 따릅니다.
+
+첫 번째 그림의 두 아이에게 안경만 씌워 주세요.
+- 두 아이: 두 번째 그림의 코안경. 양옆 다리 없이 코에 집어 쓰는 동그란 갈색 테 두 개를 코 위 둥근 다리가 잇습니다. 렌즈는 투명해서 눈이 그대로 보입니다.
+
+꼭 지켜 주세요.
+1. 얼굴, 머리 모양, 몸 크기와 비율, 자세, 팔·다리 위치, 옷과 신발, 머리카락, 눈·눈썹·코·입과 얼굴 윤곽은 첫 번째 그림과 똑같이 둡니다.
+2. 여섯 그림의 위치, 크기, 간격을 그대로 둡니다. 그림을 자르거나 옮기지 않습니다.
+3. 코안경은 두 눈 앞에 쓰고 코 위에 걸칩니다. 테는 눈썹 바로 아래부터 볼 위까지, 눈 둘레에 맞는 크기로 그립니다. 눈·눈썹·코·입, 얼굴 윤곽, 머리카락의 모양과 위치는 바꾸지 않습니다(렌즈가 투명하면 그림틀의 눈이 렌즈 안에 그대로 보이게). 앞머리가 테 위로 내려와 있으면 앞머리를 테 위에 그대로 둡니다. 앞모습과 오른쪽을 보는 옆모습에 그리고, 얼굴이 보이지 않는 뒷모습은 그림틀 그대로 둡니다.
+4. 앞·옆·뒤 세 모습이 같은 코안경으로 보이게 그립니다. 옆모습에서는 안경을 옆에서 본 모양(앞쪽 테와 귀로 가는 다리)으로 그리고, 뒷모습은 그림틀 그대로 둡니다.
+5. 그림체(부드러운 채색, 외곽선 굵기, 명암)는 첫 번째 그림과 같게 합니다.
+6. 배경은 아무것도 없는 흰색입니다. 그림자, 글자, 테두리를 넣지 않고, 안경에도 글자나 로고를 넣지 않습니다.
+7. 결과는 가로로 긴 그림 한 장으로 주세요.
+
+English (same request):
+Image 1 is a game character sheet: top row a boy, bottom row a girl; from left to right front view, right-facing side view, back view. Image 2 shows only the new glasses (both children wear the same 코안경). Use their colour and shape; keep the bodies and art style of image 1.
+
+Change ONLY the glasses of both children in image 1:
+- Both children: the pince-nez from image 2: two round brown rims clipped onto the nose with no arms, joined by a curved bridge; clear lenses, the eyes show through unchanged.
+
+Rules:
+1. Keep faces, hair, body size and proportions, pose, arm and leg positions, clothes and shoes, the hair, eyes, eyebrows, nose, mouth and face outline exactly as in image 1.
+2. Keep the position, size and spacing of all six figures. Do not crop or move them.
+3. Put the 코안경 in front of both eyes, resting on the nose; the rims reach from just below the eyebrows to the top of the cheeks, sized to the eyes. Do not change the eyes, eyebrows, nose, mouth, face outline or hair (with clear lenses the eyes of image 1 show through unchanged). If the fringe falls over the rim, keep the fringe over it. Draw them in the front view and the right-facing side view; the back view shows no face and stays exactly as in image 1.
+4. Front, side and back must show the same 코안경; in the side view draw the glasses from the side (the front rim and the arm running to the ear); the back view stays exactly as in image 1.
+5. Same art style as image 1 (soft painting, outline weight, shading).
+6. Plain white background. No shadows, text or frames, and no lettering or logos on the glasses.
+7. Return one landscape image.
+
+----------------------------------------------------------------
+8) G10 스포츠고글 - 요청 문장
+----------------------------------------------------------------
+첫 번째 그림은 게임 캐릭터 설정 시트입니다. 윗줄은 남자아이, 아랫줄은 여자아이이고, 왼쪽부터 앞모습, 오른쪽을 보는 옆모습, 뒷모습입니다. 두 번째 그림은 새로 입힐 스포츠 고글 디자인입니다(두 아이가 같은 안경을 씁니다). 색과 모양만 참고하고, 몸과 그림체는 첫 번째 그림을 따릅니다.
+
+첫 번째 그림의 두 아이에게 안경만 씌워 주세요.
+- 두 아이: 두 번째 그림의 스포츠 고글. 두 눈을 한 장으로 가로로 덮는 진한 파란 렌즈에 밝은 파란 테, 렌즈 위쪽에 긴 밝은 빛 반사 한 줄. 양옆은 귀 쪽으로 이어집니다.
+
+꼭 지켜 주세요.
+1. 얼굴, 머리 모양, 몸 크기와 비율, 자세, 팔·다리 위치, 옷과 신발, 머리카락, 눈·눈썹·코·입과 얼굴 윤곽은 첫 번째 그림과 똑같이 둡니다.
+2. 여섯 그림의 위치, 크기, 간격을 그대로 둡니다. 그림을 자르거나 옮기지 않습니다.
+3. 스포츠 고글은 두 눈 앞에 쓰고 코 위에 걸칩니다. 테는 눈썹 바로 아래부터 볼 위까지, 눈 둘레에 맞는 크기로 그립니다. 눈·눈썹·코·입, 얼굴 윤곽, 머리카락의 모양과 위치는 바꾸지 않습니다(렌즈가 투명하면 그림틀의 눈이 렌즈 안에 그대로 보이게). 앞머리가 테 위로 내려와 있으면 앞머리를 테 위에 그대로 둡니다. 앞모습과 오른쪽을 보는 옆모습에 그리고, 얼굴이 보이지 않는 뒷모습은 그림틀 그대로 둡니다.
+4. 앞·옆·뒤 세 모습이 같은 스포츠 고글로 보이게 그립니다. 옆모습에서는 고글을 옆에서 본 모양(얼굴을 감싸는 앞쪽 렌즈와 귀 쪽으로 가는 띠)으로 그리고, 뒷모습은 그림틀 그대로 둡니다.
+5. 그림체(부드러운 채색, 외곽선 굵기, 명암)는 첫 번째 그림과 같게 합니다.
+6. 배경은 아무것도 없는 흰색입니다. 그림자, 글자, 테두리를 넣지 않고, 안경에도 글자나 로고를 넣지 않습니다.
+7. 결과는 가로로 긴 그림 한 장으로 주세요.
+
+English (same request):
+Image 1 is a game character sheet: top row a boy, bottom row a girl; from left to right front view, right-facing side view, back view. Image 2 shows only the new glasses (both children wear the same 스포츠 고글). Use their colour and shape; keep the bodies and art style of image 1.
+
+Change ONLY the glasses of both children in image 1:
+- Both children: the sports goggles from image 2: one wide deep blue lens across both eyes in a bright blue rim, one long light reflection along its top, the sides running towards the ears.
+
+Rules:
+1. Keep faces, hair, body size and proportions, pose, arm and leg positions, clothes and shoes, the hair, eyes, eyebrows, nose, mouth and face outline exactly as in image 1.
+2. Keep the position, size and spacing of all six figures. Do not crop or move them.
+3. Put the 스포츠 고글 in front of both eyes, resting on the nose; the rims reach from just below the eyebrows to the top of the cheeks, sized to the eyes. Do not change the eyes, eyebrows, nose, mouth, face outline or hair (with clear lenses the eyes of image 1 show through unchanged). If the fringe falls over the rim, keep the fringe over it. Draw them in the front view and the right-facing side view; the back view shows no face and stays exactly as in image 1.
+4. Front, side and back must show the same 스포츠 고글; in the side view draw the goggles from the side (the front lens wrapping round the face and the band running towards the ear); the back view stays exactly as in image 1.
+5. Same art style as image 1 (soft painting, outline weight, shading).
+6. Plain white background. No shadows, text or frames, and no lettering or logos on the glasses.
+7. Return one landscape image.
+
+----------------------------------------------------------------
+9) G11 반달안경 - 요청 문장
+----------------------------------------------------------------
+첫 번째 그림은 게임 캐릭터 설정 시트입니다. 윗줄은 남자아이, 아랫줄은 여자아이이고, 왼쪽부터 앞모습, 오른쪽을 보는 옆모습, 뒷모습입니다. 두 번째 그림은 새로 입힐 반달 안경 디자인입니다(두 아이가 같은 안경을 씁니다). 색과 모양만 참고하고, 몸과 그림체는 첫 번째 그림을 따릅니다.
+
+첫 번째 그림의 두 아이에게 안경만 씌워 주세요.
+- 두 아이: 두 번째 그림의 반달 안경. 렌즈 아래쪽만 둥글게 받치는 가는 갈색 테 두 개(위쪽에는 테가 없음)가 눈 아래쪽에 걸리고, 코 위 둥근 다리와 양옆 다리가 이어집니다. 렌즈는 투명해서 눈이 그대로 보입니다.
+
+꼭 지켜 주세요.
+1. 얼굴, 머리 모양, 몸 크기와 비율, 자세, 팔·다리 위치, 옷과 신발, 머리카락, 눈·눈썹·코·입과 얼굴 윤곽은 첫 번째 그림과 똑같이 둡니다.
+2. 여섯 그림의 위치, 크기, 간격을 그대로 둡니다. 그림을 자르거나 옮기지 않습니다.
+3. 반달 안경은 두 눈 앞에 쓰고 코 위에 걸칩니다. 테는 눈썹 바로 아래부터 볼 위까지, 눈 둘레에 맞는 크기로 그립니다. 눈·눈썹·코·입, 얼굴 윤곽, 머리카락의 모양과 위치는 바꾸지 않습니다(렌즈가 투명하면 그림틀의 눈이 렌즈 안에 그대로 보이게). 앞머리가 테 위로 내려와 있으면 앞머리를 테 위에 그대로 둡니다. 앞모습과 오른쪽을 보는 옆모습에 그리고, 얼굴이 보이지 않는 뒷모습은 그림틀 그대로 둡니다.
+4. 앞·옆·뒤 세 모습이 같은 반달 안경으로 보이게 그립니다. 옆모습에서는 안경을 옆에서 본 모양(앞쪽 테와 귀로 가는 다리)으로 그리고, 뒷모습은 그림틀 그대로 둡니다.
+5. 그림체(부드러운 채색, 외곽선 굵기, 명암)는 첫 번째 그림과 같게 합니다.
+6. 배경은 아무것도 없는 흰색입니다. 그림자, 글자, 테두리를 넣지 않고, 안경에도 글자나 로고를 넣지 않습니다.
+7. 결과는 가로로 긴 그림 한 장으로 주세요.
+
+English (same request):
+Image 1 is a game character sheet: top row a boy, bottom row a girl; from left to right front view, right-facing side view, back view. Image 2 shows only the new glasses (both children wear the same 반달 안경). Use their colour and shape; keep the bodies and art style of image 1.
+
+Change ONLY the glasses of both children in image 1:
+- Both children: the half-rim glasses from image 2: two thin brown rims curving only under the lenses (no rim on top) at the lower part of the eyes, a curved bridge over the nose and arms to the ears; clear lenses, the eyes show through unchanged.
+
+Rules:
+1. Keep faces, hair, body size and proportions, pose, arm and leg positions, clothes and shoes, the hair, eyes, eyebrows, nose, mouth and face outline exactly as in image 1.
+2. Keep the position, size and spacing of all six figures. Do not crop or move them.
+3. Put the 반달 안경 in front of both eyes, resting on the nose; the rims reach from just below the eyebrows to the top of the cheeks, sized to the eyes. Do not change the eyes, eyebrows, nose, mouth, face outline or hair (with clear lenses the eyes of image 1 show through unchanged). If the fringe falls over the rim, keep the fringe over it. Draw them in the front view and the right-facing side view; the back view shows no face and stays exactly as in image 1.
+4. Front, side and back must show the same 반달 안경; in the side view draw the glasses from the side (the front rim and the arm running to the ear); the back view stays exactly as in image 1.
+5. Same art style as image 1 (soft painting, outline weight, shading).
+6. Plain white background. No shadows, text or frames, and no lettering or logos on the glasses.
+7. Return one landscape image.
+
+----------------------------------------------------------------
+10) G12 안대 - 요청 문장
+----------------------------------------------------------------
+첫 번째 그림은 게임 캐릭터 설정 시트입니다. 윗줄은 남자아이, 아랫줄은 여자아이이고, 왼쪽부터 앞모습, 오른쪽을 보는 옆모습, 뒷모습입니다. 두 번째 그림은 새로 입힐 안대 디자인입니다(두 아이가 같은 안경을 씁니다). 색과 모양만 참고하고, 몸과 그림체는 첫 번째 그림을 따릅니다.
+
+첫 번째 그림의 두 아이에게 안경만 씌워 주세요.
+- 두 아이: 두 번째 그림의 안대. 한쪽 눈을 가리는 진회색 천 안대와, 안대에서 귀 쪽으로 가는 가는 끈 한 줄. 다른 쪽 눈은 그림틀 그대로 보입니다.
+
+꼭 지켜 주세요.
+1. 얼굴, 머리 모양, 몸 크기와 비율, 자세, 팔·다리 위치, 옷과 신발, 머리카락, 눈·눈썹·코·입과 얼굴 윤곽은 첫 번째 그림과 똑같이 둡니다.
+2. 여섯 그림의 위치, 크기, 간격을 그대로 둡니다. 그림을 자르거나 옮기지 않습니다.
+3. 안대는 한쪽 눈 앞에만 씁니다. 눈 둘레에 맞는 크기로, 눈썹 바로 아래부터 볼 위까지 그립니다. 눈·눈썹·코·입, 얼굴 윤곽, 머리카락의 모양과 위치는 바꾸지 않습니다(가리지 않은 다른 쪽 눈은 그림틀 그대로). 앞머리가 테 위로 내려와 있으면 앞머리를 테 위에 그대로 둡니다. 앞모습과 오른쪽을 보는 옆모습에 그리고, 얼굴이 보이지 않는 뒷모습은 그림틀 그대로 둡니다.
+4. 앞·옆·뒤 세 모습이 같은 안대로 보이게 그립니다. 앞모습에서는 그림의 왼쪽 눈(아이의 오른쪽 눈)에 그리고, 오른쪽을 보는 옆모습에서는 보이는 쪽(가까운) 눈에 그립니다. 뒷모습은 그림틀 그대로 둡니다. 왼쪽을 보는 옆모습은 이 옆모습을 좌우로 뒤집어 쓰므로, 한쪽에만 있는 장식은 뒤집어도 어색하지 않게 그립니다.
+5. 그림체(부드러운 채색, 외곽선 굵기, 명암)는 첫 번째 그림과 같게 합니다.
+6. 배경은 아무것도 없는 흰색입니다. 그림자, 글자, 테두리를 넣지 않고, 안경에도 글자나 로고를 넣지 않습니다.
+7. 결과는 가로로 긴 그림 한 장으로 주세요.
+
+English (same request):
+Image 1 is a game character sheet: top row a boy, bottom row a girl; from left to right front view, right-facing side view, back view. Image 2 shows only the new glasses (both children wear the same 안대). Use their colour and shape; keep the bodies and art style of image 1.
+
+Change ONLY the glasses of both children in image 1:
+- Both children: the eyepatch from image 2: a dark grey cloth patch covering one eye and one thin strap running from it towards the ear. The other eye stays as in image 1.
+
+Rules:
+1. Keep faces, hair, body size and proportions, pose, arm and leg positions, clothes and shoes, the hair, eyes, eyebrows, nose, mouth and face outline exactly as in image 1.
+2. Keep the position, size and spacing of all six figures. Do not crop or move them.
+3. Put the 안대 in front of one eye only, sized to the eye, from just below the eyebrow to the top of the cheek. Do not change the eyes, eyebrows, nose, mouth, face outline or hair (the other, uncovered eye stays as in image 1). If the fringe falls over the rim, keep the fringe over it. Draw it in the front view and the right-facing side view; the back view shows no face and stays exactly as in image 1.
+4. Front, side and back must show the same 안대; in the front view put it on the eye on the left of the picture (the child's right eye); in the right-facing side view put it on the near, visible eye; the back view stays exactly as in image 1. The left-facing view is made by mirroring this side view, so any one-sided decoration must still look right when mirrored.
+5. Same art style as image 1 (soft painting, outline weight, shading).
+6. Plain white background. No shadows, text or frames, and no lettering or logos on the glasses.
+7. Return one landscape image.
+
+----------------------------------------------------------------
+결과가 이러면 다시 요청 (그대로 붙여 넣기)
+----------------------------------------------------------------
+- 안경이 눈을 바꿨거나 눈썹·앞머리를 가렸을 때:
+  "눈과 눈썹, 앞머리는 그림틀 그대로 두고 안경만 그 앞에 씌워 다시 그려 주세요."
+- 외알 안경·안대가 두 눈에 다 그려졌을 때:
+  "한쪽 눈에만 그려 주세요. 앞모습은 그림의 왼쪽 눈, 옆모습은 보이는 쪽 눈입니다. 다른 쪽 눈은 그림틀 그대로 둡니다."
+- 얼굴·몸·옷·머리가 바뀌었거나 인물이 움직였을 때:
+  "바꾸라는 것 말고는 첫 번째 그림과 완전히 같아야 합니다. 같은 그림틀에서 다시 그려 주세요."
+- 색이나 모양이 참고 그림과 많이 다를 때:
+  "색과 모양을 두 번째 그림과 같게 맞춰 다시 그려 주세요."

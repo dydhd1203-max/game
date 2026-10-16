@@ -1,5 +1,335 @@
 {
  "items": {
+  "ear:bell": {
+   "kind": "ear",
+   "views": {
+    "m": {
+     "front": {
+      "src": "assets/face-art/ear-bell-m-front.png",
+      "rect": [
+       4.802,
+       23.333,
+       22.976,
+       4.147
+      ]
+     },
+     "right": {
+      "src": "assets/face-art/ear-bell-m-right.png",
+      "rect": [
+       12.404,
+       23.289,
+       2.306,
+       3.459
+      ]
+     },
+     "back": {
+      "src": "assets/face-art/ear-bell-m-back.png",
+      "rect": [
+       6.95,
+       22.798,
+       17.859,
+       3.337
+      ]
+     }
+    },
+    "f": {
+     "front": {
+      "src": "assets/face-art/ear-bell-f-front.png",
+      "rect": [
+       7.55,
+       23.763,
+       17.077,
+       3.717
+      ]
+     },
+     "right": {
+      "src": "assets/face-art/ear-bell-f-right.png",
+      "rect": [
+       13.193,
+       23.174,
+       2.008,
+       3.06
+      ]
+     }
+    }
+   },
+   "sheet": "assets/garment-sources/ear-bell-0-chatgpt-2026-10-16.png"
+  },
+  "ear:cross_e": {
+   "kind": "ear",
+   "views": {
+    "m": {
+     "front": {
+      "src": "assets/face-art/ear-cross_e-m-front.png",
+      "rect": [
+       4.241,
+       23.22,
+       23.424,
+       4.483
+      ]
+     },
+     "right": {
+      "src": "assets/face-art/ear-cross_e-m-right.png",
+      "rect": [
+       12.5,
+       23.673,
+       2.306,
+       3.651
+      ]
+     },
+     "back": {
+      "src": "assets/face-art/ear-cross_e-m-back.png",
+      "rect": [
+       7.041,
+       22.888,
+       17.499,
+       3.608
+      ]
+     }
+    },
+    "f": {
+     "front": {
+      "src": "assets/face-art/ear-cross_e-f-front.png",
+      "rect": [
+       7.249,
+       23.362,
+       17.679,
+       4.319
+      ]
+     },
+     "right": {
+      "src": "assets/face-art/ear-cross_e-f-right.png",
+      "rect": [
+       13.097,
+       23.174,
+       2.199,
+       3.442
+      ]
+     }
+    }
+   },
+   "sheet": "assets/garment-sources/ear-cross_e-0-chatgpt-2026-10-16.png"
+  },
+  "ear:dot": {
+   "kind": "ear",
+   "views": {
+    "m": {
+     "front": {
+      "src": "assets/face-art/ear-dot-m-front.png",
+      "rect": [
+       5.026,
+       23.22,
+       22.191,
+       3.474
+      ]
+     },
+     "right": {
+      "src": "assets/face-art/ear-dot-m-right.png",
+      "rect": [
+       12.788,
+       23.481,
+       1.922,
+       2.978
+      ]
+     },
+     "back": {
+      "src": "assets/face-art/ear-dot-m-back.png",
+      "rect": [
+       7.582,
+       22.527,
+       16.867,
+       2.886
+      ]
+     }
+    },
+    "f": {
+     "front": {
+      "src": "assets/face-art/ear-dot-f-front.png",
+      "rect": [
+       7.851,
+       23.864,
+       16.473,
+       2.712
+      ]
+     },
+     "right": {
+      "src": "assets/face-art/ear-dot-f-right.png",
+      "rect": [
+       13.288,
+       23.174,
+       1.817,
+       2.582
+      ]
+     }
+    }
+   },
+   "sheet": "assets/garment-sources/ear-dot-0-chatgpt-2026-10-16.png"
+  },
+  "ear:drop": {
+   "kind": "ear",
+   "views": {
+    "m": {
+     "front": {
+      "src": "assets/face-art/ear-drop-m-front.png",
+      "rect": [
+       5.474,
+       23.333,
+       21.295,
+       3.586
+      ]
+     },
+     "right": {
+      "src": "assets/face-art/ear-drop-m-right.png",
+      "rect": [
+       12.788,
+       23.673,
+       2.21,
+       2.882
+      ]
+     },
+     "back": {
+      "src": "assets/face-art/ear-drop-m-back.png",
+      "rect": [
+       7.401,
+       22.708,
+       16.957,
+       2.796
+      ]
+     }
+    },
+    "f": {
+     "front": {
+      "src": "assets/face-art/ear-drop-f-front.png",
+      "rect": [
+       7.851,
+       23.763,
+       16.574,
+       2.511
+      ]
+     },
+     "right": {
+      "src": "assets/face-art/ear-drop-f-right.png",
+      "rect": [
+       13.288,
+       23.174,
+       1.817,
+       2.582
+      ]
+     }
+    }
+   },
+   "sheet": "assets/garment-sources/ear-drop-0-chatgpt-2026-10-16.png"
+  },
+  "ear:flower_e": {
+   "kind": "ear",
+   "views": {
+    "m": {
+     "front": {
+      "src": "assets/face-art/ear-flower_e-m-front.png",
+      "rect": [
+       4.577,
+       21.988,
+       22.752,
+       5.043
+      ]
+     },
+     "right": {
+      "src": "assets/face-art/ear-flower_e-m-right.png",
+      "rect": [
+       12.5,
+       22.52,
+       2.69,
+       4.131
+      ]
+     },
+     "back": {
+      "src": "assets/face-art/ear-flower_e-m-back.png",
+      "rect": [
+       7.221,
+       21.896,
+       17.318,
+       4.059
+      ]
+     }
+    },
+    "f": {
+     "front": {
+      "src": "assets/face-art/ear-flower_e-f-front.png",
+      "rect": [
+       7.148,
+       22.959,
+       17.88,
+       4.119
+      ]
+     },
+     "right": {
+      "src": "assets/face-art/ear-flower_e-f-right.png",
+      "rect": [
+       12.906,
+       22.887,
+       2.677,
+       3.729
+      ]
+     }
+    }
+   },
+   "sheet": "assets/garment-sources/ear-flower_e-0-chatgpt-2026-10-16.png"
+  },
+  "ear:heart_e": {
+   "kind": "ear",
+   "views": {
+    "m": {
+     "front": {
+      "src": "assets/face-art/ear-heart_e-m-front.png",
+      "rect": [
+       4.802,
+       23.108,
+       22.864,
+       4.259
+      ]
+     },
+     "right": {
+      "src": "assets/face-art/ear-heart_e-m-right.png",
+      "rect": [
+       12.308,
+       23.769,
+       2.402,
+       3.363
+      ]
+     },
+     "back": {
+      "src": "assets/face-art/ear-heart_e-m-back.png",
+      "rect": [
+       6.86,
+       22.257,
+       17.95,
+       3.698
+      ]
+     }
+    },
+    "f": {
+     "front": {
+      "src": "assets/face-art/ear-heart_e-f-front.png",
+      "rect": [
+       7.249,
+       23.964,
+       17.378,
+       3.717
+      ]
+     },
+     "right": {
+      "src": "assets/face-art/ear-heart_e-f-right.png",
+      "rect": [
+       13.001,
+       23.556,
+       2.39,
+       3.06
+      ]
+     }
+    }
+   },
+   "sheet": "assets/garment-sources/ear-heart_e-0-chatgpt-2026-10-16.png"
+  },
   "ear:long_e": {
    "kind": "ear",
    "views": {
@@ -54,6 +384,61 @@
     }
    },
    "sheet": "assets/garment-sources/ear-long_e-0-chatgpt-2026-10-16.png"
+  },
+  "ear:ring": {
+   "kind": "ear",
+   "views": {
+    "m": {
+     "front": {
+      "src": "assets/face-art/ear-ring-m-front.png",
+      "rect": [
+       4.465,
+       23.445,
+       23.088,
+       3.81
+      ]
+     },
+     "right": {
+      "src": "assets/face-art/ear-ring-m-right.png",
+      "rect": [
+       12.02,
+       23.673,
+       3.075,
+       3.171
+      ]
+     },
+     "back": {
+      "src": "assets/face-art/ear-ring-m-back.png",
+      "rect": [
+       6.77,
+       22.708,
+       18.13,
+       3.157
+      ]
+     }
+    },
+    "f": {
+     "front": {
+      "src": "assets/face-art/ear-ring-f-front.png",
+      "rect": [
+       7.449,
+       23.763,
+       17.077,
+       3.315
+      ]
+     },
+     "right": {
+      "src": "assets/face-art/ear-ring-f-right.png",
+      "rect": [
+       12.523,
+       23.27,
+       2.869,
+       3.155
+      ]
+     }
+    }
+   },
+   "sheet": "assets/garment-sources/ear-ring-0-chatgpt-2026-10-16.png"
   },
   "ear:star_e": {
    "kind": "ear",
@@ -512,7 +897,7 @@
        9.759,
        24.668,
        12.356,
-       1.607
+       2.109
       ]
      },
      "right": {
@@ -527,6 +912,98 @@
     }
    },
    "sheet": "assets/garment-sources/face-whisker-0-chatgpt-2026-10-16.png"
+  },
+  "glass:round": {
+   "kind": "glasses",
+   "views": {
+    "m": {
+     "front": {
+      "src": "assets/face-art/glass-round-m-front.png",
+      "rect": [
+       6.595,
+       16.72,
+       18.604,
+       8.517
+      ]
+     },
+     "right": {
+      "src": "assets/face-art/glass-round-m-right.png",
+      "rect": [
+       17.592,
+       16.948,
+       7.014,
+       7.206
+      ]
+     }
+    },
+    "f": {
+     "front": {
+      "src": "assets/face-art/glass-round-f-front.png",
+      "rect": [
+       8.755,
+       19.444,
+       14.866,
+       6.931
+      ]
+     },
+     "right": {
+      "src": "assets/face-art/glass-round-f-right.png",
+      "rect": [
+       15.392,
+       17.724,
+       7.936,
+       6.502
+      ]
+     }
+    }
+   },
+   "sheet": "assets/garment-sources/glass-round-11-chatgpt-2026-10-16.png"
+  },
+  "glass:sun": {
+   "kind": "glasses",
+   "views": {
+    "m": {
+     "front": {
+      "src": "assets/face-art/glass-sun-m-front.png",
+      "rect": [
+       5.698,
+       17.953,
+       20.846,
+       6.612
+      ]
+     },
+     "right": {
+      "src": "assets/face-art/glass-sun-m-right.png",
+      "rect": [
+       14.133,
+       17.812,
+       10.377,
+       5.957
+      ]
+     }
+    },
+    "f": {
+     "front": {
+      "src": "assets/face-art/glass-sun-f-front.png",
+      "rect": [
+       7.751,
+       20.348,
+       16.273,
+       5.224
+      ]
+     },
+     "right": {
+      "src": "assets/face-art/glass-sun-f-right.png",
+      "rect": [
+       15.392,
+       18.393,
+       8.128,
+       5.546
+      ]
+     }
+    }
+   },
+   "sheet": "assets/garment-sources/glass-sun-9-chatgpt-2026-10-16.png"
   },
   "mouth:cat": {
    "kind": "part",

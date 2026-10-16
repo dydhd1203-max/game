@@ -891,8 +891,11 @@
       if(art.hideTop)m.append(el('rect',{...rect(art.hideTop),fill:'#000'}));
       defs.append(m);paint.setAttribute('mask','url(#'+id+'-hat-hide-'+view+')');
     }
-    const lift=art.kind==='sit'?hairLift(base,sex,view,art.rect):0;
-    v.append(el('image',{href:art.src,...rect(art.rect),preserveAspectRatio:'none','data-foundation-hat':art.shape,...(lift?{transform:`translate(0 ${lift})`}:{})}));
+    // A band to the ears (headphones, kind 'band', 2026-10-16): its top follows this style's top edge but its
+    // cups stay at the ears, so it stretches about its bottom instead of moving (a bun lifted the cups to the eyes).
+    const lift=art.kind==='sit'||art.kind==='band'?hairLift(base,sex,view,art.rect):0,bottom=art.rect[1]+art.rect[3];
+    const move=!lift?'':art.kind==='band'?`translate(0 ${bottom}) scale(1 ${((art.rect[3]-lift)/art.rect[3]).toFixed(4)}) translate(0 ${-bottom})`:`translate(0 ${lift})`;
+    v.append(el('image',{href:art.src,...rect(art.rect),preserveAspectRatio:'none','data-foundation-hat':art.shape,...(move?{transform:move}:{})}));
     return Boolean(hair);
   }
   // Face art (avatar-face-art.js, tools/hair/build-face.py): face parts
@@ -901,7 +904,7 @@
   // face (anchors: the profile face sits up to a unit apart between styles).
   // A part first lays a cover in the wearer's skin colour over the old part;
   // its own skin pixels are transparent, so it fits every skin tone.
-  const FACE_SLOTS=['eyes','nose','mouth','face'];
+  const FACE_SLOTS=['eyes','nose','mouth','face','glass'];  // glasses too: under the fringe like the face items
   function faceArtOf(av,sex,view){
     const A=root.QPFaceArt;if(!A||view==='back')return[];const vw=view==='profile'?'right':view,out=[];
     for(const slot of FACE_SLOTS){const shape=String(av[slot]||'').split(':')[0],rec=shape&&A.items[slot+':'+shape],art=rec?.views?.[sex]?.[vw];if(art)out.push({slot,shape,kind:rec.kind,...art});}

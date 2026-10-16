@@ -254,6 +254,26 @@
    "limits": [],
    "why": "Earrings (2026-10-16 pilot, shop ear:star_e, ear:long_e): drawn on the template heads (boy short hair with visible ears, girl bob hiding them), cut like a face sticker around the ears, and placed per hair style with the face anchor (tools/fixtures/face-anchor.json) since the ears move with the head painting."
   },
+  "face/glasses": {
+   "ko": {
+    "slot": "안경",
+    "thing": "안경",
+    "verb": "씌워",
+    "wear": "씁니다",
+    "pose": "팔·다리 위치, 옷과 신발",
+    "keep": "머리카락, 눈·눈썹·코·입과 얼굴 윤곽",
+    "length": "{item|은} 두 눈 앞에 쓰고 코 위에 걸칩니다. 테는 눈썹 바로 아래부터 볼 위까지, 눈 둘레에 맞는 크기로 그립니다. 눈·눈썹·코·입, 얼굴 윤곽, 머리카락의 모양과 위치는 바꾸지 않습니다(렌즈가 투명하면 그림틀의 눈이 렌즈 안에 그대로 보이게). 앞머리가 테 위로 내려와 있으면 앞머리를 테 위에 그대로 둡니다. 앞모습과 오른쪽을 보는 옆모습에 그리고, 얼굴이 보이지 않는 뒷모습은 그림틀 그대로 둡니다."
+   },
+   "en": {
+    "slot": "glasses",
+    "things": "glasses",
+    "pose": "arm and leg positions, clothes and shoes",
+    "keep": "the hair, eyes, eyebrows, nose, mouth and face outline",
+    "length": "Put the {item} in front of both eyes, resting on the nose; the rims reach from just below the eyebrows to the top of the cheeks, sized to the eyes. Do not change the eyes, eyebrows, nose, mouth, face outline or hair (with clear lenses the eyes of image 1 show through unchanged). If the fringe falls over the rim, keep the fringe over it. Draw them in the front view and the right-facing side view; the back view shows no face and stays exactly as in image 1."
+   },
+   "limits": [],
+   "why": "Glasses (2026-10-16 pilot G1·G2): like face items they sit on the fixed face frame under the fringe, front and profile only; the frame colour may be close to the hair (brown) or dark, so the cut starts from the product colour inside the face (as earrings do)."
+  },
   "face/eyes": {
    "ko": {
     "slot": "눈",
