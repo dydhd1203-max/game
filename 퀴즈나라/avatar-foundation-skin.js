@@ -211,9 +211,12 @@
   // A long sleeve (avatar-foundation-outfit.js r.sleeveFold[i]) covers that copy with its own forearm, so only
   // the hand stays bare: the same mesh rows of the sleeve's strip, right after the skin copy.
   const sf=r.sleeveFold?.[i];
-  if(sf){if(!toward)sf.node.style.display='none';else{const art=painting(sf.def,points,Boolean(arm.fold),'forearm'),after=own?part.forearmArt:part.forearm;
+  // Always right after the skin copies (the clipped use, then the painted forearm), so the node order does not
+  // depend on the poses an avatar went through (reset/remount keep it).
+  if(sf){if(part.forearmArt.nextSibling!==sf.node)part.forearmArt.after(sf.node);
+   if(!toward)sf.node.style.display='none';else{const art=painting(sf.def,points,Boolean(arm.fold),'forearm');
    if(sf.node.paintedArt!==art){sf.node.setAttribute('href',art.url);sf.node.paintedArt=art;}for(const[k,val]of Object.entries({x:points[0][0]+art.x,y:points[0][1]+art.y,width:art.w,height:art.h}))if(sf.node.getAttribute(k)!==String(val))sf.node.setAttribute(k,val);
-   if(after.nextSibling!==sf.node)after.after(sf.node);sf.node.style.display='';}}
+   sf.node.style.display='';}}
   if(!toward)return;
   if(own){const art=painting(def,points,true,arm.fist?'forearm-fist':(arm.open??arm.lift??0)>.5?'forearm-bare':'forearm'),e=part.forearmArt;
    // The painting is compared by reference: reading a data-URL href back from

@@ -182,7 +182,8 @@ function pageLib(cfg){
   const nonFinite=svg=>[...svg.querySelectorAll('*')].some(e=>[...e.attributes].some(a=>!/href$/.test(a.name)&&/NaN|Infinity/.test(a.value)));
   const paintMisses=()=>Sk.paintStats().kinds.reduce((s,k)=>s+k.misses,0);
   // Which slot owns an outfit part.
-  const slotOfPart=part=>/^(shirt|underarm|sleeve)/.test(part)?'top':part==='shorts-hip'?'bottom':/^shoe/.test(part)?'shoes':null;
+  // arm-sleeve-*: a long sleeve's strip and folded forearm; feet-*: the bare feet under an open shoe.
+  const slotOfPart=part=>/^(shirt|underarm|sleeve|arm-sleeve)/.test(part)?'top':part==='shorts-hip'?'bottom':/^(shoe|feet)/.test(part)?'shoes':null;
   // The records this page knows: the index's plus registered ones (with their source).
   const known=new Map();
   function recordList(){

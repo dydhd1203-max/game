@@ -2545,7 +2545,7 @@
   },
   "top:hood": {
    "class": "top/long-sleeve",
-   "status": "long sleeve L (requested 2026-10-16); dark-skin template request (2026-10-16)",
+   "status": "long sleeve L; dark-skin sheet received 2026-10-16, assets/garment-sources/top-hood-dark-chatgpt-2026-10-16.png",
    "base": "dark",
    "sexes": [
     "m",
@@ -2590,7 +2590,7 @@
   },
   "top:cardi": {
    "class": "top/long-sleeve",
-   "status": "long sleeve L (requested 2026-10-16); dark-skin template request (2026-10-16)",
+   "status": "long sleeve L; dark-skin sheet received 2026-10-16, assets/garment-sources/top-cardi-dark-chatgpt-2026-10-16.png",
    "base": "dark",
    "sexes": [
     "m",
@@ -2635,7 +2635,7 @@
   },
   "top:jacket": {
    "class": "top/long-sleeve",
-   "status": "long sleeve L (requested 2026-10-16); dark-skin template request (2026-10-16)",
+   "status": "long sleeve L; dark-skin sheet received 2026-10-16, assets/garment-sources/top-jacket-dark-chatgpt-2026-10-16.png",
    "base": "dark",
    "sexes": [
     "m",

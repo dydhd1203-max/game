@@ -472,6 +472,7 @@ LONG_GROW = 3        # px round the arm painting (clean and legacy) over the bas
 LONG_WIDE = 8        # px round it elsewhere (a sleeve wider than the arm: the knit's outline lay 4-7 px out, 2026-10-16)
 LONG_SKIN = 2.0      # nll margin by which the skin model must beat the product model for a strip pixel to be skin
 LONG_MIN = 30        # px of a kept strip piece
+LONG_CAP = 6         # px down the upper arm past the shoulder line a long sleeve's cap keeps (over the strip)
 LONG_LINE = 2        # px: skin-like pieces this thin (2r+1 wide) are drawn lines, not bare skin
 LONG_CODES = ('SLEEVE_LONG', 'SLEEVE_SHORT')  # the short-sleeve coverage rules a long sleeve does not keep
 OPEN_SHOE_CODES = ('SOLE_OFF_FLOOR', 'SHOE_MISSING')
@@ -621,7 +622,7 @@ def arm_strips(ctx, segs, keys):
 
 def long_static(ctx, figs, keys):
     """A long sleeve's static parts (top/long-sleeve): the sleeve caps keep the basic sleeve's footprint (the
-    drawn basic sleeves grown LONG_GROW px) and the torso gives up the arm painting outside the basic shirt's:
+    drawn basic sleeves grown LONG_GROW px) down to LONG_CAP px past the shoulder line, and the torso gives up the arm painting outside the basic shirt's:
     the sleeve down the arm is the strip (arm_strips), which follows the arm; left in a cap, it would stay in the
     cap's place when the arm swings."""
     fz = ctx.fz
@@ -631,9 +632,21 @@ def long_static(ctx, figs, keys):
     for key in keys:
         x0, y0, x1, y1 = SG.CELLS[key]
         sl = np.s_[y0:y1, x0:x1]
+        J = fz.data[key]['joints']
+        yy, xx = np.mgrid[y0:y1, x0:x1]
         for name, p in figs[key]['parts'].items():
             if name.startswith('sleeve'):
-                p['a'] = p['a'] * cap[sl]
+                i = int(name[-1])
+                S, E = np.array(J['shoulder'][i], float), np.array(J['elbow'][i], float)
+                ua = (E - S) / np.linalg.norm(E - S)
+                # the cap keeps only the shoulder: LONG_CAP px down the upper arm past the shoulder line, over the
+                # strip's top (which starts at that line); below it the strip alone bends with the arm (a cap down
+                # to the basic cuff stayed put while the strip swung, a torn edge in a run, 2026-10-16)
+                # a profile sleeve starts below the shoulder line (over the torso): it keeps 2 LONG_CAP px from its top
+                proj = (xx + .5 - S[0]) * ua[0] + (yy + .5 - S[1]) * ua[1]
+                own = (p['a'] > .5) & cap[sl]
+                start = float(proj[own].min()) if own.any() else 0.0
+                p['a'] = p['a'] * (cap[sl] & (proj < max(LONG_CAP, start + 2 * LONG_CAP)))
             elif name == 'torso':
                 p['a'] = p['a'] * ~(art[sl] & ~shirt[sl])
 
