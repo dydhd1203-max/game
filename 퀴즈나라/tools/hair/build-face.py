@@ -127,7 +127,7 @@ def soft(mask, r=SOFT):
     return np.asarray(im.filter(ImageFilter.GaussianBlur(r))).astype(np.float32) / 255 * (M.dilate(mask, 2))
 
 
-def cut(U, T, O, cells, slot, kind, debug=None, colour=None):
+def cut(U, T, O, cells, slot, kind, debug=None, colour=None, opaque=False):
     LU, LT = R.lab(U), R.lab(T)
     gaps = {}
     found = {}
@@ -164,6 +164,9 @@ def cut(U, T, O, cells, slot, kind, debug=None, colour=None):
             # a rim crossing the lashes breaks into arcs: closed over gaps of a few px before it is trimmed to the
             # changed pixels (G1 2026-10-16: the upper outer rims had gaps)
             item = M.erode(M.dilate(seeds, 4), 2) & (d > CHANGED) & reach
+            if opaque:  # tinted lenses (products.json opaqueLens): their own deep colour is not the rim's, so the
+                # rims enclose them (swimming goggles G6: only the rims were cut and the eyes showed through)
+                item = item | (BH.fill_holes(item) & (d > CHANGED))
             if debug is not None:
                 debug[k] = dict(u=u.astype(np.uint8), face=face, features=face & (lt[..., 0] < FEATURE_L), eyezone=np.zeros_like(face), seeds=seeds, item=item)
         elif kind in ('sticker', 'mask'):
@@ -455,7 +458,7 @@ def build(sheet, out, pid, out_assets=None, debug=False, runtime=True):
     U = res['images']['registered'][..., :3].astype(np.float32)
     T = spec['template'][..., :3].astype(np.float32)
     dbg = {} if debug else None
-    figs = cut_ear(U, T, spec['owner'], spec['cells'], R.lab(np.array([[[int(prod['colour']['f'][i:i + 2], 16) for i in (1, 3, 5)]]], np.float32))[0, 0]) if kind == 'ear' else cut(U, T, spec['owner'], spec['cells'], slot, kind, dbg, R.lab(np.array([[[int(prod['colour']['f'][i:i + 2], 16) for i in (1, 3, 5)]]], np.float32))[0, 0])
+    figs = cut_ear(U, T, spec['owner'], spec['cells'], R.lab(np.array([[[int(prod['colour']['f'][i:i + 2], 16) for i in (1, 3, 5)]]], np.float32))[0, 0]) if kind == 'ear' else cut(U, T, spec['owner'], spec['cells'], slot, kind, dbg, R.lab(np.array([[[int(prod['colour']['f'][i:i + 2], 16) for i in (1, 3, 5)]]], np.float32))[0, 0], bool(prod.get('opaqueLens')))
     os.makedirs(out, exist_ok=True)
     report = dict(sheet=os.path.basename(sheet), id=pid, kind=kind, codes=[c['code'] for c in res['codes']],
                   figures={k: (None if f is None else dict(box=f['box'], px=f['px'])) for k, f in figs.items()})

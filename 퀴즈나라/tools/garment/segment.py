@@ -109,7 +109,7 @@ DRAWN_PAIRS = (('sleeves', 'arms', 1), ('shirt', 'neck', 2), ('shorts', 'legs', 
 # q80 template, the geometric positives and the real top:shirt:10 sheet).
 P = dict(
     tauMin=7.0, zoneGrow=20, prodErode=3, prodDeep=4.0,
-    growLR=1.5, exposeLR=2.0, exposeSpan=.35, creamShare=.085, exposeNear=24, skinGateLR=3.0, skinGrow=4,
+    growLR=1.5, neighNear=24, seamSlit=True, exposeLR=2.0, exposeSpan=.35, creamShare=.085, exposeNear=24, skinGateLR=3.0, skinGrow=4,
     lineDark=.5, lineNear=2, hairLR=2.0, hairStrong=10.0, hairSpeck=60, neighbourStrong=20.0, skinStrong=20.0,
     minIsland=20, kSkin=3, kProduct=6, kNeighbour=4, kHair=3, cuffOuter=0.0, cuffInner=0.5, hemBand=12,
 )
@@ -141,9 +141,10 @@ class Frozen:
     """The frozen body, the legacy layers, the owner map, zones and limits,
     and the drawn basic garments."""
 
-    def __init__(self):
+    def __init__(self, base=None):
+        self.base = base
         self.sheet = load_rgba(os.path.join(ASSETS, 'avatar-reference-candidates', 'body-study-2026-10-04.png'))
-        tpl = np.asarray(Image.open(os.path.join(ASSETS, 'garment-template', 'template-sheet.png')).convert('RGB')).astype(np.float32)
+        tpl = np.asarray(Image.open(R.TEMPLATE_PATHS[base]).convert('RGB')).astype(np.float32)
         self.template = tpl[:, TEMPLATE['left']:TEMPLATE['left'] + SHEET['width']].copy()
         self.owner = np.asarray(Image.open(os.path.join(FROZEN, 'owner-map.png'))).copy()
         self.bands = np.asarray(Image.open(os.path.join(FROZEN, 'contact-bands.png'))).copy()
@@ -203,15 +204,19 @@ class Frozen:
         return 'clean' if slot == 'top' else 'legacy'
 
     def B(self, slot):
-        """RGBA of everything but the product slot (z order)."""
+        """RGBA of everything but the product slot (z order). On the dark base the body's skin is the dark
+        template's (dark_body)."""
         if slot not in self._B:
             body = self.body(self.art_for(slot))
+            head = self.head
+            if self.base == 'dark':
+                body, head = dark_body(body, head)
             out = np.zeros_like(self.sheet)
             own = np.zeros(self.owner.shape, np.uint8)
             for name in reversed(Z_TOP_FIRST):
                 if name in SLOT[slot]['layers']:
                     continue
-                lay = self.head if name == 'head' else body.get(name, self.layers.get(name))
+                lay = head if name == 'head' else body.get(name, self.layers.get(name))
                 out = over(lay, out)
                 own[lay[..., 3] > 127] = LAYER_OWNER[name]
             self._B[slot] = out
@@ -334,14 +339,31 @@ def drawn_owner(fz):
     return O
 
 
-_FZ = None
+_FZ = {}
 
 
-def frozen():
-    global _FZ
-    if _FZ is None:
-        _FZ = Frozen()
-    return _FZ
+def frozen(base=None):
+    if base not in _FZ:
+        _FZ[base] = Frozen(base)
+    return _FZ[base]
+
+
+def dark_body(body, head):
+    """The limb and neck layers and the head painted as the dark template paints them (make-dark-template.py:
+    the whole limb painting times DARK / the sheet's skin, the neck's and head's skin-coloured pixels by their
+    skin weight). B is what a dark-base sheet shows where the product is not."""
+    import importlib.util
+    spec = importlib.util.spec_from_file_location('make_dark_template', os.path.join(HERE, 'make-dark-template.py'))
+    D = importlib.util.module_from_spec(spec); spec.loader.exec_module(D)
+    gain = np.array(D.DARK, np.float32) / np.array(D.SKIN, np.float32)
+
+    def tint(lay, w):
+        out = lay.copy()
+        out[..., :3] = lay[..., :3] * (1 - w[..., None]) + np.clip(lay[..., :3] * gain, 0, 255) * w[..., None]
+        return out
+    ones = np.ones(head.shape[:2], np.float32)
+    out = {n: tint(lay, ones if n in ('arms', 'legs') else D.skin_weight(lay[..., :3])) for n, lay in body.items()}
+    return out, tint(head, D.skin_weight(head[..., :3]))
 
 
 # ---------------------------------------------------------------------------
@@ -441,7 +463,10 @@ def distance_to(mask, cap=32):
 # ---------------------------------------------------------------------------
 class Context:
     def __init__(self, res, slot, sexes=('m', 'f'), fz=None):
-        self.fz = fz or frozen()
+        base = res.get('spec', {}).get('base')  # the template the sheet was drawn on (register.TEMPLATE_PATHS)
+        self.fz = fz or frozen(base)
+        if self.fz.base != base:
+            raise ValueError('frozen body for base %r, sheet registered on %r' % (self.fz.base, base))
         self.slot = slot
         self.sexes = tuple(sexes)
         img = res['images']['registered']
@@ -467,7 +492,7 @@ class Context:
             self.Blab[sl] = R.lab(Bwhite[sl])
             self.D[sl] = median3(R.winmin_de(R.blur3(self.Ut[sl], 1), R.blur3(self.Tlab[sl], 1), 2, .7))
             self.DB[sl] = R.de(self.Ut[sl], self.Blab[sl], .7)
-        spec = R.garment_spec(slot, sexes)
+        spec = R.garment_spec(slot, sexes, base, tuple(res.get('spec', {}).get('cover', ())))
         st = np.zeros(self.D.shape, bool)
         for k in CELLS:
             st |= spec['stable'][k]
@@ -506,6 +531,10 @@ class Context:
         new = M.erode(fgr & (O == 0) & M.dilate(foot, P['zoneGrow']), 2) & changed
         prod |= new
         neigh = M.erode(np.isin(O, SLOT[self.slot]['neighbour']), 3) & fgr & ~M.dilate(foot, 4)
+        if fz.base == 'dark' and self.slot == 'top':
+            # the shorts a top's hem meets are their waist, not their cuffs: the girl's cream shorts cuffs in the
+            # model made a cream ribbed hem 'shorts' and the hem seam cut it at the body's edge (hood, 2026-10-16)
+            neigh &= M.dilate(foot, P['neighNear'])
         hair = M.erode(O == HEAD, 3) & fgr & (self.lum < 150)
         cy = R.COLLAR_Y[sex]
         band = np.zeros(O.shape, bool)
@@ -516,6 +545,27 @@ class Context:
                            ('neighbour', neigh, P['kNeighbour']), ('hair', hair, P['kHair'])):
             out[name] = ColourModel(self.Ut[m], k, name) if m.sum() >= 50 else None
         return out
+
+
+def middle_strips(noart, isP, span):
+    """Exposure pieces that are a strip down the garment's middle in its lower half (a cream button placket's
+    last rows over the hem), narrower than `span` of the zone: cloth, not a belly (a belly under a short top is a
+    wide band; a hand's edge lies at a side, not across the middle). Real top:shirt (cream share .02-.07, so
+    exposure_regions did not apply) lost 18 px of its placket at the hem, a 1 px waist gap (2026-10-16)."""
+    lab_, comps = M.components(noart)
+    out = np.zeros_like(noart)
+    rows = np.nonzero(isP.any(1))[0]
+    if not len(rows):
+        return out
+    half = (rows.min() + rows.max()) / 2.0
+    # the whole garment's middle and width: the template's hem rows curve, their own middle lay 16 px aside
+    cols = np.nonzero(isP.any(0))[0]
+    mid, width = (cols.min() + cols.max()) / 2.0, cols.max() - cols.min() + 1
+    for c in comps:
+        x0, y0, x1, y1 = c['bbox']
+        if (y0 + y1) / 2.0 > half and x0 <= mid < x1 and (x1 - x0) < span * width:
+            out |= lab_ == c['label']
+    return out
 
 
 def exposure_regions(noart, isP, span):
@@ -685,6 +735,19 @@ def segment_cell(ctx, key, seams=True):
         grow = M.connected_to(cand | seed, seed) & cand
         label[grow] = 1
         diag['grownPx'] = int(grow.sum())
+    # 2b. dark base (make-dark-template.py): new paint over the neighbouring slot that its own model does not
+    # explain better than the product's and the skin model does not either is the garment's (the hood girl's
+    # cream ribbed hem drawn over the shorts' waistband: the product model never learns the band next to the
+    # neighbour, so step 2 left it to the shorts, a gap at the waist, 2026-10-16). A belly under a short top is
+    # dark skin here, which the skin model takes.
+    if fz.base == 'dark':
+        over = fg & np.isin(O, SLOT[slot]['neighbour']) & zone & ~head & changed & (ctx.DB[sl] > ctx.tau) & \
+            (nll['neighbour'] - nll['product'] > -P['growLR']) & (nll['skin'] - nll['product'] > -P['growLR'])
+        if over.any():
+            seed = label == 1
+            grow = M.connected_to(over | seed, seed) & over
+            label[grow] = 1
+            diag['grownOverNeighbourPx'] = int(grow.sum())
     # 3. exposure
     # changed pixel by pixel too: next to the body the window minimum finds
     # the template's own skin within 2 px and calls a narrower collar's
@@ -693,6 +756,10 @@ def segment_cell(ctx, key, seams=True):
     cand = (label == 1) & isP & moved & (lr > P['exposeLR']) & (Bown != 0)
     near = M.dilate(~isP & (O != 0), P['exposeNear'])
     cand &= near
+    if fz.base == 'dark':
+        # a drawn line is never judged by colour (as 6b): a zipper's dark edge over the hem read as navy shorts
+        # and left a 1 px slit beside the zipper (hood boy, 2026-10-16)
+        cand &= ~(ctx.ink[sl] > P['lineDark'])
     if cand.any():
         q = (label == 2) & ~head
         expose = M.connected_to(cand | q, q) & cand
@@ -719,6 +786,18 @@ def segment_cell(ctx, key, seams=True):
         r = S.solve(ctx, key, b, nll, O, fg)
         results.append(r)
         S.assign(b, r, label, O, fg, fixed)
+    if fz.base == 'dark' and bands and P['seamSlit']:
+        # a seam column along a vertical drawn line (a zipper's edge across the hem) finds its ridge everywhere
+        # and cuts the column high: a 1-2 px slit with the garment on both sides is the garment (hood boy,
+        # 2026-10-16)
+        g1 = label == 1
+        left = np.zeros_like(g1); right = np.zeros_like(g1)
+        for d in (1, 2, 3):
+            left[:, d:] |= g1[:, :-d]; right[:, :-d] |= g1[:, d:]
+        slit = in_band & (label == 2) & left & right & fg & ~np.isin(O, BODY_LABELS)
+        slit &= ~M.dilate(M.erode(slit, 1), 1)  # only thin pieces, never an open band
+        label[slit] = 1
+        diag['seamSlitPx'] = int(slit.sum())
     inside = seam_inside(bands, results, O.shape)
     # 5a. exposure where the body has no art (a belly under a short top, skin
     # inside a lowered neckline over the torso): changed product pixels where
@@ -747,6 +826,11 @@ def segment_cell(ctx, key, seams=True):
         diag['creamShare'] = round(float(cream.sum()) / max(1, ((label == 1) & isP).sum()), 3)
         if diag['creamShare'] > P['creamShare']:
             noart = exposure_regions(noart, isP, P['exposeSpan'])
+        noart = noart & ~middle_strips(noart, isP, P['exposeSpan'])
+        if fz.base == 'dark':
+            # on dark skin a cloth's dark line mixed into cream (a zipper's edge in a cream hem) is skin-coloured:
+            # a belly is a band, never a line, so pieces thinner than 3 px stay cloth (hood boy, 2026-10-16)
+            noart &= M.dilate(M.erode(noart, 1), 1)
         label[noart] = 5
     diag['exposedNoArtPx'] = int(noart.sum())
     # the drawn edge carried past the band's columns: changed body pixels on

@@ -269,6 +269,24 @@
    "message": "{figures}의 {part|이} {value}px 옮겨졌어요(3px 안이라 그대로 써요).",
    "retry": null
   },
+  "NEIGHBOUR_RAISED": {
+   "level": "fail", "stage": "garment",
+   "title": "반바지가 올라왔어요",
+   "message": "{figures}에서 반바지 허리가 윗옷 자리까지 올라와 그려졌어요. 게임의 반바지는 원래 높이라 허리에 틈이 생겨요.",
+   "retry": "반바지는 첫 번째 그림 높이 그대로 두고, 윗옷(앞이 열린 옷이면 안에 입은 티셔츠도) 밑단이 반바지 허리를 덮게 다시 그려 주세요."
+  },
+  "STRIP_CLIPPED": {
+   "level": "warn", "stage": "garment",
+   "title": "소매가 너무 넓어요",
+   "message": "{figures}의 긴소매가 팔보다 많이 넓어 소매 가장자리가 잘렸어요.",
+   "retry": "소매는 팔 굵기에 가깝게, 팔 밖으로 부풀지 않게 다시 그려 주세요."
+  },
+  "THIN_SLIT": {
+   "level": "fail", "stage": "garment",
+   "title": "옷에 가는 틈이 있어요",
+   "message": "{figures}의 옷에 1~2픽셀 세로 틈이 생겨 바탕이 비쳐요(자르기 규칙 문제일 수 있어요).",
+   "retry": null
+  },
   "W_SPECKS": {
    "level": "warn", "stage": "registration",
    "title": "작은 점을 지웠어요",

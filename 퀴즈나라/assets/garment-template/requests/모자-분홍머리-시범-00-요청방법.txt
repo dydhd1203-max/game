@@ -1,0 +1,91 @@
+모자 시범 요청 2가지 - 분홍 머리 그림틀 (2026-10-16)
+============================================
+
+[무엇을 시험하나]
+- 그림틀의 머리카락을 분홍 단색으로 칠해 두면, 결과에서 '그림틀과 달라졌고 분홍도 아닌 곳'이 곧 모자입니다. 지금까지 머리와 같은 갈색 모자나 검은 챙을 자를 때 생기던 문제를 줄이는 방법입니다.
+- 이미 받은 카우보이 모자·경찰모를 이 그림틀로 한 번 더 받아, 지금 게임에 넣은 것과 비교합니다.
+
+[꼭 지킬 것]
+- 항목마다 ChatGPT 새 대화: 01-모자-그림틀-분홍머리.png 와 그 모자의 참고 그림 첨부 → 아래 요청 문장(한국어) 붙여 넣기 → 결과만 아래 이름으로 저장.
+- 결과는 그린 원본 그대로 줍니다. 크기 조정, 자르기, 색·위치 보정을 하지 않습니다.
+- 2장을 받으면 한 zip으로 묶어 보내 주세요. 이 요청 묶음을 그대로 다시 보내지 않습니다.
+
+[보낼 것 2장]
+1) 카우보이 모자: 첨부 01-모자-그림틀-분홍머리.png, 02-카우보이모자-참고.png → 결과 hat-cowboy-flat.png
+2) 경찰모: 첨부 01-모자-그림틀-분홍머리.png, 03-경찰모-참고.png → 결과 hat-police-flat.png
+
+----------------------------------------------------------------
+1) 카우보이 모자 - 요청 문장
+----------------------------------------------------------------
+첫 번째 그림은 게임 캐릭터 설정 시트입니다. 윗줄은 남자아이, 아랫줄은 여자아이이고, 왼쪽부터 앞모습, 오른쪽을 보는 옆모습, 뒷모습입니다. 두 번째 그림은 새로 입힐 카우보이 모자 디자인입니다(두 아이가 같은 모자를 씁니다). 색과 모양(가운데가 들어간 꼭대기와 양옆이 말려 올라간 챙)만 참고하고, 몸과 그림체는 첫 번째 그림을 따릅니다.
+
+첫 번째 그림의 두 아이에게 모자만 씌워 주세요.
+- 두 아이: 두 번째 그림의 갈색 카우보이 모자. 가운데가 오목하게 들어간 꼭대기, 양옆이 위로 말려 올라간 넓은 챙, 꼭대기 아래의 진한 띠.
+- 첫 번째 그림의 분홍 단색은 머리카락 자리를 표시한 것입니다. 분홍 부분의 색과 모양을 그대로 두고 머리카락을 새로 그리지 않습니다. 모자 아래로 보이는 머리도 그 분홍 단색 그대로 둡니다. 모자에는 분홍색을 쓰지 않고, 모자와 분홍 머리 사이에 그림자나 다른 색을 넣지 않습니다.
+
+꼭 지켜 주세요.
+1. 얼굴, 머리 모양, 몸 크기와 비율, 자세, 팔·다리 위치, 옷과 신발, 앞머리 끝과 옆머리·뒷머리는 첫 번째 그림과 똑같이 둡니다.
+2. 여섯 그림의 위치, 크기, 간격을 그대로 둡니다. 그림을 자르거나 옮기지 않습니다.
+3. 카우보이 모자는 머리에 푹 눌러 씁니다. 머리카락 위에 떠 있거나 얹혀 보이지 않게, 모자 아래 테두리가 머리를 감싸며 이마 위(눈썹보다 조금 위)와 귀 바로 위를 지나게 합니다. 모자 아래로 나오는 앞머리 끝, 옆머리, 뒷머리는 지금 모양과 길이 그대로 두고, 모자에 덮인 머리카락이 모자 밖으로 삐져나오지 않게 합니다. 모자는 머리 둘레에 꼭 맞는 크기로, 머리보다 훨씬 크거나 작게 그리지 않습니다. 눈썹·눈·귀는 가리지 않습니다. 한 아이의 앞모습, 옆모습, 뒷모습에서 카우보이 모자는 같은 크기의 같은 모자입니다. 뒷모습의 모자 폭은 앞모습의 모자 폭과 같게, 뒤통수 전체를 왼쪽 귀 바로 위에서 오른쪽 귀 바로 위까지 덮게 그립니다.
+4. 앞·옆·뒤 세 모습이 같은 카우보이 모자로 보이게 그립니다. 옆모습에서는 챙 앞뒤가 길게, 뒷모습에서는 양옆이 말려 올라간 챙과 띠가 보이게 합니다.
+5. 그림체(부드러운 채색, 외곽선 굵기, 명암)는 첫 번째 그림과 같게 합니다.
+6. 배경은 아무것도 없는 흰색입니다. 그림자, 글자, 테두리를 넣지 않고, 모자에도 글자나 로고를 넣지 않습니다.
+7. 결과는 가로로 긴 그림 한 장으로 주세요.
+
+English (same request):
+Image 1 is a game character sheet: top row a boy, bottom row a girl; from left to right front view, right-facing side view, back view. Image 2 shows only the new hats (both children wear the same cowboy hat). Use their colour and shape (dented crown, brim curled up at the sides); keep the bodies and art style of image 1.
+
+Change ONLY the hats of both children in image 1:
+- Both children: the brown cowboy hat from image 2: a crown dented in the middle, a wide brim curled up at both sides, a darker band above the brim.
+- The flat magenta in image 1 marks where the hair is. Keep the magenta's colour and shape exactly; do not draw hair. Any hair showing below the hat stays the same flat magenta. Use no magenta on the hat, and put no shadow or other colour between the hat and the magenta.
+
+Rules:
+1. Keep faces, hair, body size and proportions, pose, arm and leg positions, clothes and shoes, the fringe tips, side hair and back hair below the hat exactly as in image 1.
+2. Keep the position, size and spacing of all six figures. Do not crop or move them.
+3. The cowboy hat is pulled down onto the head, never floating on or perched on top of the hair: its lower rim wraps the head, passing just above the eyebrows and just above the ears. The fringe tips, side hair and back hair below the hat keep their current shape and length; no hair covered by the hat sticks out of it. Size the hat to fit the head snugly, never much larger or smaller than the head. Do not cover the eyebrows, eyes or ears. In one child's front, side and back views the cowboy hat is the same hat at the same size: in the back view it is as wide as in the front view and covers the whole back of the head from just above the left ear to just above the right ear.
+4. Front, side and back must show the same cowboy hat; in the side view the brim reaches front and back; in the back view show the brim curled up at both sides and the band.
+5. Same art style as image 1 (soft painting, outline weight, shading).
+6. Plain white background. No shadows, text or frames, and no lettering or logos on the hats.
+7. Return one landscape image.
+
+----------------------------------------------------------------
+2) 경찰모 - 요청 문장
+----------------------------------------------------------------
+첫 번째 그림은 게임 캐릭터 설정 시트입니다. 윗줄은 남자아이, 아랫줄은 여자아이이고, 왼쪽부터 앞모습, 오른쪽을 보는 옆모습, 뒷모습입니다. 두 번째 그림은 새로 입힐 경찰 모자 디자인입니다(두 아이가 같은 모자를 씁니다). 색과 모양(납작한 윗면과 검은 챙, 금색 배지)만 참고하고, 몸과 그림체는 첫 번째 그림을 따릅니다.
+
+첫 번째 그림의 두 아이에게 모자만 씌워 주세요.
+- 두 아이: 두 번째 그림의 파란 경찰 모자. 납작하고 둥근 윗면, 머리를 두르는 띠, 앞의 반짝이는 검은 챙, 띠 앞의 금색 배지.
+- 첫 번째 그림의 분홍 단색은 머리카락 자리를 표시한 것입니다. 분홍 부분의 색과 모양을 그대로 두고 머리카락을 새로 그리지 않습니다. 모자 아래로 보이는 머리도 그 분홍 단색 그대로 둡니다. 모자에는 분홍색을 쓰지 않고, 모자와 분홍 머리 사이에 그림자나 다른 색을 넣지 않습니다.
+
+꼭 지켜 주세요.
+1. 얼굴, 머리 모양, 몸 크기와 비율, 자세, 팔·다리 위치, 옷과 신발, 앞머리 끝과 옆머리·뒷머리는 첫 번째 그림과 똑같이 둡니다.
+2. 여섯 그림의 위치, 크기, 간격을 그대로 둡니다. 그림을 자르거나 옮기지 않습니다.
+3. 경찰 모자는 머리에 푹 눌러 씁니다. 머리카락 위에 떠 있거나 얹혀 보이지 않게, 모자 아래 테두리가 머리를 감싸며 이마 위(눈썹보다 조금 위)와 귀 바로 위를 지나게 합니다. 모자 아래로 나오는 앞머리 끝, 옆머리, 뒷머리는 지금 모양과 길이 그대로 두고, 모자에 덮인 머리카락이 모자 밖으로 삐져나오지 않게 합니다. 모자는 머리 둘레에 꼭 맞는 크기로, 머리보다 훨씬 크거나 작게 그리지 않습니다. 눈썹·눈·귀는 가리지 않습니다. 한 아이의 앞모습, 옆모습, 뒷모습에서 경찰 모자는 같은 크기의 같은 모자입니다. 뒷모습의 모자 폭은 앞모습의 모자 폭과 같게, 뒤통수 전체를 왼쪽 귀 바로 위에서 오른쪽 귀 바로 위까지 덮게 그립니다.
+4. 앞·옆·뒤 세 모습이 같은 경찰 모자로 보이게 그립니다. 옆모습에서는 챙이 얼굴 쪽(오른쪽)으로, 뒷모습에서는 띠와 윗면 뒤쪽이 보이게 합니다.
+5. 그림체(부드러운 채색, 외곽선 굵기, 명암)는 첫 번째 그림과 같게 합니다.
+6. 배경은 아무것도 없는 흰색입니다. 그림자, 글자, 테두리를 넣지 않고, 모자에도 글자나 로고를 넣지 않습니다.
+7. 결과는 가로로 긴 그림 한 장으로 주세요.
+
+English (same request):
+Image 1 is a game character sheet: top row a boy, bottom row a girl; from left to right front view, right-facing side view, back view. Image 2 shows only the new hats (both children wear the same police cap). Use their colour and shape (flat top, black visor, gold badge); keep the bodies and art style of image 1.
+
+Change ONLY the hats of both children in image 1:
+- Both children: the blue police cap from image 2: a flat round top, a band around the head, a shiny black visor at the front, a gold badge on the band.
+- The flat magenta in image 1 marks where the hair is. Keep the magenta's colour and shape exactly; do not draw hair. Any hair showing below the hat stays the same flat magenta. Use no magenta on the hat, and put no shadow or other colour between the hat and the magenta.
+
+Rules:
+1. Keep faces, hair, body size and proportions, pose, arm and leg positions, clothes and shoes, the fringe tips, side hair and back hair below the hat exactly as in image 1.
+2. Keep the position, size and spacing of all six figures. Do not crop or move them.
+3. The police cap is pulled down onto the head, never floating on or perched on top of the hair: its lower rim wraps the head, passing just above the eyebrows and just above the ears. The fringe tips, side hair and back hair below the hat keep their current shape and length; no hair covered by the hat sticks out of it. Size the hat to fit the head snugly, never much larger or smaller than the head. Do not cover the eyebrows, eyes or ears. In one child's front, side and back views the police cap is the same hat at the same size: in the back view it is as wide as in the front view and covers the whole back of the head from just above the left ear to just above the right ear.
+4. Front, side and back must show the same police cap; in the side view the visor points toward the face (right); in the back view show the band and the back of the top.
+5. Same art style as image 1 (soft painting, outline weight, shading).
+6. Plain white background. No shadows, text or frames, and no lettering or logos on the hats.
+7. Return one landscape image.
+
+----------------------------------------------------------------
+결과가 이러면 다시 요청 (그대로 붙여 넣기)
+----------------------------------------------------------------
+- 머리카락을 갈색으로 다시 그렸거나 분홍 모양이 바뀌었을 때:
+  "분홍 단색 머리는 첫 번째 그림과 똑같이 두고, 그 위에 모자만 씌워 다시 그려 주세요."
+- 얼굴·몸·옷이 바뀌었거나 인물이 움직였을 때:
+  "바꾸라는 것 말고는 첫 번째 그림과 완전히 같아야 합니다. 같은 그림틀에서 다시 그려 주세요."

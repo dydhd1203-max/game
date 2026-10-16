@@ -133,7 +133,8 @@ async function routeTest(){
   const INTENDED=new Map([
     ...['shirt','sleeves','shorts','shoes'].map(p=>['assets/sd-foundation-ref-'+p+'.png','legacy full-sheet garment layer left the allow-list (the records\' atlases replace it; kept in the repo as pack input until WP11)']),
     ['assets/sd-foundation-ref-arms-clean.png','clean body art joined the foundation bundle'],['assets/sd-foundation-ref-neck-clean.png','clean body art joined the foundation bundle'],
-    ['assets/sd-foundation-ref-legs-under.png','legs run on under pipeline shoes (2026-10-15) joined the foundation bundle']]);
+    ['assets/sd-foundation-ref-legs-under.png','legs run on under pipeline shoes (2026-10-15) joined the foundation bundle'],
+    ['assets/sd-foundation-ref-feet.png','bare feet under open shoes (2026-10-16) joined the foundation bundle']]);
   const rows=[],changed=[],unexpected=[];
   for(const mode of [{protocol:'file:',opaque:false},{protocol:'http:',opaque:true},{protocol:'http:',opaque:false}]){
     const tag=mode.protocol+(mode.opaque?' opaque':'');
@@ -218,7 +219,7 @@ async function studioTest(browser,base){
       for(const m of motions){api.apply(svg,m);counts.add(svg.querySelectorAll('*').length);}
       res[sex]={attrs,counts:[...counts],garments:garments(svg)};api.destroy(svg);svg.parentNode.remove();}
     return res;});
-  for(const sex of ['m','f']){const r=basic[sex],want=sex==='m'?198:192;
+  for(const sex of ['m','f']){const r=basic[sex],want=M.expectedNodes('short-sleeve|shorts|low',sex);
     check(r.attrs.garments==='top:tee|bottom:shorts|shoes:sneaker'&&r.attrs.fallback===''&&r.attrs.cls==='short-sleeve|shorts|low'&&r.attrs.outfit==='dressed'&&r.attrs.static==='idle-front','basic '+sex+': ids, fallback, class and mode attributes',JSON.stringify(r.attrs));
     check(r.counts.length===1&&r.counts[0]===want,'basic '+sex+': '+want+' nodes in every motion of the sub-matrix',JSON.stringify(r.counts));}
   // 2. Test records: a hue-rotated legacy alias, data-path twins from the legacy metadata, a clean-art top.
@@ -474,7 +475,9 @@ async function differsPart(page,C,{label='',pixels=true}={}){
         const cells=states.flatMap(st=>[{av:{sex,sk:2,hair:HAIR[sex],expression:'bright:0',foundationGarments:base},state:{...st,reducedMotion:true}},{av:{sex,sk:2,hair:HAIR[sex],expression:'bright:0',foundationGarments:alias},state:{...st,reducedMotion:true}}]);
         const g=await page.evaluate(spec=>__fg.grid(spec),{cells,cols:8,cellW:170,cellH:330});const img=await L.capture(page,g);const diffs=[];
         for(let k=0;k<states.length;k++){const [x0,y0,w,h]=g.rects[2*k],[x1,y1]=g.rects[2*k+1];let n=0;for(let y=0;y<h;y++)for(let x=0;x<w;x++)if(L.dist(L.px(img,x0+x,y0+y),L.px(img,x1+x,y1+y))>24)n++;diffs.push(n);}
-        C.check(diffs.every(n=>n>150),label+'different garment '+al.id+' vs '+al.from+' ('+sex+'): other pixels in each of '+states.length+' poses',JSON.stringify(diffs));}
+        // A floor sit is drawn from the product's own seated layers (avatar-foundation.js SEATED_LAYERS, checked by
+        // verify-seated-*): an alias has none of its own and shows its source's, so that pose is the same by design.
+        C.check(diffs.every((n,i)=>states[i].seatMode==='floor'||n>150),label+'different garment '+al.id+' vs '+al.from+' ('+sex+'): other pixels in each of '+states.filter(st=>st.seatMode!=='floor').length+' standing poses (the floor sit uses seated layers)',JSON.stringify(diffs));}
     }}
 }
 // Same shorts, other shoes: the side floor-sit paints the lap shoe into the shorts picture.
@@ -661,9 +664,11 @@ async function seamPart(page,C,o,{only=null,overview=true}={}){
     const whole=L.dataUrlPng((await page.evaluate(s=>__fg.regions(s),{width:g.width,height:g.height,core:1})).limbs);
     const inWhole=(x,y)=>{for(let dy=-PINHOLE_GROW;dy<=PINHOLE_GROW;dy++)for(let dx=-PINHOLE_GROW;dx<=PINHOLE_GROW;dx++){const q=L.px(whole,x+dx,y+dy);if(q[0]>128||q[1]>128)return true;}return false;};
     if(a.debug&&!start){const d=path.join(out,'debug');fs.mkdirSync(d,{recursive:true});for(const [n,img] of Object.entries({full,sleeves,top,bottom,mask,waist}))fs.writeFileSync(path.join(d,o.key.replace(/[|:]/g,'_')+'-'+n+'.png'),L.H.png.encode(img));}
-    chunk.forEach((m,k)=>{const [x0,y0,w,h]=g.rects[k],p=poses[k],raised=p&&(Math.max(...p.lift)>.02||p.action==='climb')&&p.view!=='profile';let cp=0;const flag=new Map(),wf=[],cf=[];if(raised)cap.raised++;
+    // A floor sit is the seated layers' painting (avatar-foundation.js SEATED_LAYERS), not limbs in capsules: its
+    // seams are verify-seated-runtime's; here it is skipped (its folded legs read as thigh-capsule holes).
+    chunk.forEach((m,k)=>{const [x0,y0,w,h]=g.rects[k],p=poses[k],seated=Boolean(p&&p.floor),raised=p&&(Math.max(...p.lift)>.02||p.action==='climb')&&p.view!=='profile';let cp=0;const flag=new Map(),wf=[],cf=[];if(raised)cap.raised++;
       for(let y=y0;y<y0+h;y++)for(let x=x0;x<x0+w;x++){const f=L.px(full,x,y),r=L.px(mask,x,y),sl=!L.isMagenta(L.px(sleeves,x,y),140);
-        if(L.isMagenta(f,40)){if(r[0]>128||sl)flag.set(x+','+y,'arm');else if(r[1]>128||!L.isMagenta(L.px(bottom,x,y),140))flag.set(x+','+y,'thigh');else if(L.px(waist,x,y)[0]>128&&near(top,x,y,-1,x0,y0,w,h)&&near(bottom,x,y,1,x0,y0,w,h))wf.push([x,y]);}
+        if(!seated&&L.isMagenta(f,40)){if(r[0]>128||sl)flag.set(x+','+y,'arm');else if(r[1]>128||!L.isMagenta(L.px(bottom,x,y),140))flag.set(x+','+y,'thigh');else if(L.px(waist,x,y)[0]>128&&near(top,x,y,-1,x0,y0,w,h)&&near(bottom,x,y,1,x0,y0,w,h))wf.push([x,y]);}
         if(raised&&sl&&r[2]>128){cp++;cf.push([x,y]);}}
       // A hole is a patch of 4 or more touching background pixels (a 2×2 pinhole at 280 px). Smaller
       // patches are notches in the outline where the capsule core meets a folded or foreshortened
@@ -678,7 +683,7 @@ async function seamPart(page,C,o,{only=null,overview=true}={}){
       if(ga)gap.armCells.push(m.id);if(gt)gap.thighCells.push(m.id);
       if(ga+gt){gap.cells++;gap.arm+=ga;gap.thigh+=gt;keep(shots.gap,ga+gt,cropFlags(full,g.rects[k],gf));}
       if(cp){cap.cells++;cap.pixels+=cp;capFlags[m.id]=cp;keep(shots.cap,cp,cropFlags(full,g.rects[k],cf));}
-      const enc=enclosedBackground(full,g.rects[k]),pf=[];gap.enclosed+=enc.length;
+      const enc=seated?[]:enclosedBackground(full,g.rects[k]),pf=[];gap.enclosed+=enc.length;
       {const left=new Set(enc.filter(([x,y])=>!flag.has(x+','+y)).map(([x,y])=>x+','+y));
         while(left.size){const first=left.values().next().value,comp=[],stack=[first];left.delete(first);
           while(stack.length){const [x,y]=stack.pop().split(',').map(Number);comp.push([x,y]);for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){const n=(x+dx)+','+(y+dy);if(left.has(n)){left.delete(n);stack.push(n);}}}
@@ -703,6 +708,9 @@ async function seamPart(page,C,o,{only=null,overview=true}={}){
   C.check(cap.raised>0&&cap.pixels===0,'CAP_HIGH '+tag+': no sleeve pixel inside the head/neck capsule in '+cap.raised+' raised-arm front/back poses',JSON.stringify({pixels:cap.pixels,cells:Object.entries(capFlags).slice(0,4)}));
   return{gap,cap};
 }
+const FOREARM_BARE=new Set(Object.entries(JSON.parse(fs.readFileSync(path.join(__dirname,'..','assets','garment-template','products.json'),'utf8')).products).filter(([,p])=>p.forearmBare).map(([k])=>k));
+// Floor sits are the seated layers' (verify-seated-*): a new garment has none yet (stage 5), the basic tee shows there.
+const FOREARM_MIN=6;  // px of bare skin in one pose's forearm capsule that count (a cuff's 1-2 px antialiased rim does not)
 const PALE_STATES=()=>{const out=[];for(const direction of M.DIRECTIONS){for(const action of M.ACTIONS)for(const k of [0,4])out.push({...M.actionState(action,direction,k),reducedMotion:true});for(const gesture of M.GESTURES)out.push({...M.gestureState(gesture,direction,3),reducedMotion:true});}return out;};
 // Untinted skin and the pale band (REDTEAM-corrected). Garment pictures are
 // never tinted, so every garment pixel is the same at tones 0 and 4; skin
@@ -722,19 +730,22 @@ const PALE_STATES=()=>{const out=[];for(const direction of M.DIRECTIONS){for(con
 // palette's bins (distance 0, measured), so a colour-only probe flags cream
 // cloth (REDTEAM). The 5-tone strip (inspect-foundation-garments.cjs) stays
 // the authority.
-async function skinPart(page,C,o,cloth,palette){
-  const states=PALE_STATES(),SLOTS=['top','bottom','shoes'],pale=Object.fromEntries(SLOTS.map(s=>[s,0])),untinted=Object.fromEntries(SLOTS.map(s=>[s,0])),shots={pale:[],untinted:[]},cellsHit={pale:[],untinted:[]};
+async function skinPart(page,C,o,cloth,palette,longSleeve=false){
+  const states=PALE_STATES(),SLOTS=['top','bottom','shoes'],pale=Object.fromEntries(SLOTS.map(s=>[s,0])),untinted=Object.fromEntries(SLOTS.map(s=>[s,0])),shots={pale:[],untinted:[],forearm:[]},cellsHit={pale:[],untinted:[],forearm:[]};let forearm=0;
   const lum=c=>.3*c[0]+.59*c[1]+.11*c[2],R=2;
   for(let start=0;start<states.length;start+=COLS*4){
     const chunk=states.slice(start,start+COLS*4),cells=sk=>chunk.map(st=>({av:{sex:o.sex,sk,hair:HAIR[o.sex],expression:'bright:0',foundationGarments:o.outfit},state:st}));
     let g=await page.evaluate(spec=>__fg.grid(spec),{cells:cells(0),cols:COLS,cellW:CELL.w,cellH:CELL.h,bg:MAG});await page.evaluate(()=>__fg.mode('fg-noshadow'));const A0=await L.capture(page,g);
     g=await page.evaluate(spec=>__fg.grid(spec),{cells:cells(4),cols:COLS,cellW:CELL.w,cellH:CELL.h,bg:MAG});await page.evaluate(()=>__fg.mode('fg-noshadow'));const A4=await L.capture(page,g);
     const slotShot={};for(const s of SLOTS){await page.evaluate(m=>__fg.mode(m),'fg-'+s+' fg-noshadow');slotShot[s]=await L.capture(page,g);}
+    const fore=longSleeve?L.dataUrlPng((await page.evaluate(s=>__fg.regions(s),{width:g.width,height:g.height})).forearm):null;
     chunk.forEach((st,k)=>{const [x0,y0,w,h]=g.rects[k],n=w*h,own={},tinted=new Uint8Array(n);
       for(const s of SLOTS)own[s]=new Uint8Array(n);
       for(let y=0;y<h;y++)for(let x=0;x<w;x++){const j=y*w+x,a4=L.px(A4,x0+x,y0+y),a0=L.px(A0,x0+x,y0+y);let mine=false;
         for(const s of SLOTS){const c=L.px(slotShot[s],x0+x,y0+y);if(!L.isMagenta(c,60)&&L.dist(a4,c)<=8){own[s][j]=1;mine=true;}}
         if(!mine&&!L.isMagenta(a0,60)&&L.dist(a0,a4)>30)tinted[j]=1;}
+      if(fore){const flags=[];for(let y=0;y<h;y++)for(let x=0;x<w;x++)if(tinted[y*w+x]&&L.px(fore,x0+x,y0+y)[0]>128)flags.push([x0+x,y0+y]);
+        if(flags.length>FOREARM_MIN&&!st.floor&&st.seatMode!=='floor'){forearm+=flags.length;cellsHit.forearm.push((st.gesture||st.action)+'/'+st.direction);if(shots.forearm.length<12)shots.forearm.push(cropFlags(A0,g.rects[k],flags));}}
       for(const s of SLOTS){const U=new Uint8Array(n),P=new Uint8Array(n);
         for(let y=0;y<h;y++)for(let x=0;x<w;x++){const j=y*w+x;if(!own[s][j])continue;const a0=L.px(A0,x0+x,y0+y),a4=L.px(A4,x0+x,y0+y);
           if(L.dist(a0,a4)>8||minDist(a0,cloth[s])<=12||minDist(a0,palette)>16)continue;
@@ -744,7 +755,10 @@ async function skinPart(page,C,o,cloth,palette){
           if(flags.length){cellsHit[label].push(s+':'+(st.gesture||st.action)+'/'+st.direction);if(shots[label].length<12)shots[label].push(cropFlags(img,g.rects[k],flags));}return flags.length;};
         untinted[s]+=band(U,'untinted',A0);pale[s]+=band(P,'pale',A4);}});
   }
-  writeProbe('pale',o,shots.pale);writeProbe('untinted',o,shots.untinted);
+  writeProbe('pale',o,shots.pale);writeProbe('untinted',o,shots.untinted);writeProbe('forearm-skin',o,shots.forearm);
+  // A sleeve the shop keeps ending on the forearm (products.json "forearmBare": the knit, user 2026-10-16) is recorded.
+  if(longSleeve&&FOREARM_BARE.has(o.record.id))C.record('long sleeve forearm '+o.key+' (products.json forearmBare: the sleeve ends on the forearm by decision): '+forearm+' bare forearm pixels',JSON.stringify(cellsHit.forearm.slice(0,8)));
+  else if(longSleeve)C.check(forearm===0,'long sleeve forearm '+o.key+': no bare skin (tone-dependent pixels, more than '+FOREARM_MIN+' per pose) inside the forearm capsule (elbow to .75 of the wrist) in '+states.length+' poses',JSON.stringify({pixels:forearm,cells:cellsHit.forearm.slice(0,8)}));
   (report.numbers.skin||={})[o.key]={pale,untinted,states:states.length,cells:{pale:cellsHit.pale.slice(0,12),untinted:cellsHit.untinted.slice(0,12)}};
   return{pale,untinted,states:states.length};
 }
@@ -753,7 +767,7 @@ async function probesPart(page,C,list){
   for(const o of await outfits(page,list)){
     const seam=await seamPart(page,C,o);
     const cloth={};for(const [slot,id] of Object.entries(o.outfit)){const d=await recordData(page,id,o.sex),built=RECS.valid.find(r=>r.record.id===id);cloth[slot]=d?L.clothColours(d.record,o.sex,built?.cloth?.[o.sex]):[];}
-    const r=await skinPart(page,C,o,cloth,palette),own=o.record.slot,tag=tagOf(o.record.id,o.sex,o.outfit);
+    const r=await skinPart(page,C,o,cloth,palette,o.record.class==='top/long-sleeve'),own=o.record.slot,tag=tagOf(o.record.id,o.sex,o.outfit);
     if(basicIds.has(o.record.id)){basic.pale+=SLOT_SUM(r.pale);basic.untinted+=SLOT_SUM(r.untinted);basic.seam.push(seam.gap.waist);
       C.record('pale band / untinted skin '+tag+' (the packed basic: its known defect, the control below): '+JSON.stringify(r.pale)+' pale / '+JSON.stringify(r.untinted)+' untinted pixels in '+r.states+' poses');}
     // An alias is the packed basic piece through a colour filter: the basic's baked skin comes along
@@ -797,6 +811,9 @@ const SLOT_SUM=o=>Object.values(o).reduce((s,v)=>s+v,0);
         if(only.includes('studio'))await studioHostTest(browser,server.base);
         if(only.some(o=>['matrix','negatives','limits','probes'].includes(o))){
           const {context,page}=await L.openRuntime(browser,server.base,report);await L.install(page);
+          // Control (VFG_DROP_SLEEVE_FOLD=1): the runtime as before the long sleeve's folded-forearm copy, which the
+          // forearm probe must catch (bare forearm painted over the sleeve in front/back runs and jumps).
+          if(process.env.VFG_DROP_SLEEVE_FOLD)await page.evaluate(()=>{const O=window.QPFoundationOutfit;window.QPFoundationOutfit={...O,apply:(b,p)=>{const r=O.apply(b,p);b.sleeveFold=null;return r;}};});
           const reg=await L.registerAll(page,{records:RECS.valid});
           check([...Object.values(reg.aliases),...Object.values(reg.records)].every(s=>typeof s==='object'&&Object.values(s).every(v=>v==='ready'))&&Object.keys(reg.records).length===RECS.valid.length,'manifest: '+L.ALIASES.length+' alias records'+(RECS.dir?' and '+Object.keys(reg.records).length+'/'+RECS.valid.length+' valid --records':'')+' registered in the studio session',JSON.stringify(reg));
           const ids=H.list(a.ids,null),list=(await page.evaluate(()=>__fg.recordList())).filter(r=>!ids||ids.includes(r.id));report.manifest=list;console.log('records under test: '+list.map(r=>r.id+'['+r.source+']').join(', '));

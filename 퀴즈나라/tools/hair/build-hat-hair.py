@@ -40,6 +40,8 @@ from avatar_build import matte as M  # noqa: E402
 
 _spec = importlib.util.spec_from_file_location('build_hat', os.path.join(HERE, 'build-hat.py'))
 BH = importlib.util.module_from_spec(_spec); _spec.loader.exec_module(BH)
+_spec = importlib.util.spec_from_file_location('fit_hat_hair', os.path.join(HERE, 'fit-hat-hair.py'))
+FIT = importlib.util.module_from_spec(_spec); _spec.loader.exec_module(FIT)
 
 VIEWS = ('front', 'right', 'back')
 LEGS = (36.0, 55.0)     # svg viewBox rows (of 62) that place a figure: shorts, legs, shoes
@@ -230,6 +232,10 @@ def build(sheet, hair_id, base_dir, skin_dir, out_dir):
         Image.fromarray(keep_mask(skin_dir, sex, hair, view, hf, (full, box))).save(os.path.join(out_dir, name + '-keep.png'), optimize=True)
         rec[view] = dict(src='assets/hat-art/hair/%s.png' % name, rect=[round(hx0, 3), round(hy0, 3), round(hx1 - hx0, 3), round(hy1 - hy0, 3)],
                          keep=dict(src='assets/hat-art/hair/%s-keep.png' % name, rect=list(KEEP_RECT)))
+        # the hat's size on this style's head (fit-hat-hair.py: the drawn hair is closer to the skull than the default's)
+        fit = FIT.fit_view(sex, view, dict(rec[view], src=os.path.relpath(os.path.join(out_dir, name + '.png'), ROOT)))
+        if fit:
+            rec[view]['fit'] = fit
         report[view] = dict(shift=[dx, dy], legsError=round(err, 2), hairPx=int(hairm.sum()), capless=bool(capless))
         prev = Image.new('RGBA', (rgba.shape[1], rgba.shape[0]), (230, 236, 244, 255)); prev.alpha_composite(Image.fromarray(rgba))
         tiles.append(prev.convert('RGB'))

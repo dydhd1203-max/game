@@ -9,7 +9,7 @@
    "{descriptions}",
    "",
    "꼭 지켜 주세요.",
-   "1. 얼굴, 머리 모양, 몸 크기와 비율, 자세, {pose}, {keep|은} 첫 번째 그림과 똑같이 둡니다.{singleSex}",
+   "1. 얼굴, 머리 모양, 몸 크기와 비율, 자세, {pose}, {keep|은} 첫 번째 그림과 똑같이 둡니다.{singleSex}{darkBase}",
    "2. 여섯 그림의 위치, 크기, 간격을 그대로 둡니다. 그림을 자르거나 옮기지 않습니다.",
    "3. {length}",
    "4. 앞·옆·뒤 세 모습이 같은 {item|로} 보이게 그립니다. {back}{mirror}",
@@ -24,7 +24,7 @@
    "{descriptions}",
    "",
    "Rules:",
-   "1. Keep faces, hair, body size and proportions, pose, {pose}, {keep} exactly as in image 1.{singleSex}",
+   "1. Keep faces, hair, body size and proportions, pose, {pose}, {keep} exactly as in image 1.{singleSex}{darkBase}",
    "2. Keep the position, size and spacing of all six figures. Do not crop or move them.",
    "3. {length}",
    "4. Front, side and back must show the same {item}; {back}{mirror}",
@@ -69,6 +69,11 @@
   "ko": " {other}의 {slot|은} 바꾸지 않습니다.",
   "en": " Do not change the {other}'s {slot}."
  },
+ "darkBase": {
+  "ko": " 첫 번째 그림의 아이들 피부는 일부러 진한 갈색으로 칠해 두었습니다. 피부색은 그대로 두고, 소매 끝·목둘레·밑단 가장자리에도 밝은 피부색을 새로 칠하지 않습니다.",
+  "en": " The children's skin in image 1 is painted dark brown on purpose. Keep that skin colour, and do not paint light skin along the cuffs, neckline or hem.",
+  "why": "Products with \"base\": \"dark\" (products.json, 2026-10-16) are drawn on assets/garment-template/template-sheet-dark.png (tools/garment/make-dark-template.py): cream and beige cloth lie within Lab ~10 of the light skin, so the cut lost their edges to skin or kept pale untinted bands (real top:shirt); on dark skin the two part."
+ },
  "mirror": {
   "ko": " 왼쪽을 보는 옆모습은 이 옆모습을 좌우로 뒤집어 쓰므로, 한쪽에만 있는 장식은 뒤집어도 어색하지 않게 그립니다.",
   "en": " The left-facing view is made by mirroring this side view, so any one-sided decoration must still look right when mirrored."
@@ -102,6 +107,31 @@
     "GHOST_EDGE"
    ],
    "why": "Sleeves: the arm art above the old cuff is copied skin (SLEEVE_SHORT) and the legacy arms carry the old cuff line (REDTEAM ghost line), so a sleeve may only end at the current cuff or a little lower; a folded forearm caps it at the elbow (SLEEVE_LONG). Hem: seated breathing needs the top to overlap the shorts (HEM_HIGH) and to end above the legs (HEM_LOW). Neckline: the torso has no skin art below the neck painting (NECK_OPEN); a higher collar meets the head and the bob (COLLAR_HIGH). Batch A (2026-10-15): ChatGPT drew the vest and sailor hems 2-5 px above the T-shirt hem (HEM_HIGH); the 'never shorter in any view' line was added."
+  },
+  "top/long-sleeve": {
+   "ko": {
+    "slot": "윗옷",
+    "thing": "옷",
+    "verb": "바꿔 입혀",
+    "wear": "입습니다",
+    "pose": "팔 위치",
+    "keep": "반바지, 신발",
+    "length": "소매는 손목까지 내려오는 긴소매로, 소매 끝(끝동)은 손목 바로 위에서 끝나고 손은 그대로 보입니다. 팔의 위치·굵기·길이와 손 모양은 첫 번째 그림과 똑같이 두고, 소매가 팔 밖으로 부풀거나 손을 덮지 않게 합니다. 어깨는 지금 반팔과 같은 높이에서 시작합니다. {item} 밑단은 지금 티셔츠 밑단과 같은 높이로, 반바지 허리를 덮게 내어 입습니다. 앞·옆·뒤 어느 모습에서도 지금 티셔츠보다 짧게 하지 않습니다. 앞이 열린 옷 안에 보이는 티셔츠도 같은 높이까지 내려와 반바지 허리를 덮고, 반바지는 첫 번째 그림 높이 그대로 둡니다. 목둘레는 지금 옷깃보다 높이지도 깊게 파지도 않습니다(후드의 모자는 목 뒤에 내려 둡니다)."
+   },
+   "en": {
+    "slot": "tops",
+    "things": "garments",
+    "pose": "arm positions",
+    "keep": "shorts and shoes",
+    "length": "Long sleeves down to the wrists: the cuffs end just above the wrists and the hands stay visible. Keep the arms' position, thickness and length and the hands exactly as in image 1; the sleeves do not puff out beyond the arms or cover the hands. The shoulders start at the same height as the current short sleeves. {item^} hem at the same height as the current T-shirt hem, worn over the shorts' waistband, never shorter than the current T-shirt in any view. A T-shirt showing inside an open front also comes down to that height over the shorts' waistband, and the shorts stay at their height in image 1. Do not raise the neckline or cut it deeper than the current collar (a hood lies down behind the neck)."
+   },
+   "limits": [
+    "HEM_HIGH",
+    "HEM_LOW",
+    "COLLAR_HIGH",
+    "NECK_OPEN"
+   ],
+   "why": "Long sleeves (2026-10-16): the game warps a sleeve strip along each arm like the painted arm (avatar-foundation-outfit.js top.armSleeves), so the sleeve must lie on the arm as drawn (same position and width, cuff above the wrist, hands bare); the hem and neckline rules are the short-sleeve ones."
   },
   "bottom/shorts": {
    "ko": {
@@ -153,6 +183,26 @@
     "SHOE_MISSING"
    ],
    "why": "The leg painting ends at the current shoe top (SHOE_LOW_OPENING); low shoes stay under the ankle bone (SHOE_HIGH); shoes hang from the ankle and the sole sits on the frozen floor (SOLE_OFF_FLOOR); both feet are drawn front and back (SHOE_MISSING). Pilot S2/S3 (2026-10-15): ChatGPT drew the back-view shoes larger, their soles 5 px under the floor; the back-view line was added."
+  },
+  "shoes/sandals": {
+   "ko": {
+    "slot": "신발",
+    "thing": "신발",
+    "verb": "신겨",
+    "wear": "신습니다",
+    "pose": "팔·다리 위치",
+    "keep": "윗옷, 반바지, 맨발의 모양(발가락·발등·뒤꿈치)",
+    "length": "첫 번째 그림의 아이들은 맨발이고, 발은 진한 갈색으로 칠해 두었습니다(양말이 아니라 맨발입니다). 그 맨발 위에 {item|을} 신깁니다. 발 크기·위치·모양·색과 바닥선은 그대로 두고, 밑창은 지금 발바닥이 닿는 바닥선에 둡니다. 신발에 가리지 않는 발가락·발등·뒤꿈치는 첫 번째 그림의 갈색 맨발과 똑같이 두고 다시 그리거나 색을 바꾸지 않습니다. 앞모습과 뒷모습에서는 두 발에 모두 신깁니다."
+   },
+   "en": {
+    "slot": "shoes",
+    "things": "shoes",
+    "pose": "arm and leg positions",
+    "keep": "tops, shorts and the bare feet (toes, insteps, heels)",
+    "length": "The children in image 1 are barefoot; their feet are painted dark brown (bare feet, not socks). Put the {item} on those bare feet. Keep the feet's size, position, shape and colour and the floor line; the soles lie on the floor line where the feet stand now. Toes, insteps and heels the shoes leave bare stay exactly as the brown bare feet of image 1 and are not redrawn or recoloured. Put shoes on both feet in the front and back views."
+   },
+   "limits": [],
+   "why": "Open shoes (slippers, sandals, 2026-10-16): drawn on the barefoot sheet with dark feet (assets/garment-template/barefoot-dark-sheet.png: on light feet a cream strap was the skin's colour, 2026-10-16) so the shoe is what changed from the bare feet, and the bare skin left shows the game's feet layer (sd-foundation-ref-feet.png) in every skin tone. Cut by tools/build-open-shoes.py, not the garment pipeline."
   },
   "hat/full": {
    "ko": {

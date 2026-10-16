@@ -20,7 +20,7 @@
   // The basic outfit before the index arrives (tools/garment/build-index.cjs starter).
   const BASIC=Object.freeze({top:'top:tee',bottom:'bottom:shorts',shoes:'shoes:sneaker'});
   const BASIC_CLASS=Object.freeze({top:'top/short-sleeve',bottom:'bottom/shorts',shoes:'shoes/low'});
-  const RUNTIME=Object.freeze(['top/short-sleeve','bottom/shorts','shoes/low']);
+  const RUNTIME=Object.freeze(['top/short-sleeve','bottom/shorts','shoes/low','shoes/sandals','top/long-sleeve']);
   const ID=/^[a-z]+:[a-z0-9_]+$/;
   const demo=()=>Boolean(root.QPDemo),studio=()=>demo()&&params.get('session')==='foundation-studio';
   const warn=(...a)=>{if(demo())console.warn('[기준 옷]',...a);};

@@ -12,7 +12,8 @@
   "designRef": "image 2 in assets/garment-template/, made by tools/garment/design-ref.cjs from the shop art (no body).",
   "notes": "KO/EN design notes for the prompt. item: the garment noun; look: what to take from image 2; m/f (or both): the description per child; back: the back-view line. length (optional): replaces the class's wearing rule (rule 3) for this product, e.g. glasses worn on one eye.",
   "planned": "true for a product the shop does not sell yet (requested art first): design-ref.cjs draws image 2 from refSvg and skips the catalogue check.",
-  "earAnchored": "true for a band whose lower ends sit on the ears (headphones): tools/hair/build-hat.py exports kind 'band' and the game stretches it about its bottom to the hair's top edge instead of moving it."
+  "earAnchored": "true for a band whose lower ends sit on the ears (headphones): tools/hair/build-hat.py exports kind 'band' and the game stretches it about its bottom to the hair's top edge instead of moving it.",
+  "opaqueLens": "true for glasses whose lenses are tinted in a colour other than the rim's (swimming goggles): tools/hair/build-face.py fills the rims' inside where the sheet changed."
  },
  "products": {
   "top:shirt": {
@@ -2207,7 +2208,8 @@
      "back": "in the side view draw the glasses from the side (the front rim and the arm running to the ear); the back view stays exactly as in image 1."
     }
    },
-   "sharedPicture": true
+   "sharedPicture": true,
+   "opaqueLens": true
   },
   "glass:thick": {
    "class": "face/glasses",
@@ -2458,6 +2460,272 @@
     }
    },
    "sharedPicture": true
+  },
+  "shoes:slipper": {
+   "class": "shoes/low",
+   "status": "closed slipper O1 (shared picture, requested 2026-10-16): the toes are covered, no feet layer",
+   "sexes": [
+    "m",
+    "f"
+   ],
+   "ci": {
+    "m": 3,
+    "f": 3
+   },
+   "names": {
+    "m": "슬리퍼",
+    "f": "슬리퍼"
+   },
+   "colour": {
+    "m": "#8fd94a",
+    "f": "#8fd94a"
+   },
+   "display": {
+    "m": "#8fd94a",
+    "f": "#8fd94a"
+   },
+   "mirrorSafe": true,
+   "designRef": "ref-shoes-slipper-design.png",
+   "sharedPicture": true,
+   "notes": {
+    "ko": {
+     "item": "토끼 슬리퍼",
+     "look": "색과 모양",
+     "both": "두 번째 그림의 토끼 털 슬리퍼. 발 전체를 감싸는 크림색 털 테두리, 발등은 초록 천에 토끼 얼굴(분홍 코, 까만 눈)과 세운 토끼 귀 두 개, 귀 사이에 초록 리본과 금색 방울.",
+     "back": "뒷모습에는 두 발의 크림색 털 뒤꿈치가 보이게 합니다."
+    },
+    "en": {
+     "item": "bunny slippers",
+     "look": "colour and shape",
+     "both": "the fluffy bunny slippers from image 2: a cream fur rim round the whole foot, a green instep with a bunny face (pink nose, black eyes) and two upright bunny ears, a green bow with a gold bell between the ears.",
+     "back": "show both cream fur heels in the back view."
+    }
+   }
+  },
+  "shoes:sandal": {
+   "class": "shoes/sandals",
+   "status": "open shoes O2 (shared picture, requested 2026-10-16)",
+   "sexes": [
+    "m",
+    "f"
+   ],
+   "ci": {
+    "m": 10,
+    "f": 10
+   },
+   "names": {
+    "m": "샌들",
+    "f": "샌들"
+   },
+   "colour": {
+    "m": "#f2dfbd",
+    "f": "#f2dfbd"
+   },
+   "display": {
+    "m": "#f2dfbd",
+    "f": "#f2dfbd"
+   },
+   "mirrorSafe": true,
+   "designRef": "ref-shoes-sandal-design.png",
+   "sharedPicture": true,
+   "notes": {
+    "ko": {
+     "item": "샌들",
+     "look": "색과 끈 모양",
+     "both": "두 번째 그림의 크림색 샌들. 금색 테두리의 납작한 밑창, 발가락 위를 가로지르는 넓은 끈과 발목을 두르는 끈(바깥쪽에 금색 고리), 발등 끈 가운데 금색 꽃. 발가락과 끈 사이 발등 피부가 보입니다.",
+     "back": "뒷모습에는 두 발의 발목 끈과 뒤꿈치, 밑창 뒤쪽이 보이게 합니다."
+    },
+    "en": {
+     "item": "sandals",
+     "look": "colour and straps",
+     "both": "the cream sandals from image 2: a flat sole with a gold edge, a wide strap across the toes and a strap round the ankle (a gold ring outside), a gold flower on the instep strap; the toes and the skin between the straps show.",
+     "back": "show both ankle straps, heels and the backs of the soles in the back view."
+    }
+   }
+  },
+  "top:hood": {
+   "class": "top/long-sleeve",
+   "status": "long sleeve L; dark-skin sheet received 2026-10-16, assets/garment-sources/top-hood-dark-chatgpt-2026-10-16.png",
+   "base": "dark",
+   "sexes": [
+    "m",
+    "f"
+   ],
+   "ci": {
+    "m": 5,
+    "f": 7
+   },
+   "names": {
+    "m": "후드 집업",
+    "f": "후드티"
+   },
+   "colour": {
+    "m": "#5aa8ff",
+    "f": "#ff8ad4"
+   },
+   "display": {
+    "m": "#e5ad3c",
+    "f": "#ff8ad4"
+   },
+   "mirrorSafe": true,
+   "designRef": "ref-top-hood-design.png",
+   "notes": {
+    "ko": {
+     "item": "후드티",
+     "look": "색·후드·지퍼·주머니·끝동 모양",
+     "m": "두 번째 그림 왼쪽의 겨자색 후드 집업. 크림색 안감의 후드, 금색 끝이 달린 크림색 끈 두 줄, 가운데 금색 지퍼, 배 앞 주머니, 크림색 골지 끝동과 밑단.",
+     "f": "두 번째 그림 오른쪽의 분홍 지퍼 재킷. 크림색 골지 깃·끝동·밑단, 가운데 금색 지퍼와 토끼 모양 지퍼 손잡이, 왼쪽 가슴의 데이지 꽃, 크림색 테두리에 작은 꽃이 있는 양쪽 주머니.",
+     "back": "뒷모습에는 등판과(남자는 목 뒤에 내려 둔 후드) 크림색 밑단이 보이게 합니다."
+    },
+    "en": {
+     "item": "zip hoodie",
+     "look": "colours, hood, zip, pockets and cuffs",
+     "m": "the mustard zip hoodie on the left of image 2 (hood with cream lining, two cream drawstrings with gold tips, gold centre zip, kangaroo pocket, cream ribbed cuffs and hem).",
+     "f": "the pink zip jacket on the right of image 2 (cream ribbed collar, cuffs and hem, gold centre zip with a bunny zip pull, a daisy on the left chest, two cream-edged pockets with small flowers).",
+     "back": "show the back (the boy's hood lying down behind the neck) and the cream hem in the back view.",
+     "itemM": "zip hoodie",
+     "itemF": "zip jacket"
+    }
+   }
+  },
+  "top:cardi": {
+   "class": "top/long-sleeve",
+   "status": "long sleeve L; dark-skin sheet received 2026-10-16, assets/garment-sources/top-cardi-dark-chatgpt-2026-10-16.png",
+   "base": "dark",
+   "sexes": [
+    "m",
+    "f"
+   ],
+   "ci": {
+    "m": 3,
+    "f": 7
+   },
+   "names": {
+    "m": "가디건",
+    "f": "가디건"
+   },
+   "colour": {
+    "m": "#8fd94a",
+    "f": "#ff8ad4"
+   },
+   "display": {
+    "m": "#6c8054",
+    "f": "#ff8ad4"
+   },
+   "artDisplay": {
+    "f": "#faa6c9"
+   },
+   "mirrorSafe": true,
+   "designRef": "ref-top-cardi-design.png",
+   "notes": {
+    "ko": {
+     "item": "가디건",
+     "look": "색·뜨개 무늬·단추·주머니·끝동 모양",
+     "m": "두 번째 그림 왼쪽의 초록 꽈배기 뜨개 가디건. V자 앞트임 안에 크림색 티셔츠, 금색 단추 세 개, 양쪽 주머니, 골지 끝동과 밑단.",
+     "f": "두 번째 그림 오른쪽의 분홍 꽈배기 뜨개 가디건. 크림색 테두리 V자 앞트임, 금색 단추, 몸판과 소매의 데이지 꽃무늬, 양쪽 소매의 분홍 리본, 크림색 골지 끝동과 밑단.",
+     "back": "뒷모습에는 뜨개 무늬 등판과 골지 밑단이 보이게 합니다."
+    },
+    "en": {
+     "item": "cardigan",
+     "look": "colours, knit pattern, buttons, pockets and cuffs",
+     "m": "the green cable-knit cardigan on the left of image 2 (V opening over a cream T-shirt, three gold buttons, two pockets, ribbed cuffs and hem).",
+     "f": "the pink cable-knit cardigan on the right of image 2 (cream-trimmed V opening, gold buttons, daisy pattern on the body and sleeves, a pink bow on each sleeve, cream ribbed cuffs and hem).",
+     "back": "show the knitted back and the ribbed hem in the back view.",
+     "itemM": "cardigan",
+     "itemF": "cardigan"
+    }
+   }
+  },
+  "top:jacket": {
+   "class": "top/long-sleeve",
+   "status": "long sleeve L; dark-skin sheet re-requested and received 2026-10-16, assets/garment-sources/top-jacket-dark2-chatgpt-2026-10-16.png",
+   "base": "dark",
+   "sexes": [
+    "m",
+    "f"
+   ],
+   "ci": {
+    "m": 11,
+    "f": 11
+   },
+   "names": {
+    "m": "탐험가 재킷",
+    "f": "탐험가 재킷"
+   },
+   "colour": {
+    "m": "#a87352",
+    "f": "#a87352"
+   },
+   "display": {
+    "m": "#bb5831",
+    "f": "#a87352"
+   },
+   "mirrorSafe": true,
+   "designRef": "ref-top-jacket-design.png",
+   "notes": {
+    "ko": {
+     "item": "탐험가 재킷",
+     "look": "색·깃·지퍼·주머니·장식 모양",
+     "m": "두 번째 그림 왼쪽의 주황빛 갈색 재킷. 넓은 깃, 열린 금색 지퍼 사이로 보이는 크림색 티셔츠, 금색 단추가 달린 덮개 주머니 두 개.",
+     "f": "두 번째 그림 오른쪽의 갈색 탐험가 재킷. 금색 테두리, 크림색 깃과 안에 입은 흰 셔츠, 가슴을 가로지르는 금색 버클의 갈색 벨트, 금색 나침반 장식과 금색 별 장식, 크림색으로 접어 올린 끝동.",
+     "back": "뒷모습에는 재킷 등판과 깃의 뒷부분이 보이게 합니다."
+    },
+    "en": {
+     "item": "jacket",
+     "look": "colours, collar, zip, pockets and decorations",
+     "m": "the rust-brown jacket on the left of image 2 (wide collar, open gold zip showing a cream T-shirt, two flap pockets with gold buttons).",
+     "f": "the brown explorer jacket on the right of image 2 (gold trim, cream collar and a white shirt under it, a brown belt with a gold buckle across the chest, a gold compass emblem and gold star decorations, rolled cream cuffs).",
+     "back": "show the jacket's back and the back of the collar in the back view.",
+     "itemM": "jacket",
+     "itemF": "explorer jacket"
+    }
+   }
+  },
+  "top:knit": {
+   "class": "top/long-sleeve",
+   "status": "long sleeve L; dark-skin pilot sheet kept (user 2026-10-16), assets/garment-sources/top-knit-dark-chatgpt-2026-10-16.png",
+   "base": "dark",
+   "forearmBare": true,
+   "sexes": [
+    "m",
+    "f"
+   ],
+   "ci": {
+    "m": 10,
+    "f": 10
+   },
+   "names": {
+    "m": "포근한 니트",
+    "f": "니트"
+   },
+   "colour": {
+    "m": "#f2dfbd",
+    "f": "#f2dfbd"
+   },
+   "display": {
+    "m": "#ebd1a8",
+    "f": "#f2dfbd"
+   },
+   "mirrorSafe": true,
+   "designRef": "ref-top-knit-design.png",
+   "notes": {
+    "ko": {
+     "item": "니트",
+     "look": "색·뜨개 무늬·목둘레·끝동 모양",
+     "m": "두 번째 그림 왼쪽의 크림색 꽈배기 뜨개 스웨터. 청록색 골지 목둘레·끝동·밑단.",
+     "f": "두 번째 그림 오른쪽의 크림색 꽈배기 뜨개 스웨터. 가슴의 금색 별 세 개, 양쪽 소매의 엇갈린 크림색 끈 장식, 크림색 골지 목둘레·끝동·밑단.",
+     "back": "뒷모습에는 뜨개 무늬 등판과 골지 밑단이 보이게 합니다."
+    },
+    "en": {
+     "item": "sweater",
+     "look": "colours, knit pattern, neckline and cuffs",
+     "m": "the cream cable-knit sweater on the left of image 2 (teal ribbed neckline, cuffs and hem).",
+     "f": "the cream cable-knit sweater on the right of image 2 (three gold stars on the chest, criss-cross cream laces on each sleeve, cream ribbed neckline, cuffs and hem).",
+     "back": "show the knitted back and the ribbed hem in the back view.",
+     "itemM": "sweater",
+     "itemF": "sweater"
+    }
+   }
   }
  }
 }

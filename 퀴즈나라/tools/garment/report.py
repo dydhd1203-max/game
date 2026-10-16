@@ -604,7 +604,7 @@ def product_info(product):
 
 def report(res, out_dir, product, msgs=None, spec=None, date=None):
     msgs = msgs or load_messages()
-    spec = spec or R.garment_spec(res['spec']['slot'], tuple(res['spec']['sexes']))
+    spec = spec or R.garment_spec(res['spec']['slot'], tuple(res['spec']['sexes']), res['spec'].get('base'), tuple(res['spec'].get('cover', ())))
     os.makedirs(out_dir, exist_ok=True)
     header = dict(product=product, date=date or datetime.date.today().isoformat(), messages=msgs, spec=spec)
     items = describe(res, msgs)

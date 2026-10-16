@@ -23,6 +23,8 @@ through the ChatGPT path (tools/garment/synth.py chatgpt_path: placement,
                                     per figure (the figure's main colour = rgb)
   skin_band(layer, key, n, edge)    negative control: n rows of skin at the
                                     hem or collar edge (alpha kept)
+  long_sleeves(rgb, end)            the resting arms painted as a long sleeve to
+                                    `end` px above the wrists, with the strips' truth
   main_colour(layer, key), skin_rgb() measured colours of the synthetic / body
   extend_under(lower, before, after) the bottom extended up (rebuild_cloth)
                                     over what a shorter top uncovers
@@ -43,6 +45,10 @@ sys.path.insert(0, HERE)
 import segment as SG  # noqa: E402
 import synth as SY  # noqa: E402
 from avatar_build.common import TEMPLATE  # noqa: E402
+
+# The template the synthetic sheets are drawn on: None the light one, 'dark' the dark-skin template
+# (tools/garment/make-dark-template.py; verify-pipeline.py --base dark): the body and head take its skin.
+BASE = None
 
 
 # ---------------------------------------------------------------------------
@@ -131,17 +137,20 @@ def compose(slot, product):
     fz = SG.frozen()
     out = np.zeros_like(fz.sheet)
     art = 'legacy'
+    body, head = fz.body(art), fz.head
+    if BASE == 'dark':
+        body, head = SG.dark_body(body, head)
     for name in reversed(SG.Z_TOP_FIRST):
         if name == 'head':
-            lay = fz.head
+            lay = head
         elif name in product:
             lay = product[name]
         elif name in ('shirt', 'sleeves', 'shorts', 'shoes'):
             lay = fz.drawn[name] if name in SG.SLOT[slot]['layers'] else fz.layers[name]
         elif name == 'arms':
-            lay = arm_clip(fz.body(art)['arms'], art)
+            lay = arm_clip(body['arms'], art)
         else:
-            lay = fz.body(art)[name]
+            lay = body[name]
         out = SG.over(lay, out)
     return out
 
@@ -354,6 +363,50 @@ def cream(layer, mask, rgb=(242, 223, 189)):
     return out
 
 
+def long_sleeves(rgb=(242, 223, 189), end=5):
+    """A long sleeve drawn over the resting arm (top/long-sleeve, 2026-10-16): the clipped arm painting (as compose
+    draws it, on the current BASE) recoloured to `rgb` with its own shading (as cream) from the cuff line down to
+    `end` px above each wrist (across the forearm, elbow -> wrist), the hand left as skin. Returns (arms, truth):
+    the arms layer for compose's `product` and per (key, i) the strip's truth alpha in sheet px (the recoloured
+    pixels below the shoulder line, what top.armSleeves[i] must hold; the profile's two arms are one)."""
+    fz = SG.frozen()
+    light = arm_clip(fz.body('legacy')['arms'], 'legacy')
+    body = fz.body('legacy')
+    if BASE == 'dark':
+        body = SG.dark_body(body, fz.head)[0]
+    arms = arm_clip(body['arms'], 'legacy')
+    H, W = arms.shape[:2]
+    yy, xx = np.mgrid[0:H, 0:W]
+    sel = np.zeros((H, W), bool)
+    truth = {}
+    for key, (x0, y0, x1, y1) in SG.CELLS.items():
+        F = fz.data[key]
+        J = F['joints']
+        for i in (0, 1):
+            x, y, w, h = F['rects']['arm'][i]
+            box = np.zeros((H, W), bool); box[y:y + h, x:x + w] = True
+            E, Wr, S = (np.array(J[n][i], float) for n in ('elbow', 'wrist', 'shoulder'))
+            ax = (Wr - E) / np.linalg.norm(Wr - E)
+            above = ((xx + .5 - Wr[0]) * ax[0] + (yy + .5 - Wr[1]) * ax[1]) < -end
+            ua = (E - S) / np.linalg.norm(E - S)
+            below = ((xx + .5 - S[0]) * ua[0] + (yy + .5 - S[1]) * ua[1]) >= 0
+            m = box & above & (arms[..., 3] > 0)
+            sel |= m
+            truth[(key, i)] = m & below
+    out = arms.copy()
+    lum = .299 * light[..., 0] + .587 * light[..., 1] + .114 * light[..., 2]
+    col = np.array(rgb, np.float32)
+    for key, (x0, y0, x1, y1) in SG.CELLS.items():
+        c = np.zeros((H, W), bool); c[y0:y1, x0:x1] = True
+        solid = c & sel & (arms[..., 3] > 250)
+        if not solid.any():
+            continue
+        med = float(np.median(lum[solid]))
+        ratio = np.clip(lum[c & sel] / max(med, 1.0), 0, 1.6)[:, None]
+        out[c & sel, :3] = np.clip(col[None] * ratio, 0, 255)
+    return out, {k: v & (out[..., 3] > 127) for k, v in truth.items()}
+
+
 def main_colour(layer, key):
     """Median RGB of a figure's opaque pixels (the synthetic's own main colour)."""
     x0, y0, x1, y1 = SG.CELLS[key]
@@ -362,11 +415,14 @@ def main_colour(layer, key):
     return np.median(cell[m][:, :3], 0) if m.any() else None
 
 
-def skin_rgb(art='clean'):
+def skin_rgb(art='clean', base='current'):
     """The frozen arm painting's median skin colour (the body under the
-    garment, untinted)."""
+    garment, untinted; on the dark base the dark template's skin). base:
+    'current' follows BASE, None the light skin."""
     fz = SG.frozen()
     a = fz.body(art)['arms']
+    if (BASE if base == 'current' else base) == 'dark':
+        a = SG.dark_body({'arms': a}, fz.head)[0]['arms']
     m = a[..., 3] > 250
     return np.median(a[m][:, :3], 0)
 

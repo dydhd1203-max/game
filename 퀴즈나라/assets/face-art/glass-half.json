@@ -1,0 +1,46 @@
+{
+ "kind": "glasses",
+ "views": {
+  "m": {
+   "front": {
+    "src": "assets/face-art/glass-half-m-front.png",
+    "rect": [
+     5.138,
+     19.858,
+     21.631,
+     5.492
+    ]
+   },
+   "right": {
+    "src": "assets/face-art/glass-half-m-right.png",
+    "rect": [
+     14.133,
+     20.214,
+     10.28,
+     3.843
+    ]
+   }
+  },
+  "f": {
+   "front": {
+    "src": "assets/face-art/glass-half-f-front.png",
+    "rect": [
+     7.65,
+     22.357,
+     15.369,
+     3.616
+    ]
+   },
+   "right": {
+    "src": "assets/face-art/glass-half-f-right.png",
+    "rect": [
+     15.392,
+     20.688,
+     7.936,
+     3.538
+    ]
+   }
+  }
+ },
+ "sheet": "assets/garment-sources/glass-half-11-chatgpt-2026-10-16.png"
+}

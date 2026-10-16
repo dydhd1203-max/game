@@ -273,7 +273,7 @@ function selfTest(root=ROOT){
   if(!top||!bottom||!shoes){fail.push('the three legacy records are missing (run tools/garment/pack-basic.py)');return{pass,fail};}
   for(const r of [top,bottom,shoes]){const issues=validate(r,{context,root});(issues.length?fail:pass).push('valid '+r.id+(issues.length?': '+issues.map(i=>i.code+' '+i.path+' '+i.message).join('; '):''));}
   const opts={context,root},mut=(r,fn)=>{const c=thaw(r);fn(c);return c;};
-  expect('reserved class in the builder','CLASS_RESERVED',validate(mut(top,r=>{r.class='top/long-sleeve';r.legacy=false;}),{...opts,builder:true}));
+  expect('reserved class in the builder','CLASS_RESERVED',validate(mut(top,r=>{r.class='top/sleeveless';r.legacy=false;}),{...opts,builder:true}));
   expect('reserved class on a legacy record','CLASS_RESERVED',validate(mut(top,r=>{r.class='top/sleeveless';}),opts));
   {const issues=validate(top,{...opts,builder:true});(issues.length?fail:pass).push('builder accepts top/short-sleeve'+(issues.length?' (got '+issues.map(i=>i.code).join(',')+')':''));}
   expect('unknown class','SCHEMA',validate(mut(top,r=>{r.class='top/poncho';}),opts));
@@ -317,7 +317,7 @@ function selfTest(root=ROOT){
     expect('starter of the wrong slot','SCHEMA',bad(i=>{i.starter.f.top='bottom:shorts';}));
     expect('starter not in records','INDEX',bad(i=>{i.starter.f.top='top:shirt';}));
     expect('starter item not sold to that sex','INDEX',bad(i=>{i.starterItems.m.bottom='bottom:shorts:5';}));
-    expect('runtime classes changed','INDEX',bad(i=>{i.runtimeClasses.push('top/long-sleeve');}));
+    expect('runtime classes changed','INDEX',bad(i=>{i.runtimeClasses.push('top/sleeveless');}));
     expect('files of another encoding','SCHEMA',bad(i=>{i.records['top:tee'].files.m='assets/sd-garment-top_tee-m.png';}));
     expect('files of another record','INDEX',bad(i=>{i.records['top:tee'].files.m='assets/sd-garment-top-teee-m.png';}));
   }

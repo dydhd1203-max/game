@@ -9,7 +9,11 @@
  'use strict';
  const NS='http://www.w3.org/2000/svg',base=new URL('.',document.currentScript.src),R=root.QPFoundationReferenceData;
  const files={arm:'assets/sd-foundation-ref-arms.png',leg:'assets/sd-foundation-ref-legs.png',neck:'assets/sd-foundation-ref-neck.png'};
- const cleanFiles={arm:'assets/sd-foundation-ref-arms-clean.png',neck:'assets/sd-foundation-ref-neck-clean.png',leg:'assets/sd-foundation-ref-legs-under.png'};
+ const cleanFiles={arm:'assets/sd-foundation-ref-arms-clean.png',neck:'assets/sd-foundation-ref-neck-clean.png',leg:'assets/sd-foundation-ref-legs-under.png',feet:'assets/sd-foundation-ref-feet.png'};
+ // Bare feet under an open shoe (record.feet: slippers, sandals), cut from a returned barefoot sheet on the sheet
+ // grid by tools/build-standing-feet.py: per figure one rect per shoe of the basic sneaker, anchored at the
+ // figure's ankles like a shoe (check: build-standing-feet.py --check compares this literal).
+ const FEET={'m-front':[[254,493,47,58],[339,493,47,59]],'m-right':[[701,496,76,54]],'m-back':[[1044,495,41,57],[1118,495,40,57]],'f-front':[[260,1019,46,56],[343,1019,45,56]],'f-right':[[705,1021,77,53]],'f-back':[[1044,1019,43,56],[1119,1019,44,56]]};
  // The clean neck runs 8 px past the legacy rect (room under a V neck):
  // tools/garment/frozen/zones.json clean.neckRects (check-source compares).
  // The clean arms fill the legacy arm rects. f-back borrows the male neck.
@@ -76,7 +80,9 @@
  // the run showed skin where the background had shown (R0 2026-10-15).
  const LEG_UNDER_SHOE=8;
  const textures=new Map();
- function texture(d){const under=d.under||0,key=(d.variant?d.variant+'/':'')+d.rect.join()+(under?'+'+under:'');if(textures.has(key))return textures.get(key);const c=document.createElement('canvas');c.width=d.rect[2];c.height=d.rect[3]+under;c.getContext('2d').drawImage(d.image,d.rect[0],d.rect[1],d.rect[2],d.rect[3]+under,0,0,c.width,c.height);textures.set(key,c);return c;}
+ // d.at: the strip lies at that point of d.image (a garment atlas: a long sleeve along the arm, outfit.js)
+ // instead of at its sheet rect (the body paintings are sheet-sized).
+ function texture(d){const under=d.under||0,key=(d.variant?d.variant+'/':'')+d.rect.join()+(under?'+'+under:''),at=d.at||d.rect;if(textures.has(key))return textures.get(key);const c=document.createElement('canvas');c.width=d.rect[2];c.height=d.rect[3]+under;c.getContext('2d').drawImage(d.image,at[0],at[1],d.rect[2],d.rect[3]+under,0,0,c.width,c.height);textures.set(key,c);return c;}
  // The bob hides the female back neck on the sheet; the male one stands in
  // for hairstyles that show it.
  function neckFigure(sex,view){const F=R.figures[sex+'-'+VIEW[view]];return F.rects.neck?F:R.figures[(sex==='m'?'f':'m')+'-'+VIEW[view]];}
@@ -201,7 +207,17 @@
   // outline on both sides and a rounded painted elbow over the sleeve. The
   // clip below cut the painting with straight unlined edges over the cuff
   // and still pasted the folded elbow on top (critic, 2026-10-08).
-  const own=toward&&Boolean(arm.fold);part.forearm.style.display=toward&&!own?'':'none';part.forearmArt.style.display=own?'':'none';if(!toward)return;
+  const own=toward&&Boolean(arm.fold);part.forearm.style.display=toward&&!own?'':'none';part.forearmArt.style.display=own?'':'none';
+  // A long sleeve (avatar-foundation-outfit.js r.sleeveFold[i]) covers that copy with its own forearm, so only
+  // the hand stays bare: the same mesh rows of the sleeve's strip, right after the skin copy.
+  const sf=r.sleeveFold?.[i];
+  // Always right after the skin copies (the clipped use, then the painted forearm), so the node order does not
+  // depend on the poses an avatar went through (reset/remount keep it).
+  if(sf){if(part.forearmArt.nextSibling!==sf.node)part.forearmArt.after(sf.node);
+   if(!toward)sf.node.style.display='none';else{const art=painting(sf.def,points,Boolean(arm.fold),'forearm');
+   if(sf.node.paintedArt!==art){sf.node.setAttribute('href',art.url);sf.node.paintedArt=art;}for(const[k,val]of Object.entries({x:points[0][0]+art.x,y:points[0][1]+art.y,width:art.w,height:art.h}))if(sf.node.getAttribute(k)!==String(val))sf.node.setAttribute(k,val);
+   sf.node.style.display='';}}
+  if(!toward)return;
   if(own){const art=painting(def,points,true,arm.fist?'forearm-fist':(arm.open??arm.lift??0)>.5?'forearm-bare':'forearm'),e=part.forearmArt;
    // The painting is compared by reference: reading a data-URL href back from
    // the DOM every frame copied the whole string.
@@ -262,5 +278,7 @@
   part.handCut.setAttribute('d','M'+q(c,0,12)+'L'+q(c,-30,12)+'L'+q(c,-30,-12)+'L'+q(c,0,-12)+'Z');part.painting.setAttribute('clip-path','url(#'+part.handCut.parentNode.id+')');
  }
  function destroy(r){r.skinPaintFilter?.remove();r.neckPainting?.remove();for(const e of [r.neckSurface,r.neckEdge,r.neckShade])e.style.display='';for(const part of [...r.arms,...r.legs]){part.contour.style.visibility='';part.paintFrame?.remove();part.painting?.remove();part.paintClip?.parentNode.remove();part.forearm?.remove();part.forearmArt?.remove();part.forearmClip?.parentNode.remove();part.openHand?.remove();part.handCut?.parentNode.remove();r.svg.querySelector('[id="'+r.svg.dataset.foundationId+'-hand-fade-'+r.arms.indexOf(part)+'"]')?.remove();delete part.forearm;delete part.forearmArt;delete part.forearmClip;delete part.openHand;delete part.handStrokes;delete part.handCut;}}
- root.QPFoundationSkin=Object.freeze({atlas,files,cleanFiles,clean,load,loadClean,apply,destroy,toneMatrix,limbDef,paintCache,paint,paintStats,emptyPaint,CLEAN_NECK});
+ // A bare foot under an open shoe: its sheet rect and the clean art it lies on (null before loadClean is ready).
+ function foot(sex,view,i){const list=FEET[sex+'-'+VIEW[view]];if(!list||!images.feetClean)return null;return{rect:list[Math.min(i,list.length-1)],image:images.feetClean};}
+ root.QPFoundationSkin=Object.freeze({atlas,files,cleanFiles,clean,load,loadClean,apply,destroy,toneMatrix,limbDef,limbPainting:painting,paintCache,paint,paintStats,emptyPaint,CLEAN_NECK,FEET,foot});
 })(window);

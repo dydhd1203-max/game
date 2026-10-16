@@ -40,8 +40,16 @@ GAP_FILL = 30     # px (template scale) of a gap in a column bridged as hat
 MAX_FACE = .003   # share of a hat cut that may be the base figure's unchanged face (face_in_hat)
 BROWN_HAT = 11.5  # Lab: hat colours this near the head's are the hair's own (kept whole, trim_head)
 COLOUR_SHARE = .8 # the colour cut stands when it finds this share of what changed
+PIECE_OPEN = 3     # px (template scale): a piece joined to the hat by a narrower bridge is not the hat (cut_flat)
+SHIFT = 4          # px (template scale) a redrawn face part may move (cut_flat)
+SHIFT_MATCH = 12.0 # Lab: a pixel this near the base face within SHIFT px is the face redrawn
+HOLE_UNLIKE = 25.0 # Lab: an unchanged hole this unlike the hat round it is the page seen through it (cut_flat)
+FLAT_NEAR = 30.0  # Lab distance to a flat-hair base's colour that is still the placeholder (cut_flat)
 GROW = 3          # px the hat mask grows over its own outline
 ZONE = .75        # share of head top -> neck the hat may reach down to (a cap's back strap, a profile brim)
+ZONE_SIDE = 60    # px (template scale) beside the head the hat may reach (cut_zone, cut_flat)
+ZONE_WIDE, ZONE_SIDE_WIDE = .85, 130  # the zone a hat at the usual one's edge is cut again in (build_base)
+ZONE_EDGE_PX = 4  # px of the hat on the zone's side column that mean the brim ran past it (HAT_AT_ZONE_EDGE)
 HIDE_SIDE = 260   # px beside the hat the hair-hide mask reaches (hide_mask; a twin tail, a pony)
 HIDE_TOP = 80     # px above the hat (spiky hair above the crown)
 HIDE_FLARE = 1.6  # beside the hat the hidden edge drops this many px per px outward: the hair under the
@@ -256,19 +264,19 @@ def brown_hat(hat, u, t, px=1.0):
     return drop_wisps(fill, px)
 
 
-def cut_zone(u, a, t, head, low, x0, y0, box, px=1.0, diff=False):
+def cut_zone(u, a, t, head, low, x0, y0, box, px=1.0, diff=False, side_px=None):
     """The hat in one figure: u the drawn figure, t the unchanged one, head its head pixels, low the
     zone's last row; px the figure's scale against the template sheet (sizes in px scale with it).
     diff: t is the figure itself to a pixel (a base sheet), so the hat is also what changed (diff_hat)."""
     ys, xs = np.nonzero(head)
-    side = int(round(60 * px))
+    side = int(round((side_px or ZONE_SIDE) * px))
     zone = np.zeros(head.shape, bool)
     zone[:low, max(0, xs.min() - side):xs.max() + side + 1] = True
     if diff:
         dh = diff_hat(u, t, zone, px)
         band = np.zeros_like(dh)  # a band taken in beside the colour cut: trim_head does not judge it again
         # only where the hat's own colours miss it: a colour cut keeps a cap's back opening
-        colour = cut_zone(u, a, t, head, low, x0, y0, box, px)
+        colour = cut_zone(u, a, t, head, low, x0, y0, box, px, side_px=side_px)
         if dh.sum() < SEED_MIN * px * px:
             return colour
         # a hat with colours of its own: the colour cut finds most of what changed and keeps out the
@@ -330,6 +338,93 @@ def cut_zone(u, a, t, head, low, x0, y0, box, px=1.0, diff=False):
     return dict(rgba=rgba, box=[x0 + bx[0], y0 + bx[1], x0 + bx[2], y0 + bx[3]], px=int(hat.sum()), scale=px,
                 mask=hat, cell=box, hide=hide_mask(hat, opening, x0, y0, side=int(HIDE_SIDE * px), top=int(HIDE_TOP * px),
                                                    soft=HIDE_SOFT * px))
+
+
+def cut_flat(u, t, flat, head, low, x0, y0, box, px=1.0, side_px=None):
+    """The hat on a flat-hair base (tools/hair/make-flat-hat-base.py, 2026-10-16): what changed from the base
+    figure and is not the flat colour. A hat the hair's brown, a black visor, a white crown need no colour rule,
+    and the hair redrawn under it stays flat (the sheet keeps the placeholder). The hat's edge over the flat
+    hair is unmixed from it (no magenta fringe); flat hair the hat encloses is its opening (a cap's back)."""
+    ys, xs = np.nonzero(head)
+    side = int(round((side_px or ZONE_SIDE) * px))
+    zone = np.zeros(head.shape, bool)
+    zone[:low, max(0, xs.min() - side):xs.max() + side + 1] = True
+    Ul, Fl = R.lab(u), R.lab(np.array(flat, np.float32)[None, None])[0, 0]
+    dflat = np.sqrt(((Ul - Fl) ** 2).sum(-1))
+    flat_now = dflat < FLAT_NEAR
+    dh = diff_hat(u, t, zone, px)
+    # diff_hat fills every hole (a white crown on the white page changes only along its outline); here a hole
+    # stays open when it is unchanged and unlike the hat round it (a halo's gold ring round the page, 2026-10-16
+    # flat check: the ring came out a disc)
+    raw = np.sqrt(((Ul - R.lab(t)) ** 2).sum(-1)) > DIFF
+    core = M.erode(M.dilate(dh & raw, 1), 1)
+    lab_, comps = M.components(fill_holes(core) & ~core)
+    for c in comps:
+        m = lab_ == c['label']
+        if (raw & m).sum() > .5 * m.sum():  # mostly repainted: the hat
+            continue
+        ring = M.dilate(m, 3) & core
+        if ring.any() and np.sqrt(((Ul[m].mean(0) - Ul[ring].mean(0)) ** 2).sum()) > HOLE_UNLIKE:
+            dh = dh & ~m
+    hat = dh & ~flat_now
+    # the base figure's own face, ears and neck redrawn a few px off (an eye, an ear's rim): a pixel that matches
+    # one of them within SHIFT px is that redraw, not the hat. Colour alone could not tell: the brim's brown and
+    # the visor's black are the brows' and lashes' (a notch), a cream hat is the skin's (Lab 9). Cowboy and
+    # police pilots on the flat base hung ear and eye pieces under the brim (FACE_IN_HAT, 2026-10-16).
+    Tl = R.lab(t)
+    t_face = head & (np.sqrt(((Tl - Fl) ** 2).sum(-1)) >= FLAT_NEAR) & (np.abs(t - 255).sum(-1) > 30)
+    sh = max(1, int(round(SHIFT * px)))
+    best = np.full(hat.shape, np.inf, np.float32)
+    H, W = hat.shape
+    for dy in range(-sh, sh + 1):
+        for dx in range(-sh, sh + 1):
+            ys0, ys1, xs0, xs1 = max(0, dy), min(H, H + dy), max(0, dx), min(W, W + dx)
+            d_ = np.full(hat.shape, np.inf, np.float32)
+            dd = np.sqrt(((Ul[ys0 - dy:ys1 - dy, xs0 - dx:xs1 - dx] - Tl[ys0:ys1, xs0:xs1]) ** 2).sum(-1))
+            d_[ys0 - dy:ys1 - dy, xs0 - dx:xs1 - dx] = np.where(t_face[ys0:ys1, xs0:xs1], dd, np.inf)
+            best = np.minimum(best, d_)
+    hat &= ~(best < SHIFT_MATCH)
+    r = max(1, int(round(2 * px)))
+    lab_, comps = M.components(M.erode(M.dilate(hat, r), r))
+    hat = np.isin(lab_, [c['label'] for c in comps if c['size'] >= SEED_MIN * px * px]) & ~flat_now
+    if hat.sum() < SEED_MIN * px * px:
+        return None
+    opening = fill_holes(hat) & flat_now
+    lab_, comps = M.components(opening)
+    opening = np.isin(lab_, [c['label'] for c in comps if c['size'] > 40 * px * px])
+    hat = drop_wisps(peel_page(hat & ~opening, u, t), px)
+    # pieces hanging on by a bridge a few px wide (an ear or a lid the sheet showed more of under the brim) are
+    # cut off: opened, pieces under a tenth of the biggest dropped, grown back over the hat only
+    ro = max(1, int(round(PIECE_OPEN * px)))
+    op = M.dilate(M.erode(hat, ro), ro)
+    lab_, comps = M.components(op)
+    if comps:
+        big = max(c['size'] for c in comps)
+        core = np.isin(lab_, [c['label'] for c in comps if c['size'] >= .1 * big])
+        hat = hat & M.dilate(core, ro + 1)
+    if not hat.any():
+        return None
+    # the edge over the flat hair: u = a*hat + (1-a)*flat, the hat's colour taken from its inside a few px in
+    inner = M.erode(hat, 2) if M.erode(hat, 2).any() else hat
+    col, have = np.where(inner[..., None], u, 0).astype(np.float32), inner.copy()
+    for _ in range(6):
+        grow = M.dilate(have, 1) & ~have
+        if not grow.any():
+            break
+        acc = np.zeros_like(col); n = np.zeros(have.shape, np.float32)
+        for dy in (-1, 0, 1):
+            for dx in (-1, 0, 1):
+                acc += np.roll(np.roll(col * have[..., None], dy, 0), dx, 1); n += np.roll(np.roll(have, dy, 0), dx, 1)
+        col = np.where(grow[..., None], acc / np.maximum(n, 1)[..., None], col); have |= grow
+    f = np.array(flat, np.float32)
+    span = np.sqrt(((col - f) ** 2).sum(-1)); moved = np.sqrt(((u.astype(np.float32) - f) ** 2).sum(-1))
+    edge = hat & ~inner & M.dilate(flat_now, 2)
+    a = np.where(edge, np.clip(moved / np.maximum(span, 30), 0, 1), 1.0).astype(np.float32)
+    clean = np.where(edge[..., None], np.clip(f + (u - f) / np.maximum(a, .05)[..., None], 0, 255), u)
+    out = pack(clean, hat, opening, x0, y0, box, px)
+    bx = out['box']
+    out['rgba'][..., 3] = (np.where(hat, a, 0) * 255).astype(np.uint8)[bx[1] - y0:bx[3] - y0, bx[0] - x0:bx[2] - x0]
+    return out
 
 
 def cut_enclosed(u, x0, y0, box, px=1.0):
@@ -441,18 +536,26 @@ def template_frames():
     return {k: dict(frame[k], cell0=spec['cells'][k][:2]) for k in frame}
 
 
-def export(pid, kind, figures, out_assets, frames=None):
+def export(pid, kind, figures, out_assets, frames=None, narrow=False):
     """assets/hat-art/<shape>-<sex>-<view>.png (+ -hide.png for pulled-on hats) and
     their records (head-native rects) for avatar-hat-art.js. frames: sheet px -> head-native per
-    figure (default: the garment template's, template_frames)."""
+    figure (default: the garment template's, template_frames). narrow: the sheet was drawn on the
+    styles close to the skull (a kit made with make-hat-hair-base.cjs --under-hat): its figures go to
+    the record's 'narrow' views (<shape>-<sex>-<view>-narrow.png), which the game uses on those styles,
+    and the record's own views stay (2026-10-16: a wide brim drawn on the bob had no underside where the
+    bob's hair hid it, a bite under the brim on twin tails)."""
     frames = frames or template_frames()
     shape = pid.split(':')[1]
     os.makedirs(out_assets, exist_ok=True)
+    path = os.path.join(out_assets, shape + '.json')
     rec = dict(kind=kind, views={})
+    if narrow:
+        rec = json.load(open(path))
+        rec['narrow'] = {}
     for k, f in figures.items():
         sex, view = k.split('-')
         fr = frames[k]
-        name = '%s-%s-%s' % (shape, sex, view)
+        name = '%s-%s-%s%s' % (shape, sex, view, '-narrow' if narrow else '')
         Image.fromarray(f['rgba']).save(os.path.join(out_assets, name + '.png'), optimize=True)
         v = dict(src='assets/hat-art/%s.png' % name, rect=to_head(fr, f['box']))
         if kind == 'full':
@@ -462,10 +565,35 @@ def export(pid, kind, figures, out_assets, frames=None):
             # everything above the hide mask over its whole width (hair taller than the frame: m spiky, a pony's tip)
             h = v['hide']['rect']
             v['hideTop'] = [h[0], -20.0, h[2], round(h[1] + 20.4, 3)]  # overlaps the mask's top rows (all hidden) so its soft edge never shows hair
-        rec['views'].setdefault(sex, {})[view] = v
-    json.dump(rec, open(os.path.join(out_assets, shape + '.json'), 'w'), ensure_ascii=False, indent=1)
+            v['rim'] = hat_rim(f['rgba'][..., 3], v['rect'])
+        rec['narrow' if narrow else 'views'].setdefault(sex, {})[view] = v
+    json.dump(rec, open(path, 'w'), ensure_ascii=False, indent=1)
     write_runtime(out_assets)
     return rec
+
+
+RIM_MID = .3   # share of the hat's width round its middle whose bottom is the rim (hat_rim; a mortarboard's
+              # tassel and a straw hat's bow hang outside it, a backward cap's strap opening is inside it)
+
+
+def hat_rim(alpha, rect):
+    """Head-native row where a pulled-on hat meets the forehead: the median lowest hat pixel of the
+    columns round its middle (alpha: the hat picture's alpha, or its path under ROOT).
+    A style fitted smaller (fit-hat-hair.py) is scaled about it."""
+    if isinstance(alpha, str):
+        alpha = np.asarray(Image.open(os.path.join(ROOT, alpha)).convert('RGBA'))[..., 3]
+    a = alpha > 127
+    cols = np.nonzero(a.any(0))[0]
+    if not len(cols):
+        return None
+    mid = (cols[0] + cols[-1]) / 2; half = max(1, (cols[-1] - cols[0]) * RIM_MID / 2)
+    bot = []
+    for c in range(int(mid - half), int(mid + half) + 1):
+        ys = np.nonzero(a[:, c])[0]
+        if not len(ys):
+            continue
+        bot.append(ys[-1] + 1)
+    return round(rect[1] + float(np.median(bot)) / a.shape[0] * rect[3], 3) if bot else None
 
 
 def write_runtime(out_assets):
@@ -473,7 +601,13 @@ def write_runtime(out_assets):
     allrec = {}
     for name in sorted(os.listdir(out_assets)):
         if name.endswith('.json') and name != 'hat-art.json':
-            allrec[name[:-5]] = json.load(open(os.path.join(out_assets, name)))
+            rec = json.load(open(os.path.join(out_assets, name)))
+            if rec.get('kind') == 'full' and any('rim' not in v for vs in rec['views'].values() for v in vs.values()):
+                for vs in rec['views'].values():
+                    for v in vs.values():
+                        v['rim'] = hat_rim(v['src'], v['rect'])
+                json.dump(rec, open(os.path.join(out_assets, name), 'w'), ensure_ascii=False, indent=1)
+            allrec[name[:-5]] = rec
     json.dump(allrec, open(os.path.join(out_assets, 'hat-art.json'), 'w'), ensure_ascii=False, indent=1)
     js = ('// Hat art of the foundation avatar (generated by tools/hair/build-hat.py; do not edit).\n'
           '// Per hat shape: kind full (hides the hair under it) | sit (sits on the hair), and per sex and view\n'
@@ -537,6 +671,15 @@ CHECK_NOTCH_LAB = 10.0  # ... drawn within this Lab distance of the hat's own co
 def page_like(u):
     """Near-white neutral pixels (PAGE_*)."""
     return (u.min(-1) >= PAGE_MIN) & (u.max(-1) - u.min(-1) <= PAGE_SPREAD)
+
+
+def zone_edge(mask, hx, side, low, px=1.0):
+    """Where a cut hat lies straight along its zone's edge (HAT_AT_ZONE_EDGE): a side column (its brim ran past
+    ZONE_SIDE: a witch's brim tips) or the last row (a brim drooping below ZONE: a straw hat's tips beside the
+    cheeks), more than ZONE_EDGE_PX px of it (2026-10-16: both read as straight cuts once twin tails showed
+    the brim's ends)."""
+    edge = [c for c in (max(0, hx.min() - side), min(mask.shape[1] - 1, hx.max() + side)) if mask[:, c].sum() > ZONE_EDGE_PX * px]
+    return edge + (['low'] if mask[low - 1].sum() > ZONE_EDGE_PX * px else [])
 
 
 def cut_checks(mask, u, t, head, dh, px=1.0, kind=None):
@@ -612,19 +755,39 @@ def build_base(sheet, base_dir, out, pid=None, kind=None, out_assets=None):
         u = moved[y0:neck, x0:x1].astype(np.float32); tt = base[y0:neck, x0:x1].astype(np.float32)
         head = (np.abs(tt - 255).sum(-1) > 40)
         hy = np.nonzero(head.any(1))[0]
-        low = int(hy.min() + ZONE * (len(head) - hy.min()))
+        hx = np.nonzero(head.any(0))[0]
         a = (np.abs(u - 255).sum(-1) > 30).astype(np.float32)
-        if kind == 'band':  # headphones: the object itself, not what changed (the sheet pressed the hair under it)
-            f = cut_enclosed(u, x0, y0, [x0, y0, x1, neck], px)
-        else:
-            f = cut_zone(u, a, tt, head, low, x0, y0, [x0, y0, x1, neck], px, diff=True)
+        # the usual zone first; a hat cut straight at its edge (HAT_AT_ZONE_EDGE: a brim drooping past it) is cut
+        # again in the wide one (a straw hat's and a witch's brim tips, 2026-10-16). Only those: the wide zone takes
+        # in more of the redrawn hair under a brim (a few strands in a straw hat's curled back brim)
+        for share, side_px in ((ZONE, ZONE_SIDE), (ZONE_WIDE, ZONE_SIDE_WIDE)):
+            low = int(hy.min() + share * (len(head) - hy.min()))
+            if kind == 'band':  # headphones: the object itself, not what changed (the sheet pressed the hair under it)
+                f = cut_enclosed(u, x0, y0, [x0, y0, x1, neck], px)
+            elif meta.get('flat'):  # the hair painted one colour (make-flat-hat-base.py)
+                fc = [int(meta['flat'][i:i + 2], 16) for i in (1, 3, 5)]
+                f = cut_flat(u, tt, fc, head, low, x0, y0, [x0, y0, x1, neck], px, side_px)
+            else:
+                f = cut_zone(u, a, tt, head, low, x0, y0, [x0, y0, x1, neck], px, diff=True, side_px=side_px)
+            side = int(round(side_px * px))
+            edge = [] if f is None or kind == 'band' else zone_edge(f['mask'], hx, side, low, px)
+            if not edge:
+                break
+            if side_px == ZONE_SIDE:
+                first = (f, low, side, edge)
+        if edge and side_px != ZONE_SIDE:  # at the wide zone's edge too (a bandana's long ties): the usual cut stands
+            f, low, side, edge = first
+        elif side_px != ZONE_SIDE:
+            report.setdefault('wideZone', []).append(k)
         report['figures'][k] = None if f is None else dict(box=f['box'], px=f['px'], shift=[dx, dy], legsError=round(err, 2),
                                                            face=face_in_hat(f['mask'], u, tt, head))
         if f is not None and report['figures'][k]['face'] > MAX_FACE:
             report.setdefault('codes', []).append(['FACE_IN_HAT', k])
         if f is not None:
-            zone = np.zeros(head.shape, bool); hx = np.nonzero(head.any(0))[0]; side = int(round(60 * px))
+            zone = np.zeros(head.shape, bool)
             zone[:low, max(0, hx.min() - side):hx.max() + side + 1] = True
+            if edge:  # still at the wide zone's edge: drawn too big for the base, re-request
+                report.setdefault('codes', []).append(['HAT_AT_ZONE_EDGE', k])
             for code in cut_checks(f['mask'], u, tt, head, diff_hat(u, tt, zone, px), px, kind):
                 report.setdefault('codes', []).append([code, k])
         frames[k] = dict(cell0=[0, 0], unitsPerSheetPx=1 / ppu, cellOrigin=[-box['x'] / ppu, -box['y'] / ppu], toViewBox=t)
@@ -644,7 +807,7 @@ def build_base(sheet, base_dir, out, pid=None, kind=None, out_assets=None):
             sheet_im.paste(t, (x, 0)); x += t.width + 6
         sheet_im.save(os.path.join(out, '모자-조각.png'))
     if pid:
-        report['record'] = export(pid, kind, cut, out_assets, frames)
+        report['record'] = export(pid, kind, cut, out_assets, frames, narrow=bool(meta.get('underHat')))
     return report
 
 

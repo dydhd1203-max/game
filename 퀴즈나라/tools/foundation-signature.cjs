@@ -46,7 +46,7 @@
 // reads as 'basic'; data-foundation-garments, data-foundation-fallback, data-foundation-class,
 // data-outfit-garment are ignored. Internal cache labels data-outfit-source and data-sleeve-art
 // are ignored unless --strict-labels.
-// Node table: tools/foundation-matrix.cjs NODE_TABLE; every sample must match it (198 m / 192 f).
+// Node table: tools/foundation-matrix.cjs NODE_TABLE; every sample must match it (201 m / 195 f since the head painting group).
 const fs=require('node:fs'),path=require('node:path'),zlib=require('node:zlib'),assert=require('node:assert/strict');
 const M=require('./foundation-matrix.cjs'),H=require('./verify-harness.cjs');
 const ROOT=path.resolve(__dirname,'..');

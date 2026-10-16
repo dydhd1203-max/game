@@ -6,8 +6,8 @@
   "x-version": 1,
   "x-sheet": {"width": 1448, "height": 1086, "rows": {"m": [0, 555], "f": [555, 1086]}},
   "x-classes": {
-    "runtime": ["top/short-sleeve", "bottom/shorts", "shoes/low"],
-    "reserved": ["top/long-sleeve", "top/sleeveless", "bottom/trousers", "bottom/skirt", "onepiece/dress", "shoes/boots", "shoes/sandals"],
+    "runtime": ["top/short-sleeve", "bottom/shorts", "shoes/low", "shoes/sandals", "top/long-sleeve"],
+    "reserved": ["top/sleeveless", "bottom/trousers", "bottom/skirt", "onepiece/dress", "shoes/boots"],
     "note": "Reserved classes may appear in a record (the runtime falls back with reason 'class'), but the stage-3 builder refuses to build them (schema.cjs validate(record,{builder:true}) → CLASS_RESERVED)."
   },
   "x-slots": {
@@ -73,6 +73,7 @@
       "type": "object", "additionalProperties": false, "minProperties": 1,
       "properties": {"m": {"$ref": "#/$defs/catalogEntry"}, "f": {"$ref": "#/$defs/catalogEntry"}}
     },
+    "feet": {"type": "boolean", "description": "open shoes (class shoes/sandals): the game draws the bare-feet layer (assets/sd-foundation-ref-feet.png) under them; the record holds no skin (tools/garment/build-garment.py open_shoes)"},
     "mirrorSafe": {
       "type": "object", "additionalProperties": false, "minProperties": 1,
       "description": "the right-view art may be mirrored for the left view (no lettering or one-sided print)",
@@ -195,7 +196,8 @@
         "sleeves": {"type": "array", "minItems": 1, "maxItems": 2, "items": {"$ref": "#/$defs/sleeve"}},
         "underarm": {"oneOf": [{"type": "null"}, {"type": "array", "minItems": 1, "maxItems": 2, "items": {"$ref": "#/$defs/underarmSide"}}], "description": "per side, body-local units: the shirt side edge and the sleeve underside used for a raised arm (avatar-foundation-outfit.js shirtSide)"},
         "hem": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/points"}], "description": "hem outline, sheet px"},
-        "collar": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/points"}], "description": "neck opening outline, sheet px"}
+        "collar": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/points"}], "description": "neck opening outline, sheet px"},
+        "armSleeves": {"type": "array", "minItems": 2, "maxItems": 2, "items": {"$ref": "#/$defs/region"}, "description": "class top/long-sleeve only: per arm the sleeve's strip on the painted arm's rect (sd-foundation-ref-data.js rects.arm[i], same rows, wider for a wide sleeve), warped along the arm by the runtime (avatar-foundation-outfit.js)"}
       }
     },
     "sleeve": {
