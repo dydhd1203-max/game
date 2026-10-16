@@ -6,9 +6,9 @@
     "src": "assets/hat-art/cat_ears-m-front.png",
     "rect": [
      3.453,
-     -0.715,
+     -0.573,
      25.093,
-     7.414
+     7.271
     ]
    },
    "right": {
@@ -16,17 +16,17 @@
     "rect": [
      11.004,
      2.315,
-     9.58,
+     9.331,
      7.714
     ]
    },
    "back": {
     "src": "assets/hat-art/cat_ears-m-back.png",
     "rect": [
-     6.691,
-     3.357,
-     19.796,
-     7.423
+     6.927,
+     3.71,
+     19.56,
+     7.07
     ]
    }
   },
@@ -34,9 +34,9 @@
    "front": {
     "src": "assets/hat-art/cat_ears-f-front.png",
     "rect": [
-     4.024,
+     4.451,
      4.202,
-     23.668,
+     23.24,
      8.269
     ]
    },
@@ -44,17 +44,17 @@
     "src": "assets/hat-art/cat_ears-f-right.png",
     "rect": [
      11.58,
-     3.044,
-     9.553,
-     9.125
+     3.33,
+     8.84,
+     8.84
     ]
    },
    "back": {
     "src": "assets/hat-art/cat_ears-f-back.png",
     "rect": [
-     5.114,
+     5.513,
      4.564,
-     21.506,
+     21.108,
      7.567
     ]
    }

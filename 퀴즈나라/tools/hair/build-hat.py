@@ -265,6 +265,7 @@ def cut_zone(u, a, t, head, low, x0, y0, box, px=1.0, diff=False):
     zone[:low, max(0, xs.min() - side):xs.max() + side + 1] = True
     if diff:
         dh = diff_hat(u, t, zone, px)
+        band = np.zeros_like(dh)  # a band taken in beside the colour cut: trim_head does not judge it again
         # only where the hat's own colours miss it: a colour cut keeps a cap's back opening
         colour = cut_zone(u, a, t, head, low, x0, y0, box, px)
         if dh.sum() < SEED_MIN * px * px:
@@ -277,7 +278,8 @@ def cut_zone(u, a, t, head, low, x0, y0, box, px=1.0, diff=False):
             bands = band_pieces(lab_, comps, colour['mask'], R.lab(u))
             if not bands:
                 return colour
-            dh = colour['mask'] | (np.isin(lab_, list(bands)) & (np.hypot(*R.lab(u)[..., 1:].transpose(2, 0, 1)) < BAND_PX_C))
+            band = np.isin(lab_, list(bands)) & (np.hypot(*R.lab(u)[..., 1:].transpose(2, 0, 1)) < BAND_PX_C)
+            dh = colour['mask'] | band
             colour = dict(colour, px=0)  # the cut below stands on dh, which already holds the colour cut
         if dh.sum() >= SEED_MIN * px * px:
             # what changed is the hat; the colour cut only adds the hole it shows hair through (a cap's back)
@@ -287,7 +289,7 @@ def cut_zone(u, a, t, head, low, x0, y0, box, px=1.0, diff=False):
                 lab_, comps = M.components(opening)
                 opening = np.isin(lab_, [c['label'] for c in comps if c['size'] > 40 * px * px])
                 opening &= ~badge_holes(opening, R.lab(u), kmeans(R.lab(t)[head].reshape(-1, 3)[::7], 10), px)
-            hat = drop_wisps(peel_page(trim_head(dh, u, t, head, px), u, t), px) & ~opening
+            hat = drop_wisps(peel_page(trim_head(dh, u, t, head, px) | band, u, t), px) & ~opening
             alpha = hat.astype(np.float32)
             ys, xs = np.nonzero(hat)
             bx = (int(xs.min()), int(ys.min()), int(xs.max()) + 1, int(ys.max()) + 1)

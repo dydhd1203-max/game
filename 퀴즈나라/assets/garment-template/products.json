@@ -1300,48 +1300,6 @@
    "sharedPicture": true,
    "refSvg": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"220\" height=\"150\" viewBox=\"0 0 220 150\"><path d=\"M30 132 Q30 22 110 20 Q190 22 190 132\" fill=\"none\" stroke=\"#c75aa6\" stroke-width=\"20\" stroke-linecap=\"round\"/><path d=\"M30 132 Q30 22 110 20 Q190 22 190 132\" fill=\"none\" stroke=\"#ff8ad4\" stroke-width=\"14\" stroke-linecap=\"round\"/><path d=\"M44 80 Q60 34 110 30\" fill=\"none\" stroke=\"#ffc2e8\" stroke-width=\"4\" stroke-linecap=\"round\"/></svg>"
   },
-  "hat:headphone": {
-   "class": "hat/band",
-   "status": "hat batch 2026-10-15 (shared picture)",
-   "sexes": [
-    "m",
-    "f"
-   ],
-   "ci": {
-    "m": 5,
-    "f": 5
-   },
-   "names": {
-    "m": "헤드폰",
-    "f": "헤드폰"
-   },
-   "colour": {
-    "m": "#5aa8ff",
-    "f": "#5aa8ff"
-   },
-   "display": {
-    "m": "#5aa8ff",
-    "f": "#5aa8ff"
-   },
-   "mirrorSafe": true,
-   "designRef": "ref-hat-headphone-design.png",
-   "notes": {
-    "ko": {
-     "item": "헤드폰",
-     "look": "색과 모양(머리 위의 띠와 양쪽 귀를 덮는 둥근 덮개)",
-     "both": "두 번째 그림의 파란 헤드폰. 정수리를 가로지르는 띠, 양쪽 귀를 덮는 둥글고 푹신한 덮개.",
-     "back": "옆모습에서는 보이는 쪽 귀를 덮개가 덮고, 뒷모습에서는 띠와 양쪽 덮개 뒤쪽이 보이게 합니다."
-    },
-    "en": {
-     "item": "headphones",
-     "look": "colour and shape (headband and round ear cups)",
-     "both": "the blue headphones from image 2: a band across the crown and round padded cups covering both ears.",
-     "back": "in the side view the cup covers the visible ear; in the back view show the band and the backs of both cups."
-    }
-   },
-   "sharedPicture": true,
-   "refSvg": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"220\" height=\"150\" viewBox=\"0 0 220 150\"><path d=\"M38 108 Q36 22 110 20 Q184 22 182 108\" fill=\"none\" stroke=\"#3a78c0\" stroke-width=\"16\" stroke-linecap=\"round\"/><path d=\"M38 108 Q36 22 110 20 Q184 22 182 108\" fill=\"none\" stroke=\"#5aa8ff\" stroke-width=\"10\" stroke-linecap=\"round\"/><rect x=\"16\" y=\"92\" width=\"40\" height=\"54\" rx=\"16\" fill=\"#5aa8ff\" stroke=\"#3a78c0\" stroke-width=\"3\"/><rect x=\"164\" y=\"92\" width=\"40\" height=\"54\" rx=\"16\" fill=\"#5aa8ff\" stroke=\"#3a78c0\" stroke-width=\"3\"/><rect x=\"44\" y=\"98\" width=\"14\" height=\"42\" rx=\"6\" fill=\"#2f4f7a\"/><rect x=\"162\" y=\"98\" width=\"14\" height=\"42\" rx=\"6\" fill=\"#2f4f7a\"/></svg>"
-  },
   "hat:halo_hat": {
    "class": "hat/halo",
    "status": "hat batch 2026-10-15 (shared picture)",
