@@ -1,0 +1,46 @@
+{
+ "kind": "glasses",
+ "views": {
+  "m": {
+   "front": {
+    "src": "assets/face-art/glass-eyepatch-m-front.png",
+    "rect": [
+     5.138,
+     16.944,
+     9.526,
+     7.061
+    ]
+   },
+   "right": {
+    "src": "assets/face-art/glass-eyepatch-m-right.png",
+    "rect": [
+     14.133,
+     17.62,
+     9.8,
+     6.245
+    ]
+   }
+  },
+  "f": {
+   "front": {
+    "src": "assets/face-art/glass-eyepatch-f-front.png",
+    "rect": [
+     7.65,
+     19.846,
+     7.232,
+     5.726
+    ]
+   },
+   "right": {
+    "src": "assets/face-art/glass-eyepatch-f-right.png",
+    "rect": [
+     15.392,
+     18.393,
+     7.649,
+     5.45
+    ]
+   }
+  }
+ },
+ "sheet": "assets/garment-sources/glass-eyepatch-9-chatgpt-2026-10-16.png"
+}

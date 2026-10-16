@@ -63,3 +63,13 @@
 | `hat-headphone-8-chatgpt-2026-10-16.png` | `hat:headphone:8` '헤드폰(흰색)' | 2026-10-16 | 1536×1024 | `9c64c9470dfce51116fae03e2f36153d024e7dd1820d9121652c56389b16c707` | 첫 원화로 사용. ChatGPT가 띠 아래 머리를 눌러 다시 그렸지만, 헤드폰만 잘라 게임 머리 위에 얹으므로 그대로 씀. |
 | `seated-side-m-chatgpt-2026-10-16.png` | `앉은 기준 몸 남` '옆모습 양반다리' | 2026-10-16 | 1740×904 | `b23397dd170bde6c4b661760f43eb85f8734a819a6eb4c713693e6827c424eba` | 옆모습 다리를 정강이가 엇갈리게 다시 그림. 아직 게임에 넣지 않음(앉은 옷 옆모습과 함께 결정). |
 | `seated-side-f-chatgpt-2026-10-16.png` | `앉은 기준 몸 여` '옆모습 양반다리' | 2026-10-16 | 1782×883 | `8df42af285f7df43abb36898cddb7bdbb35751c417231e99999c135aec2a6684` | 위와 같음. |
+| `glass-square-9-chatgpt-2026-10-16.png` | `glass:square:9` '네모 안경' | 2026-10-16 | 1536×1024 | `63257ca0b56f589452b03268bc8c5257d319abeac9d211dec743e5ecd4bcd804` | 안경 G3, 첫 원화로 사용. |
+| `glass-heart-7-chatgpt-2026-10-16.png` | `glass:heart:7` '하트 선글라스' | 2026-10-16 | 1536×1024 | `5d86ccde0df860aca1237232080393519915a6c2ec628de709d75aff6791dd5f` | 안경 G4, 첫 원화로 사용. |
+| `glass-star_g-2-chatgpt-2026-10-16.png` | `glass:star_g:2` '별 안경' | 2026-10-16 | 1536×1024 | `82605af41e69d9be1bb3fb93fee7c57873b99f33bb87cd651daf7e6c882f0c3b` | 안경 G5, 첫 원화로 사용. |
+| `glass-goggle-5-chatgpt-2026-10-16.png` | `glass:goggle:5` '물안경' | 2026-10-16 | 1536×1024 | `c40f4d674753b785ac84d1aaf4a225062b574204cff50c3e8a921784a6d8a633` | 안경 G6, 첫 원화로 사용. 렌즈 색이 테와 달라 `opaqueLens`로 테 안을 채움. |
+| `glass-thick-9-chatgpt-2026-10-16.png` | `glass:thick:9` '뿔테 안경' | 2026-10-16 | 1536×1024 | `e2eae1aa3ca86be96ab29258a432fa493faf4ea51eece1c6f4e67c18a219e7e1` | 안경 G7, 첫 원화로 사용. |
+| `glass-mono-2-chatgpt-2026-10-16.png` | `glass:mono:2` '외알 안경' | 2026-10-16 | 1536×1024 | `0af69fe55ccb6d0bdcb1a57b521d24e49e638fdb70181600018678ca6c969c09` | 안경 G8, 첫 원화로 사용. 한쪽 눈(앞: 그림 왼쪽 눈, 옆: 보이는 눈). |
+| `glass-pince-11-chatgpt-2026-10-16.png` | `glass:pince:11` '코안경' | 2026-10-16 | 1536×1024 | `66d76f683368d22988110e71dc2394630929a73dff6164560cbb16ca832c64bb` | 안경 G9, 첫 원화로 사용. |
+| `glass-sport-5-chatgpt-2026-10-16.png` | `glass:sport:5` '스포츠 고글' | 2026-10-16 | 1536×1024 | `7e96aba069361559cd46f743444ba9887912dd77884a360a019cf8738be178d2` | 안경 G10, 첫 원화로 사용. |
+| `glass-half-11-chatgpt-2026-10-16.png` | `glass:half:11` '반달 안경' | 2026-10-16 | 1536×1024 | `40d850129ca10ba0fa74b41d8139a3e9d7a9bd013cd6ba30d5776b6089cc2fd5` | 안경 G11, 첫 원화로 사용. |
+| `glass-eyepatch-9-chatgpt-2026-10-16.png` | `glass:eyepatch:9` '안대' | 2026-10-16 | 1536×1024 | `495ac4922ac133ecca3b4f219cb0d896201b30c553454d2a0fb03a5e1e5b88e1` | 안경 G12, 첫 원화로 사용. 한쪽 눈. |

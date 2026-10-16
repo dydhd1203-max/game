@@ -913,6 +913,282 @@
    },
    "sheet": "assets/garment-sources/face-whisker-0-chatgpt-2026-10-16.png"
   },
+  "glass:eyepatch": {
+   "kind": "glasses",
+   "views": {
+    "m": {
+     "front": {
+      "src": "assets/face-art/glass-eyepatch-m-front.png",
+      "rect": [
+       5.138,
+       16.944,
+       9.526,
+       7.061
+      ]
+     },
+     "right": {
+      "src": "assets/face-art/glass-eyepatch-m-right.png",
+      "rect": [
+       14.133,
+       17.62,
+       9.8,
+       6.245
+      ]
+     }
+    },
+    "f": {
+     "front": {
+      "src": "assets/face-art/glass-eyepatch-f-front.png",
+      "rect": [
+       7.65,
+       19.846,
+       7.232,
+       5.726
+      ]
+     },
+     "right": {
+      "src": "assets/face-art/glass-eyepatch-f-right.png",
+      "rect": [
+       15.392,
+       18.393,
+       7.649,
+       5.45
+      ]
+     }
+    }
+   },
+   "sheet": "assets/garment-sources/glass-eyepatch-9-chatgpt-2026-10-16.png"
+  },
+  "glass:goggle": {
+   "kind": "glasses",
+   "views": {
+    "m": {
+     "front": {
+      "src": "assets/face-art/glass-goggle-m-front.png",
+      "rect": [
+       5.474,
+       17.281,
+       21.295,
+       7.397
+      ]
+     },
+     "right": {
+      "src": "assets/face-art/glass-goggle-m-right.png",
+      "rect": [
+       14.133,
+       17.044,
+       9.992,
+       6.822
+      ]
+     }
+    },
+    "f": {
+     "front": {
+      "src": "assets/face-art/glass-goggle-f-front.png",
+      "rect": [
+       8.052,
+       19.745,
+       15.871,
+       6.127
+      ]
+     },
+     "right": {
+      "src": "assets/face-art/glass-goggle-f-right.png",
+      "rect": [
+       15.392,
+       17.628,
+       7.841,
+       6.406
+      ]
+     }
+    }
+   },
+   "sheet": "assets/garment-sources/glass-goggle-5-chatgpt-2026-10-16.png"
+  },
+  "glass:half": {
+   "kind": "glasses",
+   "views": {
+    "m": {
+     "front": {
+      "src": "assets/face-art/glass-half-m-front.png",
+      "rect": [
+       5.138,
+       19.858,
+       21.631,
+       5.492
+      ]
+     },
+     "right": {
+      "src": "assets/face-art/glass-half-m-right.png",
+      "rect": [
+       14.133,
+       20.214,
+       10.28,
+       3.843
+      ]
+     }
+    },
+    "f": {
+     "front": {
+      "src": "assets/face-art/glass-half-f-front.png",
+      "rect": [
+       7.65,
+       22.357,
+       15.369,
+       3.616
+      ]
+     },
+     "right": {
+      "src": "assets/face-art/glass-half-f-right.png",
+      "rect": [
+       15.392,
+       20.688,
+       7.936,
+       3.538
+      ]
+     }
+    }
+   },
+   "sheet": "assets/garment-sources/glass-half-11-chatgpt-2026-10-16.png"
+  },
+  "glass:heart": {
+   "kind": "glasses",
+   "views": {
+    "m": {
+     "front": {
+      "src": "assets/face-art/glass-heart-m-front.png",
+      "rect": [
+       6.707,
+       17.393,
+       19.501,
+       7.733
+      ]
+     },
+     "right": {
+      "src": "assets/face-art/glass-heart-m-right.png",
+      "rect": [
+       14.133,
+       17.428,
+       10.377,
+       6.726
+      ]
+     }
+    },
+    "f": {
+     "front": {
+      "src": "assets/face-art/glass-heart-f-front.png",
+      "rect": [
+       8.353,
+       19.946,
+       15.469,
+       6.328
+      ]
+     },
+     "right": {
+      "src": "assets/face-art/glass-heart-f-right.png",
+      "rect": [
+       15.392,
+       18.202,
+       7.458,
+       6.024
+      ]
+     }
+    }
+   },
+   "sheet": "assets/garment-sources/glass-heart-7-chatgpt-2026-10-16.png"
+  },
+  "glass:mono": {
+   "kind": "glasses",
+   "views": {
+    "m": {
+     "front": {
+      "src": "assets/face-art/glass-mono-m-front.png",
+      "rect": [
+       5.474,
+       16.832,
+       9.302,
+       8.854
+      ]
+     },
+     "right": {
+      "src": "assets/face-art/glass-mono-m-right.png",
+      "rect": [
+       18.361,
+       16.852,
+       4.804,
+       10.377
+      ]
+     }
+    },
+    "f": {
+     "front": {
+      "src": "assets/face-art/glass-mono-f-front.png",
+      "rect": [
+       7.65,
+       19.544,
+       7.433,
+       8.237
+      ]
+     },
+     "right": {
+      "src": "assets/face-art/glass-mono-f-right.png",
+      "rect": [
+       17.687,
+       17.915,
+       4.494,
+       9.753
+      ]
+     }
+    }
+   },
+   "sheet": "assets/garment-sources/glass-mono-2-chatgpt-2026-10-16.png"
+  },
+  "glass:pince": {
+   "kind": "glasses",
+   "views": {
+    "m": {
+     "front": {
+      "src": "assets/face-art/glass-pince-m-front.png",
+      "rect": [
+       6.371,
+       17.057,
+       19.613,
+       8.069
+      ]
+     },
+     "right": {
+      "src": "assets/face-art/glass-pince-m-right.png",
+      "rect": [
+       17.496,
+       17.044,
+       8.167,
+       7.11
+      ]
+     }
+    },
+    "f": {
+     "front": {
+      "src": "assets/face-art/glass-pince-f-front.png",
+      "rect": [
+       8.956,
+       19.243,
+       15.067,
+       7.935
+      ]
+     },
+     "right": {
+      "src": "assets/face-art/glass-pince-f-right.png",
+      "rect": [
+       16.73,
+       17.341,
+       7.649,
+       9.466
+      ]
+     }
+    }
+   },
+   "sheet": "assets/garment-sources/glass-pince-11-chatgpt-2026-10-16.png"
+  },
   "glass:round": {
    "kind": "glasses",
    "views": {
@@ -959,6 +1235,144 @@
    },
    "sheet": "assets/garment-sources/glass-round-11-chatgpt-2026-10-16.png"
   },
+  "glass:sport": {
+   "kind": "glasses",
+   "views": {
+    "m": {
+     "front": {
+      "src": "assets/face-art/glass-sport-m-front.png",
+      "rect": [
+       5.362,
+       16.944,
+       21.407,
+       7.509
+      ]
+     },
+     "right": {
+      "src": "assets/face-art/glass-sport-m-right.png",
+      "rect": [
+       14.133,
+       17.14,
+       11.049,
+       6.726
+      ]
+     }
+    },
+    "f": {
+     "front": {
+      "src": "assets/face-art/glass-sport-f-front.png",
+      "rect": [
+       7.65,
+       19.544,
+       16.675,
+       6.228
+      ]
+     },
+     "right": {
+      "src": "assets/face-art/glass-sport-f-right.png",
+      "rect": [
+       15.392,
+       17.437,
+       8.319,
+       6.215
+      ]
+     }
+    }
+   },
+   "sheet": "assets/garment-sources/glass-sport-5-chatgpt-2026-10-16.png"
+  },
+  "glass:square": {
+   "kind": "glasses",
+   "views": {
+    "m": {
+     "front": {
+      "src": "assets/face-art/glass-square-m-front.png",
+      "rect": [
+       5.698,
+       17.281,
+       20.958,
+       7.509
+      ]
+     },
+     "right": {
+      "src": "assets/face-art/glass-square-m-right.png",
+      "rect": [
+       14.133,
+       17.044,
+       10.953,
+       6.918
+      ]
+     }
+    },
+    "f": {
+     "front": {
+      "src": "assets/face-art/glass-square-f-front.png",
+      "rect": [
+       7.65,
+       19.444,
+       16.775,
+       6.328
+      ]
+     },
+     "right": {
+      "src": "assets/face-art/glass-square-f-right.png",
+      "rect": [
+       15.392,
+       18.202,
+       7.841,
+       6.024
+      ]
+     }
+    }
+   },
+   "sheet": "assets/garment-sources/glass-square-9-chatgpt-2026-10-16.png"
+  },
+  "glass:star_g": {
+   "kind": "glasses",
+   "views": {
+    "m": {
+     "front": {
+      "src": "assets/face-art/glass-star_g-m-front.png",
+      "rect": [
+       5.138,
+       16.608,
+       21.631,
+       8.742
+      ]
+     },
+     "right": {
+      "src": "assets/face-art/glass-star_g-m-right.png",
+      "rect": [
+       14.133,
+       17.14,
+       10.473,
+       7.494
+      ]
+     }
+    },
+    "f": {
+     "front": {
+      "src": "assets/face-art/glass-star_g-f-front.png",
+      "rect": [
+       7.65,
+       19.243,
+       16.775,
+       7.533
+      ]
+     },
+     "right": {
+      "src": "assets/face-art/glass-star_g-f-right.png",
+      "rect": [
+       15.392,
+       17.724,
+       8.223,
+       7.363
+      ]
+     }
+    }
+   },
+   "sheet": "assets/garment-sources/glass-star_g-2-chatgpt-2026-10-16.png"
+  },
   "glass:sun": {
    "kind": "glasses",
    "views": {
@@ -1004,6 +1418,52 @@
     }
    },
    "sheet": "assets/garment-sources/glass-sun-9-chatgpt-2026-10-16.png"
+  },
+  "glass:thick": {
+   "kind": "glasses",
+   "views": {
+    "m": {
+     "front": {
+      "src": "assets/face-art/glass-thick-m-front.png",
+      "rect": [
+       5.474,
+       16.832,
+       21.295,
+       7.957
+      ]
+     },
+     "right": {
+      "src": "assets/face-art/glass-thick-m-right.png",
+      "rect": [
+       14.133,
+       17.332,
+       10.665,
+       6.533
+      ]
+     }
+    },
+    "f": {
+     "front": {
+      "src": "assets/face-art/glass-thick-f-front.png",
+      "rect": [
+       7.751,
+       19.645,
+       16.574,
+       6.228
+      ]
+     },
+     "right": {
+      "src": "assets/face-art/glass-thick-f-right.png",
+      "rect": [
+       15.392,
+       18.584,
+       7.936,
+       5.45
+      ]
+     }
+    }
+   },
+   "sheet": "assets/garment-sources/glass-thick-9-chatgpt-2026-10-16.png"
   },
   "mouth:cat": {
    "kind": "part",

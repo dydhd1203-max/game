@@ -12,7 +12,8 @@
   "designRef": "image 2 in assets/garment-template/, made by tools/garment/design-ref.cjs from the shop art (no body).",
   "notes": "KO/EN design notes for the prompt. item: the garment noun; look: what to take from image 2; m/f (or both): the description per child; back: the back-view line. length (optional): replaces the class's wearing rule (rule 3) for this product, e.g. glasses worn on one eye.",
   "planned": "true for a product the shop does not sell yet (requested art first): design-ref.cjs draws image 2 from refSvg and skips the catalogue check.",
-  "earAnchored": "true for a band whose lower ends sit on the ears (headphones): tools/hair/build-hat.py exports kind 'band' and the game stretches it about its bottom to the hair's top edge instead of moving it."
+  "earAnchored": "true for a band whose lower ends sit on the ears (headphones): tools/hair/build-hat.py exports kind 'band' and the game stretches it about its bottom to the hair's top edge instead of moving it.",
+  "opaqueLens": "true for glasses whose lenses are tinted in a colour other than the rim's (swimming goggles): tools/hair/build-face.py fills the rims' inside where the sheet changed."
  },
  "products": {
   "top:shirt": {
@@ -2207,7 +2208,8 @@
      "back": "in the side view draw the glasses from the side (the front rim and the arm running to the ear); the back view stays exactly as in image 1."
     }
    },
-   "sharedPicture": true
+   "sharedPicture": true,
+   "opaqueLens": true
   },
   "glass:thick": {
    "class": "face/glasses",

@@ -1,0 +1,46 @@
+{
+ "kind": "glasses",
+ "views": {
+  "m": {
+   "front": {
+    "src": "assets/face-art/glass-heart-m-front.png",
+    "rect": [
+     6.707,
+     17.393,
+     19.501,
+     7.733
+    ]
+   },
+   "right": {
+    "src": "assets/face-art/glass-heart-m-right.png",
+    "rect": [
+     14.133,
+     17.428,
+     10.377,
+     6.726
+    ]
+   }
+  },
+  "f": {
+   "front": {
+    "src": "assets/face-art/glass-heart-f-front.png",
+    "rect": [
+     8.353,
+     19.946,
+     15.469,
+     6.328
+    ]
+   },
+   "right": {
+    "src": "assets/face-art/glass-heart-f-right.png",
+    "rect": [
+     15.392,
+     18.202,
+     7.458,
+     6.024
+    ]
+   }
+  }
+ },
+ "sheet": "assets/garment-sources/glass-heart-7-chatgpt-2026-10-16.png"
+}

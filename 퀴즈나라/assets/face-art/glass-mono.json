@@ -1,0 +1,46 @@
+{
+ "kind": "glasses",
+ "views": {
+  "m": {
+   "front": {
+    "src": "assets/face-art/glass-mono-m-front.png",
+    "rect": [
+     5.474,
+     16.832,
+     9.302,
+     8.854
+    ]
+   },
+   "right": {
+    "src": "assets/face-art/glass-mono-m-right.png",
+    "rect": [
+     18.361,
+     16.852,
+     4.804,
+     10.377
+    ]
+   }
+  },
+  "f": {
+   "front": {
+    "src": "assets/face-art/glass-mono-f-front.png",
+    "rect": [
+     7.65,
+     19.544,
+     7.433,
+     8.237
+    ]
+   },
+   "right": {
+    "src": "assets/face-art/glass-mono-f-right.png",
+    "rect": [
+     17.687,
+     17.915,
+     4.494,
+     9.753
+    ]
+   }
+  }
+ },
+ "sheet": "assets/garment-sources/glass-mono-2-chatgpt-2026-10-16.png"
+}

@@ -1,7 +1,7 @@
 {
   "project": "퀴즈나라",
   "format": 1,
-  "builtAt": "2026-10-16T05:58:45.245Z",
+  "builtAt": "2026-10-16T06:10:52.024Z",
   "instructions": "Cloudflare Pages 또는 Netlify 수동 배포에는 이 배포용 폴더 전체를 올리세요. index.html만 올리지 마세요.",
   "files": [
     {
@@ -2481,8 +2481,8 @@
     },
     {
       "path": "avatar-face-art.js",
-      "bytes": 16134,
-      "sha256": "a3afb8ce9c5af7a35d1d1827a6ff62f4fa929f9d3eccd82aa9a85ac398674435"
+      "bytes": 21117,
+      "sha256": "09751310e03b626e03b1ce703e149ee2de5ecd2c8f417e111493fc2486444c51"
     },
     {
       "path": "assets/face-art/fringe/f-front-short.png",
@@ -3150,6 +3150,126 @@
       "sha256": "afaab99da0db75133133be1ddc36bdd8a9736ffc1fc948a47927199ca387e527"
     },
     {
+      "path": "assets/face-art/glass-eyepatch-m-front.png",
+      "bytes": 11537,
+      "sha256": "9d43cc50e16afc8b6365532941c0e3718b96c70c1e611eb7faab388d87ef255e"
+    },
+    {
+      "path": "assets/face-art/glass-eyepatch-m-right.png",
+      "bytes": 14525,
+      "sha256": "11d6a819c2f62ee4460d795c3e6c4146dbba98186934322d93ca6da99812e026"
+    },
+    {
+      "path": "assets/face-art/glass-eyepatch-f-front.png",
+      "bytes": 9418,
+      "sha256": "a3fd3abd7499b44bde92221e42c2baf0075a249ce365105370d09834d30d2900"
+    },
+    {
+      "path": "assets/face-art/glass-eyepatch-f-right.png",
+      "bytes": 11187,
+      "sha256": "c43dc12786b57019b1ccbf7b500a01099c22913e44cf993d54e86177ca202b3b"
+    },
+    {
+      "path": "assets/face-art/glass-goggle-m-front.png",
+      "bytes": 31292,
+      "sha256": "3fe2c94da31c9d8bf14af6774d1e342132ac7555b7ffd611ee3de9b5828c0900"
+    },
+    {
+      "path": "assets/face-art/glass-goggle-m-right.png",
+      "bytes": 17674,
+      "sha256": "89b23fc6a470f56134078619e3c72f601f3304b56070504f4d9b70a57947a60d"
+    },
+    {
+      "path": "assets/face-art/glass-goggle-f-front.png",
+      "bytes": 24680,
+      "sha256": "d40337c7e0b7c0967135abe9cf57f3b1b34f37d9f63a7172a66da832464924a5"
+    },
+    {
+      "path": "assets/face-art/glass-goggle-f-right.png",
+      "bytes": 14339,
+      "sha256": "7b0fca300b9a4c6264735a51afc452490444fbcdf312605ef03581e57e15a0ed"
+    },
+    {
+      "path": "assets/face-art/glass-half-m-front.png",
+      "bytes": 26036,
+      "sha256": "c3ff0682266558850cb4b21766f14b58fbf7b4404a2e106c733332943e706f52"
+    },
+    {
+      "path": "assets/face-art/glass-half-m-right.png",
+      "bytes": 11400,
+      "sha256": "4fa48b0aa70e3b4e3263f0dd0dd4ed7664c92e2897e47ff14e5ed79119e5f665"
+    },
+    {
+      "path": "assets/face-art/glass-half-f-front.png",
+      "bytes": 16066,
+      "sha256": "60854a710369ec80630f8add035896ad620ff2fb3bd91eb743183bf0421bf8e2"
+    },
+    {
+      "path": "assets/face-art/glass-half-f-right.png",
+      "bytes": 8866,
+      "sha256": "89a3ba923dc56bf689d37ff0d6776ed6c044c7e5f51a6c6e4b90ef1bd767f3d9"
+    },
+    {
+      "path": "assets/face-art/glass-heart-m-front.png",
+      "bytes": 26563,
+      "sha256": "78ae9dbcbe1cfebdd4dbabb723946c874289109a4ea48f70eabef5ab8d7fe7a3"
+    },
+    {
+      "path": "assets/face-art/glass-heart-m-right.png",
+      "bytes": 17494,
+      "sha256": "e681eb7bcfaec3eb06904a87847d34efdbd8e7af9405e63ebea263c8689472df"
+    },
+    {
+      "path": "assets/face-art/glass-heart-f-front.png",
+      "bytes": 23642,
+      "sha256": "dd99380bb267d39451755ae3bfd3f8905580c7dfadcd22ac225d57dc3c159a7d"
+    },
+    {
+      "path": "assets/face-art/glass-heart-f-right.png",
+      "bytes": 12782,
+      "sha256": "80177f704294b160de5bfe79abe098df8cc4ae9f7afab7c902c762c3ee5252b7"
+    },
+    {
+      "path": "assets/face-art/glass-mono-m-front.png",
+      "bytes": 18040,
+      "sha256": "c3f35ee1ffce930f14eeea576556329a8400e2e3e1261a902ed9bd548d075cc1"
+    },
+    {
+      "path": "assets/face-art/glass-mono-m-right.png",
+      "bytes": 13728,
+      "sha256": "914e6b3f75a7d9db2a1fe0de3ee772e25ed2af90e2f005a8f40ec55bd94cbbde"
+    },
+    {
+      "path": "assets/face-art/glass-mono-f-front.png",
+      "bytes": 16904,
+      "sha256": "42e7919f1665dcc0779789392dbf69da4854432758f4d251769728a61fc81a16"
+    },
+    {
+      "path": "assets/face-art/glass-mono-f-right.png",
+      "bytes": 12597,
+      "sha256": "cd2015addc02c684e19648cda43fb5667e35347bc5bd80ccb30fe6ce72993017"
+    },
+    {
+      "path": "assets/face-art/glass-pince-m-front.png",
+      "bytes": 35295,
+      "sha256": "efd4d33991a2cd72fbee4a15bfa038f87080368f99ccfc74e0893c92d0cfd66b"
+    },
+    {
+      "path": "assets/face-art/glass-pince-m-right.png",
+      "bytes": 17487,
+      "sha256": "cca41d66937a843cbb87f582d0e7222cf6405ac1a5d89f536464536e92199605"
+    },
+    {
+      "path": "assets/face-art/glass-pince-f-front.png",
+      "bytes": 32556,
+      "sha256": "4680aae22a41ba7ab3aedddc997e1b42e4cc290f528eca860c400a01af2a8cba"
+    },
+    {
+      "path": "assets/face-art/glass-pince-f-right.png",
+      "bytes": 20981,
+      "sha256": "ffd7f4cbea1288faeb1d4abc42de5f23bc2dba15f8c851758546db6a1ab8ac2a"
+    },
+    {
       "path": "assets/face-art/glass-round-m-front.png",
       "bytes": 33650,
       "sha256": "cab43eeecef6189e9fdb47ec8754a5ab501261b98b84fe932dedded1e72983c2"
@@ -3170,6 +3290,66 @@
       "sha256": "d781756413e642ba5eaf959da8792de1a6c81c418d475b6bdfcd2a0fb92426b5"
     },
     {
+      "path": "assets/face-art/glass-sport-m-front.png",
+      "bytes": 26552,
+      "sha256": "688d313a838aa054604693b7a57e9da47faab3fd590339dbaf652c7fcbb399a0"
+    },
+    {
+      "path": "assets/face-art/glass-sport-m-right.png",
+      "bytes": 17252,
+      "sha256": "774b7cf15f07c4db066d6fa8b0303f93bd17b3db60865ae7296e16e6899af220"
+    },
+    {
+      "path": "assets/face-art/glass-sport-f-front.png",
+      "bytes": 22610,
+      "sha256": "2360e78b28efcaff78c020e2856ff2d1d98d58608a05d087def17d685c944fd6"
+    },
+    {
+      "path": "assets/face-art/glass-sport-f-right.png",
+      "bytes": 13275,
+      "sha256": "1bbe58b5c17bc1b2f495efa1b67cb2ff87c862c3b32f6a59d26b13fad835349a"
+    },
+    {
+      "path": "assets/face-art/glass-square-m-front.png",
+      "bytes": 33207,
+      "sha256": "37d19370b6d9120ceb8207873d25ff08503304567c520dfb8edd79c8de96ad91"
+    },
+    {
+      "path": "assets/face-art/glass-square-m-right.png",
+      "bytes": 20928,
+      "sha256": "3d4845412cdaea9c231e974631c397bb15f975a016547a54f6fa954455f262ed"
+    },
+    {
+      "path": "assets/face-art/glass-square-f-front.png",
+      "bytes": 29886,
+      "sha256": "adf7a9391c9c57cc62ac6cb82a7caf26fdc5dae24e971703f8ac3d2b54b573ad"
+    },
+    {
+      "path": "assets/face-art/glass-square-f-right.png",
+      "bytes": 14372,
+      "sha256": "143e09a8864544bcb6b7853412f66d76f02de9147d1139cc11fa0d59ffeab56e"
+    },
+    {
+      "path": "assets/face-art/glass-star_g-m-front.png",
+      "bytes": 34399,
+      "sha256": "eb4680ce94d71fc406017e45c349c88ba32e10bd5cb26f180b83bdc7e1c42b25"
+    },
+    {
+      "path": "assets/face-art/glass-star_g-m-right.png",
+      "bytes": 19918,
+      "sha256": "9f9d17f59656a7b1ad5d262e407aa53d8d90eba6bebdef4549742f65410ee113"
+    },
+    {
+      "path": "assets/face-art/glass-star_g-f-front.png",
+      "bytes": 30881,
+      "sha256": "481b873de8aa6aa2ffeea48e36e91d0f9f11a143dc563a077aa825cf033428cd"
+    },
+    {
+      "path": "assets/face-art/glass-star_g-f-right.png",
+      "bytes": 16857,
+      "sha256": "cfe1d5228c62daa8ba65a5704cb47d521ba44612feb80ad162a9392c97770f25"
+    },
+    {
       "path": "assets/face-art/glass-sun-m-front.png",
       "bytes": 23813,
       "sha256": "f7575124a9937b3ccf53143357c51aa1cd959b75d31c9969a16526cd8b4fe13f"
@@ -3188,6 +3368,26 @@
       "path": "assets/face-art/glass-sun-f-right.png",
       "bytes": 12834,
       "sha256": "109763e7e26424623b61ef4e33061d476ce9f78d52637f404d524209cda41f99"
+    },
+    {
+      "path": "assets/face-art/glass-thick-m-front.png",
+      "bytes": 36143,
+      "sha256": "ae8ce3fe554c7d93bf5c359fb2a56875d77facbb68890c3562dbd7e002e3a56e"
+    },
+    {
+      "path": "assets/face-art/glass-thick-m-right.png",
+      "bytes": 19960,
+      "sha256": "c1f4080da91fba4f9059d00533874f08707279cef82e95e52839e1a5afceec6d"
+    },
+    {
+      "path": "assets/face-art/glass-thick-f-front.png",
+      "bytes": 29182,
+      "sha256": "efaee765839f2c00a8f885b8ab804f1038c698de97641a88021d467d9817a316"
+    },
+    {
+      "path": "assets/face-art/glass-thick-f-right.png",
+      "bytes": 14038,
+      "sha256": "caf14445a4ab9ab7fccd13d5212446d0f18db5dc7a982dff55b3b84b1c50c94d"
     },
     {
       "path": "assets/face-art/mouth-cat-m-front.png",
