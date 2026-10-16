@@ -3,7 +3,7 @@ const {chromium}=require('playwright');
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
 const out=path.resolve(__dirname,'../검증');
 const base=process.env.QUIZ_PREVIEW_URL||'http://127.0.0.1:4173/';
-const categories=['expression','hair','top','bottom','outfit','shoes','hat','glass','face','ear','neck','back','pet','effect','bg','frame'];
+const categories=['expression','hair','top','bottom','outfit','shoes','hat','glass','face','ear','neck','back','pet','effect','frame'];
 
 (async()=>{
   fs.mkdirSync(out,{recursive:true});
@@ -30,7 +30,7 @@ const categories=['expression','hair','top','bottom','outfit','shoes','hat','gla
         const points=[[r.left+3,r.top+r.height/2],[r.right-3,r.top+r.height/2],[r.left+r.width/2,r.top+3],[r.left+r.width/2,r.bottom-3],[r.left+r.width/2,r.top+r.height/2]];
         return {key:n.dataset.c,text:label.textContent,rect:{x:r.x,y:r.y,width:r.width,height:r.height},font:parseFloat(s.fontSize),inViewport:r.left>=0&&r.right<=innerWidth+1&&r.top>=0&&r.bottom<=innerHeight+1,unobscured:points.every(([x,y])=>n.contains(document.elementFromPoint(x,y))),blockers,labelFits:lr.left>=r.left&&lr.right<=r.right&&lr.top>=r.top&&lr.bottom<=r.bottom};
       }));
-      assert.deepEqual(tabs.map(t=>t.key),categories,'All sixteen public categories must appear in order');
+      assert.deepEqual(tabs.map(t=>t.key),categories,'All fifteen public categories (bg taken off sale 2026-10-16) must appear in order');
       for(const tab of tabs){assert(tab.inViewport&&tab.unobscured&&tab.labelFits&&!tab.blockers.length,'Category must be fully visible and clickable: '+JSON.stringify({width,...tab}));assert(tab.font>=14,'Category text must remain at least 14px: '+JSON.stringify({width,...tab}));}
 
       const texts=await page.locator('.qp-village-shop :is(.nm2,.pr,.shop-info-title,.shop-detail-price,.pnl-h,.shop-fitting-controls .btn,.qp-shop-switch .tab,#shTabs .tab)').evaluateAll(nodes=>nodes.filter(n=>n.textContent.trim()).map(n=>{

@@ -64,7 +64,7 @@ EYE_KEEP = 4          # px round the new eye where unchanged template dark pixel
 BROW_LINE = .45       # eye gaps above the irises where the eyebrows start
 BROW_NEAR = 14.0      # Lab distance to the template's hair colours that is an eyebrow
 FIGURES = ('m-front', 'm-right', 'f-front', 'f-right')
-KINDS = {'face/sticker': 'sticker', 'face/eyes': 'part', 'face/nose': 'part', 'face/mouth': 'part'}
+KINDS = {'face/sticker': 'sticker', 'face/mask': 'sticker', 'face/eyes': 'part', 'face/nose': 'part', 'face/mouth': 'part'}
 
 
 def face_mask(lt, head):
