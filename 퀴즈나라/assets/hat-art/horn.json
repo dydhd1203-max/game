@@ -1,0 +1,63 @@
+{
+ "kind": "sit",
+ "views": {
+  "m": {
+   "front": {
+    "src": "assets/hat-art/horn-m-front.png",
+    "rect": [
+     6.447,
+     -0.002,
+     18.963,
+     7.557
+    ]
+   },
+   "right": {
+    "src": "assets/hat-art/horn-m-right.png",
+    "rect": [
+     13.492,
+     2.937,
+     7.589,
+     6.843
+    ]
+   },
+   "back": {
+    "src": "assets/hat-art/horn-m-back.png",
+    "rect": [
+     8.577,
+     4.064,
+     15.2,
+     5.892
+    ]
+   }
+  },
+  "f": {
+   "front": {
+    "src": "assets/hat-art/horn-f-front.png",
+    "rect": [
+     6.875,
+     4.773,
+     17.394,
+     7.129
+    ]
+   },
+   "right": {
+    "src": "assets/hat-art/horn-f-right.png",
+    "rect": [
+     13.148,
+     4.755,
+     7.984,
+     6.844
+    ]
+   },
+   "back": {
+    "src": "assets/hat-art/horn-f-back.png",
+    "rect": [
+     8.168,
+     5.228,
+     15.797,
+     6.505
+    ]
+   }
+  }
+ }
+}

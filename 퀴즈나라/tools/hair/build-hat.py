@@ -35,6 +35,10 @@ from avatar_build import register as R  # noqa: E402
 HEAD = R.OWNER['head']
 NOVEL = 22.0      # Lab distance from every template head colour: a new (hat) colour
 SEED_MIN = 300    # px of novel colour that make a hat
+DIFF = 22.0       # blurred Lab change from the base figure that is the hat (diff_hat)
+GAP_FILL = 30     # px (template scale) of a gap in a column bridged as hat
+BROWN_HAT = 11.5  # Lab: hat colours this near the head's are the hair's own (kept whole, trim_head)
+COLOUR_SHARE = .8 # the colour cut stands when it finds this share of what changed
 GROW = 3          # px the hat mask grows over its own outline
 ZONE = .75        # share of head top -> neck the hat may reach down to (a cap's back strap, a profile brim)
 HIDE_SIDE = 260   # px beside the hat the hair-hide mask reaches (hide_mask; a twin tail, a pony)
@@ -85,13 +89,97 @@ def cut_figure(U, A, T, owner, box):
     return cut_zone(u, a, t, head, low, x0, y0, box)
 
 
-def cut_zone(u, a, t, head, low, x0, y0, box, px=1.0):
+def diff_hat(u, t, zone, px):
+    """The hat as what changed from the unchanged figure (base sheets only, where the figure is the
+    game's own picture to a pixel): a hat the colour of the hair, the skin or the page (a cowboy hat, a
+    graduation cap, a chef's hat on white) has no colour of its own to find, but it changes the picture.
+    Changed pixels (blurred Lab distance over DIFF), closed, big pieces, holes filled (a white crown on
+    a white page changes only along its outline)."""
+    from PIL import ImageFilter
+    bl = lambda x: np.asarray(Image.fromarray(x.clip(0, 255).astype(np.uint8)).filter(ImageFilter.GaussianBlur(1.5))).astype(np.float32)
+    d = np.sqrt(((R.lab(bl(u)) - R.lab(bl(t))) ** 2).sum(-1))
+    # and any paint where the base figure has the white page (a chef's crown's faint outline)
+    newpaint = (np.abs(u - 255).sum(-1) > 30) & (np.abs(t - 255).sum(-1) < 15)
+    ch = (d > DIFF) | newpaint
+    r = max(1, int(round(2 * px)))
+    ch = M.erode(M.dilate(ch, r), r) & zone
+    lab_, comps = M.components(ch)
+    ch = np.isin(lab_, [c['label'] for c in comps if c['size'] >= SEED_MIN * px * px])
+    if not ch.any():
+        return ch
+    # a hat is solid top to bottom in each column (its band over hair of the same brown changes little)
+    out = ch.copy()
+    # (short gaps only: under a tassel or a bandana's ties hang the face and fringe, unchanged)
+    gap = int(round(GAP_FILL * px))
+    for c in np.nonzero(ch.any(0))[0]:
+        rr = np.nonzero(ch[:, c])[0]
+        for a_, b_ in zip(rr[:-1], rr[1:]):
+            if 1 < b_ - a_ <= gap: out[a_:b_, c] = True
+    out = M.erode(M.dilate(out, r), r)  # a lone column dipping below the brim is closed back
+    return fill_holes(out) & zone
+
+
+def trim_head(hat, u, t, head):
+    """A redrawn fringe, eyes or ear under the hat changed too: pieces of the hat mask nearer the head's
+    colours than the hat's and hanging from its lower edge are dropped (a band over hair of the same
+    brown lies inside the hat and stays)."""
+    Ul, Tl = R.lab(u), R.lab(t)
+    head_cols = kmeans(Tl[head].reshape(-1, 3)[::7], 10)
+    # the hat's own colours: where it is painted over the page (above and beside the head)
+    own = hat & (np.abs(t - 255).sum(-1) < 15)
+    if own.sum() < SEED_MIN:
+        own = hat & (nearest(Ul, head_cols) > NOVEL)
+    if own.sum() < SEED_MIN:
+        return hat
+    hat_cols = kmeans(Ul[own][::3], 6, seed=1)
+    # a hat the hair's own brown (a cowboy hat) cannot be told from the hair by colour: kept whole
+    dist = float(np.median(nearest(hat_cols[None], head_cols)))
+    if dist < BROWN_HAT:
+        return hat
+    headlike = hat & (nearest(Ul, head_cols) < nearest(Ul, hat_cols))
+    below = np.zeros_like(hat); below[:-1] = ~hat[1:]; below[-1] = True  # lowest pixel of the hat in its column
+    edge = hat & below
+    lab_, comps = M.components(headlike)
+    drop = np.isin(lab_, [c['label'] for c in comps if (edge & (lab_ == c['label'])).any()])
+    out = hat & ~drop
+    lab_, comps = M.components(out)  # what is left hanging alone
+    big = max((c['size'] for c in comps), default=0)
+    return np.isin(lab_, [c['label'] for c in comps if c['size'] >= .05 * big])
+
+
+def cut_zone(u, a, t, head, low, x0, y0, box, px=1.0, diff=False):
     """The hat in one figure: u the drawn figure, t the unchanged one, head its head pixels, low the
-    zone's last row; px the figure's scale against the template sheet (sizes in px scale with it)."""
+    zone's last row; px the figure's scale against the template sheet (sizes in px scale with it).
+    diff: t is the figure itself to a pixel (a base sheet), so the hat is also what changed (diff_hat)."""
     ys, xs = np.nonzero(head)
     side = int(round(60 * px))
     zone = np.zeros(head.shape, bool)
     zone[:low, max(0, xs.min() - side):xs.max() + side + 1] = True
+    if diff:
+        dh = diff_hat(u, t, zone, px)
+        # only where the hat's own colours miss it: a colour cut keeps a cap's back opening
+        colour = cut_zone(u, a, t, head, low, x0, y0, box, px)
+        if dh.sum() < SEED_MIN * px * px:
+            return colour
+        # a hat with colours of its own: the colour cut finds most of what changed and keeps out the
+        # redrawn face and fringe under it (a graduation cap's tassel, a bandana's ties)
+        if colour is not None and colour['px'] >= COLOUR_SHARE * dh.sum():
+            return colour
+        if dh.sum() >= SEED_MIN * px * px:
+            # what changed is the hat; the colour cut only adds the hole it shows hair through (a cap's back)
+            opening = np.zeros_like(dh)
+            if colour is not None:
+                cm = colour['mask']; opening = fill_holes(cm) & ~cm
+                lab_, comps = M.components(opening)
+                opening = np.isin(lab_, [c['label'] for c in comps if c['size'] > 40 * px * px])
+            hat = trim_head(dh, u, t, head) & ~opening
+            alpha = hat.astype(np.float32)
+            ys, xs = np.nonzero(hat)
+            bx = (int(xs.min()), int(ys.min()), int(xs.max()) + 1, int(ys.max()) + 1)
+            rgba = np.dstack([u, alpha * 255]).clip(0, 255).astype(np.uint8)[bx[1]:bx[3], bx[0]:bx[2]]
+            return dict(rgba=rgba, box=[x0 + bx[0], y0 + bx[1], x0 + bx[2], y0 + bx[3]], px=int(hat.sum()), scale=px,
+                        mask=hat, cell=box, hide=hide_mask(hat, opening, x0, y0, side=int(HIDE_SIDE * px), top=int(HIDE_TOP * px),
+                                                           soft=HIDE_SOFT * px))
     Ul, Tl = R.lab(u), R.lab(t)
     head_cols = kmeans(Tl[head].reshape(-1, 3)[::7], 10)
     fg = (a > .5) & zone
@@ -314,7 +402,7 @@ def build_base(sheet, base_dir, out, pid=None, kind=None, out_assets=None):
         hy = np.nonzero(head.any(1))[0]
         low = int(hy.min() + ZONE * (len(head) - hy.min()))
         a = (np.abs(u - 255).sum(-1) > 30).astype(np.float32)
-        f = cut_zone(u, a, tt, head, low, x0, y0, [x0, y0, x1, neck], px)
+        f = cut_zone(u, a, tt, head, low, x0, y0, [x0, y0, x1, neck], px, diff=True)
         report['figures'][k] = None if f is None else dict(box=f['box'], px=f['px'], shift=[dx, dy], legsError=round(err, 2))
         frames[k] = dict(cell0=[0, 0], unitsPerSheetPx=1 / ppu, cellOrigin=[-box['x'] / ppu, -box['y'] / ppu], toViewBox=t)
         if f is None:

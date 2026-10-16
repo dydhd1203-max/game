@@ -1,0 +1,153 @@
+{
+ "kind": "full",
+ "views": {
+  "m": {
+   "front": {
+    "src": "assets/hat-art/witch-m-front.png",
+    "rect": [
+     -5.671,
+     -11.266,
+     42.345,
+     31.937
+    ],
+    "hide": {
+     "src": "assets/hat-art/witch-m-front-hide.png",
+     "rect": [
+      -33.046,
+      -19.678,
+      97.094,
+      67.723
+     ]
+    },
+    "hideTop": [
+     -33.046,
+     -20.0,
+     97.094,
+     0.722
+    ]
+   },
+   "right": {
+    "src": "assets/hat-art/witch-m-right.png",
+    "rect": [
+     -0.691,
+     -3.408,
+     33.218,
+     26.002
+    ],
+    "hide": {
+     "src": "assets/hat-art/witch-m-right-hide.png",
+     "rect": [
+      -24.578,
+      -10.748,
+      80.992,
+      57.229
+     ]
+    },
+    "hideTop": [
+     -24.578,
+     -20.0,
+     80.992,
+     9.652
+    ]
+   },
+   "back": {
+    "src": "assets/hat-art/witch-m-back.png",
+    "rect": [
+     -0.261,
+     -4.067,
+     33.111,
+     22.859
+    ],
+    "hide": {
+     "src": "assets/hat-art/witch-m-back-hide.png",
+     "rect": [
+      -22.884,
+      -11.019,
+      78.358,
+      52.435
+     ]
+    },
+    "hideTop": [
+     -22.884,
+     -20.0,
+     78.358,
+     9.381
+    ]
+   }
+  },
+  "f": {
+   "front": {
+    "src": "assets/hat-art/witch-f-front.png",
+    "rect": [
+     -5.386,
+     -5.636,
+     41.632,
+     26.947
+    ],
+    "hide": {
+     "src": "assets/hat-art/witch-f-front-hide.png",
+     "rect": [
+      -32.761,
+      -14.047,
+      96.381,
+      62.733
+     ]
+    },
+    "hideTop": [
+     -32.761,
+     -20.0,
+     96.381,
+     6.353
+    ]
+   },
+   "right": {
+    "src": "assets/hat-art/witch-f-right.png",
+    "rect": [
+     -2.963,
+     -4.94,
+     35.501,
+     26.091
+    ],
+    "hide": {
+     "src": "assets/hat-art/witch-f-right-hide.png",
+     "rect": [
+      -30.337,
+      -13.352,
+      90.25,
+      61.878
+     ]
+    },
+    "hideTop": [
+     -30.337,
+     -20.0,
+     90.25,
+     7.048
+    ]
+   },
+   "back": {
+    "src": "assets/hat-art/witch-f-back.png",
+    "rect": [
+     -2.851,
+     -2.87,
+     38.498,
+     22.17
+    ],
+    "hide": {
+     "src": "assets/hat-art/witch-f-back-hide.png",
+     "rect": [
+      -28.339,
+      -10.702,
+      89.475,
+      55.49
+     ]
+    },
+    "hideTop": [
+     -28.339,
+     -20.0,
+     89.475,
+     9.698
+    ]
+   }
+  }
+ }
+}

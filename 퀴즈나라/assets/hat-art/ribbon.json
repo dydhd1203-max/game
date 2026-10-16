@@ -1,0 +1,63 @@
+{
+ "kind": "sit",
+ "views": {
+  "m": {
+   "front": {
+    "src": "assets/hat-art/ribbon-m-front.png",
+    "rect": [
+     9.584,
+     -1.143,
+     13.687,
+     9.553
+    ]
+   },
+   "right": {
+    "src": "assets/hat-art/ribbon-m-right.png",
+    "rect": [
+     10.258,
+     2.19,
+     7.714,
+     7.962
+    ]
+   },
+   "back": {
+    "src": "assets/hat-art/ribbon-m-back.png",
+    "rect": [
+     10.698,
+     3.121,
+     10.723,
+     8.013
+    ]
+   }
+  },
+  "f": {
+   "front": {
+    "src": "assets/hat-art/ribbon-f-front.png",
+    "rect": [
+     9.727,
+     3.632,
+     13.26,
+     9.267
+    ]
+   },
+   "right": {
+    "src": "assets/hat-art/ribbon-f-right.png",
+    "rect": [
+     9.869,
+     3.33,
+     8.412,
+     9.553
+    ]
+   },
+   "back": {
+    "src": "assets/hat-art/ribbon-f-back.png",
+    "rect": [
+     10.026,
+     4.166,
+     12.08,
+     9.16
+    ]
+   }
+  }
+ }
+}

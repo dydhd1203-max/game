@@ -1,0 +1,153 @@
+{
+ "kind": "full",
+ "views": {
+  "m": {
+   "front": {
+    "src": "assets/hat-art/chef-m-front.png",
+    "rect": [
+     -1.252,
+     -5.563,
+     34.076,
+     24.095
+    ],
+    "hide": {
+     "src": "assets/hat-art/chef-m-front-hide.png",
+     "rect": [
+      -28.626,
+      -13.975,
+      88.825,
+      59.882
+     ]
+    },
+    "hideTop": [
+     -28.626,
+     -20.0,
+     88.825,
+     6.425
+    ]
+   },
+   "right": {
+    "src": "assets/hat-art/chef-m-right.png",
+    "rect": [
+     -1.188,
+     -3.532,
+     28.241,
+     26.126
+    ],
+    "hide": {
+     "src": "assets/hat-art/chef-m-right-hide.png",
+     "rect": [
+      -25.075,
+      -10.873,
+      76.015,
+      57.354
+     ]
+    },
+    "hideTop": [
+     -25.075,
+     -20.0,
+     76.015,
+     9.527
+    ]
+   },
+   "back": {
+    "src": "assets/hat-art/chef-m-back.png",
+    "rect": [
+     1.389,
+     -1.828,
+     28.162,
+     22.034
+    ],
+    "hide": {
+     "src": "assets/hat-art/chef-m-back-hide.png",
+     "rect": [
+      -21.235,
+      -8.78,
+      73.409,
+      51.61
+     ]
+    },
+    "hideTop": [
+     -21.235,
+     -20.0,
+     73.409,
+     11.62
+    ]
+   }
+  },
+  "f": {
+   "front": {
+    "src": "assets/hat-art/chef-f-front.png",
+    "rect": [
+     -0.681,
+     -4.637,
+     33.79,
+     25.093
+    ],
+    "hide": {
+     "src": "assets/hat-art/chef-f-front-hide.png",
+     "rect": [
+      -28.056,
+      -13.049,
+      88.539,
+      60.88
+     ]
+    },
+    "hideTop": [
+     -28.056,
+     -20.0,
+     88.539,
+     7.351
+    ]
+   },
+   "right": {
+    "src": "assets/hat-art/chef-f-right.png",
+    "rect": [
+     -2.963,
+     -6.508,
+     30.083,
+     29.798
+    ],
+    "hide": {
+     "src": "assets/hat-art/chef-f-right-hide.png",
+     "rect": [
+      -30.337,
+      -14.92,
+      84.833,
+      65.585
+     ]
+    },
+    "hideTop": [
+     -30.337,
+     -20.0,
+     84.833,
+     5.48
+    ]
+   },
+   "back": {
+    "src": "assets/hat-art/chef-f-back.png",
+    "rect": [
+     -0.594,
+     -3.135,
+     31.595,
+     25.754
+    ],
+    "hide": {
+     "src": "assets/hat-art/chef-f-back-hide.png",
+     "rect": [
+      -26.082,
+      -10.967,
+      82.572,
+      59.075
+     ]
+    },
+    "hideTop": [
+     -26.082,
+     -20.0,
+     82.572,
+     9.433
+    ]
+   }
+  }
+ }
+}

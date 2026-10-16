@@ -1,0 +1,153 @@
+{
+ "kind": "full",
+ "views": {
+  "m": {
+   "front": {
+    "src": "assets/hat-art/beanie-m-front.png",
+    "rect": [
+     1.315,
+     -4.565,
+     29.798,
+     23.382
+    ],
+    "hide": {
+     "src": "assets/hat-art/beanie-m-front-hide.png",
+     "rect": [
+      -26.06,
+      -12.977,
+      84.547,
+      59.169
+     ]
+    },
+    "hideTop": [
+     -26.06,
+     -20.0,
+     84.547,
+     7.423
+    ]
+   },
+   "right": {
+    "src": "assets/hat-art/beanie-m-right.png",
+    "rect": [
+     1.424,
+     -0.547,
+     25.753,
+     22.518
+    ],
+    "hide": {
+     "src": "assets/hat-art/beanie-m-right-hide.png",
+     "rect": [
+      -22.463,
+      -7.887,
+      73.527,
+      53.746
+     ]
+    },
+    "hideTop": [
+     -22.463,
+     -20.0,
+     73.527,
+     12.513
+    ]
+   },
+   "back": {
+    "src": "assets/hat-art/beanie-m-back.png",
+    "rect": [
+     4.924,
+     0.175,
+     23.095,
+     22.152
+    ],
+    "hide": {
+     "src": "assets/hat-art/beanie-m-back-hide.png",
+     "rect": [
+      -17.7,
+      -6.777,
+      68.342,
+      51.728
+     ]
+    },
+    "hideTop": [
+     -17.7,
+     -20.0,
+     68.342,
+     13.623
+    ]
+   }
+  },
+  "f": {
+   "front": {
+    "src": "assets/hat-art/beanie-f-front.png",
+    "rect": [
+     1.885,
+     -0.503,
+     28.8,
+     21.386
+    ],
+    "hide": {
+     "src": "assets/hat-art/beanie-f-front-hide.png",
+     "rect": [
+      -25.49,
+      -8.915,
+      83.549,
+      57.173
+     ]
+    },
+    "hideTop": [
+     -25.49,
+     -20.0,
+     83.549,
+     11.485
+    ]
+   },
+   "right": {
+    "src": "assets/hat-art/beanie-f-right.png",
+    "rect": [
+     1.03,
+     -0.805,
+     26.234,
+     22.099
+    ],
+    "hide": {
+     "src": "assets/hat-art/beanie-f-right-hide.png",
+     "rect": [
+      -26.345,
+      -9.217,
+      80.983,
+      57.886
+     ]
+    },
+    "hideTop": [
+     -26.345,
+     -20.0,
+     80.983,
+     11.183
+    ]
+   },
+   "back": {
+    "src": "assets/hat-art/beanie-f-back.png",
+    "rect": [
+     3.521,
+     1.113,
+     25.356,
+     22.17
+    ],
+    "hide": {
+     "src": "assets/hat-art/beanie-f-back-hide.png",
+     "rect": [
+      -21.967,
+      -6.719,
+      76.332,
+      55.49
+     ]
+    },
+    "hideTop": [
+     -21.967,
+     -20.0,
+     76.332,
+     13.681
+    ]
+   }
+  }
+ }
+}

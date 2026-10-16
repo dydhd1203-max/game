@@ -1,0 +1,63 @@
+{
+ "kind": "sit",
+ "views": {
+  "m": {
+   "front": {
+    "src": "assets/hat-art/cat_ears-m-front.png",
+    "rect": [
+     3.453,
+     -0.715,
+     25.093,
+     7.414
+    ]
+   },
+   "right": {
+    "src": "assets/hat-art/cat_ears-m-right.png",
+    "rect": [
+     11.004,
+     2.315,
+     9.58,
+     7.714
+    ]
+   },
+   "back": {
+    "src": "assets/hat-art/cat_ears-m-back.png",
+    "rect": [
+     6.691,
+     3.357,
+     19.796,
+     7.423
+    ]
+   }
+  },
+  "f": {
+   "front": {
+    "src": "assets/hat-art/cat_ears-f-front.png",
+    "rect": [
+     4.024,
+     4.202,
+     23.668,
+     8.269
+    ]
+   },
+   "right": {
+    "src": "assets/hat-art/cat_ears-f-right.png",
+    "rect": [
+     11.58,
+     3.044,
+     9.553,
+     9.125
+    ]
+   },
+   "back": {
+    "src": "assets/hat-art/cat_ears-f-back.png",
+    "rect": [
+     5.114,
+     4.564,
+     21.506,
+     7.567
+    ]
+   }
+  }
+ }
+}

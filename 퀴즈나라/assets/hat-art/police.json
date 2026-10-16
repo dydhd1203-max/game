@@ -1,0 +1,153 @@
+{
+ "kind": "full",
+ "views": {
+  "m": {
+   "front": {
+    "src": "assets/hat-art/police-m-front.png",
+    "rect": [
+     0.887,
+     -0.002,
+     29.513,
+     20.388
+    ],
+    "hide": {
+     "src": "assets/hat-art/police-m-front-hide.png",
+     "rect": [
+      -26.488,
+      -8.414,
+      84.262,
+      56.175
+     ]
+    },
+    "hideTop": [
+     -26.488,
+     -20.0,
+     84.262,
+     11.986
+    ]
+   },
+   "right": {
+    "src": "assets/hat-art/police-m-right.png",
+    "rect": [
+     1.424,
+     2.688,
+     25.629,
+     18.288
+    ],
+    "hide": {
+     "src": "assets/hat-art/police-m-right-hide.png",
+     "rect": [
+      -22.463,
+      -4.652,
+      73.403,
+      49.516
+     ]
+    },
+    "hideTop": [
+     -22.463,
+     -20.0,
+     73.403,
+     15.748
+    ]
+   },
+   "back": {
+    "src": "assets/hat-art/police-m-back.png",
+    "rect": [
+     4.57,
+     4.064,
+     23.331,
+     16.143
+    ],
+    "hide": {
+     "src": "assets/hat-art/police-m-back-hide.png",
+     "rect": [
+      -18.053,
+      -2.888,
+      68.578,
+      45.718
+     ]
+    },
+    "hideTop": [
+     -18.053,
+     -20.0,
+     68.578,
+     17.512
+    ]
+   }
+  },
+  "f": {
+   "front": {
+    "src": "assets/hat-art/police-f-front.png",
+    "rect": [
+     1.457,
+     2.349,
+     30.226,
+     20.531
+    ],
+    "hide": {
+     "src": "assets/hat-art/police-f-front-hide.png",
+     "rect": [
+      -25.917,
+      -6.063,
+      84.975,
+      56.317
+     ]
+    },
+    "hideTop": [
+     -25.917,
+     -20.0,
+     84.975,
+     14.337
+    ]
+   },
+   "right": {
+    "src": "assets/hat-art/police-f-right.png",
+    "rect": [
+     0.459,
+     2.046,
+     24.523,
+     14.97
+    ],
+    "hide": {
+     "src": "assets/hat-art/police-f-right-hide.png",
+     "rect": [
+      -26.915,
+      -6.366,
+      79.272,
+      50.757
+     ]
+    },
+    "hideTop": [
+     -26.915,
+     -20.0,
+     79.272,
+     14.034
+    ]
+   },
+   "back": {
+    "src": "assets/hat-art/police-f-back.png",
+    "rect": [
+     3.389,
+     4.033,
+     25.223,
+     16.196
+    ],
+    "hide": {
+     "src": "assets/hat-art/police-f-back-hide.png",
+     "rect": [
+      -22.1,
+      -3.799,
+      76.2,
+      49.517
+     ]
+    },
+    "hideTop": [
+     -22.1,
+     -20.0,
+     76.2,
+     16.601
+    ]
+   }
+  }
+ }
+}

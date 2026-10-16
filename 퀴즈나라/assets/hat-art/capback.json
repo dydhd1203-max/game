@@ -1,0 +1,153 @@
+{
+ "kind": "full",
+ "views": {
+  "m": {
+   "front": {
+    "src": "assets/hat-art/capback-m-front.png",
+    "rect": [
+     2.455,
+     -0.573,
+     27.517,
+     16.681
+    ],
+    "hide": {
+     "src": "assets/hat-art/capback-m-front-hide.png",
+     "rect": [
+      -24.919,
+      -8.985,
+      82.266,
+      52.468
+     ]
+    },
+    "hideTop": [
+     -24.919,
+     -20.0,
+     82.266,
+     11.415
+    ]
+   },
+   "right": {
+    "src": "assets/hat-art/capback-m-right.png",
+    "rect": [
+     -1.313,
+     3.186,
+     28.117,
+     19.408
+    ],
+    "hide": {
+     "src": "assets/hat-art/capback-m-right-hide.png",
+     "rect": [
+      -25.2,
+      -4.155,
+      75.891,
+      50.635
+     ]
+    },
+    "hideTop": [
+     -25.2,
+     -20.0,
+     75.891,
+     16.245
+    ]
+   },
+   "back": {
+    "src": "assets/hat-art/capback-m-back.png",
+    "rect": [
+     4.924,
+     3.592,
+     22.152,
+     19.206
+    ],
+    "hide": {
+     "src": "assets/hat-art/capback-m-back-hide.png",
+     "rect": [
+      -17.7,
+      -3.36,
+      67.399,
+      48.782
+     ]
+    },
+    "hideTop": [
+     -17.7,
+     -20.0,
+     67.399,
+     17.04
+    ]
+   }
+  },
+  "f": {
+   "front": {
+    "src": "assets/hat-art/capback-f-front.png",
+    "rect": [
+     2.455,
+     3.489,
+     27.375,
+     16.681
+    ],
+    "hide": {
+     "src": "assets/hat-art/capback-f-front-hide.png",
+     "rect": [
+      -24.919,
+      -4.923,
+      82.124,
+      52.468
+     ]
+    },
+    "hideTop": [
+     -24.919,
+     -20.0,
+     82.124,
+     15.477
+    ]
+   },
+   "right": {
+    "src": "assets/hat-art/capback-f-right.png",
+    "rect": [
+     -3.39,
+     3.472,
+     30.796,
+     19.818
+    ],
+    "hide": {
+     "src": "assets/hat-art/capback-f-right-hide.png",
+     "rect": [
+      -30.765,
+      -4.94,
+      85.545,
+      55.605
+     ]
+    },
+    "hideTop": [
+     -30.765,
+     -20.0,
+     85.545,
+     15.46
+    ]
+   },
+   "back": {
+    "src": "assets/hat-art/capback-f-back.png",
+    "rect": [
+     3.654,
+     4.83,
+     24.161,
+     18.453
+    ],
+    "hide": {
+     "src": "assets/hat-art/capback-f-back-hide.png",
+     "rect": [
+      -21.834,
+      -3.002,
+      75.138,
+      51.773
+     ]
+    },
+    "hideTop": [
+     -21.834,
+     -20.0,
+     75.138,
+     17.398
+    ]
+   }
+  }
+ }
+}
