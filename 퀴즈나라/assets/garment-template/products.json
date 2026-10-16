@@ -2545,7 +2545,8 @@
   },
   "top:hood": {
    "class": "top/long-sleeve",
-   "status": "long sleeve L (requested 2026-10-16)",
+   "status": "long sleeve L (requested 2026-10-16); dark-skin template request (2026-10-16)",
+   "base": "dark",
    "sexes": [
     "m",
     "f"
@@ -2589,7 +2590,8 @@
   },
   "top:cardi": {
    "class": "top/long-sleeve",
-   "status": "long sleeve L (requested 2026-10-16)",
+   "status": "long sleeve L (requested 2026-10-16); dark-skin template request (2026-10-16)",
+   "base": "dark",
    "sexes": [
     "m",
     "f"
@@ -2633,7 +2635,8 @@
   },
   "top:jacket": {
    "class": "top/long-sleeve",
-   "status": "long sleeve L (requested 2026-10-16)",
+   "status": "long sleeve L (requested 2026-10-16); dark-skin template request (2026-10-16)",
+   "base": "dark",
    "sexes": [
     "m",
     "f"
