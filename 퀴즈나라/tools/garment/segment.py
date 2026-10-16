@@ -756,6 +756,10 @@ def segment_cell(ctx, key, seams=True):
     cand = (label == 1) & isP & moved & (lr > P['exposeLR']) & (Bown != 0)
     near = M.dilate(~isP & (O != 0), P['exposeNear'])
     cand &= near
+    if fz.base == 'dark':
+        # a drawn line is never judged by colour (as 6b): a zipper's dark edge over the hem read as navy shorts
+        # and left a 1 px slit beside the zipper (hood boy, 2026-10-16)
+        cand &= ~(ctx.ink[sl] > P['lineDark'])
     if cand.any():
         q = (label == 2) & ~head
         expose = M.connected_to(cand | q, q) & cand
@@ -782,6 +786,18 @@ def segment_cell(ctx, key, seams=True):
         r = S.solve(ctx, key, b, nll, O, fg)
         results.append(r)
         S.assign(b, r, label, O, fg, fixed)
+    if fz.base == 'dark' and bands:
+        # a seam column along a vertical drawn line (a zipper's edge across the hem) finds its ridge everywhere
+        # and cuts the column high: a 1-2 px slit with the garment on both sides is the garment (hood boy,
+        # 2026-10-16)
+        g1 = label == 1
+        left = np.zeros_like(g1); right = np.zeros_like(g1)
+        for d in (1, 2, 3):
+            left[:, d:] |= g1[:, :-d]; right[:, :-d] |= g1[:, d:]
+        slit = in_band & (label == 2) & left & right & fg & ~np.isin(O, BODY_LABELS)
+        slit &= ~M.dilate(M.erode(slit, 1), 1)  # only thin pieces, never an open band
+        label[slit] = 1
+        diag['seamSlitPx'] = int(slit.sum())
     inside = seam_inside(bands, results, O.shape)
     # 5a. exposure where the body has no art (a belly under a short top, skin
     # inside a lowered neckline over the torso): changed product pixels where
@@ -811,6 +827,10 @@ def segment_cell(ctx, key, seams=True):
         if diag['creamShare'] > P['creamShare']:
             noart = exposure_regions(noart, isP, P['exposeSpan'])
         noart = noart & ~middle_strips(noart, isP, P['exposeSpan'])
+        if fz.base == 'dark':
+            # on dark skin a cloth's dark line mixed into cream (a zipper's edge in a cream hem) is skin-coloured:
+            # a belly is a band, never a line, so pieces thinner than 3 px stay cloth (hood boy, 2026-10-16)
+            noart &= M.dilate(M.erode(noart, 1), 1)
         label[noart] = 5
     diag['exposedNoArtPx'] = int(noart.sum())
     # the drawn edge carried past the band's columns: changed body pixels on

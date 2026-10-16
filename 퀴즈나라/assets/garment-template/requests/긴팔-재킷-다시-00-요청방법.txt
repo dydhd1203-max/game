@@ -2,8 +2,8 @@
 =========================================================
 
 [왜 다시 받나]
-- 지난 결과에서 남자아이 앞모습의 안쪽 흰 티셔츠가 기본 티셔츠보다 짧고, 그 자리에 반바지 허리가 올라와 그려졌습니다.
-- 게임의 반바지는 원래 높이에 있어서, 티셔츠와 반바지 사이에 틈이 보입니다. 나머지(여자아이 재킷, 소매, 피부)는 좋았습니다.
+- 지난 결과에서 남자아이·여자아이 앞모습의 안쪽 흰 티셔츠(셔츠)가 기본 티셔츠보다 짧고, 그 자리에 반바지 허리가 올라와 그려졌습니다.
+- 게임의 반바지는 원래 높이에 있어서, 티셔츠와 반바지 사이에 틈이 보입니다. 나머지(재킷, 소매, 피부)는 좋았습니다.
 
 [꼭 지킬 것]
 - ChatGPT 새 대화: 01-진한피부-그림틀.png, 02-탐험가재킷-참고.png 첨부 → 아래 요청 문장(한국어) 붙여 넣기 → 결과만 top-jacket-dark2.png 로 저장해 zip 하나로 보내 주세요.
@@ -29,7 +29,7 @@
 6. 배경은 아무것도 없는 흰색입니다. 그림자, 글자, 테두리를 넣지 않고, 옷에도 글자나 로고를 넣지 않습니다.
 7. 결과는 가로로 긴 그림 한 장으로 주세요.
 
-추가로 꼭 지켜 주세요(지난번 결과에서 고칠 점): 남자아이 재킷 앞모습에서 안에 입은 흰 티셔츠가 너무 짧아 반바지 허리가 위로 올라와 보였습니다. 흰 티셔츠 밑단은 첫 번째 그림의 초록 티셔츠 밑단과 같은 높이까지 내려와 반바지 허리를 덮고, 반바지의 위치와 높이는 첫 번째 그림 그대로 둡니다.
+추가로 꼭 지켜 주세요(지난번 결과에서 고칠 점): 두 아이의 재킷 앞모습에서 안에 입은 흰 티셔츠·셔츠가 너무 짧아 반바지 허리가 위로 올라와 보였습니다. 안쪽 옷의 밑단은 첫 번째 그림의 초록 티셔츠 밑단과 같은 높이까지 내려와 반바지 허리를 덮고, 반바지의 위치와 높이는 첫 번째 그림 그대로 둡니다.
 
 English (same request):
 Image 1 is a game character sheet: top row a boy, bottom row a girl; from left to right front view, right-facing side view, back view. Image 2 shows only the new garments (left: the boy's jacket, right: the girl's explorer jacket). Use their colours, collar, zip, pockets and decorations; keep the bodies and art style of image 1.
@@ -47,13 +47,13 @@ Rules:
 6. Plain white background. No shadows, text or frames, and no lettering or logos on the garments.
 7. Return one landscape image.
 
-Also (to fix from the last result): in the boy's front view the white T-shirt under the jacket was too short, so the shorts' waistband rose above its place. The white T-shirt's hem comes down to the same height as the green T-shirt's hem in image 1, covering the shorts' waistband, and the shorts keep exactly their position and height from image 1.
+Also (to fix from the last result): in both children's front views the white T-shirt / shirt under the jacket was too short, so the shorts' waistband rose above its place. The inner shirt's hem comes down to the same height as the green T-shirt's hem in image 1, covering the shorts' waistband, and the shorts keep exactly their position and height from image 1.
 
 ----------------------------------------------------------------
 결과가 이러면 다시 요청 (그대로 붙여 넣기)
 ----------------------------------------------------------------
-- 흰 티셔츠가 또 짧거나 반바지 허리가 위로 올라왔을 때:
-  "남자아이 앞모습의 흰 티셔츠 밑단을 첫 번째 그림의 초록 티셔츠 밑단 높이까지 내려 반바지 허리를 덮고, 반바지는 첫 번째 그림 높이 그대로 두고 다시 그려 주세요."
+- 안쪽 흰 티셔츠·셔츠가 또 짧거나 반바지 허리가 위로 올라왔을 때:
+  "두 아이 앞모습의 안쪽 흰 티셔츠·셔츠 밑단을 첫 번째 그림의 초록 티셔츠 밑단 높이까지 내려 반바지 허리를 덮고, 반바지는 첫 번째 그림 높이 그대로 두고 다시 그려 주세요."
 - 피부가 밝아졌거나 옷 가장자리에 밝은 피부색 띠가 생겼을 때:
   "아이들 피부는 첫 번째 그림의 진한 갈색 그대로 두고, 옷 가장자리에도 밝은 피부색을 칠하지 말고 다시 그려 주세요."
 - 소매가 손을 덮거나 팔보다 크게 부풀었을 때:
