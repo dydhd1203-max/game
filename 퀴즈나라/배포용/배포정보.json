@@ -1,7 +1,7 @@
 {
   "project": "퀴즈나라",
   "format": 1,
-  "builtAt": "2026-10-16T04:59:40.528Z",
+  "builtAt": "2026-10-16T05:04:30.100Z",
   "instructions": "Cloudflare Pages 또는 Netlify 수동 배포에는 이 배포용 폴더 전체를 올리세요. index.html만 올리지 마세요.",
   "files": [
     {
@@ -2451,8 +2451,8 @@
     },
     {
       "path": "avatar-face-art.js",
-      "bytes": 11169,
-      "sha256": "5dd5a73ac02c117575461333781547cf99a3d1ff45c0b35528697a8f50818b1c"
+      "bytes": 15151,
+      "sha256": "e60b66f6f2b77447e0218b3ab6ec80b1135e1a537b5d9142dc44ecae96d28dbe"
     },
     {
       "path": "assets/face-art/fringe/f-front-short.png",
@@ -2695,6 +2695,156 @@
       "sha256": "5379ee5b3521724b16f24413b43ddff07d1a848fee73894e1143c680c1264206"
     },
     {
+      "path": "assets/face-art/ear-bell-m-front.png",
+      "bytes": 13568,
+      "sha256": "a10b3c9f44b42295a3fcf28a8921f2ceab1d048af880a10bbd70cd465bf1852a"
+    },
+    {
+      "path": "assets/face-art/ear-bell-m-right.png",
+      "bytes": 2516,
+      "sha256": "ed52e6f7d12ac36b89d9d863d62b88842042b69e3cb2d102abf7c4fa7e6623b5"
+    },
+    {
+      "path": "assets/face-art/ear-bell-m-back.png",
+      "bytes": 13342,
+      "sha256": "e3a51c9a25e0f97b021a3414ceed0788094a8246c546a48b25987c8060f976f0"
+    },
+    {
+      "path": "assets/face-art/ear-bell-f-front.png",
+      "bytes": 12584,
+      "sha256": "c974ccb92fbfed6296bc26bb162ed9680d717d11a81fe995a19224842a828a7a"
+    },
+    {
+      "path": "assets/face-art/ear-bell-f-right.png",
+      "bytes": 2009,
+      "sha256": "3020411b7c77fa8fd390f066dd07b5f859b4abe022f259ba4737ba0105a8d37e"
+    },
+    {
+      "path": "assets/face-art/ear-cross_e-m-front.png",
+      "bytes": 14384,
+      "sha256": "e6229db3eabefbcbc8d88faf4c110b9835acb8e6256545a2ba8c3caf143ca192"
+    },
+    {
+      "path": "assets/face-art/ear-cross_e-m-right.png",
+      "bytes": 2627,
+      "sha256": "70b682d461afa91154ca6dd275d66867b9ea5ba8fcfd12bfff4770cbb072782e"
+    },
+    {
+      "path": "assets/face-art/ear-cross_e-m-back.png",
+      "bytes": 13267,
+      "sha256": "654b7fe3bff8bc04235295a7b02293d39240f4a31e807246ccded6b7f869fc6e"
+    },
+    {
+      "path": "assets/face-art/ear-cross_e-f-front.png",
+      "bytes": 14932,
+      "sha256": "5b2d0f7b523762f5b8e3d77bddfec53a60e408486fb702b796d41108cc9c6557"
+    },
+    {
+      "path": "assets/face-art/ear-cross_e-f-right.png",
+      "bytes": 2361,
+      "sha256": "d4b5c2d6db3d629371c5d61f518e335b40c28bbf7574c5e97d78fa236125c971"
+    },
+    {
+      "path": "assets/face-art/ear-dot-m-front.png",
+      "bytes": 10462,
+      "sha256": "3c6578717bf6cb4467b332ba2fa332185da8b07708711e26424f62182aa0d437"
+    },
+    {
+      "path": "assets/face-art/ear-dot-m-right.png",
+      "bytes": 1833,
+      "sha256": "49571ca62aaeea4604c5d5c356a109f3cd3db5b90d9e87341116b3126a1c13f8"
+    },
+    {
+      "path": "assets/face-art/ear-dot-m-back.png",
+      "bytes": 10274,
+      "sha256": "e2e168fdc7cad2e8d61395eae727cd99472c586a61c3665873d1ea01fddde18c"
+    },
+    {
+      "path": "assets/face-art/ear-dot-f-front.png",
+      "bytes": 8350,
+      "sha256": "f2d67aa8769b118a6c96cc8f794f2f2eaaf1b62364f735c7d1fcff11c54e79c3"
+    },
+    {
+      "path": "assets/face-art/ear-dot-f-right.png",
+      "bytes": 1532,
+      "sha256": "fe2a3ae1d42a6913d3897409bdd8fa62ed85510a39a18e90c7c862662ea5d589"
+    },
+    {
+      "path": "assets/face-art/ear-drop-m-front.png",
+      "bytes": 10295,
+      "sha256": "457f5b44d7ebdc7912434c952166e486d819621b60373a5e56d0c43d684ca601"
+    },
+    {
+      "path": "assets/face-art/ear-drop-m-right.png",
+      "bytes": 1994,
+      "sha256": "d6345ff11a5d419e13e298bec6e66c2009b57f23529f2a5655112a3a3b5ade3f"
+    },
+    {
+      "path": "assets/face-art/ear-drop-m-back.png",
+      "bytes": 10295,
+      "sha256": "d583b4ad07d201390e6a461b31bf7478793af4866bb87e227e90f80320f4eda5"
+    },
+    {
+      "path": "assets/face-art/ear-drop-f-front.png",
+      "bytes": 8220,
+      "sha256": "129b880d46338cbe73f237d86e21e3685b32886f955237fa091d28caebfcf017"
+    },
+    {
+      "path": "assets/face-art/ear-drop-f-right.png",
+      "bytes": 1559,
+      "sha256": "e31c9fc209e00e64e0337e75d5b11a4e6fba8c5c051ef37421b98f5e7476fb70"
+    },
+    {
+      "path": "assets/face-art/ear-flower_e-m-front.png",
+      "bytes": 16691,
+      "sha256": "b03fb908ece2e828b998e0cc6f207e7ec92b3965b3d05dbe0118e26fa6bc1051"
+    },
+    {
+      "path": "assets/face-art/ear-flower_e-m-right.png",
+      "bytes": 3056,
+      "sha256": "2ab92dd67667fa5fcdbd0f6bd1474198a5d1404e02b9842c4c8fb8ceda06a969"
+    },
+    {
+      "path": "assets/face-art/ear-flower_e-m-back.png",
+      "bytes": 14776,
+      "sha256": "57b369aafcf677749dd93979792a9e9783c7bc79bb7864b21e360f72b816fa90"
+    },
+    {
+      "path": "assets/face-art/ear-flower_e-f-front.png",
+      "bytes": 14842,
+      "sha256": "74d05182d2fa41e4d89c4fa9cb70022c879f8e7db5aab3b6f0f7d2c1371b5ec7"
+    },
+    {
+      "path": "assets/face-art/ear-flower_e-f-right.png",
+      "bytes": 3058,
+      "sha256": "56530593890ba02d8cc6014d634df0ada65deaab0f1e0617977be052e1f2542f"
+    },
+    {
+      "path": "assets/face-art/ear-heart_e-m-front.png",
+      "bytes": 14269,
+      "sha256": "0db6457cb6496593bd30d41b0309a6cb115eff8c6771b921ba633c001844e961"
+    },
+    {
+      "path": "assets/face-art/ear-heart_e-m-right.png",
+      "bytes": 2637,
+      "sha256": "47a6f1996b0954234ef43af1985a1a600678a9ab08831745e1b7311a71d91d4c"
+    },
+    {
+      "path": "assets/face-art/ear-heart_e-m-back.png",
+      "bytes": 14651,
+      "sha256": "355d540e7b8dbf3f5af87c17fe64a715a5a939376c27df4e1f1ce75957d268de"
+    },
+    {
+      "path": "assets/face-art/ear-heart_e-f-front.png",
+      "bytes": 12885,
+      "sha256": "b3665263c8c20df58dde19ab7ec7b97b7839a74c542178df11a382bb70142e58"
+    },
+    {
+      "path": "assets/face-art/ear-heart_e-f-right.png",
+      "bytes": 2347,
+      "sha256": "436555ba0cbfe801ac2f599618d4fcd9ffb3052efa5aa5b8da6496709ba19dea"
+    },
+    {
       "path": "assets/face-art/ear-long_e-m-front.png",
       "bytes": 13442,
       "sha256": "081ffed3d6a67bc26b59522a3d3e5aac2d9879059a8a65a2997dcd5cca080172"
@@ -2718,6 +2868,31 @@
       "path": "assets/face-art/ear-long_e-f-right.png",
       "bytes": 2001,
       "sha256": "ce2cd859daab0310cb439419e331fdc1a269f153d6481c79161eb1e1d12ea979"
+    },
+    {
+      "path": "assets/face-art/ear-ring-m-front.png",
+      "bytes": 12291,
+      "sha256": "67bfa091e3392e942c551b447b7cf7afb42c70cb509f30dfa97693e3593ec0a7"
+    },
+    {
+      "path": "assets/face-art/ear-ring-m-right.png",
+      "bytes": 2888,
+      "sha256": "74ade999e4a24f23a94d4b9263ec640620ee6e531ca2e60577f297a54aa8e7d6"
+    },
+    {
+      "path": "assets/face-art/ear-ring-m-back.png",
+      "bytes": 12701,
+      "sha256": "4539320f00712a265775a5e4c3f09992ef9bf9595dc14c8c3d9df26fbf821a88"
+    },
+    {
+      "path": "assets/face-art/ear-ring-f-front.png",
+      "bytes": 11161,
+      "sha256": "504ed15066ec9590ae507ae13b74dfb48f2638dff3413d8e6c99f9989a240b1b"
+    },
+    {
+      "path": "assets/face-art/ear-ring-f-right.png",
+      "bytes": 2809,
+      "sha256": "ff1d9991666fd73dae77ab7beacb3815ef91cee90d468fad222fdaea74c70c77"
     },
     {
       "path": "assets/face-art/ear-star_e-m-front.png",

@@ -51,3 +51,10 @@
 | `ear-star_e-0-chatgpt-2026-10-16.png` | `ear:star_e:0` 남녀 '별 귀걸이' | 2026-10-16 | 1536×1024 | `95bde9fefe7a3f1fdc7e26968f8b07258bb5f5ef035c9f5d68b7130b9ae937cc` | 귀걸이 시범 R1. 원본만 저장(귀걸이 자르기 도구는 아직 없음). |
 | `ear-long_e-0-chatgpt-2026-10-16.png` | `ear:long_e:0` 남녀 '긴 귀걸이' | 2026-10-16 | 1536×1024 | `bda5514b3a154bf29704539fec6eb6ece9780316e777a7889b3f7129a636bca5` | 귀걸이 시범 R2. 원본만 저장(귀걸이 자르기 도구는 아직 없음). |
 | `face-mask-10-chatgpt-2026-10-16-r3.png` | `face:mask:10` 남녀 '마스크'(사용자가 다시 받은 턱까지 덮는 마스크) | 2026-10-16 | 1536×1024 | `f051cd579f90cdad4e8e56278edd7209648c7626e5e7ea67829aabcdb374a67a` | 지금 `assets/face-art/face-mask-*`의 원본. 턱선 위에서 끝나게 요청한 F4R은 사용자가 '원화가 잘못됐다'고 해 쓰지 않음(저장 안 함). |
+| `ear-dot-0-chatgpt-2026-10-16.png` | `ear:dot:0` 남녀 '방울 귀걸이' | 2026-10-16 | 1536×1024 | `982aa5195f1f0a30c2b83e397796efb6a2101495e6d36da7c5c62367dc53f205` | 귀걸이 R3~R9, 첫 원화로 사용. |
+| `ear-heart_e-0-chatgpt-2026-10-16.png` | `ear:heart_e:0` 남녀 '하트 귀걸이' | 2026-10-16 | 1536×1024 | `ecea9e4425ddfa609bea6dce14276dde10bfd546ea50509fbdc4373f2d35e1c0` | 귀걸이 R3~R9, 첫 원화로 사용. |
+| `ear-drop-0-chatgpt-2026-10-16.png` | `ear:drop:0` 남녀 '물방울 귀걸이' | 2026-10-16 | 1536×1024 | `f1866fcd7b111593eac52a54ba9b79d4cd50cbc6b6513bf6c5689534bb157f4c` | 귀걸이 R3~R9, 첫 원화로 사용. |
+| `ear-ring-0-chatgpt-2026-10-16.png` | `ear:ring:0` 남녀 '링 귀걸이' | 2026-10-16 | 1536×1024 | `741a63d656a0386b11048e38cddf1b608745ea07ac11b57de3144fadf74ba10e` | 귀걸이 R3~R9, 첫 원화로 사용. |
+| `ear-flower_e-0-chatgpt-2026-10-16.png` | `ear:flower_e:0` 남녀 '꽃 귀걸이' | 2026-10-16 | 1536×1024 | `6dea8ee4a2b3b5b179f1f78c56b1e7ee5ec92e1adf81333d97667bf028b0faee` | 귀걸이 R3~R9, 첫 원화로 사용. |
+| `ear-cross_e-0-chatgpt-2026-10-16.png` | `ear:cross_e:0` 남녀 '십자 귀걸이' | 2026-10-16 | 1536×1024 | `8bd9cc9effa999aa0a2d721705b7dccf1d7a180f3066450c37235bc841d9eb05` | 귀걸이 R3~R9, 첫 원화로 사용. |
+| `ear-bell-0-chatgpt-2026-10-16.png` | `ear:bell:0` 남녀 '방울' | 2026-10-16 | 1536×1024 | `1be50cd3e627c320a5b0ba92f7ca8df1c832ed8467d77d7d52f6bf44a879d24e` | 귀걸이 R3~R9, 첫 원화로 사용. |
