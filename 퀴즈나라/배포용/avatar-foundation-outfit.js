@@ -511,10 +511,13 @@
       arm.parent.insertBefore(sleeve,arm.hand);leg.parent.append(shoe);
       const skinClip=clip(defs,id+'-arm-skin-'+i);arm.contour.setAttribute('clip-path','url(#'+id+'-arm-skin-'+i+')');arm.shade.setAttribute('clip-path','url(#'+id+'-arm-skin-'+i+')');
       r.sleeves.push({group:sleeve,image:sprite(sleeve,'sleeve-'+i),skinClip});
-      r.shoes.push({group:shoe,image:sprite(shoe,'shoe-'+i)});
+      // Open shoes (record.feet: slippers, sandals) show the bare foot under them; only they add the node, so the
+      // closed shoes' node set stays as it is (tools/foundation-matrix.cjs NODE_TABLE).
+      const feet=wear.shoes.record?.feet?sprite(shoe,'feet-'+i):null;
+      r.shoes.push({group:shoe,feet,image:sprite(shoe,'shoe-'+i)});
     }
     for(const e of [r.shirt,...r.underarms.flatMap(u=>[u.fill,u.line]),...r.sleeves.flatMap(p=>[p.group,p.image])])e.dataset.outfitGarment=wear.top.id;
-    r.hip.dataset.outfitGarment=wear.bottom.id;for(const p of r.shoes)p.group.dataset.outfitGarment=p.image.dataset.outfitGarment=wear.shoes.id;
+    r.hip.dataset.outfitGarment=wear.bottom.id;for(const p of r.shoes){p.group.dataset.outfitGarment=p.image.dataset.outfitGarment=wear.shoes.id;if(p.feet)p.feet.dataset.outfitGarment=wear.shoes.id;}
     mounted.set(svg,r);return r;
   }
   // The garments this svg wears (data-foundation-garments, written by
@@ -573,6 +576,13 @@
       const shoeAngle=seat?.view?seat.angle:leg.shoeAngle*180/Math.PI,flip=seat?.view?seat.flip:1;
       set(s.group,'transform','translate('+pt(leg.ankle)+') rotate('+n(shoeAngle)+') scale('+flip+' 1)');
       paint(s.image,art,key,(art.rect[0]-anchor[0])*SF.k,(art.rect[1]-anchor[1])*SF.k,art.width*SF.k,art.height*SF.k);
+      // The bare foot of an open shoe, under it on the same ankle transform, in the skin's tone filter. A seated
+      // foot is the seated layers' (avatar-foundation.js), so it stays hidden there.
+      if(s.feet){const ft=seat?null:root.QPFoundationSkin?.foot(sex,artView,index);
+        if(ft){const fk=gk('feet',sex,artView,'foot',Math.min(index,root.QPFoundationSkin.FEET[sex+'-'+VIEW[artView]].length-1)),fa=part(fk,ft.image,ft.rect.slice(0,2),ft.rect),tone='url(#'+body.svg.dataset.foundationId+'-paint-tone)';
+          paint(s.feet,fa,fk,(ft.rect[0]-anchor[0])*SF.k,(ft.rect[1]-anchor[1])*SF.k,ft.rect[2]*SF.k,ft.rect[3]*SF.k);
+          if(s.feet.getAttribute('filter')!==tone)s.feet.setAttribute('filter',tone);s.feet.style.display='';}
+        else s.feet.style.display='none';}
       s.group.style.display=seat?.hidden||seat?.lap?'none':'';
       // Crossed feet seen from the front lie under both shins (each foot is
       // tucked under the other leg): both shoes go first in the far leg, the

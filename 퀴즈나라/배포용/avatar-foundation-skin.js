@@ -9,7 +9,11 @@
  'use strict';
  const NS='http://www.w3.org/2000/svg',base=new URL('.',document.currentScript.src),R=root.QPFoundationReferenceData;
  const files={arm:'assets/sd-foundation-ref-arms.png',leg:'assets/sd-foundation-ref-legs.png',neck:'assets/sd-foundation-ref-neck.png'};
- const cleanFiles={arm:'assets/sd-foundation-ref-arms-clean.png',neck:'assets/sd-foundation-ref-neck-clean.png',leg:'assets/sd-foundation-ref-legs-under.png'};
+ const cleanFiles={arm:'assets/sd-foundation-ref-arms-clean.png',neck:'assets/sd-foundation-ref-neck-clean.png',leg:'assets/sd-foundation-ref-legs-under.png',feet:'assets/sd-foundation-ref-feet.png'};
+ // Bare feet under an open shoe (record.feet: slippers, sandals), cut from a returned barefoot sheet on the sheet
+ // grid by tools/build-standing-feet.py: per figure one rect per shoe of the basic sneaker, anchored at the
+ // figure's ankles like a shoe (check: build-standing-feet.py --check compares this literal).
+ const FEET={'m-front':[[254,493,47,58],[339,493,47,59]],'m-right':[[701,496,76,54]],'m-back':[[1044,495,41,57],[1118,495,40,57]],'f-front':[[260,1019,46,56],[343,1019,45,56]],'f-right':[[705,1021,77,53]],'f-back':[[1044,1019,43,56],[1119,1019,44,56]]};
  // The clean neck runs 8 px past the legacy rect (room under a V neck):
  // tools/garment/frozen/zones.json clean.neckRects (check-source compares).
  // The clean arms fill the legacy arm rects. f-back borrows the male neck.
@@ -262,5 +266,7 @@
   part.handCut.setAttribute('d','M'+q(c,0,12)+'L'+q(c,-30,12)+'L'+q(c,-30,-12)+'L'+q(c,0,-12)+'Z');part.painting.setAttribute('clip-path','url(#'+part.handCut.parentNode.id+')');
  }
  function destroy(r){r.skinPaintFilter?.remove();r.neckPainting?.remove();for(const e of [r.neckSurface,r.neckEdge,r.neckShade])e.style.display='';for(const part of [...r.arms,...r.legs]){part.contour.style.visibility='';part.paintFrame?.remove();part.painting?.remove();part.paintClip?.parentNode.remove();part.forearm?.remove();part.forearmArt?.remove();part.forearmClip?.parentNode.remove();part.openHand?.remove();part.handCut?.parentNode.remove();r.svg.querySelector('[id="'+r.svg.dataset.foundationId+'-hand-fade-'+r.arms.indexOf(part)+'"]')?.remove();delete part.forearm;delete part.forearmArt;delete part.forearmClip;delete part.openHand;delete part.handStrokes;delete part.handCut;}}
- root.QPFoundationSkin=Object.freeze({atlas,files,cleanFiles,clean,load,loadClean,apply,destroy,toneMatrix,limbDef,paintCache,paint,paintStats,emptyPaint,CLEAN_NECK});
+ // A bare foot under an open shoe: its sheet rect and the clean art it lies on (null before loadClean is ready).
+ function foot(sex,view,i){const list=FEET[sex+'-'+VIEW[view]];if(!list||!images.feetClean)return null;return{rect:list[Math.min(i,list.length-1)],image:images.feetClean};}
+ root.QPFoundationSkin=Object.freeze({atlas,files,cleanFiles,clean,load,loadClean,apply,destroy,toneMatrix,limbDef,paintCache,paint,paintStats,emptyPaint,CLEAN_NECK,FEET,foot});
 })(window);

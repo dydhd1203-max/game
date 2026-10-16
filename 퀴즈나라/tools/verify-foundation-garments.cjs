@@ -133,7 +133,8 @@ async function routeTest(){
   const INTENDED=new Map([
     ...['shirt','sleeves','shorts','shoes'].map(p=>['assets/sd-foundation-ref-'+p+'.png','legacy full-sheet garment layer left the allow-list (the records\' atlases replace it; kept in the repo as pack input until WP11)']),
     ['assets/sd-foundation-ref-arms-clean.png','clean body art joined the foundation bundle'],['assets/sd-foundation-ref-neck-clean.png','clean body art joined the foundation bundle'],
-    ['assets/sd-foundation-ref-legs-under.png','legs run on under pipeline shoes (2026-10-15) joined the foundation bundle']]);
+    ['assets/sd-foundation-ref-legs-under.png','legs run on under pipeline shoes (2026-10-15) joined the foundation bundle'],
+    ['assets/sd-foundation-ref-feet.png','bare feet under open shoes (2026-10-16) joined the foundation bundle']]);
   const rows=[],changed=[],unexpected=[];
   for(const mode of [{protocol:'file:',opaque:false},{protocol:'http:',opaque:true},{protocol:'http:',opaque:false}]){
     const tag=mode.protocol+(mode.opaque?' opaque':'');
