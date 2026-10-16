@@ -1,7 +1,7 @@
 {
   "project": "퀴즈나라",
   "format": 1,
-  "builtAt": "2026-10-16T04:25:08.891Z",
+  "builtAt": "2026-10-16T04:34:37.209Z",
   "instructions": "Cloudflare Pages 또는 Netlify 수동 배포에는 이 배포용 폴더 전체를 올리세요. index.html만 올리지 마세요.",
   "files": [
     {
@@ -541,8 +541,8 @@
     },
     {
       "path": "avatar-foundation.js",
-      "bytes": 133150,
-      "sha256": "a8fa3d5cb6083e54c886c61177dd635f7e93421d7caacc997255e10b2465e572"
+      "bytes": 134617,
+      "sha256": "940b0d605b15ad5e26e2e415f64570d60dfe4abf29c70f701087185f37d161bb"
     },
     {
       "path": "avatar-foundation.css",
@@ -2451,8 +2451,8 @@
     },
     {
       "path": "avatar-face-art.js",
-      "bytes": 10681,
-      "sha256": "ef8c9a3118e3edb8f418afee476b393516786233da52b2ab6a7a96989d985fbf"
+      "bytes": 11169,
+      "sha256": "5dd5a73ac02c117575461333781547cf99a3d1ff45c0b35528697a8f50818b1c"
     },
     {
       "path": "assets/face-art/fringe/f-front-short.png",
@@ -2863,6 +2863,26 @@
       "path": "assets/face-art/face-gonji-f-right.png",
       "bytes": 1225,
       "sha256": "89de26d31b5fd35f8189a531acf7305e6ddcc6209aa970c2a5f12b5c45800df6"
+    },
+    {
+      "path": "assets/face-art/face-mask-m-front.png",
+      "bytes": 31799,
+      "sha256": "36a4023d47f1fb3c0b1996c5440a82fd8f1464f1f7a95d023f4665e506137a27"
+    },
+    {
+      "path": "assets/face-art/face-mask-m-right.png",
+      "bytes": 24581,
+      "sha256": "e6e08cdbd7785c87c98cc6a92d2f0cc34e407b1200a519f51f94aa2913d4b087"
+    },
+    {
+      "path": "assets/face-art/face-mask-f-front.png",
+      "bytes": 25197,
+      "sha256": "7617ed22895a06efc70985c168ca8de97592b6864db70edf2725547edc9dc828"
+    },
+    {
+      "path": "assets/face-art/face-mask-f-right.png",
+      "bytes": 13772,
+      "sha256": "9dca0d5dd5867127b935b6c4f89eb0575aba212e67ccd3b1d39a83038715d42f"
     },
     {
       "path": "assets/face-art/face-paint-m-front.png",

@@ -1,0 +1,46 @@
+{
+ "kind": "mask",
+ "views": {
+  "m": {
+   "front": {
+    "src": "assets/face-art/face-mask-m-front.png",
+    "rect": [
+     6.483,
+     19.634,
+     20.958,
+     10.086
+    ]
+   },
+   "right": {
+    "src": "assets/face-art/face-mask-m-right.png",
+    "rect": [
+     13.557,
+     18.869,
+     12.298,
+     9.704
+    ]
+   }
+  },
+  "f": {
+   "front": {
+    "src": "assets/face-art/face-mask-f-front.png",
+    "rect": [
+     8.956,
+     21.955,
+     15.771,
+     7.734
+    ]
+   },
+   "right": {
+    "src": "assets/face-art/face-mask-f-right.png",
+    "rect": [
+     14.914,
+     21.644,
+     9.562,
+     6.215
+    ]
+   }
+  }
+ },
+ "sheet": "assets/garment-sources/face-mask-10-chatgpt-2026-10-16-r3.png"
+}

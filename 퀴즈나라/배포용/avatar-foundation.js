@@ -907,7 +907,17 @@
     for(const slot of FACE_SLOTS){const shape=String(av[slot]||'').split(':')[0],rec=shape&&A.items[slot+':'+shape],art=rec?.views?.[sex]?.[vw];if(art)out.push({slot,shape,kind:rec.kind,...art});}
     return out;
   }
-  function faceKey(av,sex){const A=root.QPFaceArt;return A?FACE_SLOTS.filter(slot=>{const shape=String(av[slot]||'').split(':')[0];return shape&&A.items[slot+':'+shape];}).map(slot=>'|'+slot+':'+String(av[slot]).split(':')[0]).join(''):'';}
+  function faceKey(av,sex){const A=root.QPFaceArt;return A?FACE_SLOTS.filter(slot=>{const shape=String(av[slot]||'').split(':')[0];return shape&&A.items[slot+':'+shape];}).map(slot=>'|'+slot+':'+String(av[slot]).split(':')[0]).join('')+(earArtOf(av,sex,'front')?'|ear:'+String(av.ear).split(':')[0]:''):'';}
+  // Earrings (av.ear, the same face art bundle, 2026-10-16 pilot): over the hair (a girl's bob hides her ears,
+  // the earring hangs below it), no fringe mask, in every view (a boy's ears show from behind); front and
+  // profile move with the hair style's face like the face items, the back stays on the head fit.
+  function earArtOf(av,sex,view){const A=root.QPFaceArt,shape=String(av.ear||'').split(':')[0],rec=shape&&A?.items?.['ear:'+shape],art=rec?.views?.[sex]?.[view==='profile'?'right':view];return art?{shape,...art}:null;}
+  function earLayer(v,base,sex,view){
+    const a=earArtOf(base,sex,view);if(!a)return;
+    const off=view==='back'?[0,0]:root.QPFaceArt.anchors?.[sex]?.[view==='profile'?'right':view]?.[base.hair.split(':')[0]]||[0,0];
+    const g=el('g',{'data-foundation-ear':a.shape,transform:`translate(${off[0]} ${off[1]})`});
+    g.append(el('image',{href:a.src,x:a.rect[0],y:a.rect[1],width:a.rect[2],height:a.rect[3],preserveAspectRatio:'none'}));v.append(g);
+  }
   function faceLayer(v,defs,id,base,sex,view,skin){
     const arts=faceArtOf(base,sex,view);if(!arts.length)return;
     const vw=view==='profile'?'right':view,off=root.QPFaceArt.anchors?.[sex]?.[vw]?.[base.hair.split(':')[0]]||[0,0];
@@ -944,17 +954,21 @@
     for(const view of ['front','profile','back']){
       const v=el('g',{'data-foundation-head-view':view}),fit=VIEW_HEAD[sex][view];
       // The painting goes in at the comment when the template is assembled.
-      if(fit)v.setAttribute('transform',`translate(${fit[2]||0} ${fit[1]}) translate(16 ${VIEW_HEAD_PIVOT}) scale(${fit[0]}) translate(-16 ${-VIEW_HEAD_PIVOT})`);v.append(document.createComment('qpf-head:'+view));
+      if(fit)v.setAttribute('transform',`translate(${fit[2]||0} ${fit[1]}) translate(16 ${VIEW_HEAD_PIVOT}) scale(${fit[0]}) translate(-16 ${-VIEW_HEAD_PIVOT})`);const paintG=el('g',{'data-foundation-head-paint':view});paintG.append(document.createComment('qpf-head:'+view));v.append(paintG);
       // The directional paintings include a flared standalone neck with a
       // dark bottom rim. A body that owns its neck must not show that second
       // neck above the shirt. Cut only the reference heads' neck attachment;
       // original face/hair PNGs and legacy wardrobe rendering stay intact.
       faceLayer(v,defs,id,base,sex,view,heads.skin);
+      earLayer(v,base,sex,view);
       // Its own hair below the chin hangs behind the body in front: the hair drawn under the hat replaces it.
       if(hatLayer(v,defs,id,base,sex,view,hairColor)&&view==='front')backHair.setAttribute('display','none');
       const referenceHead=base.hair.split(':')[0]===(sex==='m'?'short':'bob');
       const cut=referenceHead?HEAD_NECK_CUT[sex][view]:'';
-      if(cut){const clip=el('clipPath',{id:id+'-head-only-'+view,clipPathUnits:'userSpaceOnUse'});clip.append(el('path',{d:'M-8 -8H40V48H-8Z'+cut,'clip-rule':'evenodd'}));defs.append(clip);v.setAttribute('clip-path','url(#'+id+'-head-only-'+view+')');}
+      if(cut){const clip=el('clipPath',{id:id+'-head-only-'+view,clipPathUnits:'userSpaceOnUse'});clip.append(el('path',{d:'M-8 -8H40V48H-8Z'+cut,'clip-rule':'evenodd'}));defs.append(clip);
+        // only the painting and the hair drawn under a hat carry the old neck stump: a mask or an earring
+        // over the chin was cut square there too (F4R, 2026-10-16)
+        const url='url(#'+id+'-head-only-'+view+')';paintG.setAttribute('clip-path',url);v.querySelectorAll('[data-foundation-hat-hair]').forEach(n=>n.setAttribute('clip-path',url));}
       // Front bow: the painting above the brow line stays in this view (a
       // clipped, stretched crown band) and the face band below it is the same
       // view again through a <use>, slid down and foreshortened (BOW_FACE).

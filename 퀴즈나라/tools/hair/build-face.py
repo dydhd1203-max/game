@@ -66,7 +66,7 @@ FEATURE_L = 65.0      # Lab lightness under which a template face pixel is a fea
 PAINT_EDGE = 2        # px inside the face edge where such a seed may start
 EYE_GAP = 3           # px round the template's eyes where no sticker starts (a redrawn iris or lash tip)
 FEATURE_GAP = 3       # px round the template's eyes, brows, nose and mouth where such a change is a redrawn line
-MASK_REACH = 10       # px below/around the face a mask reaches: its chin edge lies on the neck's owner (F4)
+MASK_REACH = 18       # px below/around the face a mask reaches: its chin edge lies on the neck's owner (F4)
 EYE_KEEP = 4          # px round the new eye where unchanged template dark pixels may be its own lid
 BROW_LINE = .45       # eye gaps above the irises where the eyebrows start
 BROW_NEAR = 14.0      # Lab distance to the template's hair colours that is an eyebrow
@@ -143,9 +143,10 @@ def cut(U, T, O, cells, slot, kind, debug=None):
         lu, lt, u = LU[y0:y1, x0:x1], LT[y0:y1, x0:x1], U[y0:y1, x0:x1]
         t = T[y0:y1, x0:x1]
         head = O[y0:y1, x0:x1] == HEAD
-        if kind == 'mask':  # the mask's lower edge covers the chin, which the owner map gives the neck
-            head = head | (M.dilate(face, MASK_REACH) & (O[y0:y1, x0:x1] == R.OWNER['neck']))
-        zone = M.dilate(face, 8) & head
+        if kind == 'mask':  # the mask's lower edge covers the chin: below the template's chin lie the neck and
+            # the page; with the neck alone the edge was cut flat over the page and a neck-wide tab stuck out (F4, F4R)
+            head = head | M.dilate(face, MASK_REACH)
+        zone = head if kind == 'mask' else M.dilate(face, 8) & head  # (the face's skin itself is notched at the chin)
         d = np.sqrt(((lu - lt) ** 2).sum(-1))
         changed = (d > CHANGED) & zone
         if kind in ('sticker', 'mask'):
@@ -175,7 +176,8 @@ def cut(U, T, O, cells, slot, kind, debug=None):
             lab_, comps = M.components(M.dilate(novel, 1))
             seeds = novel & np.isin(lab_, [c['label'] for c in comps if (novel & (lab_ == c['label'])).sum() >= MIN_PX])
             # grown a few px only (its own outline), not along a redrawn eye line
-            item = M.dilate(seeds, STICKER_GROW) & changed & (M.dilate(face, MASK_REACH) & head if kind == 'mask' else M.dilate(face, 3))
+            # (a mask grows 2 px only, its outline: 4 px reached into the redrawn neck under the chin, a square tab, F4R)
+            item = M.dilate(seeds, 2 if kind == 'mask' else STICKER_GROW) & changed & (M.dilate(face, MASK_REACH) & head if kind == 'mask' else M.dilate(face, 3))
             lab_, comps = M.components(item)
             inner = M.erode(face, EDGE)
             # (a mask is mostly on the face but reaches over the chin and to the ears: a third inside is enough)
