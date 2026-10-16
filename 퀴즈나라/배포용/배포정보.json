@@ -1,7 +1,7 @@
 {
   "project": "퀴즈나라",
   "format": 1,
-  "builtAt": "2026-10-16T05:39:10.406Z",
+  "builtAt": "2026-10-16T05:58:45.245Z",
   "instructions": "Cloudflare Pages 또는 Netlify 수동 배포에는 이 배포용 폴더 전체를 올리세요. index.html만 올리지 마세요.",
   "files": [
     {
@@ -2482,7 +2482,7 @@
     {
       "path": "avatar-face-art.js",
       "bytes": 16134,
-      "sha256": "2d721744cf1d6c56cdb2fc0c7e2c1c2c6d0873a004238c123fee861638d661de"
+      "sha256": "a3afb8ce9c5af7a35d1d1827a6ff62f4fa929f9d3eccd82aa9a85ac398674435"
     },
     {
       "path": "assets/face-art/fringe/f-front-short.png",
@@ -3141,8 +3141,8 @@
     },
     {
       "path": "assets/face-art/face-whisker-f-front.png",
-      "bytes": 3841,
-      "sha256": "92656cad256b69cb268a2945185ab9b4a1da3e05d7a1ed3b3120fba86433bc05"
+      "bytes": 5008,
+      "sha256": "5eda794995e1c58e06a54b8abf4232387e58b37b6ce75c1db149c7b8cfefa777"
     },
     {
       "path": "assets/face-art/face-whisker-f-right.png",
@@ -3151,43 +3151,43 @@
     },
     {
       "path": "assets/face-art/glass-round-m-front.png",
-      "bytes": 28413,
-      "sha256": "5e97da4f6259a1f62f8ca15277b525fdfa6ec5965224a56b962e347314337ade"
+      "bytes": 33650,
+      "sha256": "cab43eeecef6189e9fdb47ec8754a5ab501261b98b84fe932dedded1e72983c2"
     },
     {
       "path": "assets/face-art/glass-round-m-right.png",
-      "bytes": 13184,
-      "sha256": "5321eeb086cc69cff50c929474144e94e097cfa0cab05246b9875c27db7e84ca"
+      "bytes": 15762,
+      "sha256": "0f17084e81a3266282f7bbed2e08062aeb2f6e0428921e65d40411f3eebfd489"
     },
     {
       "path": "assets/face-art/glass-round-f-front.png",
-      "bytes": 24188,
-      "sha256": "a9fb038a6a02efdc56baf5425b1d2048374bdfa2d7c46fee849d33792de0a5f6"
+      "bytes": 28861,
+      "sha256": "301821c9195005a22e1e5cbcddc6bf0087bbb50082748cc688995dc8a4164319"
     },
     {
       "path": "assets/face-art/glass-round-f-right.png",
-      "bytes": 13472,
-      "sha256": "8d74caed03a0875c92720f5f481b2702fa9cb8d97643881c8b38d8a36bdd1e7f"
+      "bytes": 15782,
+      "sha256": "d781756413e642ba5eaf959da8792de1a6c81c418d475b6bdfcd2a0fb92426b5"
     },
     {
       "path": "assets/face-art/glass-sun-m-front.png",
-      "bytes": 19370,
-      "sha256": "51b1c6663acfe7538cbc135afec5b96f3758ee384c6c563040eb3b8a84397530"
+      "bytes": 23813,
+      "sha256": "f7575124a9937b3ccf53143357c51aa1cd959b75d31c9969a16526cd8b4fe13f"
     },
     {
       "path": "assets/face-art/glass-sun-m-right.png",
-      "bytes": 11734,
-      "sha256": "9bb476107968eb81791e50df2ac1083d92b35edd991cd7bbbf3922d9963bfc98"
+      "bytes": 15625,
+      "sha256": "a120c026e9f4f53e4e9154abe4d479d28d4524b72aca7ca9cf94a424b57ddefa"
     },
     {
       "path": "assets/face-art/glass-sun-f-front.png",
-      "bytes": 15839,
-      "sha256": "0947dd418534094fd19c934e82cde8be7cbe429ac18996d73919a2c40335b9c1"
+      "bytes": 20216,
+      "sha256": "26cfa2b41dbc1b54c52c218800ce6fc22a6cf765ac8b177dcee52249ca3bc2cf"
     },
     {
       "path": "assets/face-art/glass-sun-f-right.png",
-      "bytes": 9672,
-      "sha256": "139c0cd0c3422daca7454d74c2c5efba5a687a00cc5fd20854aa34c239c76766"
+      "bytes": 12834,
+      "sha256": "109763e7e26424623b61ef4e33061d476ce9f78d52637f404d524209cda41f99"
     },
     {
       "path": "assets/face-art/mouth-cat-m-front.png",
