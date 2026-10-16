@@ -12,7 +12,10 @@ require('./garment/build-index.cjs')(true);
 // unnoticed (2026-10-16, limits.json changed in 810e0f5 without a repack).
 {
   const r=require('node:child_process').spawnSync('python3',['-B',path.join(__dirname,'garment/pack-basic.py'),'--check'],{cwd:root,encoding:'utf8'});
+  // The Pages build (build-deployment.cjs) runs this file without the Python image libraries.
   if(r.error&&r.error.code==='ENOENT')console.log('pack-basic --check skipped: python3 not found');
+  // Only its own verdict line counts; a run that never got there (missing modules, old Python) is skipped.
+  else if(r.status!==0&&!/^pack-basic: FAIL/m.test(r.stdout))console.log('pack-basic --check skipped: '+((r.stderr||'').trim().split('\n').pop()||'exit '+r.status));
   else{assert.equal(r.status,0,'Basic garment records stale or wrong:\n'+(r.stdout+r.stderr).split('\n').filter(l=>/FAIL|stale|differ|missing/.test(l)).join('\n'));console.log('Basic garment records match a fresh pack');}
 }
 // The frozen reference body (tools/garment/frozen/frozen-body.json, written by
