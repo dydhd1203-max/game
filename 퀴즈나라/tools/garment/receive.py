@@ -59,7 +59,8 @@ def main(argv):
     src = os.path.join(ROOT, 'assets', 'garment-sources', '%s-chatgpt-%s%s' % (stem, a.date, ext))
     if os.path.exists(src) and open(src, 'rb').read() != open(a.sheet, 'rb').read():
         raise SystemExit('%s exists with other pixels: pass --name for this sheet' % os.path.relpath(src, ROOT))
-    shutil.copyfile(a.sheet, src)
+    if not (os.path.exists(src) and os.path.samefile(a.sheet, src)):  # a new session re-cuts a stored original in place
+        shutil.copyfile(a.sheet, src)
     sha = hashlib.sha256(open(src, 'rb').read()).hexdigest()
     out = os.path.join(ROOT, '검증', '옷', '%s-%s' % (cat, shape))
     os.makedirs(out, exist_ok=True)
