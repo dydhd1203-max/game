@@ -518,6 +518,27 @@ class Context:
         return out
 
 
+def middle_strips(noart, isP, span):
+    """Exposure pieces that are a strip down the garment's middle in its lower half (a cream button placket's
+    last rows over the hem), narrower than `span` of the zone: cloth, not a belly (a belly under a short top is a
+    wide band; a hand's edge lies at a side, not across the middle). Real top:shirt (cream share .02-.07, so
+    exposure_regions did not apply) lost 18 px of its placket at the hem, a 1 px waist gap (2026-10-16)."""
+    lab_, comps = M.components(noart)
+    out = np.zeros_like(noart)
+    rows = np.nonzero(isP.any(1))[0]
+    if not len(rows):
+        return out
+    half = (rows.min() + rows.max()) / 2.0
+    # the whole garment's middle and width: the template's hem rows curve, their own middle lay 16 px aside
+    cols = np.nonzero(isP.any(0))[0]
+    mid, width = (cols.min() + cols.max()) / 2.0, cols.max() - cols.min() + 1
+    for c in comps:
+        x0, y0, x1, y1 = c['bbox']
+        if (y0 + y1) / 2.0 > half and x0 <= mid < x1 and (x1 - x0) < span * width:
+            out |= lab_ == c['label']
+    return out
+
+
 def exposure_regions(noart, isP, span):
     """Exposed skin is a band or an opening of the garment, not a spot at its
     side: a component stays exposed when its columns cross the middle of the
@@ -747,6 +768,7 @@ def segment_cell(ctx, key, seams=True):
         diag['creamShare'] = round(float(cream.sum()) / max(1, ((label == 1) & isP).sum()), 3)
         if diag['creamShare'] > P['creamShare']:
             noart = exposure_regions(noart, isP, P['exposeSpan'])
+        noart = noart & ~middle_strips(noart, isP, P['exposeSpan'])
         label[noart] = 5
     diag['exposedNoArtPx'] = int(noart.sum())
     # the drawn edge carried past the band's columns: changed body pixels on
