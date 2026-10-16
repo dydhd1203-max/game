@@ -66,6 +66,7 @@ function build(product,lang,P){
   const notes=product.notes[lang],cls=P.classes[product.class][lang],ch=P.children[lang];
   const sexes=product.sexes,single=sexes.length===1,shared=!single&&!!product.sharedPicture;
   const values={...cls,item:notes.item,itemM:notes.itemM||notes.item,itemF:notes.itemF||notes.item,look:notes.look,back:notes.back};
+  if(notes.length)values.length=notes.length; // a product whose wearing rule differs from its class (one-eye glasses)
   if(single){
     values.child=ch[sexes[0]];values.other=ch[sexes[0]==='m'?'f':'m'];
     values.targets=fill(ch.target,values);values.singleSex=P.singleSex[lang];

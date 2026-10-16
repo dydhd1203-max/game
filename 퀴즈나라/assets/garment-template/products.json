@@ -10,7 +10,7 @@
   "mirrorSafe": "true when the right-facing side view may be mirrored into the left view without a decoration looking wrong (no lettering, nothing on one side only that the side view shows). false adds the mirror line to the prompt.",
   "sharedPicture": "true when both sexes wear the same painting in the same colour: image 2 shows it once.",
   "designRef": "image 2 in assets/garment-template/, made by tools/garment/design-ref.cjs from the shop art (no body).",
-  "notes": "KO/EN design notes for the prompt. item: the garment noun; look: what to take from image 2; m/f (or both): the description per child; back: the back-view line.",
+  "notes": "KO/EN design notes for the prompt. item: the garment noun; look: what to take from image 2; m/f (or both): the description per child; back: the back-view line. length (optional): replaces the class's wearing rule (rule 3) for this product, e.g. glasses worn on one eye.",
   "planned": "true for a product the shop does not sell yet (requested art first): design-ref.cjs draws image 2 from refSvg and skips the catalogue check.",
   "earAnchored": "true for a band whose lower ends sit on the ears (headphones): tools/hair/build-hat.py exports kind 'band' and the game stretches it about its bottom to the hair's top edge instead of moving it."
  },
@@ -2041,6 +2041,420 @@
      "look": "colour and shape",
      "both": "the sunglasses from image 2: two dark grey rounded-square lenses covering the eyes, joined by a bridge over the nose, the arms running to the ears; one short light reflection near the top of each lens.",
      "back": "in the side view draw the glasses from the side (the front rim and the arm running to the ear); the back view stays exactly as in image 1."
+    }
+   },
+   "sharedPicture": true
+  },
+  "glass:square": {
+   "class": "face/glasses",
+   "status": "glasses G3 (shared picture, requested 2026-10-16)",
+   "sexes": [
+    "m",
+    "f"
+   ],
+   "ci": {
+    "m": 9,
+    "f": 9
+   },
+   "names": {
+    "m": "네모 안경",
+    "f": "네모 안경"
+   },
+   "colour": {
+    "m": "#556074",
+    "f": "#556074"
+   },
+   "display": {
+    "m": "#556074",
+    "f": "#556074"
+   },
+   "mirrorSafe": true,
+   "designRef": "ref-glass-square-design.png",
+   "notes": {
+    "ko": {
+     "item": "네모 안경",
+     "look": "색과 모양",
+     "both": "두 번째 그림의 네모 안경. 모서리가 둥근 네모난 두 렌즈를 가는 진회색 테가 두르고, 코 위 다리와 양옆 다리가 이어집니다. 렌즈는 투명해서 눈이 그대로 보입니다.",
+     "back": "옆모습에서는 안경을 옆에서 본 모양(앞쪽 테와 귀로 가는 다리)으로 그리고, 뒷모습은 그림틀 그대로 둡니다."
+    },
+    "en": {
+     "item": "네모 안경",
+     "look": "colour and shape",
+     "both": "the square glasses from image 2: two rounded-square lenses in a thin dark grey rim, a bridge over the nose and arms to the ears; clear lenses, the eyes show through unchanged.",
+     "back": "in the side view draw the glasses from the side (the front rim and the arm running to the ear); the back view stays exactly as in image 1."
+    }
+   },
+   "sharedPicture": true
+  },
+  "glass:heart": {
+   "class": "face/glasses",
+   "status": "glasses G4 (shared picture, requested 2026-10-16)",
+   "sexes": [
+    "m",
+    "f"
+   ],
+   "ci": {
+    "m": 7,
+    "f": 7
+   },
+   "names": {
+    "m": "하트 선글라스",
+    "f": "하트 선글라스"
+   },
+   "colour": {
+    "m": "#ff8ad4",
+    "f": "#ff8ad4"
+   },
+   "display": {
+    "m": "#ff8ad4",
+    "f": "#ff8ad4"
+   },
+   "mirrorSafe": true,
+   "designRef": "ref-glass-heart-design.png",
+   "notes": {
+    "ko": {
+     "item": "하트 선글라스",
+     "look": "색과 모양",
+     "both": "두 번째 그림의 하트 선글라스. 하트 모양의 분홍 렌즈 두 개가 눈을 가리고, 코 위 다리와 양옆 다리가 이어집니다. 왼쪽 렌즈 위쪽에 작은 밝은 빛 반사.",
+     "back": "옆모습에서는 안경을 옆에서 본 모양(앞쪽 테와 귀로 가는 다리)으로 그리고, 뒷모습은 그림틀 그대로 둡니다."
+    },
+    "en": {
+     "item": "하트 선글라스",
+     "look": "colour and shape",
+     "both": "the heart sunglasses from image 2: two pink heart-shaped lenses covering the eyes, a bridge over the nose and arms to the ears; a small light reflection near the top of the lens.",
+     "back": "in the side view draw the glasses from the side (the front rim and the arm running to the ear); the back view stays exactly as in image 1."
+    }
+   },
+   "sharedPicture": true
+  },
+  "glass:star_g": {
+   "class": "face/glasses",
+   "status": "glasses G5 (shared picture, requested 2026-10-16)",
+   "sexes": [
+    "m",
+    "f"
+   ],
+   "ci": {
+    "m": 2,
+    "f": 2
+   },
+   "names": {
+    "m": "별 안경",
+    "f": "별 안경"
+   },
+   "colour": {
+    "m": "#ffd24a",
+    "f": "#ffd24a"
+   },
+   "display": {
+    "m": "#ffd24a",
+    "f": "#ffd24a"
+   },
+   "mirrorSafe": true,
+   "designRef": "ref-glass-star_g-design.png",
+   "notes": {
+    "ko": {
+     "item": "별 안경",
+     "look": "색과 모양",
+     "both": "두 번째 그림의 별 안경. 끝이 뾰족한 네 갈래 반짝이 별 모양의 노란 렌즈 두 개가 눈을 가리고, 코 위 둥근 다리와 양옆 다리가 이어집니다. 렌즈 위쪽에 짧은 밝은 빛 반사.",
+     "back": "옆모습에서는 안경을 옆에서 본 모양(앞쪽 테와 귀로 가는 다리)으로 그리고, 뒷모습은 그림틀 그대로 둡니다."
+    },
+    "en": {
+     "item": "별 안경",
+     "look": "colour and shape",
+     "both": "the star glasses from image 2: two yellow four-pointed sparkle-star lenses covering the eyes, a curved bridge over the nose and arms to the ears; a short light reflection near the top of each lens.",
+     "back": "in the side view draw the glasses from the side (the front rim and the arm running to the ear); the back view stays exactly as in image 1."
+    }
+   },
+   "sharedPicture": true
+  },
+  "glass:goggle": {
+   "class": "face/glasses",
+   "status": "glasses G6 (shared picture, requested 2026-10-16)",
+   "sexes": [
+    "m",
+    "f"
+   ],
+   "ci": {
+    "m": 5,
+    "f": 5
+   },
+   "names": {
+    "m": "물안경",
+    "f": "물안경"
+   },
+   "colour": {
+    "m": "#5aa8ff",
+    "f": "#5aa8ff"
+   },
+   "display": {
+    "m": "#5aa8ff",
+    "f": "#5aa8ff"
+   },
+   "mirrorSafe": true,
+   "designRef": "ref-glass-goggle-design.png",
+   "notes": {
+    "ko": {
+     "item": "물안경",
+     "look": "색과 모양",
+     "both": "두 번째 그림의 물안경. 밝은 파란 테를 두른 동그란 진한 파란 렌즈 두 개가 눈을 가리고, 코 위 둥근 다리와 양옆 다리가 이어집니다. 렌즈 위쪽에 짧고 밝은 빛 반사 한 줄.",
+     "back": "옆모습에서는 안경을 옆에서 본 모양(앞쪽 테와 귀로 가는 다리)으로 그리고, 뒷모습은 그림틀 그대로 둡니다."
+    },
+    "en": {
+     "item": "물안경",
+     "look": "colour and shape",
+     "both": "the swimming goggles from image 2: two round deep blue lenses in a bright blue rim covering the eyes, a curved bridge over the nose and arms to the ears; one short light reflection near the top of each lens.",
+     "back": "in the side view draw the glasses from the side (the front rim and the arm running to the ear); the back view stays exactly as in image 1."
+    }
+   },
+   "sharedPicture": true
+  },
+  "glass:thick": {
+   "class": "face/glasses",
+   "status": "glasses G7 (shared picture, requested 2026-10-16)",
+   "sexes": [
+    "m",
+    "f"
+   ],
+   "ci": {
+    "m": 9,
+    "f": 9
+   },
+   "names": {
+    "m": "뿔테 안경",
+    "f": "뿔테 안경"
+   },
+   "colour": {
+    "m": "#556074",
+    "f": "#556074"
+   },
+   "display": {
+    "m": "#556074",
+    "f": "#556074"
+   },
+   "mirrorSafe": true,
+   "designRef": "ref-glass-thick-design.png",
+   "notes": {
+    "ko": {
+     "item": "뿔테 안경",
+     "look": "색과 모양",
+     "both": "두 번째 그림의 뿔테 안경. 두꺼운 진회색 테의 모서리가 둥근 네모 렌즈 두 개, 코 위 다리와 양옆 다리. 렌즈는 투명해서 눈이 그대로 보입니다.",
+     "back": "옆모습에서는 안경을 옆에서 본 모양(앞쪽 테와 귀로 가는 다리)으로 그리고, 뒷모습은 그림틀 그대로 둡니다."
+    },
+    "en": {
+     "item": "뿔테 안경",
+     "look": "colour and shape",
+     "both": "the thick-rimmed glasses from image 2: two rounded-square lenses in a thick dark grey rim, a bridge over the nose and arms to the ears; clear lenses, the eyes show through unchanged.",
+     "back": "in the side view draw the glasses from the side (the front rim and the arm running to the ear); the back view stays exactly as in image 1."
+    }
+   },
+   "sharedPicture": true
+  },
+  "glass:mono": {
+   "class": "face/glasses",
+   "status": "glasses G8 (shared picture, requested 2026-10-16)",
+   "sexes": [
+    "m",
+    "f"
+   ],
+   "ci": {
+    "m": 2,
+    "f": 2
+   },
+   "names": {
+    "m": "외알 안경",
+    "f": "외알 안경"
+   },
+   "colour": {
+    "m": "#ffd24a",
+    "f": "#ffd24a"
+   },
+   "display": {
+    "m": "#ffd24a",
+    "f": "#ffd24a"
+   },
+   "mirrorSafe": false,
+   "designRef": "ref-glass-mono-design.png",
+   "notes": {
+    "ko": {
+     "item": "외알 안경",
+     "look": "색과 모양",
+     "both": "두 번째 그림의 외알 안경. 한쪽 눈에만 가는 노란(금색) 동그란 테를 끼우고, 테에서 가는 노란 줄이 볼 옆으로 늘어집니다. 렌즈는 투명해서 눈이 그대로 보입니다. 다른 쪽 눈에는 아무것도 없습니다.",
+     "back": "앞모습에서는 그림의 왼쪽 눈(아이의 오른쪽 눈)에 그리고, 오른쪽을 보는 옆모습에서는 보이는 쪽(가까운) 눈에 그립니다. 뒷모습은 그림틀 그대로 둡니다.",
+     "length": "{item|은} 한쪽 눈 앞에만 씁니다. 눈 둘레에 맞는 크기로, 눈썹 바로 아래부터 볼 위까지 그립니다. 눈·눈썹·코·입, 얼굴 윤곽, 머리카락의 모양과 위치는 바꾸지 않습니다(렌즈가 투명해서 그림틀의 눈이 렌즈 안에 그대로 보이게). 앞머리가 테 위로 내려와 있으면 앞머리를 테 위에 그대로 둡니다. 앞모습과 오른쪽을 보는 옆모습에 그리고, 얼굴이 보이지 않는 뒷모습은 그림틀 그대로 둡니다."
+    },
+    "en": {
+     "item": "외알 안경",
+     "look": "colour and shape",
+     "both": "the monocle from image 2: a thin round yellow (gold) rim over one eye only, a thin yellow chain hanging from it down beside the cheek; clear lens, the eye shows through unchanged. Nothing on the other eye.",
+     "back": "in the front view put it on the eye on the left of the picture (the child's right eye); in the right-facing side view put it on the near, visible eye; the back view stays exactly as in image 1.",
+     "length": "Put the {item} in front of one eye only, sized to the eye, from just below the eyebrow to the top of the cheek. Do not change the eyes, eyebrows, nose, mouth, face outline or hair (the clear lens shows the eye of image 1 unchanged). If the fringe falls over the rim, keep the fringe over it. Draw it in the front view and the right-facing side view; the back view shows no face and stays exactly as in image 1."
+    }
+   },
+   "sharedPicture": true
+  },
+  "glass:pince": {
+   "class": "face/glasses",
+   "status": "glasses G9 (shared picture, requested 2026-10-16)",
+   "sexes": [
+    "m",
+    "f"
+   ],
+   "ci": {
+    "m": 11,
+    "f": 11
+   },
+   "names": {
+    "m": "코안경",
+    "f": "코안경"
+   },
+   "colour": {
+    "m": "#a87352",
+    "f": "#a87352"
+   },
+   "display": {
+    "m": "#a87352",
+    "f": "#a87352"
+   },
+   "mirrorSafe": true,
+   "designRef": "ref-glass-pince-design.png",
+   "notes": {
+    "ko": {
+     "item": "코안경",
+     "look": "색과 모양",
+     "both": "두 번째 그림의 코안경. 양옆 다리 없이 코에 집어 쓰는 동그란 갈색 테 두 개를 코 위 둥근 다리가 잇습니다. 렌즈는 투명해서 눈이 그대로 보입니다.",
+     "back": "옆모습에서는 안경을 옆에서 본 모양(앞쪽 테와 귀로 가는 다리)으로 그리고, 뒷모습은 그림틀 그대로 둡니다."
+    },
+    "en": {
+     "item": "코안경",
+     "look": "colour and shape",
+     "both": "the pince-nez from image 2: two round brown rims clipped onto the nose with no arms, joined by a curved bridge; clear lenses, the eyes show through unchanged.",
+     "back": "in the side view draw the glasses from the side (the front rim and the arm running to the ear); the back view stays exactly as in image 1."
+    }
+   },
+   "sharedPicture": true
+  },
+  "glass:sport": {
+   "class": "face/glasses",
+   "status": "glasses G10 (shared picture, requested 2026-10-16)",
+   "sexes": [
+    "m",
+    "f"
+   ],
+   "ci": {
+    "m": 5,
+    "f": 5
+   },
+   "names": {
+    "m": "스포츠 고글",
+    "f": "스포츠 고글"
+   },
+   "colour": {
+    "m": "#5aa8ff",
+    "f": "#5aa8ff"
+   },
+   "display": {
+    "m": "#5aa8ff",
+    "f": "#5aa8ff"
+   },
+   "mirrorSafe": true,
+   "designRef": "ref-glass-sport-design.png",
+   "notes": {
+    "ko": {
+     "item": "스포츠 고글",
+     "look": "색과 모양",
+     "both": "두 번째 그림의 스포츠 고글. 두 눈을 한 장으로 가로로 덮는 진한 파란 렌즈에 밝은 파란 테, 렌즈 위쪽에 긴 밝은 빛 반사 한 줄. 양옆은 귀 쪽으로 이어집니다.",
+     "back": "옆모습에서는 고글을 옆에서 본 모양(얼굴을 감싸는 앞쪽 렌즈와 귀 쪽으로 가는 띠)으로 그리고, 뒷모습은 그림틀 그대로 둡니다."
+    },
+    "en": {
+     "item": "스포츠 고글",
+     "look": "colour and shape",
+     "both": "the sports goggles from image 2: one wide deep blue lens across both eyes in a bright blue rim, one long light reflection along its top, the sides running towards the ears.",
+     "back": "in the side view draw the goggles from the side (the front lens wrapping round the face and the band running towards the ear); the back view stays exactly as in image 1."
+    }
+   },
+   "sharedPicture": true
+  },
+  "glass:half": {
+   "class": "face/glasses",
+   "status": "glasses G11 (shared picture, requested 2026-10-16)",
+   "sexes": [
+    "m",
+    "f"
+   ],
+   "ci": {
+    "m": 11,
+    "f": 11
+   },
+   "names": {
+    "m": "반달 안경",
+    "f": "반달 안경"
+   },
+   "colour": {
+    "m": "#a87352",
+    "f": "#a87352"
+   },
+   "display": {
+    "m": "#a87352",
+    "f": "#a87352"
+   },
+   "mirrorSafe": true,
+   "designRef": "ref-glass-half-design.png",
+   "notes": {
+    "ko": {
+     "item": "반달 안경",
+     "look": "색과 모양",
+     "both": "두 번째 그림의 반달 안경. 렌즈 아래쪽만 둥글게 받치는 가는 갈색 테 두 개(위쪽에는 테가 없음)가 눈 아래쪽에 걸리고, 코 위 둥근 다리와 양옆 다리가 이어집니다. 렌즈는 투명해서 눈이 그대로 보입니다.",
+     "back": "옆모습에서는 안경을 옆에서 본 모양(앞쪽 테와 귀로 가는 다리)으로 그리고, 뒷모습은 그림틀 그대로 둡니다."
+    },
+    "en": {
+     "item": "반달 안경",
+     "look": "colour and shape",
+     "both": "the half-rim glasses from image 2: two thin brown rims curving only under the lenses (no rim on top) at the lower part of the eyes, a curved bridge over the nose and arms to the ears; clear lenses, the eyes show through unchanged.",
+     "back": "in the side view draw the glasses from the side (the front rim and the arm running to the ear); the back view stays exactly as in image 1."
+    }
+   },
+   "sharedPicture": true
+  },
+  "glass:eyepatch": {
+   "class": "face/glasses",
+   "status": "glasses G12 (shared picture, requested 2026-10-16)",
+   "sexes": [
+    "m",
+    "f"
+   ],
+   "ci": {
+    "m": 9,
+    "f": 9
+   },
+   "names": {
+    "m": "안대",
+    "f": "안대"
+   },
+   "colour": {
+    "m": "#556074",
+    "f": "#556074"
+   },
+   "display": {
+    "m": "#556074",
+    "f": "#556074"
+   },
+   "mirrorSafe": false,
+   "designRef": "ref-glass-eyepatch-design.png",
+   "notes": {
+    "ko": {
+     "item": "안대",
+     "look": "색과 모양",
+     "both": "두 번째 그림의 안대. 한쪽 눈을 가리는 진회색 천 안대와, 안대에서 귀 쪽으로 가는 가는 끈 한 줄. 다른 쪽 눈은 그림틀 그대로 보입니다.",
+     "back": "앞모습에서는 그림의 왼쪽 눈(아이의 오른쪽 눈)에 그리고, 오른쪽을 보는 옆모습에서는 보이는 쪽(가까운) 눈에 그립니다. 뒷모습은 그림틀 그대로 둡니다.",
+     "length": "{item|은} 한쪽 눈 앞에만 씁니다. 눈 둘레에 맞는 크기로, 눈썹 바로 아래부터 볼 위까지 그립니다. 눈·눈썹·코·입, 얼굴 윤곽, 머리카락의 모양과 위치는 바꾸지 않습니다(가리지 않은 다른 쪽 눈은 그림틀 그대로). 앞머리가 테 위로 내려와 있으면 앞머리를 테 위에 그대로 둡니다. 앞모습과 오른쪽을 보는 옆모습에 그리고, 얼굴이 보이지 않는 뒷모습은 그림틀 그대로 둡니다."
+    },
+    "en": {
+     "item": "안대",
+     "look": "colour and shape",
+     "both": "the eyepatch from image 2: a dark grey cloth patch covering one eye and one thin strap running from it towards the ear. The other eye stays as in image 1.",
+     "back": "in the front view put it on the eye on the left of the picture (the child's right eye); in the right-facing side view put it on the near, visible eye; the back view stays exactly as in image 1.",
+     "length": "Put the {item} in front of one eye only, sized to the eye, from just below the eyebrow to the top of the cheek. Do not change the eyes, eyebrows, nose, mouth, face outline or hair (the other, uncovered eye stays as in image 1). If the fringe falls over the rim, keep the fringe over it. Draw it in the front view and the right-facing side view; the back view shows no face and stays exactly as in image 1."
     }
    },
    "sharedPicture": true
