@@ -10,7 +10,7 @@ push·pull request 마다 `.github/workflows/checks.yml`이 같은 명령을 자
 배포 직전에는 `node 깃허브에올릴것/검사/check-release.mjs --copy "C:/Users/Yu/Desktop/좀비의 밤/index.html"`로 원본/배포용/실제 실행 파일의 바이트와 버전을 대조한다. CI는 같은 도구로 원본과 배포용을 대조한다. 편집 중에는 이 파일들이 달라도 되지만, 불일치 상태로 배포 완료를 보고하지 않는다.
 `--render`는 Node 검사와 전체 숨김 브라우저 묶음을 실행한다. GitHub Actions 수동 실행의 `render` 선택으로도 실행할 수 있다.
 `t73-network-static`은 실제 게임 함수를 21개 독립 VM 클라이언트에서 실행해 공동 결제·중복 명중·새로고침·지연 전달을 검증한다. 실제 Firebase에 접속하지 않는다.
-`t73-performance`는 21개 아바타와 총 발광 합성 전후 픽셀을 검사한다. SwiftShader의 CPU 시간은 그램의 실제 FPS가 아니다. 자세한 범위는 [73차 기록](../73차-교실안정화.md)을 확인한다.
+`t73-performance`는 21개 아바타와 총 발광 합성 전후 픽셀을 검사한다. SwiftShader의 CPU 시간은 그램의 실제 FPS가 아니다. 자세한 범위는 [73차 기록](../기록/73차-교실안정화.md)을 확인한다.
 `t74-race-view`는 21명 화면, 7구간의 실제 플레이 시점, 상승·정점·착지, 3개 씨앗×30/60/120Hz의 바운스·슬라이드·전체 경로를 검사한다. `--capture-only`는 화면과 렌더 비용만 갱신한다. 순수 물리·보상 검사는 `t54-race-static`에 있고, 비행 자세의 옷·모자 검사는 `t61-avatar-clearance-static`에 있다. 상세 결과는 [74차 기록](../74차-구름운동회-구현.md)을 확인한다.
 
 ## 2026-09-19 검사 기록
