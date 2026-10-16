@@ -37,6 +37,7 @@ NOVEL = 22.0      # Lab distance from every template head colour: a new (hat) co
 SEED_MIN = 300    # px of novel colour that make a hat
 DIFF = 22.0       # blurred Lab change from the base figure that is the hat (diff_hat)
 GAP_FILL = 30     # px (template scale) of a gap in a column bridged as hat
+MAX_FACE = .003   # share of a hat cut that may be the base figure's unchanged face (face_in_hat)
 BROWN_HAT = 11.5  # Lab: hat colours this near the head's are the hair's own (kept whole, trim_head)
 COLOUR_SHARE = .8 # the colour cut stands when it finds this share of what changed
 GROW = 3          # px the hat mask grows over its own outline
@@ -117,6 +118,21 @@ def diff_hat(u, t, zone, px):
             if 1 < b_ - a_ <= gap: out[a_:b_, c] = True
     out = M.erode(M.dilate(out, r), r)  # a lone column dipping below the brim is closed back
     return fill_holes(out) & zone
+
+
+def face_in_hat(hat, u, t, head):
+    """Share of the cut hat that is the figure's own face or eyes left unchanged (skin or iris colours of
+    the base figure, where the drawing did not change): a hat cut should hold none (2026-10-16: a
+    graduation cap and a bandana took the eyes and fringe under them, seen only on the contact sheet).
+    Calibrated on M7·M9 cut the faulty way (.0039–.018 with eyes showing) and six good cuts (≤ .0011,
+    except the cowboy girl's front .0065, a real skin bit)."""
+    if not hat.any():
+        return 0.0
+    r, g, b = (t[..., i].astype(int) for i in range(3))
+    skin = (r > 200) & (g > 160) & (r > g) & (g >= b) & (r - b > 20)
+    iris = (g > r + 25) & (b > r + 15)
+    same = np.abs(u.astype(int) - t.astype(int)).sum(-1) < 30
+    return round(float((hat & head & (skin | iris) & same).sum() / hat.sum()), 4)
 
 
 def trim_head(hat, u, t, head):
@@ -403,7 +419,10 @@ def build_base(sheet, base_dir, out, pid=None, kind=None, out_assets=None):
         low = int(hy.min() + ZONE * (len(head) - hy.min()))
         a = (np.abs(u - 255).sum(-1) > 30).astype(np.float32)
         f = cut_zone(u, a, tt, head, low, x0, y0, [x0, y0, x1, neck], px, diff=True)
-        report['figures'][k] = None if f is None else dict(box=f['box'], px=f['px'], shift=[dx, dy], legsError=round(err, 2))
+        report['figures'][k] = None if f is None else dict(box=f['box'], px=f['px'], shift=[dx, dy], legsError=round(err, 2),
+                                                           face=face_in_hat(f['mask'], u, tt, head))
+        if f is not None and report['figures'][k]['face'] > MAX_FACE:
+            report.setdefault('codes', []).append(['FACE_IN_HAT', k])
         frames[k] = dict(cell0=[0, 0], unitsPerSheetPx=1 / ppu, cellOrigin=[-box['x'] / ppu, -box['y'] / ppu], toViewBox=t)
         if f is None:
             continue
