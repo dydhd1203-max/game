@@ -219,7 +219,7 @@ async function studioTest(browser,base){
       for(const m of motions){api.apply(svg,m);counts.add(svg.querySelectorAll('*').length);}
       res[sex]={attrs,counts:[...counts],garments:garments(svg)};api.destroy(svg);svg.parentNode.remove();}
     return res;});
-  for(const sex of ['m','f']){const r=basic[sex],want=sex==='m'?198:192;
+  for(const sex of ['m','f']){const r=basic[sex],want=M.expectedNodes('short-sleeve|shorts|low',sex);
     check(r.attrs.garments==='top:tee|bottom:shorts|shoes:sneaker'&&r.attrs.fallback===''&&r.attrs.cls==='short-sleeve|shorts|low'&&r.attrs.outfit==='dressed'&&r.attrs.static==='idle-front','basic '+sex+': ids, fallback, class and mode attributes',JSON.stringify(r.attrs));
     check(r.counts.length===1&&r.counts[0]===want,'basic '+sex+': '+want+' nodes in every motion of the sub-matrix',JSON.stringify(r.counts));}
   // 2. Test records: a hue-rotated legacy alias, data-path twins from the legacy metadata, a clean-art top.
