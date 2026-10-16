@@ -55,6 +55,8 @@ MIN_NECK = .8
 # fit and holes set against items checked by eye at 280 px (a legging at
 # 1.6 % holes and cargo shorts at 0.898 fit look right, 2026-10-15)
 MIN_FIT, MAX_HOLES, MAX_LEAKS, MAX_TINT, WARN_POSE = .89, .02, .01, .002, .93
+STRAY_PIECE = 150  # px: a smaller piece outside the base body is a crumb, not cloth
+MAX_STRAY = 100  # px of floating pieces near the neck (hanging hair, its lines). Before strip_hair m hood back had 286, after 77 (pale halos)
 MAX_SHOE_MOVE = 40  # px the sheet's own sneakers may sit off the base's (bottoms, one-pieces)
 BASIC = {'bottom': 'bottom:shorts', 'shoes': 'shoes:sneaker', 'top': 'top:tee'}
 
@@ -137,7 +139,21 @@ def check(sex, item, slot, sheet, data, outdir):
         res[view] = {'fit': round(float(fit), 3), 'shoe_move': moved, 'shoes': round(float(shoes), 3), 'neck': round(float(neck), 3), 'pose': round(float(shape), 3), 'holes': round(float(hole.sum() / n), 4), 'leaks': round(float(leak.sum() / n), 4),
                      'tint': round(float(wrong.sum() / n), 4), 'colour': round(float(colour.sum() / max(1, (below & fgA).sum())), 3)}
         res[view]['warn'] = ['pose'] if shape < WARN_POSE else []
-        res[view]['fail'] = [k for k, bad in (('fit', fit < MIN_FIT), ('shoe_move', moved > MAX_SHOE_MOVE), ('neck', neck < MIN_NECK), ('holes', res[view]['holes'] > MAX_HOLES),
+        # stray: painted pixels of any layer near the neck outside the base body (the reference girl's
+        # hanging hair and its outline left beside the shoulders, 2026-10-15; found by eye before this)
+        Bs = L.rgb(L.base_sheets(sex)[view], box); rows_ = np.arange(Bs.shape[0])[:, None]
+        body = L.near(L.figure(Bs) & (rows_ >= top - 12), 6)
+        # (a hood or a dress reaching past the base body is one big piece of cloth with its outline attached:
+        # only small pieces count, the floating crumbs and dashes; a cloth's own outline never shows up here)
+        # pieces of the whole painting near the neck that are small and never touch the base body
+        painted = (out[..., 3] > 0) & (rows_ < top + L.HAIR_ROWS)
+        lab_, n_ = L.ndlabel(painted)
+        sizes = np.bincount(lab_.ravel(), minlength=n_ + 1)
+        touch = np.zeros(n_ + 1, bool); touch[np.unique(lab_[painted & body])] = True
+        small = painted & (sizes[lab_] < STRAY_PIECE) & ~touch[lab_]
+        stray_px = int(small.sum())
+        res[view]['stray'] = stray_px
+        res[view]['fail'] = [k for k, bad in (('stray', stray_px > MAX_STRAY), ('fit', fit < MIN_FIT), ('shoe_move', moved > MAX_SHOE_MOVE), ('neck', neck < MIN_NECK), ('holes', res[view]['holes'] > MAX_HOLES),
                                               ('leaks', res[view]['leaks'] > MAX_LEAKS), ('tint', res[view]['tint'] > MAX_TINT)) if bad]
         comp = Image.new('RGB', (A.shape[1], A.shape[0]), 'white'); comp.paste(Image.fromarray(out), (0, 0), Image.fromarray(out[..., 3]))
         d = np.full(A.shape, 255, np.uint8); d[fgA] = (A[fgA] * .35 + 165).astype(np.uint8)
@@ -196,7 +212,7 @@ def main():
     for m, r in zip(todo, results):
         key = f"{m['sex']}:{m['item']}"; report[key] = r
         bad = {v: x['fail'] for v, x in r.items() if x['fail']}; failed |= bool(bad)
-        print(key, ' | '.join(f"{v} fit {x['fit']} shoes {x['shoes']} neck {x['neck']} pose {x['pose']} holes {x['holes']} leaks {x['leaks']} tint {x['tint']} colour {x['colour']}" for v, x in r.items()), 'FAIL ' + json.dumps(bad) if bad else 'ok')
+        print(key, ' | '.join(f"{v} stray {x['stray']} fit {x['fit']} shoes {x['shoes']} neck {x['neck']} pose {x['pose']} holes {x['holes']} leaks {x['leaks']} tint {x['tint']} colour {x['colour']}" for v, x in r.items()), 'FAIL ' + json.dumps(bad) if bad else 'ok')
     json.dump(report, open(os.path.join(out, 'report.json'), 'w'), indent=1)
     print('FAIL' if failed else 'PASS (still look at the 280 px boards in ' + out + ')'); sys.exit(1 if failed else 0)
 

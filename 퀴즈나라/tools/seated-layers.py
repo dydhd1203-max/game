@@ -71,6 +71,7 @@ def crop_box(sex, view):
 
 
 CHANGED = 34.0   # colour distance (0-441) after a 1.5 px blur
+CLOTH_PIECE = 400  # px of an item's cloth whose touching dark strokes are its own outline (strip_hair)
 HAIR_ROWS = 90   # px under the chin cut where hair hangs over the shoulders
 HOOD_UP = 60     # px a garment may rise above the chin cut
 
@@ -498,16 +499,24 @@ def strip_hair(A, B, mask, top):
     hairish = (r_ > g_) & (g_ > b_) & (r_ - b_ > 25) & (A.max(2) < 170)
     out_body = (rows < top + HAIR_ROWS) & ~body
     stray = out_body & (hairish | (A.max(2) < 120))
-    mask = mask & ~(hanging_hair(A, mask, top - 12) | near(stray, 1) & (hairish | (A.max(2) < 150)))
+    gone = near(stray, 1) & (hairish | (A.max(2) < 150))
+    # a cloth's own outline beside the body (a hood, a jacket collar) stays: strokes joined to a big piece
+    # of the item's non-hair cloth are its outline (2026-10-16: the hood's outline was eaten into dashes)
+    cloth = mask & ~gone & ~hairish & (A.max(2) >= 150)
+    lab_c, n_c = ndlabel(cloth)
+    sizes = np.bincount(lab_c.ravel(), minlength=n_c + 1); sizes[0] = 0
+    big = sizes[lab_c] >= CLOTH_PIECE
+    gone &= ~near(big, 3)
+    mask = mask & ~(hanging_hair(A, mask, top - 12) | gone)
     sat = (A.max(2) - A.min(2)) / np.maximum(A.max(2), 1)
     skinlike = (r_ > 150) & (g_ > 100) & (r_ > g_) & (g_ >= b_) & (r_ - b_ > 25)  # a neck is skin, never a stroke
     pale = mask & out_body & (sat < .3) & (A.max(2) < 245) & ~skinlike
     thick = CB.grow(CB.shrink(CB.shrink(pale)), 2) & pale
-    mask = mask & ~(pale & ~thick)
+    mask = mask & ~(pale & ~thick & ~near(big, 3))
     lab_, n = ndlabel(mask & out_body & ~skinlike)
     for i in range(1, n + 1):
         piece = lab_ == i
-        if piece.sum() < 150: mask &= ~piece
+        if piece.sum() < 150 and not (piece & near(big, 3)).any(): mask &= ~piece
     return mask
 
 
