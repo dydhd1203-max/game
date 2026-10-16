@@ -74,7 +74,7 @@ FIGURES = ('m-front', 'm-right', 'f-front', 'f-right')
 EAR_FIGURES = ('m-front', 'm-right', 'm-back', 'f-front', 'f-right', 'f-back')
 EAR_ROWS = (.45, .08) # from this share of the head's height to this share below its lowest row: the lobes and a drop
 EAR_NEAR = 30.0       # Lab distance to the product's colour where an earring starts (its gold, light and shade)
-KINDS = {'face/sticker': 'sticker', 'face/mask': 'mask', 'ear/earring': 'ear', 'face/eyes': 'part', 'face/nose': 'part', 'face/mouth': 'part'}
+KINDS = {'face/sticker': 'sticker', 'face/mask': 'mask', 'ear/earring': 'ear', 'face/glasses': 'glasses', 'face/eyes': 'part', 'face/nose': 'part', 'face/mouth': 'part'}
 
 
 def face_mask(lt, head):
@@ -124,7 +124,7 @@ def soft(mask, r=SOFT):
     return np.asarray(im.filter(ImageFilter.GaussianBlur(r))).astype(np.float32) / 255 * (M.dilate(mask, 2))
 
 
-def cut(U, T, O, cells, slot, kind, debug=None):
+def cut(U, T, O, cells, slot, kind, debug=None, colour=None):
     LU, LT = R.lab(U), R.lab(T)
     gaps = {}
     found = {}
@@ -149,7 +149,19 @@ def cut(U, T, O, cells, slot, kind, debug=None):
         zone = head if kind == 'mask' else M.dilate(face, 8) & head  # (the face's skin itself is notched at the chin)
         d = np.sqrt(((lu - lt) ** 2).sum(-1))
         changed = (d > CHANGED) & zone
-        if kind in ('sticker', 'mask'):
+        if kind == 'glasses':
+            # glasses (G1·G2 pilot, 2026-10-16): the frame's colour may be the hair's (brown) or a line's (dark),
+            # so it starts from the product's colour, on and round the face (arms run to the ears); clear lenses
+            # keep the template's eyes, so the rims are not filled (that would paste the sheet's eyes)
+            near = np.sqrt(((lu - colour) ** 2).sum(-1)) < EAR_NEAR
+            reach = M.dilate(face, 12) & head
+            seeds = (d > CHANGED) & reach & near
+            lab_, comps = M.components(M.dilate(seeds, 1))
+            seeds = seeds & np.isin(lab_, [c['label'] for c in comps if (seeds & (lab_ == c['label'])).sum() >= MIN_PX])
+            item = M.dilate(seeds, 2) & (d > CHANGED) & reach
+            if debug is not None:
+                debug[k] = dict(u=u.astype(np.uint8), face=face, features=face & (lt[..., 0] < FEATURE_L), eyezone=np.zeros_like(face), seeds=seeds, item=item)
+        elif kind in ('sticker', 'mask'):
             # novel against the whole head (hair, lashes, skin): a redrawn hair tip is not the sticker
             head_cols = BH.kmeans(lt[head].reshape(-1, 3)[::7], 12)
             # (a mask starts over the chin too: seeded on the face only, its chin edge on the neck owner was cut
@@ -205,19 +217,19 @@ def cut(U, T, O, cells, slot, kind, debug=None):
             item = changed & box & ~browlike
         lab_, comps = M.components(item)
         # a part keeps its big pieces only (an eye, a nose): a redrawn eyebrow tip or blush speck stays out
-        least = MIN_PX if not comps else max(MIN_PX, (STICKER_SHARE if kind in ('sticker', 'mask') else PART_SHARE) * max(c['size'] for c in comps))
+        least = MIN_PX if not comps else max(MIN_PX, (STICKER_SHARE if kind in ('sticker', 'mask', 'glasses') else PART_SHARE) * max(c['size'] for c in comps))
         item = np.isin(lab_, [c['label'] for c in comps if c['size'] >= least])
         if item.sum() < 2 * MIN_PX:
             out[k] = None
             continue
-        item = BH.fill_holes(M.dilate(item, 1))
+        item = M.dilate(item, 1) if kind == 'glasses' else BH.fill_holes(M.dilate(item, 1))
         rec = dict(px=int(item.sum()))
         # the item without the template's skin (its shades and highlights too): the wearer's own skin, or a
         # part's cover in the wearer's skin colour, shows there, so the item fits every skin tone
         skin_only = head & (np.sqrt(((lt - SKIN_LAB) ** 2).sum(-1)) < SKIN_NEAR)
         skin_cols = BH.kmeans(lt[skin_only].reshape(-1, 3)[::5], 10)
         nonskin = np.clip((BH.nearest(lu, skin_cols) - SKIN_SOFT[0]) / SKIN_SOFT[1], 0, 1)
-        if kind in ('sticker', 'mask'):
+        if kind in ('sticker', 'mask', 'glasses'):
             # thin strokes keep their full alpha: the soft edge alone left a 2 px whisker at half strength (F7)
             thin = item & ~M.dilate(M.erode(item, 2), 2)
             alpha = np.maximum(soft(item), thin.astype(np.float32)) * nonskin; cover = None
@@ -410,7 +422,7 @@ def build(sheet, out, pid, out_assets=None, debug=False, runtime=True):
     U = res['images']['registered'][..., :3].astype(np.float32)
     T = spec['template'][..., :3].astype(np.float32)
     dbg = {} if debug else None
-    figs = cut_ear(U, T, spec['owner'], spec['cells'], R.lab(np.array([[[int(prod['colour']['f'][i:i + 2], 16) for i in (1, 3, 5)]]], np.float32))[0, 0]) if kind == 'ear' else cut(U, T, spec['owner'], spec['cells'], slot, kind, dbg)
+    figs = cut_ear(U, T, spec['owner'], spec['cells'], R.lab(np.array([[[int(prod['colour']['f'][i:i + 2], 16) for i in (1, 3, 5)]]], np.float32))[0, 0]) if kind == 'ear' else cut(U, T, spec['owner'], spec['cells'], slot, kind, dbg, R.lab(np.array([[[int(prod['colour']['f'][i:i + 2], 16) for i in (1, 3, 5)]]], np.float32))[0, 0])
     os.makedirs(out, exist_ok=True)
     report = dict(sheet=os.path.basename(sheet), id=pid, kind=kind, codes=[c['code'] for c in res['codes']],
                   figures={k: (None if f is None else dict(box=f['box'], px=f['px'])) for k, f in figs.items()})

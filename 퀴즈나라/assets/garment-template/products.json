@@ -11,7 +11,8 @@
   "sharedPicture": "true when both sexes wear the same painting in the same colour: image 2 shows it once.",
   "designRef": "image 2 in assets/garment-template/, made by tools/garment/design-ref.cjs from the shop art (no body).",
   "notes": "KO/EN design notes for the prompt. item: the garment noun; look: what to take from image 2; m/f (or both): the description per child; back: the back-view line.",
-  "planned": "true for a product the shop does not sell yet (requested art first): design-ref.cjs draws image 2 from refSvg and skips the catalogue check."
+  "planned": "true for a product the shop does not sell yet (requested art first): design-ref.cjs draws image 2 from refSvg and skips the catalogue check.",
+  "earAnchored": "true for a band whose lower ends sit on the ears (headphones): tools/hair/build-hat.py exports kind 'band' and the game stretches it about its bottom to the hair's top edge instead of moving it."
  },
  "products": {
   "top:shirt": {
@@ -1959,7 +1960,8 @@
     }
    },
    "sharedPicture": true,
-   "refSvg": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"220\" height=\"150\" viewBox=\"0 0 220 150\"><path d=\"M38 108 Q36 22 110 20 Q184 22 182 108\" fill=\"none\" stroke=\"#9aa3b2\" stroke-width=\"16\" stroke-linecap=\"round\"/><path d=\"M38 108 Q36 22 110 20 Q184 22 182 108\" fill=\"none\" stroke=\"#ffffff\" stroke-width=\"10\" stroke-linecap=\"round\"/><rect x=\"16\" y=\"92\" width=\"40\" height=\"54\" rx=\"16\" fill=\"#ffffff\" stroke=\"#9aa3b2\" stroke-width=\"3\"/><rect x=\"164\" y=\"92\" width=\"40\" height=\"54\" rx=\"16\" fill=\"#ffffff\" stroke=\"#9aa3b2\" stroke-width=\"3\"/><rect x=\"44\" y=\"98\" width=\"14\" height=\"42\" rx=\"6\" fill=\"#c9d0db\"/><rect x=\"162\" y=\"98\" width=\"14\" height=\"42\" rx=\"6\" fill=\"#c9d0db\"/></svg>"
+   "refSvg": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"220\" height=\"150\" viewBox=\"0 0 220 150\"><path d=\"M38 108 Q36 22 110 20 Q184 22 182 108\" fill=\"none\" stroke=\"#9aa3b2\" stroke-width=\"16\" stroke-linecap=\"round\"/><path d=\"M38 108 Q36 22 110 20 Q184 22 182 108\" fill=\"none\" stroke=\"#ffffff\" stroke-width=\"10\" stroke-linecap=\"round\"/><rect x=\"16\" y=\"92\" width=\"40\" height=\"54\" rx=\"16\" fill=\"#ffffff\" stroke=\"#9aa3b2\" stroke-width=\"3\"/><rect x=\"164\" y=\"92\" width=\"40\" height=\"54\" rx=\"16\" fill=\"#ffffff\" stroke=\"#9aa3b2\" stroke-width=\"3\"/><rect x=\"44\" y=\"98\" width=\"14\" height=\"42\" rx=\"6\" fill=\"#c9d0db\"/><rect x=\"162\" y=\"98\" width=\"14\" height=\"42\" rx=\"6\" fill=\"#c9d0db\"/></svg>",
+   "earAnchored": true
   },
   "glass:round": {
    "class": "face/glasses",

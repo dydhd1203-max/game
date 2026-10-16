@@ -634,6 +634,8 @@ def main(argv):
     if a.id:
         prod = json.load(open(os.path.join(ROOT, 'assets', 'garment-template', 'products.json')))['products'][a.id]
         kind = {'hat/full': 'full', 'hat/sit-on': 'sit', 'hat/band': 'sit', 'hat/halo': 'sit'}[prod['class']]
+        if prod.get('earAnchored'):  # headphones: the cups stay at the ears, the band stretches to the hair (2026-10-16)
+            kind = 'band'
     if a.base:
         r = build_base(a.sheet, a.base, out, a.id, kind, os.path.join(ROOT, 'assets', 'hat-art'))
     else:
