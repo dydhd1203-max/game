@@ -472,6 +472,8 @@ LONG_GROW = 3        # px round the arm painting (clean and legacy) over the bas
 LONG_WIDE = 8        # px round it elsewhere (a sleeve wider than the arm: the knit's outline lay 4-7 px out, 2026-10-16)
 LONG_SKIN = 2.0      # nll margin by which the skin model must beat the product model for a strip pixel to be skin
 LONG_MIN = 30        # px of a kept strip piece
+LONG_NEAR = 2        # px within which a torso piece counts as joined to the torso's main piece (long sleeves)
+KNIT_GAP = 2         # px past a hidden run where its row's visible cloth is taken (knit_rows)
 LONG_CAP = 6         # px down the upper arm past the shoulder line a long sleeve's cap keeps (over the strip)
 LONG_LINE = 2        # px: skin-like pieces this thin (2r+1 wide) are drawn lines, not bare skin
 LONG_CODES = ('SLEEVE_LONG', 'SLEEVE_SHORT')  # the short-sleeve coverage rules a long sleeve does not keep
@@ -649,6 +651,38 @@ def long_static(ctx, figs, keys):
                 p['a'] = p['a'] * (cap[sl] & (proj < max(LONG_CAP, start + 2 * LONG_CAP)))
             elif name == 'torso':
                 p['a'] = p['a'] * ~(art[sl] & ~shirt[sl])
+                # what the arm painting cut off the torso (a puffed sleeve's edge, its bow) is the strip's now
+                p['a'], _ = FL.drop_detached(p['a'], near=LONG_NEAR, keep=10 ** 9)
+                hidden = figs[key].get('hidden', {}).get('torso')
+                if hidden is not None:
+                    knit_rows(p, hidden)
+
+
+def knit_rows(p, hidden):
+    """The torso cloth the resting arm hid (fill.py rebuilds it as smooth cloth) shows beside a raised long sleeve:
+    on a knit or a print the smooth patch read as a hole in the pattern (2026-10-16). Each row's hidden run that
+    meets the visible cloth on one side takes that row's visible cloth just past it (shifted by the run's width
+    and KNIT_GAP px), so vertical cables and stripes run on; a run between two hidden ends keeps the rebuild."""
+    a, rgb = p['a'], p['rgb']
+    vis = (a > .5) & ~hidden
+    hid = (a > .5) & hidden
+    W = a.shape[1]
+    for y in np.nonzero(hid.any(1))[0]:
+        row = hid[y]
+        xs = np.nonzero(row)[0]
+        runs = np.split(xs, np.nonzero(np.diff(xs) > 1)[0] + 1)
+        for r in runs:
+            x0, x1 = int(r[0]), int(r[-1])
+            w = x1 - x0 + 1 + KNIT_GAP
+            if x1 + 1 < W and vis[y, x1 + 1]:
+                src = r + w
+            elif x0 - 1 >= 0 and vis[y, x0 - 1]:
+                src = r - w
+            else:
+                continue
+            ok = (src >= 0) & (src < W)
+            ok[ok] &= vis[y, src[ok]]
+            rgb[y, r[ok]] = rgb[y, src[ok]]
 
 
 def regions_for(slot, view):
