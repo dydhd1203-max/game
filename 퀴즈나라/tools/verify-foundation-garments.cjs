@@ -475,7 +475,9 @@ async function differsPart(page,C,{label='',pixels=true}={}){
         const cells=states.flatMap(st=>[{av:{sex,sk:2,hair:HAIR[sex],expression:'bright:0',foundationGarments:base},state:{...st,reducedMotion:true}},{av:{sex,sk:2,hair:HAIR[sex],expression:'bright:0',foundationGarments:alias},state:{...st,reducedMotion:true}}]);
         const g=await page.evaluate(spec=>__fg.grid(spec),{cells,cols:8,cellW:170,cellH:330});const img=await L.capture(page,g);const diffs=[];
         for(let k=0;k<states.length;k++){const [x0,y0,w,h]=g.rects[2*k],[x1,y1]=g.rects[2*k+1];let n=0;for(let y=0;y<h;y++)for(let x=0;x<w;x++)if(L.dist(L.px(img,x0+x,y0+y),L.px(img,x1+x,y1+y))>24)n++;diffs.push(n);}
-        C.check(diffs.every(n=>n>150),label+'different garment '+al.id+' vs '+al.from+' ('+sex+'): other pixels in each of '+states.length+' poses',JSON.stringify(diffs));}
+        // A floor sit is drawn from the product's own seated layers (avatar-foundation.js SEATED_LAYERS, checked by
+        // verify-seated-*): an alias has none of its own and shows its source's, so that pose is the same by design.
+        C.check(diffs.every((n,i)=>states[i].seatMode==='floor'||n>150),label+'different garment '+al.id+' vs '+al.from+' ('+sex+'): other pixels in each of '+states.filter(st=>st.seatMode!=='floor').length+' standing poses (the floor sit uses seated layers)',JSON.stringify(diffs));}
     }}
 }
 // Same shorts, other shoes: the side floor-sit paints the lap shoe into the shorts picture.
@@ -662,9 +664,11 @@ async function seamPart(page,C,o,{only=null,overview=true}={}){
     const whole=L.dataUrlPng((await page.evaluate(s=>__fg.regions(s),{width:g.width,height:g.height,core:1})).limbs);
     const inWhole=(x,y)=>{for(let dy=-PINHOLE_GROW;dy<=PINHOLE_GROW;dy++)for(let dx=-PINHOLE_GROW;dx<=PINHOLE_GROW;dx++){const q=L.px(whole,x+dx,y+dy);if(q[0]>128||q[1]>128)return true;}return false;};
     if(a.debug&&!start){const d=path.join(out,'debug');fs.mkdirSync(d,{recursive:true});for(const [n,img] of Object.entries({full,sleeves,top,bottom,mask,waist}))fs.writeFileSync(path.join(d,o.key.replace(/[|:]/g,'_')+'-'+n+'.png'),L.H.png.encode(img));}
-    chunk.forEach((m,k)=>{const [x0,y0,w,h]=g.rects[k],p=poses[k],raised=p&&(Math.max(...p.lift)>.02||p.action==='climb')&&p.view!=='profile';let cp=0;const flag=new Map(),wf=[],cf=[];if(raised)cap.raised++;
+    // A floor sit is the seated layers' painting (avatar-foundation.js SEATED_LAYERS), not limbs in capsules: its
+    // seams are verify-seated-runtime's; here it is skipped (its folded legs read as thigh-capsule holes).
+    chunk.forEach((m,k)=>{const [x0,y0,w,h]=g.rects[k],p=poses[k],seated=Boolean(p&&p.floor),raised=p&&(Math.max(...p.lift)>.02||p.action==='climb')&&p.view!=='profile';let cp=0;const flag=new Map(),wf=[],cf=[];if(raised)cap.raised++;
       for(let y=y0;y<y0+h;y++)for(let x=x0;x<x0+w;x++){const f=L.px(full,x,y),r=L.px(mask,x,y),sl=!L.isMagenta(L.px(sleeves,x,y),140);
-        if(L.isMagenta(f,40)){if(r[0]>128||sl)flag.set(x+','+y,'arm');else if(r[1]>128||!L.isMagenta(L.px(bottom,x,y),140))flag.set(x+','+y,'thigh');else if(L.px(waist,x,y)[0]>128&&near(top,x,y,-1,x0,y0,w,h)&&near(bottom,x,y,1,x0,y0,w,h))wf.push([x,y]);}
+        if(!seated&&L.isMagenta(f,40)){if(r[0]>128||sl)flag.set(x+','+y,'arm');else if(r[1]>128||!L.isMagenta(L.px(bottom,x,y),140))flag.set(x+','+y,'thigh');else if(L.px(waist,x,y)[0]>128&&near(top,x,y,-1,x0,y0,w,h)&&near(bottom,x,y,1,x0,y0,w,h))wf.push([x,y]);}
         if(raised&&sl&&r[2]>128){cp++;cf.push([x,y]);}}
       // A hole is a patch of 4 or more touching background pixels (a 2×2 pinhole at 280 px). Smaller
       // patches are notches in the outline where the capsule core meets a folded or foreshortened
@@ -679,7 +683,7 @@ async function seamPart(page,C,o,{only=null,overview=true}={}){
       if(ga)gap.armCells.push(m.id);if(gt)gap.thighCells.push(m.id);
       if(ga+gt){gap.cells++;gap.arm+=ga;gap.thigh+=gt;keep(shots.gap,ga+gt,cropFlags(full,g.rects[k],gf));}
       if(cp){cap.cells++;cap.pixels+=cp;capFlags[m.id]=cp;keep(shots.cap,cp,cropFlags(full,g.rects[k],cf));}
-      const enc=enclosedBackground(full,g.rects[k]),pf=[];gap.enclosed+=enc.length;
+      const enc=seated?[]:enclosedBackground(full,g.rects[k]),pf=[];gap.enclosed+=enc.length;
       {const left=new Set(enc.filter(([x,y])=>!flag.has(x+','+y)).map(([x,y])=>x+','+y));
         while(left.size){const first=left.values().next().value,comp=[],stack=[first];left.delete(first);
           while(stack.length){const [x,y]=stack.pop().split(',').map(Number);comp.push([x,y]);for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){const n=(x+dx)+','+(y+dy);if(left.has(n)){left.delete(n);stack.push(n);}}}
