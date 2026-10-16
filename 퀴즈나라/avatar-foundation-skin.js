@@ -207,7 +207,14 @@
   // outline on both sides and a rounded painted elbow over the sleeve. The
   // clip below cut the painting with straight unlined edges over the cuff
   // and still pasted the folded elbow on top (critic, 2026-10-08).
-  const own=toward&&Boolean(arm.fold);part.forearm.style.display=toward&&!own?'':'none';part.forearmArt.style.display=own?'':'none';if(!toward)return;
+  const own=toward&&Boolean(arm.fold);part.forearm.style.display=toward&&!own?'':'none';part.forearmArt.style.display=own?'':'none';
+  // A long sleeve (avatar-foundation-outfit.js r.sleeveFold[i]) covers that copy with its own forearm, so only
+  // the hand stays bare: the same mesh rows of the sleeve's strip, right after the skin copy.
+  const sf=r.sleeveFold?.[i];
+  if(sf){if(!toward)sf.node.style.display='none';else{const art=painting(sf.def,points,Boolean(arm.fold),'forearm'),after=own?part.forearmArt:part.forearm;
+   if(sf.node.paintedArt!==art){sf.node.setAttribute('href',art.url);sf.node.paintedArt=art;}for(const[k,val]of Object.entries({x:points[0][0]+art.x,y:points[0][1]+art.y,width:art.w,height:art.h}))if(sf.node.getAttribute(k)!==String(val))sf.node.setAttribute(k,val);
+   if(after.nextSibling!==sf.node)after.after(sf.node);sf.node.style.display='';}}
+  if(!toward)return;
   if(own){const art=painting(def,points,true,arm.fist?'forearm-fist':(arm.open??arm.lift??0)>.5?'forearm-bare':'forearm'),e=part.forearmArt;
    // The painting is compared by reference: reading a data-URL href back from
    // the DOM every frame copied the whole string.

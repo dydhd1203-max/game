@@ -511,18 +511,24 @@
       arm.parent.insertBefore(sleeve,arm.hand);leg.parent.append(shoe);
       const skinClip=clip(defs,id+'-arm-skin-'+i);arm.contour.setAttribute('clip-path','url(#'+id+'-arm-skin-'+i+')');arm.shade.setAttribute('clip-path','url(#'+id+'-arm-skin-'+i+')');
       // A long sleeve (class top/long-sleeve) also covers the forearm: its strip along each arm (record top.armSleeves[i],
-      // one per arm in every view, the painted arm's own rect)
+      // one per arm in every view, the painted arm's own rect, wider for a sleeve wider than the arm: the mesh maps x
+      // by the distance from the bone, so a wider rect only adds columns)
       // is warped like the painted arm (avatar-foundation-skin.js limbPainting) over the arm, under the sleeve
       // cap; only long-sleeved tops add the node.
       const armSleeve=wear.top.record?.class==='top/long-sleeve'?el('image',{'data-outfit-part':'arm-sleeve-'+i,preserveAspectRatio:'none'}):null;
       if(armSleeve)arm.parent.insertBefore(armSleeve,sleeve);
-      r.sleeves.push({group:sleeve,image:sprite(sleeve,'sleeve-'+i),skinClip,arm:armSleeve});
+      // A forearm folded toward the viewer is painted again over its sleeve (avatar-foundation-skin.js
+      // forearmOverlay); a long sleeve's forearm goes over that copy (moved there by the skin), so the bare skin
+      // copy shows only the hand.
+      const armFold=armSleeve?el('image',{'data-outfit-part':'arm-sleeve-fold-'+i,preserveAspectRatio:'none'}):null;
+      if(armFold){arm.parent.append(armFold);armFold.style.display='none';}
+      r.sleeves.push({group:sleeve,image:sprite(sleeve,'sleeve-'+i),skinClip,arm:armSleeve,fold:armFold});
       // Open shoes (record.feet: slippers, sandals) show the bare foot under them; only they add the node, so the
       // closed shoes' node set stays as it is (tools/foundation-matrix.cjs NODE_TABLE).
       const feet=wear.shoes.record?.feet?sprite(shoe,'feet-'+i):null;
       r.shoes.push({group:shoe,feet,image:sprite(shoe,'shoe-'+i)});
     }
-    for(const e of [r.shirt,...r.underarms.flatMap(u=>[u.fill,u.line]),...r.sleeves.flatMap(p=>[p.group,p.image,...(p.arm?[p.arm]:[])])])e.dataset.outfitGarment=wear.top.id;
+    for(const e of [r.shirt,...r.underarms.flatMap(u=>[u.fill,u.line]),...r.sleeves.flatMap(p=>[p.group,p.image,...(p.arm?[p.arm,p.fold]:[])])])e.dataset.outfitGarment=wear.top.id;
     r.hip.dataset.outfitGarment=wear.bottom.id;for(const p of r.shoes){p.group.dataset.outfitGarment=p.image.dataset.outfitGarment=wear.shoes.id;if(p.feet)p.feet.dataset.outfitGarment=wear.shoes.id;}
     mounted.set(svg,r);return r;
   }
@@ -569,10 +575,12 @@
       href(s.image,sleeveTexture(top,sex,view,i,angle,lean,arm.lift||0));for(const[k,v]of Object.entries({x:box[0],y:box[1],width:box[2],height:box[3]}))set(s.image,k,v);
       s.image.dataset.sleeveDeformation='seam-pinned';s.image.dataset.sleeveArt=gk(top.id,sex,view,i);
       if(s.arm){const a=fig(top,view).top.armSleeves?.[i],Sk=root.QPFoundationSkin;
-        if(a&&Sk?.limbPainting){const def=Sk.limbDef('arm',sex,view,i,'clean'),d=Sk.limbPainting({...def,image:top.image,at:a.at,variant:gk(top.id,sex,view,'arm',i),under:0},[arm.shoulder,arm.elbow,arm.wrist],Boolean(arm.fold));
+        if(a&&Sk?.limbPainting){const def=Sk.limbDef('arm',sex,view,i,'clean'),sd={...def,rect:a.rect||def.rect,image:top.image,at:a.at,variant:gk(top.id,sex,view,'arm',i),under:0},d=Sk.limbPainting(sd,[arm.shoulder,arm.elbow,arm.wrist],Boolean(arm.fold));
           if(s.arm.paintedArt!==d){s.arm.setAttribute('href',d.url);s.arm.paintedArt=d;}
-          for(const[k,v]of Object.entries({x:arm.shoulder[0]+d.x,y:arm.shoulder[1]+d.y,width:d.w,height:d.h}))set(s.arm,k,v);s.arm.style.display='';}
-        else s.arm.style.display='none';}
+          for(const[k,v]of Object.entries({x:arm.shoulder[0]+d.x,y:arm.shoulder[1]+d.y,width:d.w,height:d.h}))set(s.arm,k,v);s.arm.style.display='';
+          (body.sleeveFold||(body.sleeveFold=[]))[i]={node:s.fold,def:sd};}
+        else{s.arm.style.display='none';if(body.sleeveFold)body.sleeveFold[i]=null;}}
+      else if(body.sleeveFold)body.sleeveFold[i]=null;
       fit.sleeves.push({shoulder:arm.shoulder,opening:[arm.shoulder[0]-Math.sin(angle)*cuff,arm.shoulder[1]+Math.cos(angle)*cuff],armPoint:mix(arm.shoulder,arm.elbow,.52),width:sl.rect[2]*F.k,cuff});
     });
     raisedSides(r,top,pose,sex,view);

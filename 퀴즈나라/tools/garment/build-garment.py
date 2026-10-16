@@ -468,7 +468,8 @@ def colour_codes(ctx, segs, figs, prod, masks=None):
 # Build
 # ---------------------------------------------------------------------------
 BUILDER_TODO = {}
-LONG_GROW = 3        # px round the arm painting (clean and legacy) where a long sleeve's strip may lie
+LONG_GROW = 3        # px round the arm painting (clean and legacy) over the basic shirt where a long sleeve's strip may lie
+LONG_WIDE = 8        # px round it elsewhere (a sleeve wider than the arm: the knit's outline lay 4-7 px out, 2026-10-16)
 LONG_SKIN = 2.0      # nll margin by which the skin model must beat the product model for a strip pixel to be skin
 LONG_MIN = 30        # px of a kept strip piece
 LONG_LINE = 2        # px: skin-like pieces this thin (2r+1 wide) are drawn lines, not bare skin
@@ -559,16 +560,20 @@ def arm_strips(ctx, segs, keys):
     """Long sleeves (class top/long-sleeve, 2026-10-16): per figure and arm, the sleeve over the arm as a strip on
     the painted arm's own rect (assets/sd-foundation-ref-data.js rects.arm[i]), which the game warps along the arm
     like the arm painting (avatar-foundation-outfit.js top.armSleeves, avatar-foundation-skin.js limbPainting)
-    over the arm skin and under the sleeve cap. A strip pixel lies within LONG_GROW px of the arm painting (clean
-    or legacy), below the shoulder line (across the upper arm at the shoulder joint: above it the strip would flap
+    over the arm skin and under the sleeve cap. A strip pixel lies within LONG_WIDE px of the arm painting (clean
+    or legacy; LONG_GROW over the basic shirt's body, which stays with the torso), below the shoulder line (across the upper arm at the shoulder joint: above it the strip would flap
     out of the shoulder when the arm swings) and above the wrist (across the forearm), is not the page (the white
     reached from the figure's cell border; its edge keeps the sheet's matte) and not bare skin (where this
     sheet's skin model beats the product model by LONG_SKIN in an area wider than a drawn line: the hand; drawn
     on the dark-skin template the two part, make-dark-template.py). Under the sleeve cap the strip
     holds the cap's own cloth, which shows when the arm moves away from it. Pieces under LONG_MIN px are
-    dropped. Returns {(key, i): (RGBA crop, rect)}; the profile's two arms share one rect and one strip."""
+    dropped. The strip's rect is the arm's widened by LONG_WIDE - LONG_GROW px each side (the game maps x by the
+    distance from the bone, avatar-foundation-outfit.js passes the record's rect). Returns {(key, i): (RGBA crop,
+    rect)}; the profile's two arms share one rect and one strip."""
     fz = ctx.fz
-    art = M.dilate((fz.clean['arms'][..., 3] > 64) | (fz.layers['arms'][..., 3] > 64), LONG_GROW)
+    arm = (fz.clean['arms'][..., 3] > 64) | (fz.layers['arms'][..., 3] > 64)
+    # a sleeve wider than the arm (a knit) reaches LONG_WIDE px out, never over the basic shirt's body beside it
+    art = M.dilate(arm, LONG_WIDE) & ~((fz.drawn['shirt'][..., 3] > 127) & ~M.dilate(arm, LONG_GROW))
     H, W = art.shape
     yy, xx = np.mgrid[0:H, 0:W]
     out = {}
@@ -586,6 +591,9 @@ def arm_strips(ctx, segs, keys):
             if i == 1 and F['rects']['arm'][1] == F['rects']['arm'][0]:
                 out[(key, 1)] = out[(key, 0)]
                 continue
+            # the arm's rect holds the painting 3 px round; a wider sleeve widens it (rows unchanged: the mesh rows)
+            g = LONG_WIDE - LONG_GROW
+            x, w = max(x0, x - g), min(x1, x + w + g) - max(x0, x - g)
             sl = np.s_[y:y + h, x:x + w]
             S, E, Wr = (np.array(J[n][i], float) for n in ('shoulder', 'elbow', 'wrist'))
             ua, fa = (E - S) / np.linalg.norm(E - S), (Wr - E) / np.linalg.norm(Wr - E)

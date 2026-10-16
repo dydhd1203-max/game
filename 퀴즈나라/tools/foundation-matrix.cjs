@@ -105,7 +105,7 @@ const HAIR_ALIASES=Object.freeze(['buzz','longm','wave','afro','mohawk','crop'])
 const NODE_TABLE=Object.freeze({
   'short-sleeve|shorts|low':Object.freeze({total:Object.freeze({m:201,f:195}),body:Object.freeze({m:149,f:149}),note:'basic outfit: shirt, shorts hip mesh, 2 underarm fills + lines, 2 sleeve groups (image + arm-skin clip), 2 shoes, shirt-side clip'}),
   'short-sleeve|shorts|sandals':Object.freeze({total:Object.freeze({m:203,f:197}),body:Object.freeze({m:151,f:151}),note:'open shoes (record.feet): the basic set and one bare-foot image per shoe (avatar-foundation-outfit.js prepare, 2026-10-16)'}),
-  'long-sleeve|shorts|low':Object.freeze({total:Object.freeze({m:203,f:197}),body:Object.freeze({m:151,f:151}),note:'long sleeves (top/long-sleeve): the basic set and one sleeve strip along each arm (avatar-foundation-outfit.js prepare, 2026-10-16)'}),
+  'long-sleeve|shorts|low':Object.freeze({total:Object.freeze({m:205,f:199}),body:Object.freeze({m:153,f:153}),note:'long sleeves (top/long-sleeve): the basic set, one sleeve strip along each arm and its folded-forearm copy (avatar-foundation-outfit.js prepare, 2026-10-16)'}),
   'none|none|none':Object.freeze({total:Object.freeze({m:180,f:174}),body:Object.freeze({m:128,f:128}),note:"foundationOutfit 'body' (no garments)"})
 });
 const classSignature=({top='none',bottom='none',shoes='none'}={})=>top+'|'+bottom+'|'+shoes;

@@ -197,7 +197,7 @@
         "underarm": {"oneOf": [{"type": "null"}, {"type": "array", "minItems": 1, "maxItems": 2, "items": {"$ref": "#/$defs/underarmSide"}}], "description": "per side, body-local units: the shirt side edge and the sleeve underside used for a raised arm (avatar-foundation-outfit.js shirtSide)"},
         "hem": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/points"}], "description": "hem outline, sheet px"},
         "collar": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/points"}], "description": "neck opening outline, sheet px"},
-        "armSleeves": {"type": "array", "minItems": 2, "maxItems": 2, "items": {"$ref": "#/$defs/region"}, "description": "class top/long-sleeve only: per arm the sleeve's strip on the painted arm's own rect (sd-foundation-ref-data.js rects.arm[i]), warped along the arm by the runtime (avatar-foundation-outfit.js)"}
+        "armSleeves": {"type": "array", "minItems": 2, "maxItems": 2, "items": {"$ref": "#/$defs/region"}, "description": "class top/long-sleeve only: per arm the sleeve's strip on the painted arm's rect (sd-foundation-ref-data.js rects.arm[i], same rows, wider for a wide sleeve), warped along the arm by the runtime (avatar-foundation-outfit.js)"}
       }
     },
     "sleeve": {
