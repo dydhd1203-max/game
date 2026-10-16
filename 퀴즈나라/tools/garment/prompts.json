@@ -461,6 +461,7 @@
    "7. Return one landscape image."
   ],
   "changes": {
+   "1": "Dark-skin template (2026-10-16, user-approved): image 1 is template-sheet-dark.png and rule 1 adds that the children's skin is painted dark brown on purpose and no light skin is painted along cuffs, neckline or hem (cream cloth near the light skin was cut as skin on the v1 sheet).",
    "3": "REDTEAM ghost line (2026-10-09): the sleeve may end at the current cuff or very slightly lower, never shorter (the arm art above the old cuff is copied skin and the legacy arms carry the old cuff line). Plan class line: the neckline neither rises nor goes deeper (the real male V-neck already reaches the end of the neck art).",
    "6": "'무늬/patterns' only meant the background, but read as 'no prints' it would strip product prints (flowers, stars). The plan frame adds: no lettering or logos on the clothes (the left view mirrors the right one)."
   }

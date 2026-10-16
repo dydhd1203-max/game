@@ -284,8 +284,8 @@
   "THIN_SLIT": {
    "level": "fail", "stage": "garment",
    "title": "옷에 가는 틈이 있어요",
-   "message": "{figures}의 옷에 1~2픽셀 세로 틈이 생겨 바탕이 비쳐요(자르기 규칙 문제일 수 있어요).",
-   "retry": null
+   "message": "{figures}의 옷에 1~2픽셀 세로 틈이 생겨 바탕이 비쳐요(자르기 규칙 문제일 수 있어요. 원화에 틈이 없으면 작업자가 자르기 규칙을 봐요).",
+   "retry": "옷 안쪽에 바탕이나 피부가 비치는 가는 틈 없이, 지퍼·단추 덧단 옆까지 옷을 빈틈없이 칠해 다시 그려 주세요."
   },
   "W_SPECKS": {
    "level": "warn", "stage": "registration",

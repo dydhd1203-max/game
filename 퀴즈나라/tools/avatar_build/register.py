@@ -1325,6 +1325,10 @@ def _merge_codes(res):
     res['codes'] = merged
 
 
+HAIR_OVER_THICK = 2    # px eroded away before HAIR_OVER_GARMENT counts (a garment's thin dark lines)
+HAIR_OVER_SHARE = .25  # share of the garment in the hair's colour over which HAIR_OVER_GARMENT is skipped
+
+
 def _floor_and_hair(res, spec, k, C):
     """SHADOW: paint at or below the frozen floor that the template (or the
     product zone) does not have there. HAIR_OVER_GARMENT: this sheet's own
@@ -1357,12 +1361,22 @@ def _floor_and_hair(res, spec, k, C):
     # connected to the head's own hair through hair-coloured paint anywhere
     # (a longer bob hangs past the shoulders first, then over the cloth)
     conn = M.connected_to(hairish | hair_src, hair_src) & cand
+    # hair is a mass: a garment's own thin dark lines in the hair's colour (a hood's inner outline, a zipper's
+    # edge) are not it (2026-10-16 hoodie boy, 486 px of outline)
+    conn = M.dilate(M.erode(conn, HAIR_OVER_THICK), HAIR_OVER_THICK) & conn
     npx = int(conn.sum())
     fr['hairOverPx'] = npx
     body = C['product'] & (C['a'] > .5)
     main = np.median(U[body], 0) if body.any() else mu
     if float(de(main[None], mu[None])[0]) < 12:
         fr['hairOverCheck'] = 'skipped: product colour close to the hair'
+        return
+    # a garment much of which is the hair's colour (a brown jacket under brown hair, 2026-10-16: the whole jacket,
+    # 9150 px, read as hair): colour cannot tell them apart, so the check is skipped like a median match
+    share = float((hairish & body).sum()) / max(1, int(body.sum()))
+    fr['hairLikeShare'] = round(share, 3)
+    if share > HAIR_OVER_SHARE:
+        fr['hairOverCheck'] = 'skipped: %.0f%% of the garment is the hair\'s colour' % (100 * share)
         return
     if npx > T['hairOverPx']:
         res['codes'].append(dict(code='HAIR_OVER_GARMENT', figure=k, value=npx, limit=T['hairOverPx'],
