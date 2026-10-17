@@ -1,0 +1,56 @@
+새 머리 모양 첫 원화 4장 요청 (H5, 2026-10-17)
+=============================================
+
+[꼭 지킬 것 - 모든 결과에 공통]
+- 모든 결과 그림은 이 압축파일의 그림틀('A1-그림틀-남자.png' 또는 'A1-그림틀-여자.png')에서 새로 그립니다. 앞에서 만든 그림 위에 다음 머리를 덧그리지 않습니다. 그림마다 머리 모양만 바뀌고 나머지(얼굴·귀·몸·옷·배경·위치·크기)는 그림틀과 같아야 합니다.
+- 결과는 그린 원본 그대로 줍니다. 크기 조정, 자르기, 색·위치 보정을 하지 않습니다(붙이는 도구가 해상도 차이를 자동으로 맞춥니다).
+- 결과는 가로로 긴 그림 한 장에 앞·옆(오른쪽을 봄)·뒤 세 모습입니다(그림틀과 같은 배치).
+- 머리 색은 그림틀과 같은 갈색입니다. 게임이 이 갈색을 기준으로 여러 색으로 물들입니다.
+- 게임은 받은 그림에서 머리카락만 가져와 기준 얼굴(민머리) 위에 얹습니다. 얼굴이 움직이면 머리카락이 어긋나므로 얼굴·눈·입·귀의 위치와 크기는 그림틀 그대로여야 합니다.
+
+[왜 받나]
+상점에 없는 새 머리 모양을 원화로 받아 게임에 넣는 첫 시범입니다(사용자 선택 2026-10-17: 아래 네 가지). 상점에는 아직 넣지 않고 체험 주소에서 먼저 확인합니다.
+
+[보낼 것 4장]
+1) 첨부: A1-그림틀-여자.png → 결과 파일 이름: 새머리-여자-높은포니테일.png
+   [머리 모양 설명] 정수리 뒤쪽 높은 곳에서 하나로 묶은 포니테일. 앞머리는 이마를 살짝 덮는 짧은 앞머리, 옆머리는 귀 뒤로 넘김. 묶은 꼬리는 뒤통수 아래로 늘어져 어깨뼈 높이까지 옵니다. 옆모습과 뒷모습에서 꼬리가 보이고, 앞모습에서는 머리 뒤로 조금만 보입니다. 꼬리는 옆으로 뻗지 않고 아래로 늘어집니다(옆 칸 경계에 닿지 않게).
+2) 첨부: A1-그림틀-여자.png → 결과 파일 이름: 새머리-여자-곱슬단발.png
+   [머리 모양 설명] 어깨에 닿는 길이의 곱슬 단발. 부드럽게 말린 굵은 곱슬, 앞머리는 이마를 덮는 둥근 앞머리. 머리 전체 폭은 그림틀의 단발과 비슷하게(옆으로 크게 부풀지 않게) 그립니다.
+3) 첨부: A1-그림틀-남자.png → 결과 파일 이름: 새머리-남자-가르마.png
+   [머리 모양 설명] 한쪽 옆으로 가르마를 탄 단정한 짧은 머리. 앞머리는 가르마에서 반대쪽으로 넘어가 이마 위쪽을 살짝 덮고, 귀는 보이며 옆과 뒤는 짧게 정리된 머리.
+4) 첨부: A1-그림틀-남자.png → 결과 파일 이름: 새머리-남자-곱슬.png
+   [머리 모양 설명] 작고 동글동글한 곱슬이 머리 전체를 덮는 짧은 곱슬머리. 앞머리는 이마 위쪽에 곱슬로 내려오고, 귀는 보입니다. 머리 폭은 그림틀의 짧은 머리보다 조금만 넓게 그립니다.
+네 장 모두 아래 같은 요청 문장을 쓰고, [머리 모양 설명] 자리에 위의 설명을 그대로 넣습니다.
+
+----------------------------------------------------------------
+요청 문장 (그대로 붙여 넣고 [머리 모양 설명]만 바꾸기)
+----------------------------------------------------------------
+첨부한 그림의 아이 세 모습(앞·옆(오른쪽을 봄)·뒤)에서 머리 모양만 [머리 모양 설명]으로 바꿔 주세요.
+- 얼굴, 눈, 입, 귀, 피부, 목, 옷깃, 어깨와 모든 위치·크기는 그대로 둡니다. 머리 색과 그림 느낌은 그림틀 그대로입니다.
+- 앞모습과 옆모습에서 턱 아래로 내려오는 머리카락은 목과 어깨 뒤로 지나갑니다. 뒷모습에서는 등 위로 늘어져도 됩니다.
+- 각 칸(세로 3등분) 안에만 그립니다. 머리카락이 칸 경계에 닿지 않게 합니다. 흰 바탕에 그림자와 글자 없이, 가로 그림 한 장으로 줍니다.
+
+English (same request):
+In all three views (front, side facing right, back) change ONLY the hairstyle to [description]. Keep the face, eyes, mouth, ears, skin, neck, collar and shoulders, and every position and size. Same brown colour and style. In the front and side views, hair below the chin passes behind the neck and shoulders; in the back view it may hang over the back. Stay inside each third and keep the hair off the borders between the thirds. White background, no shadow or text. One landscape image, returned as drawn (no resizing or cropping).
+
+영어 설명(필요하면 [description]에):
+1) a high ponytail tied at the back of the crown; short bangs lightly over the forehead, side hair tucked behind the ears; the tail hangs down behind the head to shoulder-blade height (seen in the side and back views, only a little behind the head from the front), hanging down, not sticking out sideways.
+2) a shoulder-length curly bob with soft thick curls and rounded bangs over the forehead; about as wide as the template's bob, not puffed out.
+3) a neat short cut with a side parting; the bangs sweep from the parting to the other side over the top of the forehead; ears visible, short sides and back.
+4) short hair of small round curls all over; curly bangs over the top of the forehead; ears visible; only a little wider than the template's short hair.
+
+----------------------------------------------------------------
+결과가 이러면 다시 요청 (그대로 붙여 넣기)
+----------------------------------------------------------------
+- 머리 모양이 거의 안 바뀌었거나 인물이 움직였을 때:
+  "첨부한 그림틀에서 인물의 위치와 크기는 그대로 두고 머리 모양만 바꿔 다시 그려 주세요."
+- 얼굴·눈·입이 다시 그려졌거나 머리(얼굴)가 옮겨졌을 때:
+  "얼굴, 눈, 입과 머리의 위치·크기는 그림틀과 똑같이 두고 머리 모양만 바꿔 다시 그려 주세요."
+- 목·옷깃·어깨가 바뀌었거나 목도리 같은 것으로 덮였을 때:
+  "목, 옷깃, 어깨는 그림틀과 똑같이 두고 목도리나 장식 없이 머리 모양만 바꿔 다시 그려 주세요."
+- 머리카락이 칸 경계에 닿았거나 옆 칸으로 넘어갔을 때:
+  "세 모습이 각자 칸(세로 3등분) 안에만 들어가게, 머리카락이 칸 경계에 닿지 않도록 다시 그려 주세요."
+- 머리 색이 갈색이 아닐 때:
+  "머리 색은 그림틀과 같은 갈색으로, 머리 모양만 바꿔 다시 그려 주세요."
+- 그림자·글자·배경이 생겼을 때:
+  "흰 바탕에 그림자와 글자 없이 다시 그려 주세요."

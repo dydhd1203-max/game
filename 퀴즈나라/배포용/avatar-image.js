@@ -17,7 +17,7 @@
     'assets/sd-tops.png', 'assets/sd-bottoms.png', 'assets/sd-hood.png',
     'assets/pixel-pets-v2.png', 'assets/sd-shoes.png', 'assets/sd-shoes-parts.png', 'assets/angel-effect.png',
     'assets/sd-wardrobe-wave.png', 'assets/sd-foundation-ref-neck.png', 'assets/sd-foundation-ref-arms.png', 'assets/sd-foundation-ref-legs.png',
-    'assets/sd-foundation-ref-arms-clean.png', 'assets/sd-foundation-ref-neck-clean.png', 'assets/sd-foundation-ref-legs-under.png', ...maleSources
+    'assets/sd-foundation-ref-arms-clean.png', 'assets/sd-foundation-ref-neck-clean.png', 'assets/sd-foundation-ref-legs-under.png', 'assets/sd-foundation-ref-run-fist.png', ...maleSources
   ]);
   // Garment atlases (stage 3, reference body only): assets/sd-garment-<cat>-<shape>-<m|f>.png,
   // shape keys may hold '_' (jean_skirt). Each record has its own bundle

@@ -1,7 +1,7 @@
 {
   "project": "퀴즈나라",
   "format": 1,
-  "builtAt": "2026-10-17T05:57:47.118Z",
+  "builtAt": "2026-10-17T23:01:51.198Z",
   "instructions": "Cloudflare Pages 또는 Netlify 수동 배포에는 이 배포용 폴더 전체를 올리세요. index.html만 올리지 마세요.",
   "files": [
     {
@@ -116,8 +116,8 @@
     },
     {
       "path": "avatar-image.js",
-      "bytes": 6520,
-      "sha256": "475486e6323f38a885059b884e7610b579db03222052fda228d7825e56b05bd5"
+      "bytes": 6561,
+      "sha256": "3afb8e7631edb896781d3a0fa4b55b6e93a90aec26de069ec791adab59987589"
     },
     {
       "path": "assets/avatar-file-data.js",
@@ -491,13 +491,13 @@
     },
     {
       "path": "avatar-foundation-outfit.js",
-      "bytes": 63626,
-      "sha256": "8f2ef2add0b0756bef7401591bbaade4028be121303897648f573d92aa12f30d"
+      "bytes": 65169,
+      "sha256": "e6a3df23837ab8cf07e5e3671978bc49e9aeeceeb7a9bf2963b9b17734e41595"
     },
     {
       "path": "assets/avatar-file-data-foundation.js",
-      "bytes": 403591,
-      "sha256": "1511ada0b31a9f088384f994624653a27d01d7485f5c5d46c18e9c586ce7444a"
+      "bytes": 489816,
+      "sha256": "d0e79442ef99dfdacfe49163f6f25c29b785775ad4a0690a4915247eb129a112"
     },
     {
       "path": "assets/sd-foundation-ref-data.js",
@@ -535,9 +535,14 @@
       "sha256": "c39dcff17ff8bdbaa7c3e4e47720317c734a0f7cd647b0038ef6305f6c2c659c"
     },
     {
+      "path": "assets/sd-foundation-ref-run-fist.png",
+      "bytes": 64620,
+      "sha256": "e59612daa02745cde8937300cf5a3aaf0b87af8d2b2dc3c37f7e29f5754b4a95"
+    },
+    {
       "path": "avatar-foundation-skin.js",
-      "bytes": 33437,
-      "sha256": "35fe398167b7caf0545b2d3d5806b537950b70b360a08b9073358136d09bcd39"
+      "bytes": 38369,
+      "sha256": "3c5b90e845e99b7ab1429267929cb46050e9b2dfcad9446d477b069ab5b7c7ae"
     },
     {
       "path": "assets/sd-foundation-ref-neck.png",
@@ -561,8 +566,8 @@
     },
     {
       "path": "avatar-standard.js",
-      "bytes": 18657,
-      "sha256": "edf77bcb4423b457a720ba9030d310ffee446f8e2b1f72f2d03a33ae56b4fcd5"
+      "bytes": 19153,
+      "sha256": "56941a09f646670090057385863a52e30d732c241b1e32ef67a21737c4651f4d"
     },
     {
       "path": "avatar-standard.css",
@@ -3496,13 +3501,18 @@
     },
     {
       "path": "avatar-foundation-head.js",
-      "bytes": 11107,
-      "sha256": "5b3c7fd93c2dd3fb6d1acafc59e010144e451617c8fa4efaf59d65e04cef5321"
+      "bytes": 11236,
+      "sha256": "48d8540a44f8b63ca9a44c5d4275b24b5826fc4016f933f7ff79e6b1948aad0a"
     },
     {
       "path": "assets/sd-hair-data.js",
-      "bytes": 76782,
-      "sha256": "68fef482d811b13c43c773f5198ab5ea8cfc611a5bdd6478aeb30a7bbf9b85d0"
+      "bytes": 91576,
+      "sha256": "1c95fce033e357ca2dc867d508b6b9d73ae6215275f42b7d212bd9e811a15618"
+    },
+    {
+      "path": "assets/sd-hair-base-f.webp",
+      "bytes": 109372,
+      "sha256": "db5721e0e84535adf67d2c2f990fc1709c4318fb831a865b2df2f40c0d774b92"
     },
     {
       "path": "assets/sd-hair-f-bob.webp",
@@ -3520,9 +3530,19 @@
       "sha256": "08fab134a3ab7e03872f7bae50f90d11cda65880c6aef967ab8ed5942bc1b950"
     },
     {
+      "path": "assets/sd-hair-f-curlbob.webp",
+      "bytes": 179376,
+      "sha256": "576831274a9274f6aec517d84897a73d71aed8e94a68917c731309b85960cdf9"
+    },
+    {
       "path": "assets/sd-hair-f-curly.webp",
       "bytes": 164738,
       "sha256": "9487f7d167eb7ee96484f5b7940d3257d8de28df28886346ad221ca9bdbfd135"
+    },
+    {
+      "path": "assets/sd-hair-f-highpony.webp",
+      "bytes": 186742,
+      "sha256": "32f9641cc7a02224aed9555412cc85c5e7648ed832cc5293a9900ecef23744ce"
     },
     {
       "path": "assets/sd-hair-f-hime.webp",
@@ -3565,6 +3585,11 @@
       "sha256": "03f4b4e7cb4de929dbd0a18786be8c6dbd86482c56ae891c40d746123d8d2288"
     },
     {
+      "path": "assets/sd-hair-base-m.webp",
+      "bytes": 167198,
+      "sha256": "987456f1212ffd225801cf9ad577b2e7fd853decd286b3970655a865210d9712"
+    },
+    {
       "path": "assets/sd-hair-m-bowl.webp",
       "bytes": 167310,
       "sha256": "a4150c115a11579ea7339eeec983ebd4316dbc2eb21e4561f22de4ae044b1750"
@@ -3585,6 +3610,11 @@
       "sha256": "b0de3e7839ec9f08ec4c700513ea076548e81bf543362ce3f98f41833acbbcfc"
     },
     {
+      "path": "assets/sd-hair-m-curly.webp",
+      "bytes": 212352,
+      "sha256": "c0be88476182de3579011189dee1e1f34ab4e7ca75c6c170e79e4e18960a3f0b"
+    },
+    {
       "path": "assets/sd-hair-m-fade.webp",
       "bytes": 208756,
       "sha256": "00dd4db5b8b989214c1985a0592983f69513db8103b7aaa3190574f0f0041773"
@@ -3603,6 +3633,11 @@
       "path": "assets/sd-hair-m-short.webp",
       "bytes": 169330,
       "sha256": "754e1967a421b7bcba857d8210faef115def235adcb575e04b918b6c4e7abd79"
+    },
+    {
+      "path": "assets/sd-hair-m-sidepart.webp",
+      "bytes": 189552,
+      "sha256": "011fe3188d817fef531d0185152780b2afb9719bfe2886a3d592c0910f35038d"
     },
     {
       "path": "assets/sd-hair-m-slick.webp",

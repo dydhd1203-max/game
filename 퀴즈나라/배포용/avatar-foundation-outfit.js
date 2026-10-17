@@ -63,7 +63,7 @@
   // (avatar-foundation-skin.js paintCache).
   // The mesh canvas holds the sleeve frame at 32 px per unit: ±4 units (256
   // px) for a legacy record, the record's box [x0,y0,w,h] on the data path.
-  const sleeveCache=root.QPFoundationSkin.paintCache('sleeve'),shortsCache=root.QPFoundationSkin.paintCache('shorts');
+  const SWING_OUT=[9,17],sleeveCache=root.QPFoundationSkin.paintCache('sleeve'),shortsCache=root.QPFoundationSkin.paintCache('shorts');
   function sleeveTexture(g,sex,view,i,angle,lean,lift=0){
     const F=figure(sex,view),profile=view==='Profile',S=rig(sex,view),restAngle=profile?-Math.atan2(...S.profileSwing):Math.atan2(S.elbow[i][1]-S.shoulder[i][1],S.elbow[i][0]-S.shoulder[i][0])-Math.PI/2;
     const delta=Math.round((angle-restAngle-lean)*180/Math.PI/2)*2*Math.PI/180,raise=Math.round(clamp(lift,0,1)*10)/10;
@@ -80,10 +80,16 @@
     // (raisedSleeve), so its resting image is a separate entry (merge of
     // round 3: the shared 'rest' key would have handed a raised arm the
     // hanging sleeve's picture with the inner strip, or the reverse).
-    const raisedArt=raise>0&&!profile,cacheKey=gk(g.id,...(hold===0||delta===0?[sex,view,i,raisedArt?'rest-raised':'rest']:[sex,view,i,Math.round(delta*180/Math.PI),raise])),cached=sleeveCache.get(cacheKey);if(cached)return cached;
+    // A front/back sleeve swung out from the body (running, the jump's
+    // flight) also drops that inner strip, fading in from SWING_OUT[0] to
+    // [1] degrees outward: beside the body it hung below the cuff as a green
+    // triangle and widened the sleeve into a bell (2026-10-17, user: running
+    // and jumping sleeves look unnatural). Walking turns at most 7.5°.
+    const out=(i?-delta:delta)*180/Math.PI,strip=profile||raise>0?1:1-smooth(clamp((out-SWING_OUT[0])/(SWING_OUT[1]-SWING_OUT[0]),0,1));
+    const raisedArt=(raise>0||strip===0)&&!profile,cacheKey=gk(g.id,...(hold===0||delta===0?[sex,view,i,raisedArt?'rest-raised':'rest']:[sex,view,i,Math.round(delta*180/Math.PI),raise])),cached=sleeveCache.get(cacheKey);if(cached)return cached;
     // Legacy: today's 256 px canvas (±4 u; tools/garment/schema.cjs and
     // tools/avatar_build/frozen.py read these literals). Data path: the record's box.
-    const box=g.legacy?null:sleeveOf(g,view,i).box,art=raisedArt?raisedSleeve(g,sex,view,i,F,restAngle):sleeveArt(g,sex,view,i),shoulder=F.joints.shoulder[i],c=document.createElement('canvas');if(box){c.width=Math.ceil(box[2]*32);c.height=Math.ceil(box[3]*32);}else c.width=c.height=256;const ctx=c.getContext('2d'),cols=10,rows=12,vertices=[];
+    const box=g.legacy?null:sleeveOf(g,view,i).box,art=raisedArt?raisedSleeve(g,sex,view,i,F,restAngle):strip<1?swungSleeve(g,sex,view,i,F,restAngle,strip):sleeveArt(g,sex,view,i),shoulder=F.joints.shoulder[i],c=document.createElement('canvas');if(box){c.width=Math.ceil(box[2]*32);c.height=Math.ceil(box[3]*32);}else c.width=c.height=256;const ctx=c.getContext('2d'),cols=10,rows=12,vertices=[];
     for(let row=0;row<=rows;row++)for(let col=0;col<=cols;col++){
       const u=col/cols,v=row/rows,px=[art.rect[0]+u*art.width,art.rect[1]+v*art.height];
       // Sleeve frame: y runs down the resting upper arm from the shoulder.
@@ -92,7 +98,7 @@
       const vertex={s:[u*art.width,v*art.height],d:[(p[0]+4)*32,(p[1]+4)*32]};if(box)vertex.d=[(p[0]-box[0])*32,(p[1]-box[1])*32];vertices.push(vertex);
     }
     meshDraw(ctx,art.canvas,vertices,cols,rows);
-    return sleeveCache.set(cacheKey,{url:c.toDataURL()});
+    return sleeveCache.set(cacheKey,{url:c.toDataURL(),strip:raisedArt?0:strip});
   }
   // The sleeve drawing of a gesture-raised arm (front/back) without the
   // strip of cloth that hangs down beside and below the cuff on its inner
@@ -105,6 +111,15 @@
   // inward of the cuff's inner end from 1 above the cuff row down.
   // A pipeline record carries this drawing (sleeves[].raisedAt, same size as
   // the sleeve's rect); for a legacy record it is made here from the art.
+  // Part way through the swing: the strip drawn at the given strength (in
+  // quarters, few cached pictures) over the sleeve without it (both drawings
+  // share the sleeve's rect).
+  function swungSleeve(g,sex,view,i,F,restAngle,strip){
+    const a=Math.round(strip*4)/4,key=gk(g.id,sex,view,'sleeve-swung',i,a);if(parts.has(key))return parts.get(key);
+    const bare=raisedSleeve(g,sex,view,i,F,restAngle),full=sleeveArt(g,sex,view,i),c=document.createElement('canvas');c.width=full.width;c.height=full.height;const ctx=c.getContext('2d');
+    ctx.drawImage(bare.canvas,0,0,c.width,c.height);ctx.globalAlpha=a;ctx.drawImage(full.canvas,0,0,c.width,c.height);
+    const art={rect:full.rect,canvas:c,width:full.width,height:full.height};parts.set(key,art);return art;
+  }
   function raisedSleeve(g,sex,view,i,F,restAngle){
     const key=gk(g.id,sex,view,'sleeve-raised',i);if(parts.has(key))return parts.get(key);
     if(!g.legacy){const s=sleeveOf(g,view,i);return part(key,g.image,s.raisedAt,s.rect);}
@@ -572,7 +587,7 @@
       // off along the cuff line in mid air (a pale spike beside the sleeve).
       const bare=(arm.lift||0)>0?'M-8 .6H-1V'+n(cuff)+'H-8ZM1 .6H8V'+n(cuff)+'H1Z':'';
       set(s.skinClip,'transform',s.group.getAttribute('transform'));set(s.skinClip,'d','M-8 '+n(cuff)+'H8V15H-8Z'+bare);
-      href(s.image,sleeveTexture(top,sex,view,i,angle,lean,arm.lift||0));for(const[k,v]of Object.entries({x:box[0],y:box[1],width:box[2],height:box[3]}))set(s.image,k,v);
+      const tex=sleeveTexture(top,sex,view,i,angle,lean,arm.lift||0);href(s.image,tex);for(const[k,v]of Object.entries({x:box[0],y:box[1],width:box[2],height:box[3]}))set(s.image,k,v);
       s.image.dataset.sleeveDeformation='seam-pinned';s.image.dataset.sleeveArt=gk(top.id,sex,view,i);
       if(s.arm){const a=fig(top,view).top.armSleeves?.[i],Sk=root.QPFoundationSkin;
         if(a&&Sk?.limbPainting){const def=Sk.limbDef('arm',sex,view,i,'clean'),sd={...def,rect:a.rect||def.rect,image:top.image,at:a.at,variant:gk(top.id,sex,view,'arm',i),under:0},d=Sk.limbPainting(sd,[arm.shoulder,arm.elbow,arm.wrist],Boolean(arm.fold));
@@ -581,7 +596,8 @@
           (body.sleeveFold||(body.sleeveFold=[]))[i]={node:s.fold,def:sd};}
         else{s.arm.style.display='none';if(body.sleeveFold)body.sleeveFold[i]=null;}}
       else if(body.sleeveFold)body.sleeveFold[i]=null;
-      fit.sleeves.push({shoulder:arm.shoulder,opening:[arm.shoulder[0]-Math.sin(angle)*cuff,arm.shoulder[1]+Math.cos(angle)*cuff],armPoint:mix(arm.shoulder,arm.elbow,.52),width:sl.rect[2]*F.k,cuff});
+      // strip: how much of the inner strip below the cuff the sleeve drawing keeps (1 hanging, 0 swung out or raised).
+      fit.sleeves.push({shoulder:arm.shoulder,opening:[arm.shoulder[0]-Math.sin(angle)*cuff,arm.shoulder[1]+Math.cos(angle)*cuff],armPoint:mix(arm.shoulder,arm.elbow,.52),width:sl.rect[2]*F.k,cuff,strip:tex.strip});
     });
     raisedSides(r,top,pose,sex,view);
     pose.legs.forEach((leg,i)=>{
