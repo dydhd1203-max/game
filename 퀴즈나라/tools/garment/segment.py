@@ -500,6 +500,7 @@ class Context:
         self.tau = float(max(P['tauMin'], np.percentile(self.D[st], 95) + 1)) if st.any() else P['tauMin']
         self.ink, self.lum, self.depth = ink_map(self.U)
         self.tlum = lum_of(self.fz.template)
+        self.tink = ink_map(self.fz.template)[0]
         self.models = {sex: self._models(sex) for sex in ('m', 'f')}
 
     def cells(self, sex):
@@ -890,6 +891,10 @@ def segment_cell(ctx, key, seams=True):
     rim = M.dilate(painted_body, P['lineNear']) & ~body
     interior = M.erode(isP, 2)
     line = rim & ink & (label == 1) & ~interior & ~in_band & ~inside & changed  # unchanged pixels keep their label
+    # the frozen garment's own outline, recoloured (the template has a line
+    # there, on the garment's pixels) stays the garment's: a recoloured
+    # sleeve lost its outer outline over the arm (WP8 hue tops, girl front)
+    line &= ~(isP & M.dilate(ctx.tink[sl] > P['lineDark'], 1))
     label[line] = 2
     diag['lineArtPx'] = int(line.sum())
     # 6b. the other slot's fringe: changed product pixels within 4 px of the

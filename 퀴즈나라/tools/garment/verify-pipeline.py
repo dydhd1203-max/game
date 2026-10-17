@@ -685,6 +685,10 @@ def run_case(name, sheet, slot, truth, own_vis, kind, out_dir, prod_override, pr
         others = others_alpha(slot, {n: truth[n] for n in SG.SLOT[slot]['layers']})
     parts, tiles = part_metrics(b, truth, own_vis, name, others, kind, dontcare)
     res['parts'] = parts
+    # how each figure's sleeves were decided (frozen lines kept, armhole seam
+    # moved, profile sleeve), to read a sleeve IoU failure without a rerun
+    res['sleeveInfo'] = {k: {n: f['info'][n] for n in ('frozenLines', 'armholeShift', 'cuffShift', 'profileSleeve') if n in f.get('info', {})}
+                         for k, f in (b.get('figs') or {}).items() if slot == 'top'}
     # the plan's colour figure: mean |dRGB| over the slot's shared opaque
     # pixels (all parts pooled), next to the per-part means
     shp = [(v['dRGB'], v['dRGBInput'], v['sharedPx']) for k, v in parts.items() if not k.endswith(' union')]
