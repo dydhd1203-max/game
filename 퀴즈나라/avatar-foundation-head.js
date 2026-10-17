@@ -47,12 +47,13 @@
     const PALS=typeof PAL!=='undefined'?PAL:root.PAL,P=PALS?.[cat],[shape,i]=String(value||'').split(':'),c=(P?.[+i]||P?.[0]||[cat==='skin'?'#ffe2cc':'#5a3a24'])[0];
     return cat==='hair'?(root.QPClothes?.colorFor?.('hair',shape,sex,c)||c):c;
   }
-  // One layer: its atlas rectangle shown at its head-unit rectangle (dx, dy undo the profile registration,
-  // which avatar-foundation.js applies to the whole view so hats and face items move with the painting).
+  // One layer: the style's atlas placed so the layer's rectangle lands on its head-unit rectangle and
+  // clipped to it with a CSS inset (no nested <svg>: page styles size every svg inside an avatar holder).
+  // dx, dy undo the profile registration (avatar-foundation.js moves the whole view when it is on).
   function piece(e,v,name,dx=0,dy=0){
-    // A layer a style lacks still takes its two nodes (node counts stay the same for every head).
-    const l=v.layers[name];if(!l)return '<svg width="0" height="0"><image/></svg>';const [ax,ay,w,h,ux,uy,uw,uh]=l;
-    return `<svg x="${r(ux-dx)}" y="${r(uy-dy)}" width="${r(uw)}" height="${r(uh)}" viewBox="${ax} ${ay} ${w} ${h}" preserveAspectRatio="none" overflow="hidden"><image href="${e.file}" width="${e.size[0]}" height="${e.size[1]}"/></svg>`;
+    // A layer a style lacks still takes its node (node counts stay the same for every head).
+    const l=v.layers[name];if(!l)return '<image width="0" height="0"/>';const [ax,ay,w,h,ux,uy,uw,uh]=l,[W,Hh]=e.size,kx=uw/w,ky=uh/h,pc=v=>r(v*100)+'%';
+    return `<image href="${e.file}" x="${r(ux-dx-ax*kx)}" y="${r(uy-dy-ay*ky)}" width="${r(W*kx)}" height="${r(Hh*ky)}" preserveAspectRatio="none" style="clip-path:inset(${pc(ay/Hh)} ${pc(1-(ax+w)/W)} ${pc(1-(ay+h)/Hh)} ${pc(ax/W)})"/>`;
   }
   function painting(e,v,dx,dy,iris){
     const add=' style="mix-blend-mode:plus-lighter"';

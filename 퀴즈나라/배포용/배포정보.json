@@ -1,7 +1,7 @@
 {
   "project": "퀴즈나라",
   "format": 1,
-  "builtAt": "2026-10-17T01:08:04.795Z",
+  "builtAt": "2026-10-17T04:12:47.796Z",
   "instructions": "Cloudflare Pages 또는 Netlify 수동 배포에는 이 배포용 폴더 전체를 올리세요. index.html만 올리지 마세요.",
   "files": [
     {
@@ -111,8 +111,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 217881,
-      "sha256": "b276ce71a25ebbe27324a0721bee76c7b89dba6343caf930c076cf85804d6cbd"
+      "bytes": 217887,
+      "sha256": "0884779c08205b4ed1fc4e82dee19684cb89c8b1c9b3b32c55eb426246760d18"
     },
     {
       "path": "avatar-image.js",
@@ -546,8 +546,8 @@
     },
     {
       "path": "avatar-foundation.js",
-      "bytes": 136817,
-      "sha256": "bed32cf975fa19ef102221df24c13f731c44d3db1b091e057067cf587dc84f8d"
+      "bytes": 138408,
+      "sha256": "be2fd17ae33874b1e3459e81655275d77349a1797ced8b7b1c2411b179fe5bf0"
     },
     {
       "path": "avatar-foundation.css",
@@ -3493,6 +3493,136 @@
       "path": "assets/face-art/nose-button-f-front-cover.png",
       "bytes": 800,
       "sha256": "f4f293e9702f407d72446376ae29e8a204c3186f00a183f7f099f085253b0678"
+    },
+    {
+      "path": "avatar-foundation-head.js",
+      "bytes": 11107,
+      "sha256": "5b3c7fd93c2dd3fb6d1acafc59e010144e451617c8fa4efaf59d65e04cef5321"
+    },
+    {
+      "path": "assets/sd-hair-data.js",
+      "bytes": 74073,
+      "sha256": "4bd6361646922c62efe9cf262130a51663c7068928d1a1f96bca66cf4672ffa0"
+    },
+    {
+      "path": "assets/sd-hair-f-bob.webp",
+      "bytes": 146474,
+      "sha256": "5c375e05c17456ec9fbdf8d8b5d4b8ee6ee6d7606d77b8b9d6c77a636416ac82"
+    },
+    {
+      "path": "assets/sd-hair-f-braid.webp",
+      "bytes": 171018,
+      "sha256": "0030b1395c89bb3ceee6c95d9d960924daf7f94379478b4f879839bde552e332"
+    },
+    {
+      "path": "assets/sd-hair-f-bun.webp",
+      "bytes": 177484,
+      "sha256": "70103e2d096f4d008b85111fa38a1f98366891a9eb81c7aa90683d04b2e56213"
+    },
+    {
+      "path": "assets/sd-hair-f-curly.webp",
+      "bytes": 164516,
+      "sha256": "aa910bd57bc473f1a9b971ac11a09755815d9adbf0b9480852c873238944a906"
+    },
+    {
+      "path": "assets/sd-hair-f-hime.webp",
+      "bytes": 161444,
+      "sha256": "74753548e130c07afa9da351cdd76062e52a94c0ff0d01a83371ce0a4151c7cf"
+    },
+    {
+      "path": "assets/sd-hair-f-long.webp",
+      "bytes": 177762,
+      "sha256": "f9e69e9dd11fb719e96ae047c1163f67506167a62403b2f22dd68a95e1cafe10"
+    },
+    {
+      "path": "assets/sd-hair-f-messy.webp",
+      "bytes": 170740,
+      "sha256": "ac2214cd82356351e6ac198e02728808b12f58f07ba312c18d8bdfab66d28aa2"
+    },
+    {
+      "path": "assets/sd-hair-f-part.webp",
+      "bytes": 157704,
+      "sha256": "92239d45fbd07933a8a4e7c1e612590bc8dab3cd776463cced318ea51f9e6d7f"
+    },
+    {
+      "path": "assets/sd-hair-f-pony.webp",
+      "bytes": 198736,
+      "sha256": "a58fd80757e21e2e2967659cafa1e274b4a87bd0b85c064a5bb9631a9118d66d"
+    },
+    {
+      "path": "assets/sd-hair-f-short.webp",
+      "bytes": 150832,
+      "sha256": "8628c93ffa072f59858d0139ffb92133903423443ec6a4baeb7899e6413bf634"
+    },
+    {
+      "path": "assets/sd-hair-f-spiky.webp",
+      "bytes": 173624,
+      "sha256": "933e653bfc349a7c5ac88f33d5a7c07f5671082e4cc82b860786eb33cd0291c6"
+    },
+    {
+      "path": "assets/sd-hair-f-twin.webp",
+      "bytes": 204970,
+      "sha256": "69176eb86e7ac57330bd3f2026ef21a34e1a7d6eb423e158cad78ae115f46b51"
+    },
+    {
+      "path": "assets/sd-hair-m-bowl.webp",
+      "bytes": 166126,
+      "sha256": "1685502a89153730824e56fe33cffd1c016212d3372f4097f6cac68c2bd74196"
+    },
+    {
+      "path": "assets/sd-hair-m-comma.webp",
+      "bytes": 183522,
+      "sha256": "8e0502b437e9fa9203e01bfba59d2e91a00b04c71b930c0a221d5a0405300f2d"
+    },
+    {
+      "path": "assets/sd-hair-m-crop.webp",
+      "bytes": 164940,
+      "sha256": "11d9b9a1cc05aa37f5b2919652b43dfcafec3d10884845f69ddceb481e11a115"
+    },
+    {
+      "path": "assets/sd-hair-m-curlm.webp",
+      "bytes": 202670,
+      "sha256": "ccd74a1a68eff2a1a5d17ee20b0de2999a55f94f149674e20a0ae46f3598473b"
+    },
+    {
+      "path": "assets/sd-hair-m-fade.webp",
+      "bytes": 207220,
+      "sha256": "c38d351a9da41a39d2b68af7c969ee07b19379cae52742f1240fbbd5bbecb392"
+    },
+    {
+      "path": "assets/sd-hair-m-messy.webp",
+      "bytes": 200518,
+      "sha256": "08648c0521b2eb21f917203b614ef4ad206cc7d7679c08e376d5a1998677d4f0"
+    },
+    {
+      "path": "assets/sd-hair-m-part.webp",
+      "bytes": 175098,
+      "sha256": "869a59b3a42254e981c229f391397dde55a334d8ba4f27359af21723afa4c475"
+    },
+    {
+      "path": "assets/sd-hair-m-short.webp",
+      "bytes": 168176,
+      "sha256": "7c3a6c6faa9a6c52db2e3f34dc0e0cd58d2084d1be4941c9470729816bc6d858"
+    },
+    {
+      "path": "assets/sd-hair-m-slick.webp",
+      "bytes": 170374,
+      "sha256": "7658d9547d7438f1264ab41baa5809c2e346ecd954148ba148a59a3374b048d7"
+    },
+    {
+      "path": "assets/sd-hair-m-spiky.webp",
+      "bytes": 192890,
+      "sha256": "3e31289f080509410fac9c01190b345d6bf85b118e2e3bfdde5193c102c4fdea"
+    },
+    {
+      "path": "assets/sd-hair-m-undercut.webp",
+      "bytes": 194248,
+      "sha256": "ea607c51f943f5d6cabe53a6b09ce30aded3bb232a89acbbf215afd1cb9adf07"
+    },
+    {
+      "path": "assets/sd-hair-m-wolf.webp",
+      "bytes": 215002,
+      "sha256": "7dce3eda014194180b78806dcab7e9a3b6a3a1b7d263e17272a487e546edec5e"
     },
     {
       "path": "assets/sd-garments-index.js",

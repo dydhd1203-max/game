@@ -796,6 +796,11 @@
   function pigment(defs,id,color){const g=el('linearGradient',{id,x1:0,y1:0,x2:1,y2:0});for(const [offset,f]of[[0,.80],[.28,1.04],[.62,1.09],[1,.88]])g.append(el('stop',{offset,'stop-color':tone(color,f)}));defs.append(g);return'url(#'+id+')';}
   function headViews(av){
     const base={...av,rig:undefined,foundationGarments:undefined,top:'',bottom:'',shoes:'',outfit:'',pet:'',effect:'',bg:'',frame:'',hat:'',glass:'',face:'',ear:'',neck:'',back:''};
+    // The converted hair layers (stage 3 H3, QPFoundationHead) once their atlases are in; today's
+    // paintings (old renderer) before that and on pages without them.
+    const layered=root.QPFoundationHead?.atlas.ready?root.QPFoundationHead.views(base):null;
+    if(layered){const hit=headCache.get(layered.key);if(hit){headCache.delete(layered.key);headCache.set(layered.key,hit);return hit;}
+      headCache.set(layered.key,layered);while(headCache.size>HEAD_CACHE)headCache.delete(headCache.keys().next().value);return layered;}
     const key=JSON.stringify(base);if(headCache.has(key)){const hit=headCache.get(key);headCache.delete(key);headCache.set(key,hit);return hit;}
     const raw=new DOMParser().parseFromString(QPAvatar.render(base,280,3),'image/svg+xml').documentElement;
     const front=raw.querySelector('.qpx-head'),skin=front.dataset.qpxHeadSkin;
@@ -815,9 +820,11 @@
   // right for whichever avatar rendered first.
   const TEMPLATE_ID='qpf-template',TEMPLATE_W='qpfW-template',TEMPLATE_H='qpfH-template',SLOT={[TEMPLATE_ID]:0,[TEMPLATE_W]:1,[TEMPLATE_H]:2},templates=new Map();
   function headChunks(heads,view){
+    heads.chunks??={};if(heads.chunks[view])return heads.chunks[view];
+    // Layered heads carry the template's id placeholder for their clips and filters.
+    if(heads.layered){const out=[];heads[view].split(TEMPLATE_ID).forEach((s,i)=>{if(i)out.push(SLOT[TEMPLATE_ID]);out.push(s);});return heads.chunks[view]=out;}
     // The paintings' own clip ids become this render's ids.
     const [text,from,to]=view==='backHair'?[heads.backHair,'url(#qpx-hair-behind)','-hair-behind)']:[heads[view],'url(#qpx-head-front)','-head-front)'];
-    heads.chunks??={};if(heads.chunks[view])return heads.chunks[view];
     const out=[];text.split(from).forEach((s,i)=>{if(i)out.push('url(#',SLOT[TEMPLATE_ID],to);out.push(s);});return heads.chunks[view]=out;
   }
   function render(av={},size=280){
@@ -957,6 +964,8 @@
     const defs=el('defs');svg.append(defs);const skin=pigment(defs,id+'-skin',heads.skin),underlay=pigment(defs,id+'-underlay','#d9e0d1');
     const neckGradient=el('linearGradient',{id:id+'-neck-shadow',gradientUnits:'userSpaceOnUse',x1:16,x2:16,y1:27.8,y2:28.5});neckGradient.append(el('stop',{offset:0,'stop-color':tone(heads.skin,.74),'stop-opacity':.62}),el('stop',{offset:.42,'stop-color':tone(heads.skin,.82),'stop-opacity':.26}),el('stop',{offset:1,'stop-color':tone(heads.skin,.88),'stop-opacity':0}));defs.append(neckGradient);
     const headClip=el('g');headClip.innerHTML=heads.headClip.replaceAll('qpx-head-front',id+'-head-front');defs.append(...headClip.children);
+    // Layered heads: their dye, the body's skin matrix and the iris colour (QPFoundationHead.defs).
+    if(heads.layered){defs.append(...root.QPFoundationHead.defs(heads));svg.dataset.foundationHeadLayers=heads.style;}
     // Without a back-hair layer, hair below the jaw line would vanish.
     if(FRONT_HAIR_CLIP[sex]&&heads.backHair)defs.querySelector('#'+id+'-head-front').replaceChildren(el('path',{d:FRONT_HAIR_CLIP[sex]}));
     const skinGradient=defs.querySelector('#'+id+'-skin');skinGradient.setAttribute('gradientUnits','userSpaceOnUse');skinGradient.setAttribute('x1','10');skinGradient.setAttribute('x2','22');
@@ -965,12 +974,15 @@
     // Hair below the chin hangs behind the body, as in the regular avatar.
     // The front portraits also carry an old outlined neck stump down there;
     // only those traced strokes are cut, never the hanging hair itself.
-    if(heads.backHair){const clip=el('clipPath',{id:id+'-hair-behind',clipPathUnits:'userSpaceOnUse'});clip.append(el('path',{d:(BACK_HAIR_CLIP[sex]||'M-1 28.2H33V48.2H-1Z')+BACK_HAIR_NECK_CUT[sex],'clip-rule':'evenodd'}));defs.append(clip);const fit=VIEW_HEAD[sex].front,hair=el('g',fit?{transform:`translate(0 ${fit[1]}) translate(16 ${VIEW_HEAD_PIVOT}) scale(${fit[0]}) translate(-16 ${-VIEW_HEAD_PIVOT})`}:{});hair.append(document.createComment('qpf-head:backHair'));backHair.append(hair);}
+    if(heads.backHair){const clip=el('clipPath',{id:id+'-hair-behind',clipPathUnits:'userSpaceOnUse'});clip.append(el('path',{d:(BACK_HAIR_CLIP[sex]||'M-1 28.2H33V48.2H-1Z')+(heads.layered?'':BACK_HAIR_NECK_CUT[sex]),'clip-rule':'evenodd'}));defs.append(clip);const fit=VIEW_HEAD[sex].front,hair=el('g',fit?{transform:`translate(0 ${fit[1]}) translate(16 ${VIEW_HEAD_PIVOT}) scale(${fit[0]}) translate(-16 ${-VIEW_HEAD_PIVOT})`}:{});hair.append(document.createComment('qpf-head:backHair'));backHair.append(hair);}
     const hairColor=(heads.front.match(/data-qpx-hair-color="([^"]+)"/)||[])[1];
     for(const view of ['front','profile','back']){
       const v=el('g',{'data-foundation-head-view':view}),fit=VIEW_HEAD[sex][view];
       // The painting goes in at the comment when the template is assembled.
-      if(fit)v.setAttribute('transform',`translate(${fit[2]||0} ${fit[1]}) translate(16 ${VIEW_HEAD_PIVOT}) scale(${fit[0]}) translate(-16 ${-VIEW_HEAD_PIVOT})`);const paintG=el('g',{'data-foundation-head-paint':view});paintG.append(document.createComment('qpf-head:'+view));v.append(paintG);
+      // A layered profile face was moved onto the reference style's (H2 registration): the whole view moves,
+      // so hats, face items and earrings measured on today's painting stay on it.
+      const reg=heads.layered&&heads.registration?.[view],moved=reg&&(reg[0]||reg[1])?` translate(${reg[0]} ${reg[1]})`:'';
+      if(fit)v.setAttribute('transform',`translate(${fit[2]||0} ${fit[1]}) translate(16 ${VIEW_HEAD_PIVOT}) scale(${fit[0]}) translate(-16 ${-VIEW_HEAD_PIVOT})`+moved);else if(moved)v.setAttribute('transform',moved.trim());const paintG=el('g',{'data-foundation-head-paint':view});paintG.append(document.createComment('qpf-head:'+view));v.append(paintG);
       // The directional paintings include a flared standalone neck with a
       // dark bottom rim. A body that owns its neck must not show that second
       // neck above the shirt. Cut only the reference heads' neck attachment;
@@ -980,7 +992,7 @@
       // Its own hair below the chin hangs behind the body in front: the hair drawn under the hat replaces it.
       if(hatLayer(v,defs,id,base,sex,view,hairColor)&&view==='front')backHair.setAttribute('display','none');
       const referenceHead=base.hair.split(':')[0]===(sex==='m'?'short':'bob');
-      const cut=referenceHead?HEAD_NECK_CUT[sex][view]:'';
+      const cut=referenceHead&&!heads.layered?HEAD_NECK_CUT[sex][view]:'';
       if(cut){const clip=el('clipPath',{id:id+'-head-only-'+view,clipPathUnits:'userSpaceOnUse'});clip.append(el('path',{d:'M-8 -8H40V48H-8Z'+cut,'clip-rule':'evenodd'}));defs.append(clip);
         // only the painting and the hair drawn under a hat carry the old neck stump: a mask or an earring
         // over the chin was cut square there too (F4R, 2026-10-16)
@@ -1126,9 +1138,11 @@
   const clipPoints=d=>{const pts=[];let x=0,y=0;for(const [,c,a]of d.matchAll(/([MLHVZ])([^MLHVZ]*)/g)){const v=a.trim().split(/[ ,]+/).filter(Boolean).map(Number);if(c==='M'||c==='L'){x=v[0];y=v[1];}else if(c==='H')x=v[0];else if(c==='V')y=v[0];else continue;pts.push([x,y]);}return pts;};
   const HAIR_POINTS=Object.fromEntries(Object.keys(FRONT_HAIR_CLIP).map(k=>[k,{front:clipPoints(FRONT_HAIR_CLIP[k]),back:clipPoints(BACK_HAIR_CLIP[k])}]));
   const JAW=[12.35,12.9,19.38,19.85];
+  // Layered heads lost the old neck stump in conversion (H2); today's paintings still need its cut.
+  const neckCut=r=>r.svg.dataset.foundationHeadLayers?'':BACK_HAIR_NECK_CUT[r.svg.dataset.qpxSex];
   function bowFace(r,amount){
     const B=r.bow,sex=r.svg.dataset.qpxSex;if(!B?.face)return'';
-    if(!amount){if(B.face.style.display!=='none'){B.face.style.display='none';B.crown.removeAttribute('clip-path');B.warp.removeAttribute('transform');if(B.hair)set(B.hair,'d',FRONT_HAIR_CLIP[sex]);if(B.behind)set(B.behind,'d',(BACK_HAIR_CLIP[sex]||'')+BACK_HAIR_NECK_CUT[sex]);}return'';}
+    if(!amount){if(B.face.style.display!=='none'){B.face.style.display='none';B.crown.removeAttribute('clip-path');B.warp.removeAttribute('transform');if(B.hair)set(B.hair,'d',FRONT_HAIR_CLIP[sex]);if(B.behind)set(B.behind,'d',(BACK_HAIR_CLIP[sex]||'')+neckCut(r));}return'';}
     const k=sex==='f'?1:0,b=BOW_FACE.brow[k],chin=BOW_FACE.chin[k],[t,s,c]=BOW_FACE.shift[k].map(v=>v*amount),edge=b+s,crown=(edge-t)/b,face=(chin+c-edge)/(chin-b);
     const faceWarp=' translate(0 '+n(edge)+') scale(1 '+n(face)+') translate(0 '+n(-b)+')';
     set(B.warp,'transform','translate(0 '+n(t)+') scale(1 '+n(crown)+')');set(B.crownClip,'d','M-20 -20H52V'+n(edge+.2)+'H-20Z');set(B.faceClip,'d','M-20 '+n(edge-.2)+'H52V80H-20Z');
@@ -1136,7 +1150,7 @@
     if(B.hair){
       // Clip paths are in the view's own units (VIEW_HEAD drop above the head group).
       const fit=VIEW_HEAD[sex].front[1],outside=x=>x<JAW[1]?1-smooth(JAW[0],JAW[1],x):smooth(JAW[2],JAW[3],x),keep=([x,y])=>y<20||y>40?[x,y]:[x,mix(y,b+(y+fit-edge)/face-fit,outside(x))],path=p=>'M'+p.map(q=>pt(keep(q))).join('L')+'Z';
-      set(B.hair,'d',path(HAIR_POINTS[sex].front));if(B.behind)set(B.behind,'d',path(HAIR_POINTS[sex].back)+BACK_HAIR_NECK_CUT[sex]);
+      set(B.hair,'d',path(HAIR_POINTS[sex].front));if(B.behind)set(B.behind,'d',path(HAIR_POINTS[sex].back)+neckCut(r));
     }
     return faceWarp;
   }
