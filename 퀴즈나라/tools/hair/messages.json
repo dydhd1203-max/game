@@ -1,0 +1,42 @@
+{
+ "version": 1,
+ "note": "Korean texts of the hair pipeline's own codes (tools/hair/build-hairstyle.py); the registration's codes are in tools/garment/messages.json.",
+ "codes": {
+  "HAIR_NONE": {
+   "level": "fail",
+   "title": "머리카락을 찾지 못했어요",
+   "message": "앞모습에서 바뀐 머리카락이 거의 없어요. 인물이 움직였거나 머리가 빠졌거나, 머리 모양을 바꾸지 않은 그림이에요.",
+   "retry": "첨부한 그림틀에서 인물의 위치와 크기는 그대로 두고 머리 모양만 바꿔 다시 그려 주세요."
+  },
+  "NECK_CHANGED": {
+   "level": "fail",
+   "title": "목이나 옷깃이 바뀌었어요",
+   "message": "{figure}에서 목·옷깃을 다시 그렸거나 목도리 같은 다른 것으로 덮었어요. 머리카락이 목 앞으로 내려오는 것은 괜찮아요.",
+   "retry": "목, 옷깃, 어깨는 그림틀과 똑같이 두고 목도리나 장식 없이 머리 모양만 바꿔 다시 그려 주세요."
+  },
+  "HAIR_CROSSES_CELL": {
+   "level": "fail",
+   "title": "머리카락이 칸을 넘었어요",
+   "message": "머리카락이 세 칸(앞·옆·뒤) 사이의 경계에 닿았어요({figure}). 옆 칸의 그림과 섞이면 잘라 낼 수 없어요.",
+   "retry": "세 모습이 각자 칸(세로 3등분) 안에만 들어가게, 머리카락이 칸 경계에 닿지 않도록 다시 그려 주세요."
+  },
+  "W_HAIR_COLOUR": {
+   "level": "warn",
+   "title": "머리 색이 갈색이 아니에요",
+   "message": "게임은 그림틀의 갈색 머리를 기준으로 물들여요. 다른 색으로 그리면 물들인 색이 어긋날 수 있어요.",
+   "retry": "머리 색은 그림틀과 같은 갈색으로, 머리 모양만 바꿔 다시 그려 주세요."
+  },
+  "FACE_CHANGED": {
+   "level": "fail",
+   "title": "얼굴이 바뀌었거나 움직였어요",
+   "message": "{figure}의 눈 자리가 그림틀과 달라요. 얼굴을 다시 그렸거나 머리(얼굴)만 옮겨 그린 것 같아요. 게임은 얼굴을 그대로 두고 머리카락만 가져와서, 얼굴이 움직이면 머리카락이 어긋나요.",
+   "retry": "얼굴, 눈, 입과 머리의 위치·크기는 그림틀과 똑같이 두고 머리 모양만 바꿔 다시 그려 주세요."
+  }
+ },
+ "figures": {
+  "front": "앞모습",
+  "right": "옆모습",
+  "back": "뒷모습",
+  "between": "칸 사이"
+ }
+}
