@@ -179,7 +179,9 @@ async function normalTest(browser,base){
   const context=await browser.newContext({viewport:{width:1280,height:800}});await H.isolate(context,report);const seen=[];context.on('request',q=>seen.push(new URL(q.url()).pathname));
   const page=await context.newPage();page.on('pageerror',e=>report.errors.push('normal: '+e.message));
   await page.goto(new URL('index.html?demo=1&session=wp3-normal',base).href);
-  await page.waitForFunction(()=>window.QPGame?.getMe()&&window.QPAvatar?.atlas.ready&&window.QPClothes?.atlas.ready&&window.QPAvatarDirection?.atlas.backReady&&(!window.QPFoundationHead||window.QPFoundationHead.atlas.ready||window.QPFoundationHead.atlas.error),null,{timeout:90000});
+  // The student page never loads the layered heads (avatar-foundation-head.js autoLoad: ?avatar=foundation or the
+  // studio only), so their atlas stays not ready here; waiting for it (added with H3) timed out every run.
+  await page.waitForFunction(()=>window.QPGame?.getMe()&&window.QPAvatar?.atlas.ready&&window.QPClothes?.atlas.ready&&window.QPAvatarDirection?.atlas.backReady,null,{timeout:90000});
   for(const screen of ['shop','village'])try{await page.evaluate(s=>QPGame.go(s),screen);await page.waitForTimeout(1500);}catch(e){report.errors.push('normal go '+screen+': '+e.message);}
   try{await page.waitForLoadState('networkidle',{timeout:15000});}catch{}
   const bad=seen.filter(p=>GARMENT_REQ.test(p)),foundationNodes=await page.evaluate(()=>document.querySelectorAll('[data-qp-foundation]').length);
@@ -264,7 +266,8 @@ async function studioTest(browser,base){
   check(seen.includes('/assets/sd-foundation-ref-arms-clean.png')&&seen.includes('/assets/sd-foundation-ref-neck-clean.png'),'clean body art loaded only for the clean-art top');
   // 3. Fallback reasons and the template key.
   const fallback=await page.evaluate(async()=>{const {mk,G,api,frame,clone}=__wp3,res={};
-    const longTop=clone(G.get('top:tee','f').record);longTop.id='top:longtest';longTop.shape='longtest';longTop.class='top/long-sleeve';await G.register(longTop,{m:G.get('top:tee','m').image,f:G.get('top:tee','f').image}).catch(()=>{});
+    // A class this runtime does not draw (top/long-sleeve became a runtime class on 2026-10-16: the reserved sleeveless).
+    const longTop=clone(G.get('top:tee','f').record);longTop.id='top:longtest';longTop.shape='longtest';longTop.class='top/sleeveless';await G.register(longTop,{m:G.get('top:tee','m').image,f:G.get('top:tee','f').image}).catch(()=>{});
     const cand=clone(G.get('top:tee','f').record);cand.id='top:candtest';cand.shape='candtest';cand.status='candidate';await G.register(cand,{m:G.get('top:tee','m').image,f:G.get('top:tee','f').image});
     const broken=clone(G.get('top:tee','f').record);broken.id='top:broken';broken.shape='broken';await G.register(broken,{m:'assets/does-not-exist-m.png',f:'assets/does-not-exist-f.png'});
     const read=svg=>({garments:svg.dataset.foundationGarments,fallback:svg.dataset.foundationFallback,static:svg.dataset.foundationStatic,visibility:svg.getAttribute('visibility'),parts:svg.querySelectorAll('[data-outfit-part]').length,tops:[...new Set([...svg.querySelectorAll('[data-outfit-part^="shirt"]')].map(e=>e.dataset.outfitGarment))].join()});
@@ -283,7 +286,7 @@ async function studioTest(browser,base){
   check(fb.hood.fallback==='top:todo'&&fb.hood.parts===10&&fb.hood.tops==='top:tee','fallback todo: unconverted top:hood:5 shows the basic top',JSON.stringify(fb.hood));
   check(fb.jeans.fallback==='bottom:todo','fallback todo: the boys\' default bottom:jeans:5',JSON.stringify(fb.jeans));
   check(fb.dress.fallback==='top:outfit|bottom:outfit'&&fb.dress.parts===10,'fallback outfit: dress:7 (one-piece, empty bottom) shows the basic top and shorts',JSON.stringify(fb.dress));
-  check(fb.long.fallback==='top:class','fallback class: a long-sleeve record is not drawn by this runtime',JSON.stringify(fb.long));
+  check(fb.long.fallback==='top:class','fallback class: a record of a class this runtime does not draw (top/sleeveless) falls back',JSON.stringify(fb.long));
   check(fb.candidate.fallback===''&&fb.candidate.tops==='top:candtest','candidate records are worn in the studio',JSON.stringify(fb.candidate));
   check(fb.error.fallback==='top:error'&&fb.error.tops==='top:tee'&&fb.error.visibility===null,'fallback error: a 404 atlas shows the basic top, no exception',JSON.stringify(fb.error));
   check(fb.keyed[0]==='top:todo'&&fb.keyed[1]==='','the fallback reasons are part of the template key (same head, hood:5 then tee:5)',JSON.stringify(fb.keyed));
