@@ -15,6 +15,8 @@ fs.mkdirSync(out,{recursive:true});
  await context.route(/firebaseio\.com|firebasedatabase\.app/,r=>r.abort());
  const p=await context.newPage(),errors=[];p.on('pageerror',e=>errors.push(e.message));
  await p.goto(new URL('avatar-standard.html',base).href);await p.waitForFunction(()=>window.QPFoundationStudio,null,{timeout:90000});
+ // The converted hair layers (H3) before the first render, where the runtime has them.
+ await p.waitForFunction(()=>{const w=document.getElementById('runtime')?.contentWindow;return w&&(!w.QPFoundationHead||w.QPFoundationHead.atlas.ready||w.QPFoundationHead.atlas.error);},null,{timeout:90000});
  const runs=[];
  for(const mix of ['basic','mixed'])for(const mib of [40,24])runs.push(await p.evaluate(async({mix,mib})=>{
   QPFoundationStudio.setState({action:'idle'});

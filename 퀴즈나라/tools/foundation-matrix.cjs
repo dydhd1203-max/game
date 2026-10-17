@@ -90,10 +90,11 @@ const HAIR_ALIASES=Object.freeze(['buzz','longm','wave','afro','mohawk','crop'])
 // every garment of one class signature (a new class adds its nodes in
 // prepare() hidden, and gets its own row here).
 //   total: svg.querySelectorAll('*').length of the reference avatar
-//          (m short:1, f bob:1). The male reference head adds 6 nodes of
-//          neck-cut clip paths; every other male head gives 195. Each head
-//          view wraps its painting in one group (data-foundation-head-paint,
-//          the neck cut clips the painting only: 3 nodes, dd3318f 2026-10-16).
+//          (m short:1, f bob:1). Since the converted hair layers (stage 3
+//          H3, 2026-10-17) every hair style of both sexes gives the same
+//          count: each view draws its layers (a style lacking one keeps an
+//          empty one) and no head carries a neck-cut clip any more (before:
+//          201 m reference / 195; 52 nodes of head then, 104 now).
 //   body:  the same count without the head, the back hair and their clip
 //          definitions (the R0 'garment' mode used from H3 on, when heads
 //          change by design). Equal for both sexes and every head (checked
@@ -103,10 +104,10 @@ const HAIR_ALIASES=Object.freeze(['buzz','longm','wave','afro','mohawk','crop'])
 // avatars); verify-reference-body and 모션-검수 record the same 198/192
 // (201/195 since the head painting group, 2026-10-16; body unchanged).
 const NODE_TABLE=Object.freeze({
-  'short-sleeve|shorts|low':Object.freeze({total:Object.freeze({m:201,f:195}),body:Object.freeze({m:149,f:149}),note:'basic outfit: shirt, shorts hip mesh, 2 underarm fills + lines, 2 sleeve groups (image + arm-skin clip), 2 shoes, shirt-side clip'}),
-  'short-sleeve|shorts|sandals':Object.freeze({total:Object.freeze({m:203,f:197}),body:Object.freeze({m:151,f:151}),note:'open shoes (record.feet): the basic set and one bare-foot image per shoe (avatar-foundation-outfit.js prepare, 2026-10-16)'}),
-  'long-sleeve|shorts|low':Object.freeze({total:Object.freeze({m:205,f:199}),body:Object.freeze({m:153,f:153}),note:'long sleeves (top/long-sleeve): the basic set, one sleeve strip along each arm and its folded-forearm copy (avatar-foundation-outfit.js prepare, 2026-10-16)'}),
-  'none|none|none':Object.freeze({total:Object.freeze({m:180,f:174}),body:Object.freeze({m:128,f:128}),note:"foundationOutfit 'body' (no garments)"})
+  'short-sleeve|shorts|low':Object.freeze({total:Object.freeze({m:253,f:253}),body:Object.freeze({m:149,f:149}),note:'basic outfit: shirt, shorts hip mesh, 2 underarm fills + lines, 2 sleeve groups (image + arm-skin clip), 2 shoes, shirt-side clip'}),
+  'short-sleeve|shorts|sandals':Object.freeze({total:Object.freeze({m:255,f:255}),body:Object.freeze({m:151,f:151}),note:'open shoes (record.feet): the basic set and one bare-foot image per shoe (avatar-foundation-outfit.js prepare, 2026-10-16)'}),
+  'long-sleeve|shorts|low':Object.freeze({total:Object.freeze({m:257,f:257}),body:Object.freeze({m:153,f:153}),note:'long sleeves (top/long-sleeve): the basic set, one sleeve strip along each arm and its folded-forearm copy (avatar-foundation-outfit.js prepare, 2026-10-16)'}),
+  'none|none|none':Object.freeze({total:Object.freeze({m:232,f:232}),body:Object.freeze({m:128,f:128}),note:"foundationOutfit 'body' (no garments)"})
 });
 const classSignature=({top='none',bottom='none',shoes='none'}={})=>top+'|'+bottom+'|'+shoes;
 function expectedNodes(signature,sex,mode='total'){const row=NODE_TABLE[signature];return row?row[mode==='garment'?'body':'total'][sex]:undefined;}

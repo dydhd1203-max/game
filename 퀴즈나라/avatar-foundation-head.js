@@ -22,6 +22,10 @@
   'use strict';
   const base=new URL('.',document.currentScript.src),params=new URLSearchParams(location.search);
   const DATA='assets/sd-hair-data.js',ID='qpf-template',INK='#493638',WHITE='#fff8f0';
+  // Profile faces moved onto the reference style's (H2 registration: f braid 1.9 down, long/pony 1 back…).
+  // Off until the user decides (2026-10-17): moved faces left the nape hair short of the body's neck; each
+  // painting stays where today's renderer puts it (neck on the body's neck, avatar-direction.js necks[]).
+  const PROFILE_REGISTRATION=false;
   const atlas={ready:false,error:null};let loading=null;
   const data=()=>root.QPHairData||null;
   const r=v=>Math.round(v*1e4)/1e4;
@@ -46,7 +50,8 @@
   // One layer: its atlas rectangle shown at its head-unit rectangle (dx, dy undo the profile registration,
   // which avatar-foundation.js applies to the whole view so hats and face items move with the painting).
   function piece(e,v,name,dx=0,dy=0){
-    const l=v.layers[name];if(!l)return '';const [ax,ay,w,h,ux,uy,uw,uh]=l;
+    // A layer a style lacks still takes its two nodes (node counts stay the same for every head).
+    const l=v.layers[name];if(!l)return '<svg width="0" height="0"><image/></svg>';const [ax,ay,w,h,ux,uy,uw,uh]=l;
     return `<svg x="${r(ux-dx)}" y="${r(uy-dy)}" width="${r(uw)}" height="${r(uh)}" viewBox="${ax} ${ay} ${w} ${h}" preserveAspectRatio="none" overflow="hidden"><image href="${e.file}" width="${e.size[0]}" height="${e.size[1]}"/></svg>`;
   }
   function painting(e,v,dx,dy,iris){
@@ -55,9 +60,9 @@
       `<g filter="url(#${ID}-hair-dye)">${piece(e,v,'hair',dx,dy)}</g>`+
       `<g filter="url(#${ID}-head-tone)"${add}>${piece(e,v,'skin',dx,dy)}</g>`+
       `<g${add}>${piece(e,v,'fixed',dx,dy)}</g>`+
-      (v.layers.iris?`<g${iris?` filter="url(#${ID}-iris)"`:''}${add}>${piece(e,v,'iris',dx,dy)}</g>`:'')+'</g>';
+      `<g${iris?` filter="url(#${ID}-iris)"`:''}${add}>${piece(e,v,'iris',dx,dy)}</g></g>`;
   }
-  const tone=(e,v,name,dx,dy)=>v.layers[name]?`<g filter="url(#${ID}-head-tone)">${piece(e,v,name,dx,dy)}</g>`:'';
+  const tone=(e,v,name,dx,dy)=>`<g filter="url(#${ID}-head-tone)">${piece(e,v,name,dx,dy)}</g>`;
   // avatar-pixel.js expressionStencil(): its skin patch is the face's own paint through the same tone filter.
   function stencil(expr,[left,right,cy],face){
     const cx=(left+right)/2,my=Math.min(26.3,cy+4.2),patch=`<ellipse cx="${r(cx)}" cy="${r(my)}" rx="2.25" ry="1.4" fill="${face}" filter="url(#${ID}-head-tone)"/>`;let s='';
@@ -91,7 +96,7 @@
     const [dx,dy]=P.registration,[ex,ey]=P.landmarks.eye,pw=Math.max(1.1,P.eyeWidth);
     const profile=painting(e,P,dx,dy,iris)+`<g class="qpx-blink-closed">${tone(e,P,'blink',dx,dy)}<path d="M${r(ex-dx-pw)} ${r(ey-dy+.45)}Q${r(ex-dx)} ${r(ey-dy+1.5)} ${r(ex-dx+pw)} ${r(ey-dy+.45)}" fill="none" stroke="${INK}" stroke-width=".28" stroke-linecap="round"/></g>`;
     const back=painting(e,B,0,0,null);
-    return{key:JSON.stringify(['layers',sex,e.shape,hair,skin,expr]),layered:true,skin,hair,iris,style:e.sex+':'+e.shape,registration:{profile:[dx,dy]},
+    return{key:JSON.stringify(['layers',sex,e.shape,hair,skin,expr]),layered:true,skin,hair,iris,style:e.sex+':'+e.shape,registration:{profile:PROFILE_REGISTRATION?[dx,dy]:[0,0]},
       headClip:`<clipPath id="${ID}-head-front" clipPathUnits="userSpaceOnUse"><rect x="-1" y="-8" width="34" height="36.45"/></clipPath>`,front,backHair,profile,back};
   }
   // The filters a layered head refers to (template defs): the dye, the body's skin matrix and the iris colour.

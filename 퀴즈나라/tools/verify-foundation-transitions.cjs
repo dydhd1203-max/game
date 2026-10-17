@@ -19,7 +19,7 @@ const report={success:false,productionFirebase:false,errors:[]};
  await p.route(/firebaseio\.com|firebasedatabase\.app/,r=>{report.errors.push('Firebase access');return r.abort();});
  p.on('pageerror',e=>report.errors.push(e.message));
  const url=new URL('?demo=1&avatar=foundation',base),studioUrl=new URL('?demo=1&avatar=foundation&session=foundation-studio',base);
- async function ready(u=url){await p.goto(u.href);await p.waitForFunction(()=>window.QPGame?.getMe()&&QPAvatar.atlas.ready&&QPAvatarDirection.atlas.backReady&&QPFoundationSkin.atlas.ready&&QPFoundationOutfit.atlas.ready);}
+ async function ready(u=url){await p.goto(u.href);await p.waitForFunction(()=>window.QPGame?.getMe()&&QPAvatar.atlas.ready&&QPAvatarDirection.atlas.backReady&&(!window.QPFoundationHead||window.QPFoundationHead.atlas.ready||window.QPFoundationHead.atlas.error)&&QPFoundationSkin.atlas.ready&&QPFoundationOutfit.atlas.ready);}
  await ready();
  // Screenshots (an svg serialised into an <img> cannot load its external hrefs: head, hair and body
  // art): the moving and the fresh avatar share one fixed spot and are shot one at a time.

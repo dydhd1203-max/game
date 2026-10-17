@@ -179,7 +179,7 @@ async function normalTest(browser,base){
   const context=await browser.newContext({viewport:{width:1280,height:800}});await H.isolate(context,report);const seen=[];context.on('request',q=>seen.push(new URL(q.url()).pathname));
   const page=await context.newPage();page.on('pageerror',e=>report.errors.push('normal: '+e.message));
   await page.goto(new URL('index.html?demo=1&session=wp3-normal',base).href);
-  await page.waitForFunction(()=>window.QPGame?.getMe()&&window.QPAvatar?.atlas.ready&&window.QPClothes?.atlas.ready&&window.QPAvatarDirection?.atlas.backReady,null,{timeout:90000});
+  await page.waitForFunction(()=>window.QPGame?.getMe()&&window.QPAvatar?.atlas.ready&&window.QPClothes?.atlas.ready&&window.QPAvatarDirection?.atlas.backReady&&(!window.QPFoundationHead||window.QPFoundationHead.atlas.ready||window.QPFoundationHead.atlas.error),null,{timeout:90000});
   for(const screen of ['shop','village'])try{await page.evaluate(s=>QPGame.go(s),screen);await page.waitForTimeout(1500);}catch(e){report.errors.push('normal go '+screen+': '+e.message);}
   try{await page.waitForLoadState('networkidle',{timeout:15000});}catch{}
   const bad=seen.filter(p=>GARMENT_REQ.test(p)),foundationNodes=await page.evaluate(()=>document.querySelectorAll('[data-qp-foundation]').length);
@@ -210,7 +210,7 @@ async function studioTest(browser,base){
   const context=await browser.newContext({viewport:{width:1400,height:1000},deviceScaleFactor:1});await H.isolate(context,report);const seen=[];context.on('request',q=>seen.push(new URL(q.url()).pathname));
   const page=await context.newPage();page.on('pageerror',e=>report.errors.push('studio: '+e.message));
   await page.goto(new URL('index.html?demo=1&session=foundation-studio',base).href);
-  await page.waitForFunction(()=>window.QPGame&&window.QPFoundationOutfit?.atlas.ready&&window.QPFoundationSkin?.atlas.ready&&window.QPAvatarDirection?.atlas.backReady&&window.QPAvatar?.atlas.ready,null,{timeout:120000});
+  await page.waitForFunction(()=>window.QPGame&&window.QPFoundationOutfit?.atlas.ready&&window.QPFoundationSkin?.atlas.ready&&window.QPAvatarDirection?.atlas.backReady&&(!window.QPFoundationHead||window.QPFoundationHead.atlas.ready||window.QPFoundationHead.atlas.error)&&window.QPAvatar?.atlas.ready,null,{timeout:120000});
   await page.evaluate(()=>QPGame.go('login'));await page.evaluate(runtimeLib);
   // 1. Basic outfit.
   const basic=await page.evaluate(()=>{const {mk,api,motions,garments}=__wp3,res={};

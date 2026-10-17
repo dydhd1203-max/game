@@ -318,7 +318,7 @@ def convert_head(job):
     head, spec, reg = job
     src = HL.read_rgba(head['srcFile'])
     clsr = HL.read_rgba(head['clsFile'])
-    c, erase, rep, stubble = HL.refine(head, src, clsr, spec, reg)
+    c, erase, rep, stubble, pre = HL.refine(head, src, clsr, spec, reg)
     keep = src[..., 3].copy()
     if head['view'] == 'front':      # today's jaw channel (the neck skin runs into the chin), inside the neck column only
         s, ox, oy = HL.placement(head)
@@ -327,7 +327,12 @@ def convert_head(job):
         jawcut = HL.fill_mask(polys, (src.shape[1], src.shape[0]), fx)
         keep *= 1 - jawcut * HL.poly_mask(spec['neckColumn'][head['sex']], head, c.shape)
     keep[erase] = 0
-    share, hrgb, srgb, band = HL.unmix(src, c, HL.feature_core(head, c.shape), stubble=stubble)
+    # split against the classes before the stub was erased (a strand's edge mixed with the old neck keeps only
+    # its hair share), then drop the skin share beside erased paint (it would be a rim of the old neck)
+    share, hrgb, srgb, band = HL.unmix(src, pre, HL.feature_core(head, c.shape), stubble=stubble)
+    band &= (c == HL.HAIR) | (c == HL.SKIN)
+    from avatar_build import matte as M_
+    near_erased = M_.dilate(erase, 2) & ~erase
     rep['unmixed'] = int(band.sum())
     old_c = clsr[..., 0].astype(np.uint8)
     changed = ((c != old_c) & (c != HL.IRIS)) | erase | band
@@ -342,7 +347,7 @@ def convert_head(job):
             img[..., 3] = np.where(band, keep * share, img[..., 3])
         elif name == 'skin':
             img[..., :3] = np.where(band[..., None], srgb, img[..., :3])
-            img[..., 3] = np.where(band, keep * (1 - share), img[..., 3])
+            img[..., 3] = np.where(band, np.where(near_erased & (c == HL.HAIR), 0, keep * (1 - share)), img[..., 3])
         img[img[..., 3] < .5, :3] = 0
         layers[name] = img
     covers = {}
@@ -377,7 +382,8 @@ def convert_head(job):
 #   earDyed   skin-coloured paint (g/r >= .68, b/g >= .80, L >= 150) in an ear zone taking the hair dye
 #   crownSkin back view: skin outside the ear/nape (and skinZones) places, i.e. hair highlights tinted as skin
 #   stub      paint left under the jaw in the body's neck column (front, not hair) or the neck's skin and
-#             its rim in the stub zone (profile, back): the old neck stub
+#             its rim in the stub zone (profile, back; any alpha, hair-coloured edge pixels away from a
+#             broad strand included: they showed as a dotted neck outline): the old neck stub
 #   paleRim   light paint (L >= 150) on the face edge, outside the eyes and mouth, that keeps its paint or
 #             takes the dye whole: a pale dotted rim on a dark skin or a dyed hair
 PROBE_LIMITS = {'earDyed': 12, 'crownSkin': 0, 'stub': 0, 'paleRim': 40}   # earDyed: a few hair-tip specks may match
@@ -411,7 +417,7 @@ def probes(head, src, clsr, c, keep, spec, reg, share):
         polys, to_px = HL.jaw_channel(head)
         oldkeep = a * (1 - HL.fill_mask(polys, (shape[1], shape[0]), lambda x, y: ((to_px(x, y)[0] - ox) / s_, (to_px(x, y)[1] - oy) / s_)))
     else:
-        zone = HL.poly_mask(spec['stub'][sex].get(view, []), head, shape, reg)
+        zone = HL.poly_mask(spec['stub'][sex].get(view, []), head, shape)
         oldkeep = a.copy()
         if head.get('neckCut'):
             oldkeep[HL.poly_mask(HL.path_polygons(head['neckCut']), head, shape)] = 0
@@ -420,8 +426,11 @@ def probes(head, src, clsr, c, keep, spec, reg, share):
     else:       # the neck's skin and the rim within 4 px of it (hair strokes hanging there are hair's)
         neck = zone & (old == HL.SKIN) & (a > 0)
         rim = zone & M.dilate(neck, 4)
-        out['stub'] = [int((rim & (oldkeep > 128) & ((old == HL.SKIN) | (old == HL.FIXED))).sum()),
-                       int((rim & (keep > 128) & ((c == HL.SKIN) | (c == HL.FIXED))).sum())]
+        solid = HL.opening(c == HL.HAIR, 3)
+        loose = (c == HL.SKIN) | (((c == HL.FIXED) | (c == HL.HAIR)) & ~M.dilate(solid, 2))
+        old_loose = (old == HL.SKIN) | (((old == HL.FIXED) | (old == HL.HAIR)) & ~M.dilate(HL.opening(old == HL.HAIR, 3), 2))
+        out['stub'] = [int((rim & (oldkeep > 8) & old_loose).sum()),
+                       int((rim & (keep > 8) & loose).sum())]
     if view != 'back':
         near = M.dilate((bits & 1) > 0, 2) & ~HL.feature_core(head, shape)
         light = (a > 128) & (L >= 150)

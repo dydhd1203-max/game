@@ -11,7 +11,7 @@ const H=require('./verify-harness.cjs'),M=require('./foundation-matrix.cjs'),L=r
 const base=process.env.QUIZ_PREVIEW_URL||'http://127.0.0.1:4173/',out=process.env.QUIZ_VERIFICATION_OUTPUT||path.resolve(__dirname,'../검증/기준몸');
 fs.mkdirSync(out,{recursive:true});const report={errors:[],checks:[],screenshots:[],productionFirebase:false};let browser;
 const wait=ms=>new Promise(r=>setTimeout(r,ms));
-// Expected node counts per class signature and sex (the male reference head short:1 adds its 6 neck-cut clip nodes).
+// Expected node counts per class signature and sex (equal for every hair style since the hair layers, H3).
 const NODES=Object.fromEntries(Object.entries(M.NODE_TABLE).map(([k,v])=>[k,v.total]));
 (async()=>{
  browser=await chromium.launch({headless:true,executablePath:process.env.QUIZ_BROWSER_EXECUTABLE||'/usr/bin/chromium'});

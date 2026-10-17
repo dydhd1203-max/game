@@ -391,20 +391,23 @@ def refine(head, src, cls_rgba, spec, reg):
     solid = opening(c == HAIR, 3)
     # the old neck stub: everything but solid hair below the jaw (front remnants, profile) ...
     stub_polys = spec['stub'][sex].get(view)
-    if stub_polys:
-        region = poly_mask(stub_polys, head, shape, reg)
+    if stub_polys:      # the neck belongs to the body: its zones stay where today's renderer puts the painting
+        region = poly_mask(stub_polys, head, shape)
         if view == 'front':     # from just under this face's jaw line (the old neck's side outlines hook up to it)
             U, V = units_of(head, shape, reg)
             face = (c == SKIN) & ((bits & 1) > 0)
             cols = np.where(face.any(0), shape[0] - 1 - np.argmax(face[::-1], 0), -1)
             jawv = np.where(cols >= 0, V[np.clip(cols, 0, shape[0] - 1), np.arange(shape[1])], np.inf)
-            under = poly_mask(spec['stubSides'][sex], head, shape, reg) & (V > jawv[None, :] + .35)
+            under = poly_mask(spec['stubSides'][sex], head, shape) & (V > jawv[None, :] + .35)
             erase |= under & (c != HAIR) & (a > 0)      # the stub's skin and outline (long hair kept)
             region |= under
         if view != 'front':     # profile, back: the neck's skin and the rim around it; hair (braids, long hair) stays
             stubskin = region & (c == SKIN) & (a > 0)
             # the rim is the old neck's dark outline; lighter hair strands crossing the neck (a braid's front lock) stay
-            erase |= stubskin | (M.dilate(stubskin, 4) & region & (a > 0) & ~solid & ((c == FIXED) | ((c == HAIR) & (L < 80))))
+            # (its antialiased edge reads as mid brown 'hair': only paint on or beside a broad strand is hair)
+            rim = M.dilate(stubskin, 4) & region & (a > 0) & ~solid
+            # (a stroke of it crossing a strand, between broad hair, stays: it would cut the strand)
+            erase |= stubskin | (rim & ~M.dilate(solid, 2) & ((c == FIXED) | (c == HAIR)))
             region = np.zeros(shape, bool)
         # hair stays only when it hangs from the hair mass outside through broad hair (long hair); the old
         # neck (dyed as hair on male fronts) touches the hair only through the thin jaw outline
@@ -443,9 +446,10 @@ def refine(head, src, cls_rgba, spec, reg):
         stubble = np.where(z, np.clip((b / np.maximum(g, 1) - .78) / .06, 0, 1), 0.)
         c[stubble > 0] = HAIR
         rep['stubble'] = int((stubble > 0).sum())
+    pre = c.copy()      # the classes before erasing: boundary paint mixed with an erased neck is split against it
     c[erase] = 0
     rep['changed'] = int((c != before).sum())
-    return c, erase, rep, stubble
+    return c, erase, rep, stubble, pre
 
 
 def box_mean(rgb, w, r):
