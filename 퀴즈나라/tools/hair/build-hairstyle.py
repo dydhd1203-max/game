@@ -59,8 +59,13 @@ LIM = dict(
     colourCos=.85,      # W_HAIR_COLOUR: the hair's chroma direction against the template brown
     hairMaha=4.,        # paint the sheet's hair could be: within this many deviations of its own colours
     holePx=400,         # holes in the hair mass smaller than this, of the hair's colours, are hair
+    speckPx=40,         # and smaller than this, of any colour
     unmixSpan=40.,      # an edge's alpha from the hair's colour against what is under it, where they differ this much
     edgeBand=4,         # the hair's colour for its edges from this deep inside the mass (the rim's mixed paint is not)
+    outlineBand=7,      # px outside the bald head where thin strokes are its redrawn outline
+    gapPx=8,            # gaps up to twice this between the hair and the base head are hair behind the face,
+    gapV=21.5,          # from this head-unit row down (the ear lobes, the jaw and the neck)
+    shutPx=800,         # holes closed all round by the hair and the base head, smaller than this, are hair
     capL=(120., 160.),  # the dye's lightness (102 = the template brown) over which paint over skin is thinned hair
     tone=((.9, 1.12), (12., 8., 8.)),   # a sheet's tone drift (register.clamp_tone): long hair covers most of
                                         # the back's stable mask, the free map turned the hair into the shirt
@@ -233,6 +238,7 @@ def extract(res, spec, B, sex, m_t, base):
     near_page = M.dilate(a < .05, 3)
     rim_a = np.where(near_page & (lum > dark_l + 20), np.minimum(a, np.clip((255 - lum) / np.maximum(255 - dark_l, 1), 0, 1)), a)
     hair = np.zeros(a.shape, bool)
+    gap = np.zeros(a.shape, bool)
     codes, warnings = [], []
     masses = {}
     for i, (k, view) in enumerate(VIEWS):
@@ -273,10 +279,15 @@ def extract(res, spec, B, sex, m_t, base):
         lab_, _ = M.components(core)
         seed = np.zeros(c.shape, bool)
         seed[:int(y_brow)] = True
-        seed |= ~M.dilate(bald_fg[sl], 2)
-        keep = np.unique(lab_[core & seed & M.erode(core, 1)])
+        free = ~M.dilate(bald_fg[sl], 2)
+        # hanging free, a piece is hair from 5 px thick: a stroke of a head outline drawn wider floated by the nape
+        keep = np.unique(lab_[core & ((seed & M.erode(core, 1)) | (free & M.erode(core, 2)))])
         h = np.isin(lab_, keep[keep > 0])
-        h = h | (M.dilate(h, 2) & c)
+        # just outside the bald head a thin dark stroke along it is a head outline redrawn a little larger, not hair
+        # (it stood as a light arc round the nape): there the hair is what an opening of 2 px keeps
+        band = M.dilate(bald_fg[sl], LIM['outlineBand']) & ~bald_fg[sl]
+        h &= ~band | M.dilate(M.erode(h, 2), 2)
+        h = h | (M.dilate(h, 2) & c & ~band)
         # the hair's strokes where they meet the bald head's outline are close to it in colour: thin holes in the
         # mass (the base's outline showed through the hair); filled where the sheet's paint is the hair's own
         z = ~zones[sl] & (a[sl] > .3) & like[sl]
@@ -286,8 +297,28 @@ def extract(res, spec, B, sex, m_t, base):
         small = (sizes < LIM['holePx']) & ~np.isin(np.arange(n0 + 1), border)
         small[0] = False
         h = h | (small[lab0] & z)
+        # specks inside the mass are its shine whatever their colour (left out, the nape showed through the hair)
+        tiny = (sizes < LIM['speckPx']) & ~np.isin(np.arange(n0 + 1), border)
+        tiny[0] = False
+        h = h | (tiny[lab0] & (a[sl] > .3) & ~zones[sl])
         for box in brows.get(k, ()):
             h = from_above(h, box, x0)
+        # a face drawn wider than the base's leaves its paint between the hair and the base head: as nothing, the
+        # page showed through beside the jaw; it is the hair behind the face (its colour from the hair next to it)
+        # (beside the jaw and the neck only: higher up, a fringe in front of a wider face is not hair to fill)
+        both = h | bald_fg[sl]
+        g = M.erode(M.dilate(both, LIM['gapPx']), LIM['gapPx']) & ~both & (a[sl] > .5) & c
+        g[:int(to_px(ctm, 16, LIM['gapV'])[1])] = False
+        if view == 'back':
+            g[:] = False        # no face: a back of the head drawn wider is skin, it stood as a striped block
+        # and anywhere, a small hole closed all round by the hair and the base head (an ear drawn elsewhere)
+        lab1, n1, sz1 = M.label(~both)
+        edge1 = np.unique(np.concatenate([lab1[0], lab1[-1], lab1[:, 0], lab1[:, -1]]))
+        shut = (sz1 < LIM['shutPx']) & ~np.isin(np.arange(n1 + 1), edge1)
+        shut[0] = False
+        g |= shut[lab1] & c      # (changed paint only: the shirt's white flowers are holes in the bald template too)
+        gap[sl] = g
+        h = h | g
         hair[sl] = h
         # checks
         if k == 'front' and h.sum() < LIM['hairMinPx']:
@@ -313,7 +344,7 @@ def extract(res, spec, B, sex, m_t, base):
     # the whole hair's next to it and the alpha the paint's share of it over what lies under (the bald head, or the
     # page): unmixing a thin edge from the bald paint amplified the sheet's noise into a light rim round dyed hair.
     inner = M.erode(hair, 2)
-    deep = M.erode(hair, LIM['edgeBand'])
+    deep = M.erode(hair, LIM['edgeBand']) & ~gap
     under = np.where(bald_fg[..., None], B, 255.)
     hc, have = fill_edges(U, deep, r=14)
     span = hc - under
@@ -344,6 +375,15 @@ def extract(res, spec, B, sex, m_t, base):
     alpha = alpha * (1 - t) + np.minimum(alpha, a_usual) * t
     col = col * (1 - t[..., None]) + usual * t[..., None]
     res['hairL'] = round(l_med, 1)
+    alpha = np.where(gap, 1., alpha)
+    col = np.where(gap[..., None], np.where(have[..., None], hc, usual), col)
+    # where whole hair outside meets the bald template's outermost pixel (the neck's or the jaw's edge, there mixed
+    # with the page), the hair covers it: the body's edge and the hair's, both thin, left a line of the page between
+    ring = bald_fg & ~M.erode(bald_fg, 1)
+    meet = hair & ring & M.dilate(hair & ~bald_fg & (alpha > .9), 2)
+    alpha = np.where(meet, 1., alpha)
+    col = np.where((meet & have)[..., None], hc, col)
+    res['gapPx'] = int(gap.sum())
     res['thinnedPx'] = int(over.sum())
     sel = hair & (alpha > .8)
     if sel.sum() > 200:
@@ -491,7 +531,7 @@ def build(sheet, sex, shape, out_dir, install=False, keep=False, debug=False):
         return res, None
     alpha, col, hair = extract(res, spec, B, sex, m_t, base)
     report.update(ok=res['ok'], codes=res['codes'], warnings=res['warnings'],
-                  **{k: res.get(k) for k in ('hairPx', 'hairColourCos', 'hairLike', 'neckShare', 'thinnedPx', 'hairL')})
+                  **{k: res.get(k) for k in ('hairPx', 'hairColourCos', 'hairLike', 'neckShare', 'thinnedPx', 'hairL', 'gapPx')})
     entry = None
     if res['ok'] or debug:
         views = style_views(sex, base, alpha, col, m_t)
