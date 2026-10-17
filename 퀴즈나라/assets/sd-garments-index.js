@@ -40,7 +40,7 @@ const index={
    "status":"approved",
    "legacy":false,
    "sexes":["f","m"],
-   "sha256":"32e61b77af495b58b445e40379b3ffb38543e76ea8acbe0c41986f2544092efb",
+   "sha256":"46cd7cfe4eb67305a316e1d75525cba87cc737cccefc8b8d5294e3a967c744bf",
    "files":{
     "data":"assets/sd-garment-top-shirt.js",
     "f":"assets/sd-garment-top-shirt-f.png",
