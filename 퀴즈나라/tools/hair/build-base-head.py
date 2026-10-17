@@ -2,6 +2,7 @@
 '목 없는 민머리' request on the hair template): the head layers every new hairstyle is drawn on.
 
   python3 -B tools/hair/build-base-head.py [--old 검증/머리/옛머리] [--board 검증/머리/민머리]
+  python3 -B tools/hair/build-base-head.py --negative translucent|halo|nolash     (must fail, writes nothing)
 
   - The sheet lies on the template's own grid (made from it, nothing moved: checked, the body matches with no
     shift), so each reference view's source pixel maps to a sheet pixel through 머리-그림틀.json.
@@ -48,6 +49,11 @@ BODY_DE, INK_L = 40, 150                   # body match (max channel); paint dar
 
 GAIN = {}
 BROW_IN_EYES = {}
+NEG = set()        # --negative translucent|halo|nolash: an old way back, for the checks' negative controls
+PROBES = {}
+# paleRim 12: the f profile crown's own faint grey outline is 9 px (the halo made opaque was 78-424 a view);
+# eyeCore 10: m front differs in 4 px (leaving the hair layer's lashes out: 137-312 a profile, 254 m front)
+PROBE_LIMITS = {'interior': 0, 'paleRim': 12, 'eyeCore': 10}
 
 
 def sheet_maps(sex):
@@ -60,7 +66,11 @@ def sheet_maps(sex):
     # opaque skin, not the ground showing through (that read as a grey blotch on any other background); the
     # figure is the clear paint (the halo counted as figure made an opaque white rim)
     inside = M.erode(HL.fill_holes(A.min(2) < 240), 2)
-    a = np.where(inside, 1., a)
+    if 'halo' in NEG:
+        a = np.clip((252 - A.min(2)) / 36., 0, 1)
+        inside = M.erode(HL.fill_holes(a > .02), 3)
+    if 'translucent' not in NEG:
+        a = np.where(inside, 1., a)
     # next to the ground a light pixel is the darkest paint beside it thinned by the white (a dark outline's light
     # grey edge is ink at a low alpha, not opaque grey: it showed as a white rim outside the outline)
     lum = HL.lum_skin(A)
@@ -70,7 +80,7 @@ def sheet_maps(sex):
             sh, sl = np.roll(A, (dy, dx), (0, 1)), np.roll(lum, (dy, dx), (0, 1))
             d = sl < dark_l
             dark[d], dark_l[d] = sh[d], sl[d]
-    rim = M.dilate(~HL.fill_holes(A.min(2) < 235), 3) & ~inside & (lum > dark_l + 20)
+    rim = M.dilate(~HL.fill_holes(A.min(2) < 235), 3) & ~inside & (lum > dark_l + 20) & ('halo' not in NEG)
     a = np.where(rim, np.minimum(a, np.clip((255 - lum) / np.maximum(255 - dark_l, 1), 0, 1)), a)
     col = np.where(a[..., None] > .02, (A - 255 * (1 - a[..., None])) / np.maximum(a[..., None], .02), 255)
     body = (B.min(2) < 245) & (np.abs(A - B).max(2) < BODY_DE)
@@ -236,15 +246,54 @@ def base_view(sex, view, maps, meta_t, head, layers, v, spec):
         fixed = layers['fixed'].copy()
         fixed[M.dilate(locks, 6) & ~core, 3] = 0
         hair_l = layers['hair'].copy()
-        hair_l[~lash, 3] = 0
+        hair_l[~lash | ('nolash' in NEG), 3] = 0
         for name, img in (('skin', layers['skin']), ('fixed', fixed), ('iris', layers.get('iris')), ('hair', hair_l)):
             if img is not None:
                 st.over(name, img[..., :3], img[..., 3] / 255. * (w_lash if name == 'hair' else w))
     out = st.layers()
+    probe(head, view, out, layers, keep, (core & (w_lash > .999)) if view != 'back' else None, lash)
     for k, img in layers.items():
         if k.startswith('blink'):
             out[k] = img
     return out, keep
+
+
+def composite(layers, hair_mask=None):
+    """Premultiplied sum of skin, fixed, iris and hair (hair dyed 갈색, skin unconverted) and its alpha."""
+    shape = layers['skin'].shape[:2]
+    rgb, a = np.zeros(shape + (3,)), np.zeros(shape)
+    for k in ('skin', 'fixed', 'iris', 'hair'):
+        if k not in layers:
+            continue
+        img = layers[k]
+        al = img[..., 3] / 255. * (1 if k != 'hair' or hair_mask is None else hair_mask)
+        c = img[..., :3]
+        if k == 'hair':
+            c = np.clip(HL.hexrgb(HAIR1)[None, None, :] * c[..., :1] / 102. + c[..., 1:2], 0, 255)
+        rgb += c * al[..., None]
+        a += al
+    return rgb, a
+
+
+def probe(head, view, out, layers, keep, core, lash):
+    """What this build fixed, counted so it cannot come back unseen (PROBE_LIMITS):
+    interior  head pixels 5 px inside the cut that are see-through (the crown's highlight read as the ground);
+    paleRim   light grey (luminance > 170, chroma < 15) at alpha > .25 within 2 px of the transparent outside
+              (the outline's white halo made opaque);
+    eyeCore   inside the eyes' and mouth's core (3 px in from its edge, the lashes' taper aside) where the reference
+              paints fully, pixels off the reference by more than 8 (a piece left out: its lashes in the hair layer)."""
+    rgb, a = composite(out)
+    n_int = int(((a < .98) & M.erode(keep, 5)).sum())     # 5: the cut's 4 px fade over the body's neck
+    c = rgb / np.maximum(a, 1e-6)[..., None]
+    band = (a > .25) & M.dilate(a < .05, 2)
+    n_rim = int((band & (HL.lum_skin(c) > 170) & (c.max(2) - c.min(2) < 15)).sum())
+    n_eye = 0
+    if core is not None:
+        full = core & (MB.distance_from(~core, core.shape, 4) >= 3)
+        rr, ra = composite(layers, hair_mask=lash.astype(float))
+        ok = full & (ra > .98)
+        n_eye = int((ok & (np.abs(rgb - rr).max(2) > 8)).sum())
+    PROBES[head['sex'] + '-' + view] = {'interior': n_int, 'paleRim': n_rim, 'eyeCore': n_eye}
 
 
 def trim(img):
@@ -310,6 +359,8 @@ def merge_into_data(base, path=os.path.join(ROOT, 'assets', 'sd-hair-data.js')):
 
 def main(argv):
     opt = lambda k, d: argv[argv.index(k) + 1] if k in argv else d
+    if '--negative' in argv:      # an old way back: the probes must fail, nothing is written
+        NEG.add(opt('--negative', ''))
     old = opt('--old', os.path.join(ROOT, '검증', '머리', '옛머리'))
     board = opt('--board', os.path.join(ROOT, '검증', '머리', '민머리'))
     os.makedirs(board, exist_ok=True)
@@ -331,7 +382,15 @@ def main(argv):
             for skin, hc in (('#ffe2cc', '#5a3a24'), ('#a4693f', '#f291c6')):
                 row.append(MB.render({k: x for k, x in base.items() if not k.startswith('blink')}, head, v['origin'], v['k'], hair=hc, skin=skin))
         rows.append(row)
-        record['styles']['%s:base' % sex] = entry_of(sex, entry, views)
+        if not NEG:
+            record['styles']['%s:base' % sex] = entry_of(sex, entry, views)
+    fails = ['%s %s %d (limit %d)' % (hv, k, n, PROBE_LIMITS[k]) for hv, p in sorted(PROBES.items()) for k, n in p.items() if n > PROBE_LIMITS[k]]
+    print('probes: ' + ', '.join('%s %s' % (hv, ' '.join('%s %d' % kv for kv in p.items())) for hv, p in sorted(PROBES.items())))
+    if NEG:
+        print(('ok (fails as it must) --negative %s: ' % ','.join(NEG) + '; '.join(fails)) if fails else 'FAIL (negative control passed) --negative ' + ','.join(NEG))
+        return 0 if fails else 1
+    if fails:
+        raise SystemExit('probe failures:\n  ' + '\n  '.join(fails))
     with open(os.path.join(ROOT, 'assets', 'sd-hair-base.json'), 'w') as f:
         json.dump(record, f, ensure_ascii=False, indent=1, sort_keys=True)
         f.write('\n')
