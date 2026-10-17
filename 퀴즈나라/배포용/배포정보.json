@@ -1,7 +1,7 @@
 {
   "project": "퀴즈나라",
   "format": 1,
-  "builtAt": "2026-10-17T13:53:37.608Z",
+  "builtAt": "2026-10-17T22:34:41.445Z",
   "instructions": "Cloudflare Pages 또는 Netlify 수동 배포에는 이 배포용 폴더 전체를 올리세요. index.html만 올리지 마세요.",
   "files": [
     {
@@ -116,8 +116,8 @@
     },
     {
       "path": "avatar-image.js",
-      "bytes": 6520,
-      "sha256": "475486e6323f38a885059b884e7610b579db03222052fda228d7825e56b05bd5"
+      "bytes": 6561,
+      "sha256": "3afb8e7631edb896781d3a0fa4b55b6e93a90aec26de069ec791adab59987589"
     },
     {
       "path": "assets/avatar-file-data.js",
@@ -496,8 +496,8 @@
     },
     {
       "path": "assets/avatar-file-data-foundation.js",
-      "bytes": 403591,
-      "sha256": "1511ada0b31a9f088384f994624653a27d01d7485f5c5d46c18e9c586ce7444a"
+      "bytes": 489816,
+      "sha256": "d0e79442ef99dfdacfe49163f6f25c29b785775ad4a0690a4915247eb129a112"
     },
     {
       "path": "assets/sd-foundation-ref-data.js",
@@ -535,9 +535,14 @@
       "sha256": "c39dcff17ff8bdbaa7c3e4e47720317c734a0f7cd647b0038ef6305f6c2c659c"
     },
     {
+      "path": "assets/sd-foundation-ref-run-fist.png",
+      "bytes": 64620,
+      "sha256": "e59612daa02745cde8937300cf5a3aaf0b87af8d2b2dc3c37f7e29f5754b4a95"
+    },
+    {
       "path": "avatar-foundation-skin.js",
-      "bytes": 33437,
-      "sha256": "35fe398167b7caf0545b2d3d5806b537950b70b360a08b9073358136d09bcd39"
+      "bytes": 37622,
+      "sha256": "dc3047ebe9235a60bf45fea2ae6422b86b96947379c58678b4eb28d745c1a600"
     },
     {
       "path": "assets/sd-foundation-ref-neck.png",
@@ -3501,8 +3506,8 @@
     },
     {
       "path": "assets/sd-hair-data.js",
-      "bytes": 81803,
-      "sha256": "31b1e947c41443f38b039a800992fb6257fdda1926f3bda213998101ea79ff45"
+      "bytes": 91576,
+      "sha256": "1c95fce033e357ca2dc867d508b6b9d73ae6215275f42b7d212bd9e811a15618"
     },
     {
       "path": "assets/sd-hair-base-f.webp",
@@ -3525,9 +3530,19 @@
       "sha256": "08fab134a3ab7e03872f7bae50f90d11cda65880c6aef967ab8ed5942bc1b950"
     },
     {
+      "path": "assets/sd-hair-f-curlbob.webp",
+      "bytes": 179376,
+      "sha256": "576831274a9274f6aec517d84897a73d71aed8e94a68917c731309b85960cdf9"
+    },
+    {
       "path": "assets/sd-hair-f-curly.webp",
       "bytes": 164738,
       "sha256": "9487f7d167eb7ee96484f5b7940d3257d8de28df28886346ad221ca9bdbfd135"
+    },
+    {
+      "path": "assets/sd-hair-f-highpony.webp",
+      "bytes": 186742,
+      "sha256": "32f9641cc7a02224aed9555412cc85c5e7648ed832cc5293a9900ecef23744ce"
     },
     {
       "path": "assets/sd-hair-f-hime.webp",
@@ -3595,6 +3610,11 @@
       "sha256": "b0de3e7839ec9f08ec4c700513ea076548e81bf543362ce3f98f41833acbbcfc"
     },
     {
+      "path": "assets/sd-hair-m-curly.webp",
+      "bytes": 212352,
+      "sha256": "c0be88476182de3579011189dee1e1f34ab4e7ca75c6c170e79e4e18960a3f0b"
+    },
+    {
       "path": "assets/sd-hair-m-fade.webp",
       "bytes": 208756,
       "sha256": "00dd4db5b8b989214c1985a0592983f69513db8103b7aaa3190574f0f0041773"
@@ -3613,6 +3633,11 @@
       "path": "assets/sd-hair-m-short.webp",
       "bytes": 169330,
       "sha256": "754e1967a421b7bcba857d8210faef115def235adcb575e04b918b6c4e7abd79"
+    },
+    {
+      "path": "assets/sd-hair-m-sidepart.webp",
+      "bytes": 189552,
+      "sha256": "011fe3188d817fef531d0185152780b2afb9719bfe2886a3d592c0910f35038d"
     },
     {
       "path": "assets/sd-hair-m-slick.webp",

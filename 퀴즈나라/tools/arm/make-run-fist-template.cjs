@@ -9,7 +9,8 @@
 // head to hips, one 512 x 1024 cell each.
 //   node tools/arm/make-run-fist-template.cjs [OUTDIR]     (default assets/arm-template, about 20 s)
 // writes OUTDIR/달리기주먹-그림틀-<m|f>.png (1536 x 1024, no marks), OUTDIR/달리기주먹-참고-<m|f>.png (the same with
-// a red ring round the arm to redraw) and OUTDIR/달리기주먹-그림틀.json: per sex and cell the run phase and arm 1's
+// a red ring round the arm to redraw), OUTDIR/달리기주먹-그림틀-팔없음-<m|f>.png (that arm's skin hidden: its painting, folded forearm and fist),
+// OUTDIR/달리기주먹-그림틀-팔만-<m|f>.png (that skin alone as a white mask on black) and OUTDIR/달리기주먹-그림틀.json: per sex and cell the run phase and arm 1's
 // shoulder, elbow and wrist in sheet pixels, and the arm group's (pose units) → sheet transform, so a returned sheet's
 // forearm maps back onto the arm (the cutter is made when the art comes, 인계.md).
 const fs=require('node:fs'),path=require('node:path');
@@ -47,6 +48,17 @@ const CUT=44;     // white from viewBox y 44 down (below the hips: the hands and
       for(const c of g.cellsInfo){const cx=(c.elbow[0]+c.wrist[0])/2,cy=(c.elbow[1]+c.wrist[1])/2,r=Math.hypot(c.wrist[0]-c.elbow[0],c.wrist[1]-c.elbow[1])/2+SIZE*.055;
         for(let y=Math.floor(cy-r-8);y<=cy+r+8;y++)for(let x=Math.floor(cx-r-8);x<=cx+r+8;x++){if(x<0||y<0||x>=SHEET_W||y>=SHEET_H)continue;const d=Math.hypot(x-cx,y-cy);if(Math.abs(d-r)<3.5){const i=(y*SHEET_W+x)*4;ref.data[i]=230;ref.data[i+1]=30;ref.data[i+2]=40;}}}
       fs.writeFileSync(path.join(OUT,'달리기주먹-참고-'+sex+'.png'),H.png.encode(ref));
+      // The same figures with arm 1's skin hidden (its painting, the folded forearm and the fist): what lies under it
+      // (sleeve, cuff, shirt), the background a returned sheet's new forearm is cut from (tools/arm/build-run-fist.cjs).
+      // The painting itself carries a squeezed forearm below the cuff too: left in, the new fist's skin matched it.
+      const hide=await page.addStyleTag({content:'[id$="-arm-paint-'+ARM+'"],[data-foundation-forearm="'+ARM+'"],[data-foundation-open-hand="'+ARM+'"]{display:none!important}'});
+      fs.writeFileSync(path.join(OUT,'달리기주먹-그림틀-팔없음-'+sex+'.png'),H.png.encode(sheet(await L.capture(page,g))));await hide.evaluate(n=>n.remove());
+      // Only that arm's skin, on magenta: where the game drew the old folded forearm and fist (and the arm below the
+      // cuff). Where the new fist lies over the cream cuff, the cut takes the alike-coloured pixels only inside it.
+      const only=await page.addStyleTag({content:'#fg-host svg *:not(defs):not(defs *){visibility:hidden!important}#fg-host svg [id$="-arm-paint-'+ARM+'"],#fg-host svg [data-foundation-forearm="'+ARM+'"],#fg-host svg [data-foundation-open-hand="'+ARM+'"],#fg-host svg [data-foundation-open-hand="'+ARM+'"] *{visibility:visible!important}#fg-host{--fg-bg:#ff00ff!important}'});
+      const armOnly=await L.capture(page,g),mask={width:SHEET_W,height:SHEET_H,data:Buffer.alloc(SHEET_W*SHEET_H*4,0)};
+      for(let y=0;y<Math.min(SHEET_H,cutY,armOnly.height);y++)for(let x=0;x<Math.min(SHEET_W,armOnly.width);x++){const i=(y*armOnly.width+x)*4,o=(y*SHEET_W+x)*4,d=Math.hypot(armOnly.data[i]-255,armOnly.data[i+1],armOnly.data[i+2]-255);const v=d>60?255:0;mask.data[o]=mask.data[o+1]=mask.data[o+2]=v;mask.data[o+3]=255;}
+      fs.writeFileSync(path.join(OUT,'달리기주먹-그림틀-팔만-'+sex+'.png'),H.png.encode(mask));await only.evaluate(n=>n.remove());
       meta.sexes[sex]={style:REF[sex]+':1',cutY,cells:g.cellsInfo.map((c,i)=>({phase:PHASES[i]+'/24',rect:g.rects[i],ctm:c.ctm,shoulder:c.shoulder,elbow:c.elbow,wrist:c.wrist}))};
       console.log('달리기주먹-그림틀-'+sex+'.png: figure '+SIZE+' px, phases '+PHASES.join(',')+'/24, cut at y '+cutY);
     }

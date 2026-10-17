@@ -15,7 +15,7 @@ const bundles = [
   // bundle stays byte-for-byte unchanged when new wardrobe art is added.
   // The reference body: its limbs and neck (and their rule-cleaned arms and
   // neck for pipeline garments). Garments have their own bundles below.
-  { sources: ['assets/sd-foundation-ref-neck.png', 'assets/sd-foundation-ref-arms.png', 'assets/sd-foundation-ref-legs.png', 'assets/sd-foundation-ref-arms-clean.png', 'assets/sd-foundation-ref-neck-clean.png', 'assets/sd-foundation-ref-legs-under.png', 'assets/sd-foundation-ref-feet.png'], target: 'assets/avatar-file-data-foundation.js', global: 'QPAvatarFoundationFileData' },
+  { sources: ['assets/sd-foundation-ref-neck.png', 'assets/sd-foundation-ref-arms.png', 'assets/sd-foundation-ref-legs.png', 'assets/sd-foundation-ref-arms-clean.png', 'assets/sd-foundation-ref-neck-clean.png', 'assets/sd-foundation-ref-legs-under.png', 'assets/sd-foundation-ref-feet.png', 'assets/sd-foundation-ref-run-fist.png'], target: 'assets/avatar-file-data-foundation.js', global: 'QPAvatarFoundationFileData' },
   { sources: ['assets/sd-wardrobe-wave.png'], target: 'assets/avatar-file-data-wardrobe.js', global: 'QPAvatarWardrobeFileData' },
   { sources: ['assets/sd-clothes-male.png'], target: 'assets/avatar-file-data-male.js', global: 'QPAvatarMaleFileData' }
 ];
