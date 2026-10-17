@@ -113,8 +113,9 @@
   const l1=Math.hypot(...sub(b,a)),l2=Math.hypot(...sub(c,b)),corner=Math.min(.55,l1*.2,l2*.2),lo=ys[2]-corner/l1*(ys[2]-ys[1]),hi=ys[2]+corner/l2*(ys[3]-ys[2]);
   // Source rows of the mesh; a sharp fold adds rows through the bend.
   const rowsY=Array.from({length:21},(_,row)=>d.rect[1]+row/20*d.rect[3]);if(d.under&&!part)rowsY.push(d.rect[1]+d.rect[3]+d.under);if(sharp)for(let j=0;j<=SHARP_ROWS;j++)rowsY.push(lo+(hi-lo)*j/SHARP_ROWS);if(part==='forearm-bare')rowsY.push(ys[3]);if(part==='forearm-fist')rowsY.push(ys[3]+FIST_STUB/d.k);if(rowsY.length>21){rowsY.sort((p,q)=>p-q);for(let j=rowsY.length-1;j>0;j--)if(rowsY[j]-rowsY[j-1]<.05)rowsY.splice(j,1);}
-  // Rows a part draws: from the last row at or before the bend's start.
-  const first=part?Math.max(0,rowsY.findLastIndex(y=>y<=lo+1e-6)):0,last=part==='forearm-bare'?rowsY.findIndex(y=>y>=ys[3]-1e-6):part==='forearm-fist'?rowsY.findIndex(y=>y>=ys[3]+FIST_STUB/d.k-1e-6):rowsY.length-1;
+  // Rows a part draws: from the last row at or before the bend's start ('upper': from the top to that row, so
+  // the elbow's bend, squeezed into whiskers in a sharp fold, is left out).
+  const first=part&&part!=='upper'?Math.max(0,rowsY.findLastIndex(y=>y<=lo+1e-6)):0,last=part==='upper'?Math.max(1,rowsY.findLastIndex(y=>y<=lo+1e-6)):part==='forearm-bare'?rowsY.findIndex(y=>y>=ys[3]-1e-6):part==='forearm-fist'?rowsY.findIndex(y=>y>=ys[3]+FIST_STUB/d.k-1e-6):rowsY.length-1;
   // Sharp fold (a running or jumping forearm folded up toward the camera, so
   // on screen it turns back over its own upper arm): the centre line runs on
   // a circular arc tangent to both bones, and the inside of the bend collapses
@@ -173,7 +174,10 @@
    // paintings (avatar-foundation.js seatDrawn): repainting them every frame
    // replaced it after the first one.
    if(type==='leg'&&pose.seatArt&&part.painting)return;
-   const p=type==='arm'?pose.arms[i]:pose.legs[i],points=type==='arm'?[p.shoulder,p.elbow,p.wrist]:p.paint||[p.root,p.knee,p.ankle],def=limbDef(type,sex,view,i,art,Boolean(r.legUnder)&&clean.ready),drawn=painting(def,points,type==='arm'&&Boolean(p.fold));
+   const p=type==='arm'?pose.arms[i]:pose.legs[i],points=type==='arm'?[p.shoulder,p.elbow,p.wrist]:p.paint||[p.root,p.knee,p.ankle],def=limbDef(type,sex,view,i,art,Boolean(r.legUnder)&&clean.ready),
+    // With the drawn running fist the arm is painted down to the elbow only: its squeezed forearm peeked round the
+    // drawn one with its whiskers. The upper arm stays (it covers the sleeve picture's own skin under the cuff).
+    upper=type==='arm'&&runFistOn(r,p,i,pose),drawn=painting(def,points,type==='arm'&&Boolean(p.fold),upper?'upper':'');
    if(!part.painting){part.painting=document.createElementNS(NS,'image');part.painting.setAttribute('data-foundation-skin-paint',type);part.painting.setAttribute('filter',tint);part.painting.setAttribute('preserveAspectRatio','none');
     // An arm's sleeve-opening clip sits on a frame, so the forearm overlay can
     // reuse the bare painting above the sleeve with only its own clip.
@@ -182,7 +186,7 @@
     if(type==='leg'){const g=document.createElementNS(NS,'clipPath');g.id=r.svg.dataset.foundationId+'-leg-skin-paint-'+i;part.paintClip=document.createElementNS(NS,'path');g.append(part.paintClip);r.svg.querySelector('defs').append(g);}}
    // The pooled painting is compared by reference (as the forearm's below):
    // reading the data-URL href back every frame copied the whole string.
-   const image=part.painting;if(image.paintedArt!==drawn){if(image.getAttribute('href')!==drawn.url)image.setAttribute('href',drawn.url);image.paintedArt=drawn;}for(const[k,val]of Object.entries({x:points[0][0]+drawn.x,y:points[0][1]+drawn.y,width:drawn.w,height:drawn.h}))if(image.getAttribute(k)!==String(val))image.setAttribute(k,val);
+   const image=part.painting;if(image.paintedArt!==drawn){if(image.getAttribute('href')!==drawn.url)image.setAttribute('href',drawn.url);image.paintedArt=drawn;}if(upper!==(image.dataset.foundationPaintPart==='upper')){if(upper)image.dataset.foundationPaintPart='upper';else delete image.dataset.foundationPaintPart;}for(const[k,val]of Object.entries({x:points[0][0]+drawn.x,y:points[0][1]+drawn.y,width:drawn.w,height:drawn.h}))if(image.getAttribute(k)!==String(val))image.setAttribute(k,val);
    // Clothing owns the sleeve opening clip; the painted hand follows the wrist.
    // Crossed seated legs are painted straight from the knee (leg.paint) and
    // clipped to the body's knee-and-shin contour; the thigh is under the shorts.
@@ -192,11 +196,12 @@
    // refill on the sheet) never shows beside the soft seat corners.
    let clip=part.contour.getAttribute('clip-path');if(type==='leg'){clip=null;const lap=pose.desk&&!pose.profile,r=pose.back?1.15:1.02;if(pose.floor||lap){part.paintClip.setAttribute('d',pose.floor?part.contour.getAttribute('d'):'M'+(p.knee[0]-r).toFixed(3)+' '+p.knee[1].toFixed(3)+'A'+r+' '+r+' 0 0 1 '+(p.knee[0]+r).toFixed(3)+' '+p.knee[1].toFixed(3)+'L'+(p.knee[0]+2).toFixed(3)+' 70H'+(p.knee[0]-2).toFixed(3)+'Z');clip='url(#'+part.paintClip.parentNode.id+')';}}
    if(clip)part.paintFrame.setAttribute('clip-path',clip);else part.paintFrame.removeAttribute('clip-path');
-   part.contour.style.visibility='hidden';part.shade.style.display=type==='leg'&&pose.floor?'':'none';if(type==='arm'){part.hand.style.display='none';forearmOverlay(r,part,p,i,[def.radii[1]*def.k,def.radii[2]*def.k],(def.end-def.joints[2][1])*def.k,def,points,tint);openHand(r,part,p,i,tint);
-    // With the drawn running fist the arm painting is hidden too: all of it that shows below the cuff in that fold
-    // is the squeezed forearm, which peeked round the drawn one with its whiskers.
-    const hide=part.runFist?'hidden':'';if(part.paintFrame.style.visibility!==hide)part.paintFrame.style.visibility=hide;}
+   part.contour.style.visibility='hidden';part.shade.style.display=type==='leg'&&pose.floor?'':'none';if(type==='arm'){part.hand.style.display='none';forearmOverlay(r,part,p,i,[def.radii[1]*def.k,def.radii[2]*def.k],(def.end-def.joints[2][1])*def.k,def,points,tint);openHand(r,part,p,i,tint);}
   });}r.svg.dataset.foundationSkinArt='reference-sheet-v1';}
+ // A forearm folded back across its own sleeve on screen, toward the viewer (forearmOverlay draws it again).
+ function towardOf(arm,pose){const [,e,w]=arm.boneSpace,up=sub(arm.shoulder,arm.elbow),down=sub(arm.wrist,arm.elbow),folded=(up[0]*down[0]+up[1]*down[1])/((Math.hypot(...up)*Math.hypot(...down))||1)>Math.cos(125*Math.PI/180);return w[2]-e[2]>.6&&folded&&!pose?.profile&&!pose?.desk&&!pose?.floor;}
+ // The front run's fist folded toward the viewer is the drawn one (RUN_FIST) when its art is in.
+ const runFistOn=(r,arm,i,pose)=>Boolean(arm.fold&&arm.fist&&!pose?.back&&images.runFist&&RUN_FIST[r.svg.dataset.qpxSex==='m'?'m':'f']&&towardOf(arm,pose));
  // The drawn running fist for this arm's fold: the template phase whose forearm (elbow to wrist) points the
  // nearest way, set on the wrist, turned to this forearm and stretched along it so its elbow end meets this elbow
  // (at most RUN_FIST_STRETCH either way); arm 0 uses the mirror image. The sprite stays in its own pixels
@@ -224,7 +229,7 @@
    part.forearmArt=document.createElementNS(NS,'image');part.forearmArt.setAttribute('filter',tint);part.forearmArt.setAttribute('preserveAspectRatio','none');part.forearmArt.dataset.foundationForearm=String(i);part.forearmArt.dataset.foundationForearmArt='fold';part.parent.append(part.forearmArt);}
   // Only a forearm that folds back across its sleeve on screen needs it; a
   // walking forearm continues below the cuff and the copy only hid the cuff.
-  const [,e,w]=arm.boneSpace,up=sub(arm.shoulder,arm.elbow),down=sub(arm.wrist,arm.elbow),folded=(up[0]*down[0]+up[1]*down[1])/((Math.hypot(...up)*Math.hypot(...down))||1)>Math.cos(125*Math.PI/180),toward=w[2]-e[2]>.6&&folded&&!r.pose?.profile&&!r.pose?.desk&&!r.pose?.floor;
+  const toward=towardOf(arm,r.pose);
   // A run/jump arm (arm.fold) paints its own forearm: the mesh rows from the
   // start of the elbow bend to the hand, so the forearm keeps its painted
   // outline on both sides and a rounded painted elbow over the sleeve. The
@@ -246,7 +251,7 @@
   if(own){
    // A front run's fist: the drawn forearm and fist (RUN_FIST) on the wrist, in place of the squeezed painting and
    // the drawn FIST strokes (openHand hides them).
-   const rf=arm.fist&&!r.pose?.back?runFist(r.svg.dataset.qpxSex==='m'?'m':'f',i,arm):null,f=part.forearmArt;
+   const rf=runFistOn(r,arm,i,r.pose)?runFist(r.svg.dataset.qpxSex==='m'?'m':'f',i,arm):null,f=part.forearmArt;
    if(rf){part.runFist=true;if(f.paintedArt!==rf.art){f.setAttribute('href',rf.art.url);f.paintedArt=rf.art;}for(const[k,val]of Object.entries({x:0,y:0,width:rf.art.w,height:rf.art.h}))if(f.getAttribute(k)!==String(val))f.setAttribute(k,val);if(f.getAttribute('transform')!==rf.transform)f.setAttribute('transform',rf.transform);return;}
    if(f.hasAttribute('transform'))f.removeAttribute('transform');
    const art=painting(def,points,true,arm.fist?'forearm-fist':(arm.open??arm.lift??0)>.5?'forearm-bare':'forearm'),e=part.forearmArt;

@@ -4,8 +4,9 @@
 // (assets/sd-foundation-ref-run-fist.png, avatar-foundation-skin.js RUN_FIST/runFist, cut by
 // tools/arm/build-run-fist.cjs). Checked for both sexes over the front run's 24 steps, the back run and the jump:
 //   - every front-run arm whose forearm folds toward the viewer (arm.fold and a fist) shows the drawn fist (the fold
-//     image carries a transform and the run fist's picture) with the arm painting and the drawn FIST strokes hidden;
-//   - no other arm, step or view does (back run, the jump, unfolded front steps: the painting shows, no transform);
+//     image carries a transform and the run fist's picture), the arm painted down to the elbow only (its squeezed
+//     forearm made the whiskers; the upper arm covers the sleeve picture's own skin) and the drawn FIST strokes hidden;
+//   - no other arm, step or view does (back run, the jump, unfolded front steps: the whole painting, no transform);
 //   - tools/arm/build-run-fist.cjs --check: the RUN_FIST literal and the atlas match the returned sheets.
 // Writes --out (default 검증/달리기주먹): report.json and run-<sex>.png (front run, 24 steps, 280 px) to view.
 //   node tools/verify-run-fist.cjs                       exit 1 on a failure
@@ -28,16 +29,16 @@ const OUT=path.resolve(ROOT,arg('--out','검증/달리기주먹')),OVERLAY=arg('
     // The game re-applies every frame: read the second apply.
     const g=await page.evaluate(async spec=>{const g=await __fg.grid(spec);
       g.arms=__fg.cells().map(({svg,c})=>{__fg.api.apply(svg,__fg.posed(svg,c.state));const pose=__fg.api.inspect(svg);
-        return[0,1].map(i=>{const art=[...svg.querySelectorAll('[data-foundation-forearm-art="fold"]')].find(e=>e.dataset.foundationForearm===String(i)),paint=svg.querySelector('[id$="-arm-paint-'+i+'"]')?.parentNode,hand=svg.querySelector('[data-foundation-open-hand="'+i+'"]'),a=pose?.arms?.[i]||{};
-          return{fold:Boolean(a.fold),fist:Boolean(a.fist),artShown:Boolean(art&&art.style.display!=='none'),transform:art?.getAttribute('transform')||'',w:+(art?.getAttribute('width')||0),paintHidden:paint?.style.visibility==='hidden',handShown:Boolean(hand&&hand.style.display!=='none')};});});
+        return[0,1].map(i=>{const art=[...svg.querySelectorAll('[data-foundation-forearm-art="fold"]')].find(e=>e.dataset.foundationForearm===String(i)),paint=svg.querySelector('[id$="-arm-paint-'+i+'"]'),hand=svg.querySelector('[data-foundation-open-hand="'+i+'"]'),a=pose?.arms?.[i]||{};
+          return{fold:Boolean(a.fold),fist:Boolean(a.fist),artShown:Boolean(art&&art.style.display!=='none'),transform:art?.getAttribute('transform')||'',w:+(art?.getAttribute('width')||0),paintUpper:paint?.dataset.foundationPaintPart==='upper',handShown:Boolean(hand&&hand.style.display!=='none')};});});
       await __fg.settle(document.getElementById('fg-host'));return g;},{cells,cols:12,cellW:174,cellH:314,bg:'#1e2858'});
     await L.capture(page,g,path.join(OUT,'run-'+sex+'.png'));
-    states.forEach((s,c)=>{for(const i of [0,1]){const a=g.arms[c][i],drawn=a.artShown&&a.transform.includes('rotate')&&a.paintHidden&&!a.handShown;
+    states.forEach((s,c)=>{for(const i of [0,1]){const a=g.arms[c][i],drawn=a.artShown&&a.transform.includes('rotate')&&a.paintUpper&&!a.handShown;
       // Folded toward the viewer: the runtime's own test (forearmOverlay 'toward') shows the fold image; a fist there
       // in the front view must be the drawn one.
       const want=s.id.startsWith('front/run/')&&a.fist&&a.artShown;const sample={sex,id:s.id,arm:i,want,drawn,...a};report.samples.push(sample);
       if(want&&!drawn)report.fails.push({...sample,why:'a front-run fist folded toward the viewer is not the drawn fist'});
-      if(!want&&(a.transform||a.paintHidden))report.fails.push({...sample,why:'the drawn fist (or a hidden arm painting) outside a folded front-run fist'});}});
+      if(!want&&(a.transform||a.paintUpper))report.fails.push({...sample,why:'the drawn fist (or an upper-arm-only painting) outside a folded front-run fist'});}});
   }
   let check='';try{check=execFileSync('node',[path.join(__dirname,'arm','build-run-fist.cjs'),'--check'],{cwd:ROOT}).toString();}catch(e){check=(e.stdout||'').toString();report.fails.push({why:'tools/arm/build-run-fist.cjs --check: '+check.trim().replace(/\n/g,'; ')});}
   fs.mkdirSync(OUT,{recursive:true});fs.writeFileSync(path.join(OUT,'report.json'),JSON.stringify(report,null,1));
