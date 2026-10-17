@@ -1,5 +1,5 @@
 {
- "about": "Zone hints of the H2 head conversion (tools/hair/build-heads.py build), in head-native units after registration (front: eye midpoint x 16, chin y 28; profile: moved onto the reference style; back: as today). Polygons only; no PNG is edited. ear: where ears may show (skin there is taken back from the hair dye); nape: the back view's neck; stub: where the old neck stub is erased (everything but solid hair). stubSides (front): below the face jaw line + .35 in these columns is stub too; neckColumn: the body neck column (head-frame.json corridor with a margin); today's jaw channel cut is kept inside it only; under the jaw only the stub skin, outlines and hair not hanging from the hair mass go.",
+ "about": "Zone hints of the H2 head conversion (tools/hair/build-heads.py build), in head-native units after registration (front: eye midpoint x 16, chin y 28; profile: moved onto the reference style; back: as today). Polygons only; no PNG is edited. ear: where ears may show (skin there is taken back from the hair dye); nape: the back view's neck (skin allowed there); stub: where the old neck stub is erased (everything but solid hair). stubSides (front): below the face jaw line + .35 in these columns is stub too; neckColumn: the body neck column (head-frame.json corridor with a margin); today's jaw channel cut is kept inside it only; under the jaw only the stub skin, outlines and hair not hanging from the hair mass go. stubble: per style and view, a generous zone where the shaved scalp lies; there pinkish grey-brown paint (b/g .78-.84 and up) is split between skin and short hair. skinZones: per style and view, more places where skin may be (the back of a fade).",
  "reference": {
   "m": "short",
   "f": "bob"
@@ -14,7 +14,7 @@
    },
    "back": {
     "ear": [[[2.5, 19.0], [10.5, 19.0], [10.5, 27.5], [2.5, 27.5]], [[21.5, 19.0], [29.5, 19.0], [29.5, 27.5], [21.5, 27.5]]],
-    "nape": [[[11.5, 25.0], [20.5, 25.0], [20.5, 31.0], [11.5, 31.0]]]
+    "nape": [[[11.5, 26.2], [20.5, 26.2], [20.5, 31.0], [11.5, 31.0]]]
    }
   },
   "m": {
@@ -26,17 +26,19 @@
    },
    "back": {
     "ear": [[[4.0, 19.0], [10.5, 19.0], [10.5, 26.8], [4.0, 26.8]], [[21.5, 19.0], [28.0, 19.0], [28.0, 26.8], [21.5, 26.8]]],
-    "nape": [[[11.5, 24.5], [20.5, 24.5], [20.5, 30.0], [11.5, 30.0]]]
+    "nape": [[[11.5, 26.0], [20.5, 26.0], [20.5, 30.0], [11.5, 30.0]]]
    }
   }
  },
  "stub": {
   "f": {
    "front": [[[12.4, 28.6], [20.1, 28.6], [20.1, 31.0], [12.4, 31.0]]],
+   "back": [[[14.0, 27.3], [15.4, 27.05], [16.1, 27.2], [17.0, 27.0], [17.9, 27.3], [18.9, 28.2], [19.6, 30.2], [12.4, 30.2], [13.2, 28.2]]],
    "profile": [[[12.0, 26.75], [15.85, 25.55], [16.5, 25.85], [17.12, 26.02], [18.6, 26.1], [18.6, 30.0], [12.0, 30.0]]]
   },
   "m": {
    "front": [[[12.0, 28.6], [20.3, 28.6], [20.3, 31.0], [12.0, 31.0]]],
+   "back": [[[14.0, 26.7], [15.4, 26.45], [16.1, 26.62], [17.0, 26.42], [17.9, 26.7], [18.9, 27.6], [19.6, 29.6], [12.4, 29.6], [13.2, 27.6]]],
    "profile": [[[12.0, 26.45], [14.25, 25.7], [15.6, 26.15], [16.9, 26.5], [18.55, 26.67], [19.6, 26.67], [19.6, 30.0], [12.0, 30.0]]]
   }
  },
@@ -47,5 +49,13 @@
  "neckColumn": {
   "f": [[[13.95, 25.8], [18.5, 25.8], [18.5, 31.5], [13.95, 31.5]]],
   "m": [[[13.08, 25.6], [19.2, 25.6], [19.2, 31.5], [13.08, 31.5]]]
+ },
+ "stubble": {
+  "m:fade": {"front": [[[3.0, 11.0], [10.0, 11.0], [10.0, 21.0], [3.0, 21.0]], [[22.0, 11.0], [29.5, 11.0], [29.5, 21.0], [22.0, 21.0]]],
+             "profile": [[[3.5, 9.5], [17.5, 9.5], [17.5, 24.5], [3.5, 24.5]]]},
+  "m:undercut": {"front": [[[21.0, 11.0], [30.0, 11.0], [30.0, 21.0], [21.0, 21.0]]]}
+ },
+ "skinZones": {
+  "m:fade": {"back": [[[8.5, 20.5], [23.5, 20.5], [23.5, 27.5], [8.5, 27.5]]]}
  }
 }

@@ -344,7 +344,8 @@ def refine(head, src, cls_rgba, spec, reg):
     before = c.copy()
     # back: no face, skin only in the ear and nape zones (crown highlights were skin)
     if view == 'back':
-        crown = (c == SKIN) & ~ear & ~nape
+        allowed = poly_mask(spec.get('skinZones', {}).get('%s:%s' % (sex, head['shape']), {}).get(view, []), head, shape, reg)
+        crown = (c == SKIN) & ~ear & ~nape & ~allowed
         c[crown] = HAIR
         rep['crownToHair'] = int(crown.sum())
     # ears: warm light paint in the ear zone joined to a broad patch (thin hair highlights drop out)
@@ -405,10 +406,6 @@ def refine(head, src, cls_rgba, spec, reg):
             if (m & region[y0:y1, x0:x1]).any() and (m & ~region[y0:y1, x0:x1]).sum() >= 200:
                 hanging[y0:y1, x0:x1] |= m
         erase |= region & (a > 0) & ~hanging
-    # ... and the back view's nape skin with its rim
-    if view == 'back':
-        napeskin = (c == SKIN) & nape
-        erase |= napeskin | (M.dilate(napeskin, 4) & ~solid & nape & (a > 0))
     rep['stub'] = int(erase.sum())
     # specks: small paint islands away from the head
     lab, comps = M.components(a > 8)
@@ -423,9 +420,22 @@ def refine(head, src, cls_rgba, spec, reg):
                     specks |= m
         erase |= specks
         rep['specks'] = int(specks.sum())
+    # stubble (fade, undercut): where the scalp was shaved the painter mixed short hair into skin, a
+    # pinkish grey-brown (b/g >= .8; brown hair stays under .8). Inside a generous zone it is split
+    # like the boundary band (unmix), by a weight that rises with b/g, so no zone edge shows.
+    zones = spec.get('stubble', {}).get('%s:%s' % (sex, head['shape']), {}).get(view)
+    stubble = np.zeros(shape)
+    if zones:
+        z = poly_mask(zones, head, shape, reg) & (a > 0) & (L >= 85) & (L <= 190) & ~erase & ~ears_now & \
+            ((c == HAIR) | (c == FIXED) | ((c == SKIN) & (view == 'back')))
+        if view != 'back':
+            z &= (bits & 1) == 0        # never the face
+        stubble = np.where(z, np.clip((b / np.maximum(g, 1) - .78) / .06, 0, 1), 0.)
+        c[stubble > 0] = HAIR
+        rep['stubble'] = int((stubble > 0).sum())
     c[erase] = 0
     rep['changed'] = int((c != before).sum())
-    return c, erase, rep
+    return c, erase, rep, stubble
 
 
 def box_mean(rgb, w, r):
@@ -437,7 +447,7 @@ def box_mean(rgb, w, r):
     return box(rgb * w[..., None]) / np.maximum(ws, 1e-9)[..., None], ws
 
 
-def unmix(src, c, core, band_px=2, r=5):
+def unmix(src, c, core, band_px=2, r=5, stubble=None):
     """The hair-skin boundary band, where the painter mixed hair into light skin: each pixel
     split into a hair share (alpha a, its colour unmixed) and a skin share (the nearby skin),
     so a dyed hair or a dark skin shows no pale rim. Returns (share of hair 0..1, hair rgb, skin rgb)."""
@@ -453,6 +463,16 @@ def unmix(src, c, core, band_px=2, r=5):
         far = hw <= 3
         hbar[far] = np.median(rgb[inner & (lum_skin(rgb) < 140)], axis=0) if (inner & (lum_skin(rgb) < 140)).sum() > 50 else np.median(rgb[inner], axis=0)
         hw[far] = 4
+    sw_ = np.zeros(c.shape) if stubble is None else stubble
+    st = sw_ > 0
+    if st.any():      # shaved scalp: the head's skin under its dark hair
+        dark = inner & (lum_skin(rgb) < 110)
+        face = skin & ~M.dilate(hair, 3)
+        if dark.sum() > 50 and face.sum() > 50:
+            hbar[st] = np.median(rgb[dark], axis=0)
+            sbar[st] = np.median(rgb[face], axis=0)
+            hw[st] = sw[st] = 4
+            band = band | st
     d = hbar - sbar
     dd = (d * d).sum(-1)
     ok = band & (hw > 3) & (sw > 3) & (dd > 40 ** 2)
@@ -460,6 +480,7 @@ def unmix(src, c, core, band_px=2, r=5):
     a = np.clip(a, 0, 1)
     a[a < .1] = 0
     a[a > .9] = 1
+    a = np.where(st, 1 - sw_ * (1 - a), a)      # stubble: by its weight
     share = hair.astype(np.float64)
     share[ok] = a[ok]
     hrgb = rgb.copy()

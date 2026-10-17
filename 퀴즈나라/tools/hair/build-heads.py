@@ -318,7 +318,7 @@ def convert_head(job):
     head, spec, reg = job
     src = HL.read_rgba(head['srcFile'])
     clsr = HL.read_rgba(head['clsFile'])
-    c, erase, rep = HL.refine(head, src, clsr, spec, reg)
+    c, erase, rep, stubble = HL.refine(head, src, clsr, spec, reg)
     keep = src[..., 3].copy()
     if head['view'] == 'front':      # today's jaw channel (the neck skin runs into the chin), inside the neck column only
         s, ox, oy = HL.placement(head)
@@ -327,7 +327,7 @@ def convert_head(job):
         jawcut = HL.fill_mask(polys, (src.shape[1], src.shape[0]), fx)
         keep *= 1 - jawcut * HL.poly_mask(spec['neckColumn'][head['sex']], head, c.shape)
     keep[erase] = 0
-    share, hrgb, srgb, band = HL.unmix(src, c, HL.feature_core(head, c.shape))
+    share, hrgb, srgb, band = HL.unmix(src, c, HL.feature_core(head, c.shape), stubble=stubble)
     rep['unmixed'] = int(band.sum())
     old_c = clsr[..., 0].astype(np.uint8)
     changed = ((c != old_c) & (c != HL.IRIS)) | erase | band
@@ -560,6 +560,11 @@ def old_registered(head, hair, skin, reg):
     img = HL.place(HL.recolour(src, cls, hair, skin), head, reg=reg)
     if head['view'] == 'front':
         return HL.erase(img, HL.neck_cut_mask(head))
+    if head.get('neckCut'):     # today's hand-traced cuts (m short, f bob), moved with the face
+        f = head['frame']
+        size = HL.frame_size(f)
+        cover = HL.fill_mask(HL.path_polygons(head['neckCut']), size, lambda x, y: ((x + reg[0] - f['x']) * HL.PX, (y + reg[1] - f['y']) * HL.PX))
+        return HL.erase(img, cover)
     return img
 
 
