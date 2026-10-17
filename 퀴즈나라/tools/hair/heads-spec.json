@@ -1,0 +1,51 @@
+{
+ "about": "Zone hints of the H2 head conversion (tools/hair/build-heads.py build), in head-native units after registration (front: eye midpoint x 16, chin y 28; profile: moved onto the reference style; back: as today). Polygons only; no PNG is edited. ear: where ears may show (skin there is taken back from the hair dye); nape: the back view's neck; stub: where the old neck stub is erased (everything but solid hair). stubSides (front): below the face jaw line + .35 in these columns is stub too; neckColumn: the body neck column (head-frame.json corridor with a margin); today's jaw channel cut is kept inside it only; under the jaw only the stub skin, outlines and hair not hanging from the hair mass go.",
+ "reference": {
+  "m": "short",
+  "f": "bob"
+ },
+ "zones": {
+  "f": {
+   "front": {
+    "ear": [[[5.0, 19.5], [9.8, 19.5], [9.8, 26.4], [5.0, 26.4]], [[22.2, 19.5], [27.0, 19.5], [27.0, 26.4], [22.2, 26.4]]]
+   },
+   "profile": {
+    "ear": [[[11.8, 18.8], [18.4, 18.8], [18.4, 26.8], [11.8, 26.8]]]
+   },
+   "back": {
+    "ear": [[[2.5, 19.0], [10.5, 19.0], [10.5, 27.5], [2.5, 27.5]], [[21.5, 19.0], [29.5, 19.0], [29.5, 27.5], [21.5, 27.5]]],
+    "nape": [[[11.5, 25.0], [20.5, 25.0], [20.5, 31.0], [11.5, 31.0]]]
+   }
+  },
+  "m": {
+   "front": {
+    "ear": [[[2.3, 17.0], [9.4, 17.0], [9.4, 27.2], [2.3, 27.2]], [[22.6, 17.0], [29.7, 17.0], [29.7, 27.2], [22.6, 27.2]]]
+   },
+   "profile": {
+    "ear": [[[12.2, 18.6], [18.8, 18.6], [18.8, 26.9], [12.2, 26.9]]]
+   },
+   "back": {
+    "ear": [[[4.0, 19.0], [10.5, 19.0], [10.5, 26.8], [4.0, 26.8]], [[21.5, 19.0], [28.0, 19.0], [28.0, 26.8], [21.5, 26.8]]],
+    "nape": [[[11.5, 24.5], [20.5, 24.5], [20.5, 30.0], [11.5, 30.0]]]
+   }
+  }
+ },
+ "stub": {
+  "f": {
+   "front": [[[12.4, 28.6], [20.1, 28.6], [20.1, 31.0], [12.4, 31.0]]],
+   "profile": [[[12.0, 26.75], [15.85, 25.55], [16.5, 25.85], [17.12, 26.02], [18.6, 26.1], [18.6, 30.0], [12.0, 30.0]]]
+  },
+  "m": {
+   "front": [[[12.0, 28.6], [20.3, 28.6], [20.3, 31.0], [12.0, 31.0]]],
+   "profile": [[[12.0, 26.45], [14.25, 25.7], [15.6, 26.15], [16.9, 26.5], [18.55, 26.67], [19.6, 26.67], [19.6, 30.0], [12.0, 30.0]]]
+  }
+ },
+ "stubSides": {
+  "f": [[[12.0, 25.8], [20.4, 25.8], [20.4, 31.5], [12.0, 31.5]]],
+  "m": [[[11.5, 25.6], [20.8, 25.6], [20.8, 31.5], [11.5, 31.5]]]
+ },
+ "neckColumn": {
+  "f": [[[13.95, 25.8], [18.5, 25.8], [18.5, 31.5], [13.95, 31.5]]],
+  "m": [[[13.08, 25.6], [19.2, 25.6], [19.2, 31.5], [13.08, 31.5]]]
+ }
+}
