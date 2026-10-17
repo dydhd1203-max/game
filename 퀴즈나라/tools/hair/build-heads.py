@@ -359,6 +359,7 @@ def convert_head(job):
         t = trim(np.clip(np.round(img), 0, 255).astype(np.uint8))
         if t:
             out[k] = t
+    rep['probes'] = probes(head, src, clsr, c, keep, spec, reg, share)
     if head['view'] == 'front':      # the face's lower edge (jaw, chin) in head units, for the front split
         U, V = HL.units_of(head, c.shape)
         face = (c == HL.SKIN) & ((clsr[..., 1].astype(int) & 1) > 0)
@@ -369,6 +370,58 @@ def convert_head(job):
                 jaw.append([round(float(x), 2), round(float(V[m].max()), 3)])
         rep['jaw'] = jaw
     return head['base'], changed, out, rep
+
+
+# Probes for the defects this conversion fixes, measured on today's decisions too (they must
+# catch today's defects and read 0 on the result; 아바타-제작기준.md '머리 층 변환'):
+#   earDyed   skin-coloured paint (g/r >= .68, b/g >= .80, L >= 150) in an ear zone taking the hair dye
+#   crownSkin back view: skin outside the ear/nape (and skinZones) places, i.e. hair highlights tinted as skin
+#   stub      paint left under the jaw in the body's neck column (front) or in the stub zone (profile,
+#             back) that is not hair: the old neck stub and its rim
+#   paleRim   light paint (L >= 150) on the face edge, outside the eyes and mouth, that keeps its paint or
+#             takes the dye whole: a pale dotted rim on a dark skin or a dyed hair
+PROBE_LIMITS = {'earDyed': 12, 'crownSkin': 0, 'stub': 0, 'paleRim': 40}   # earDyed: a few hair-tip specks may match
+
+
+def probes(head, src, clsr, c, keep, spec, reg, share):
+    from avatar_build import matte as M
+    view, sex = head['view'], head['sex']
+    rgb, a = src[..., :3], src[..., 3]
+    r, g, b = rgb[..., 0], rgb[..., 1], rgb[..., 2]
+    L = HL.lum_skin(rgb)
+    old = clsr[..., 0].astype(np.uint8)
+    bits = clsr[..., 1].astype(int)
+    shape = old.shape
+    z = spec['zones'][sex][view]
+    ear = HL.poly_mask(z.get('ear', []), head, shape, reg)
+    out = {}
+    skinlike = (a > 128) & (g >= .68 * r) & (b >= .80 * g) & (L >= 150) & ear
+    out['earDyed'] = [int((skinlike & (old == HL.HAIR)).sum()), int((skinlike & (c == HL.HAIR) & (keep > 128)).sum())]
+    if view == 'back':
+        allowed = ear | HL.poly_mask(z.get('nape', []), head, shape, reg) | HL.poly_mask(
+            spec.get('skinZones', {}).get('%s:%s' % (sex, head['shape']), {}).get(view, []), head, shape, reg)
+        out['crownSkin'] = [int(((old == HL.SKIN) & (a > 128) & ~allowed).sum()), int(((c == HL.SKIN) & (keep > 128) & ~allowed).sum())]
+    if view == 'front':
+        U, V = HL.units_of(head, shape, reg)
+        face = (old == HL.SKIN) & ((bits & 1) > 0)
+        cols = np.where(face.any(0), shape[0] - 1 - np.argmax(face[::-1], 0), -1)
+        jawv = np.where(cols >= 0, V[np.clip(cols, 0, shape[0] - 1), np.arange(shape[1])], np.inf)
+        zone = HL.poly_mask(spec['neckColumn'][sex], head, shape, reg) & (V > jawv[None, :] + .5)
+        s_, ox, oy = HL.placement(head)
+        polys, to_px = HL.jaw_channel(head)
+        oldkeep = a * (1 - HL.fill_mask(polys, (shape[1], shape[0]), lambda x, y: ((to_px(x, y)[0] - ox) / s_, (to_px(x, y)[1] - oy) / s_)))
+    else:
+        zone = HL.poly_mask(spec['stub'][sex].get(view, []), head, shape, reg)
+        oldkeep = a.copy()
+        if head.get('neckCut'):
+            oldkeep[HL.poly_mask(HL.path_polygons(head['neckCut']), head, shape)] = 0
+    out['stub'] = [int((zone & (oldkeep > 128) & (old != HL.HAIR)).sum()), int((zone & (keep > 128) & (c != HL.HAIR)).sum())]
+    if view != 'back':
+        near = M.dilate((bits & 1) > 0, 2) & ~HL.feature_core(head, shape)
+        light = (a > 128) & (L >= 150)
+        out['paleRim'] = [int((near & light & ((old == HL.FIXED) | (old == HL.HAIR))).sum()),
+                          int((near & light & (keep > 128) & ((c == HL.FIXED) | ((c == HL.HAIR) & (share > .9)))).sum())]
+    return out
 
 
 def skin_shift(results, heads, body):
@@ -442,6 +495,20 @@ def build(old_dir, out_dir, check_dir=None, only=None):
         res = pool.map(convert_head, [(h, spec, regs[h['base']]) for h in heads])
     results = {base: (c, layers, rep) for base, c, layers, rep in res}
     shifts = skin_shift(results, heads, body_skin_bins())
+    worst, fails = {}, []
+    for base, (_, _, rep) in sorted(results.items()):
+        for k, (o, n) in rep['probes'].items():
+            w = worst.setdefault(k, {'old': 0, 'new': 0, 'oldHeads': 0, 'worst': ''})
+            w['old'] += o
+            w['oldHeads'] += o > PROBE_LIMITS[k]
+            if n > w['new']:
+                w['new'], w['worst'] = n, base
+            if n > PROBE_LIMITS[k]:
+                fails.append('%s %s %d (limit %d)' % (base, k, n, PROBE_LIMITS[k]))
+    for k, w in worst.items():
+        print('probe %-9s today %6d px in %2d heads | converted max %d %s' % (k, w['old'], w['oldHeads'], w['new'], w['worst']))
+    if fails:
+        raise SystemExit('probe failures:\n  ' + '\n  '.join(fails))
     styles = {}
     for h in heads:
         styles.setdefault((h['sex'], h['shape']), []).append(h)

@@ -314,9 +314,12 @@ def feature_core(head, shape):
         f = head['face']
         fh, fw = f['bottom'] - f['top'], f['right'] - f['left']
         out |= ((xx - f['cx']) / (fw * .16)) ** 2 + ((yy - (f['bottom'] - fh * .15)) / (fh * .13)) ** 2 < 1
-    elif head['view'] == 'profile':
+    elif head['view'] == 'profile':     # the eye box and the whole eye the blink cover hides (avatar-direction.js preparePatch)
         e = head['eye']
         out |= (xx > e['left'] - 8) & (xx < e['right'] + 8) & (yy > e['top'] - 12) & (yy < e['bottom'] + 8)
+        cx, cy = (e['left'] + e['right']) / 2, (e['top'] + e['bottom']) / 2
+        rx, ry = max(27, (e['right'] - e['left']) * 1.9), max(28, (e['bottom'] - e['top']) * 1.55)
+        out |= ((xx - cx) / rx) ** 2 + ((yy - cy) / ry) ** 2 < 1
     return out
 
 
@@ -349,9 +352,11 @@ def refine(head, src, cls_rgba, spec, reg):
         c[crown] = HAIR
         rep['crownToHair'] = int(crown.sum())
     # ears: warm light paint in the ear zone joined to a broad patch (thin hair highlights drop out)
-    cand = (c == HAIR) & ear & (a > 128) & (r >= 190) & (L >= 125) & (b >= .74 * g)
+    cand = ((c == HAIR) | (c == FIXED)) & ear & (a > 128) & (r >= 190) & (L >= 125) & (b >= .74 * g)
     seeds = opening(cand, 2) | ((c == SKIN) & ear)
     earskin = M.connected_to(cand | ((c == SKIN) & ear), seeds) & cand
+    for _ in range(2):      # light bits cut off from the ear by a stroke of its outline
+        earskin |= cand & M.dilate(earskin | ((c == SKIN) & ear), 2)
     c[earskin] = SKIN
     # strokes enclosed by ear skin (the fold) belong to the ear
     skinlike = ((c == SKIN) | (c == FIXED)) & ear
