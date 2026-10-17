@@ -6,7 +6,7 @@
 // on dark blue, skin tone 0 with 갈색 hair and tone 3 with 분홍 hair, idle, basic outfit;
 // OUT/목큰.png: the neck at 840 px (front, right, back), 2x crops on dark blue, each beside the body alone (the head
 // hidden: the body's own neck, what shows where the head ends), the size that shows the seams (the whole 840 px
-// sheets too: 전체-840.png, 전체-840-몸.png);
+// sheets too: 전체-840.png, 전체-840-몸.png, and 전체-840-감은눈.png with the eyes closed);
 // and checks on --styles, 840 px on magenta, idle front/right/back:
 //   holes  magenta not reaching the cell's edge inside the neck zone (head units 10.5-21.5 x 23.5-30.5), in groups
 //          of 4 px or more: 0 (verify-hairstyles.cjs H, without a "today": a base head has none);
@@ -72,6 +72,9 @@ function sheet(tiles,cols,gap=8){
       const s=STYLES[Math.floor(i/3)];holes.push({style:s,view:VIEWS[i%3],px,spots});if(px)fails.push({check:'holes',style:s,view:VIEWS[i%3],px,spots:spots.slice(0,4)});
       const xs=zone.map(p=>p[0]),ys=zone.map(p=>p[1]),x0=Math.floor(Math.min(...xs)),y0=Math.floor(Math.min(...ys))-40;
       crops.push(crop(blue.img,x0,y0,Math.ceil(Math.max(...xs))-x0,Math.ceil(Math.max(...ys))-y0,2));});
+    // the eyes closed (the blink covers and strokes shown): a lash past its cover stays drawn while blinking
+    {const style=await page.addStyleTag({content:'.qpx-blink-closed{opacity:1!important;animation:none!important}'});
+      const shut=await grid(big,3,840,BLUE);fs.writeFileSync(path.join(OUT,'전체-840-감은눈.png'),H.png.encode(shut.img));await style.evaluate(n=>n.remove());}
     // the same crops with the head hidden (the body's own neck, what shows where the head ends), last: the hiding stays
     const bodyImg=await (async()=>{await page.addStyleTag({content:'[data-foundation-head-paint],[data-foundation-back-hair],[data-foundation-head-view]{display:none!important}'});return L.capture(page,blue.g);})();
     const bodyCrops=mag.info.map(c=>{const zone=ZONE.map(p=>apply(c.ctm,p)),xs=zone.map(p=>p[0]),ys=zone.map(p=>p[1]),x0=Math.floor(Math.min(...xs)),y0=Math.floor(Math.min(...ys))-40;

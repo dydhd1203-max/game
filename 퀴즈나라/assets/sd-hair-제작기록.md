@@ -13,7 +13,7 @@ node tools/hair/make-hair-template.cjs --style base     # 게임이 그린 민�
 node tools/hair/board-heads.cjs            # 게임이 그린 민머리 280px 판·840px 목 이음·닫힌 구멍 (약 20초)
 ```
 
-기준 민머리(`sd-hair-base-<m|f>.webp`, 'm:base'·'f:base')는 `assets/hair-template/sources/민머리-*.png` 원화에서 만든다. `build-heads.py build`는 `sd-hair-base.json`의 항목을 `sd-hair-data.js`에 다시 합친다(민머리를 지우지 않음). 체험 화면은 민머리 아틀라스를 미리 풀지 않는다(상점 머리가 아님, `e.base`). 탐침 `interior`·`paleRim`·`eyeCore`·`edgePaint`(층 사각형 둘레 칠)·`lashOutsideBlink`(속눈썹 원화가 있을 때)가 한도를 넘으면 실패하고, `--negative translucent|halo|nolash|noborder`(옛 방식)는 실패해야 한다. `sources/민머리-눈-<남자|여자>-*.png`가 있으면 앞·옆 눈 둘레의 속눈썹만 그 그림에서 가져온다. 규칙은 `아바타-제작기준.md` '기준 민머리(H5-1)'.
+기준 민머리(`sd-hair-base-<m|f>.webp`, 'm:base'·'f:base')는 `assets/hair-template/sources/민머리-*.png` 원화에서 만든다. `build-heads.py build`는 `sd-hair-base.json`의 항목을 `sd-hair-data.js`에 다시 합친다(민머리를 지우지 않음). 체험 화면은 민머리 아틀라스를 미리 풀지 않는다(상점 머리가 아님, `e.base`). 탐침 `interior`·`paleRim`·`eyeCore`·`edgePaint`(층 사각형 둘레 칠)·`lashOutsideBlink`·`eyeOutsideBlink`(속눈썹 원화가 있을 때, 감은 눈 덮개 밖)가 한도를 넘으면 실패하고, `--negative translucent|halo|nolash|noborder|shortcover`(옛 방식)는 실패해야 한다. `sources/민머리-눈-<남자|여자>-*.png`가 있으면 앞·옆 눈 둘레의 속눈썹만 그 그림에서 가져온다. 규칙은 `아바타-제작기준.md` '기준 민머리(H5-1)'.
 
 ## 무엇을 담았나
 

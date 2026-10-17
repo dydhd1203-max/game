@@ -2,7 +2,7 @@
 '목 없는 민머리' request on the hair template): the head layers every new hairstyle is drawn on.
 
   python3 -B tools/hair/build-base-head.py [--old 검증/머리/옛머리] [--board 검증/머리/민머리]
-  python3 -B tools/hair/build-base-head.py --negative translucent|halo|nolash|noborder     (must fail, writes nothing to assets)
+  python3 -B tools/hair/build-base-head.py --negative translucent|halo|nolash|noborder|shortcover     (must fail, writes nothing to assets)
   python3 -B tools/hair/build-base-head.py --lash-test     (the bald sheet as the lash sheet: board and probes only)
 
   - A lash sheet sources/민머리-눈-<남자|여자>-*.png (the base head with its lashes redrawn, requests/민머리-눈-*)
@@ -54,13 +54,12 @@ BODY_DE, INK_L = 40, 150                   # body match (max channel); paint dar
 
 GAIN = {}
 BROW_IN_EYES = {}
-NEG = set()        # --negative translucent|halo|nolash|noborder: an old way back, for the checks' negative controls
+NEG = set()        # --negative translucent|halo|nolash|noborder|shortcover: an old way back, for the negative controls
 SCRATCH = os.path.join(ROOT, '검증', '머리', '민머리', '음성')     # a negative control's atlases (never assets/)
 PROBES = {}
 # paleRim 12: the f profile crown's own faint grey outline is 9 px (the halo made opaque was 78-424 a view);
 # eyeCore 10: m front differs in 4 px (leaving the hair layer's lashes out: 137-312 a profile, 254 m front);
-# lashOutsideBlink 30: a new lash a few px longer than the reference's (the bald sheet's own lashes: 3 f, 19 m front)
-PROBE_LIMITS = {'interior': 0, 'paleRim': 12, 'eyeCore': 10, 'lashOutsideBlink': 30}
+PROBE_LIMITS = {'interior': 0, 'paleRim': 12, 'eyeCore': 10, 'lashOutsideBlink': 0, 'eyeOutsideBlink': 0}
 
 
 def sheet_maps(sex, path=None):
@@ -209,8 +208,8 @@ def base_view(sex, view, maps, meta_t, head, layers, v, spec, lash_maps=None):
         lab, _, _ = M.label(ink_m)
         ids = np.unique(lab[ink_m & eyes])
         drop = (eyes | (M.dilate(np.isin(lab, ids[ids > 0]), 1) & ~M.dilate(~keep, 4)))
-        if view == 'front':      # where the reference's locks hide its eye (f bob's outer corners) its lash stays
-            drop &= ~((hair_a > .02) & ~lash)
+        if view == 'front' and lash_maps is None:     # where the reference's locks hide its eye (f bob's outer
+            drop &= ~((hair_a > .02) & ~lash)          # corners) the sheet's lash stays, unless a lash sheet came
         BROW_IN_EYES[(head['sex'], view)] = int((brow & drop).sum())
         brow &= ~drop
     else:
@@ -245,7 +244,9 @@ def base_view(sex, view, maps, meta_t, head, layers, v, spec, lash_maps=None):
     if view != 'back':
         core = paste.copy()
         if view == 'front':
-            core |= HL.feature_core(head, shape) & (V > np.mean([e[1] for e in v['eyes']]) + 1.5)
+            # the mouth (the face's middle, u 16 +-3): the feature mask's eye boxes reach down beside the cheeks,
+            # where the reference's lock outlines ended in small dark bits
+            core |= HL.feature_core(head, shape) & (V > np.mean([e[1] for e in v['eyes']]) + 1.5) & (np.abs(U - 16) < 3)
         w = MB.smoothstep(0, 3, MB.distance_from(~core, shape, 4)) * core
         # a lash cut by the box ends in a 6 px taper, not a straight end
         w_lash = MB.smoothstep(0, 6, MB.distance_from(~(box & keep), shape, 7)) * core
@@ -285,20 +286,40 @@ def base_view(sex, view, maps, meta_t, head, layers, v, spec, lash_maps=None):
         # teal: it stays); its whites' and iris's rims stay (the sheet's eye sits a pixel or two off)
         lashlike = lambda c_: (c_[..., 0] >= c_[..., 2] - 5) & (c_[..., 0] >= c_[..., 1] - 10)    # brown-black, not the teal iris
         dark = paste & ~opening & (HL.lum_skin(rcol) < 120) & (ra > .3)
-        # the lash's lower edge against the iris and whites stays (taken away, a light arc showed round the iris top;
-        # the new lash covers it)
-        old_lash = dark & lashlike(rcol) & ~M.dilate(opening | (dark & ~lashlike(rcol)), 2)
-        old_lash = M.dilate(old_lash, 1) & paste & ~M.dilate(opening | (dark & ~lashlike(rcol)), 2)
-        wz = MB.smoothstep(0, 2, MB.distance_from(~old_lash, shape, 3)) * old_lash
+        # the whole lid above the opening goes (only its dark lash taken, its light fringe stayed as fuzz over the
+        # new line), the lash's lower edge against the iris and whites stays (taken, a light arc showed round the
+        # iris top; the new lash covers it)
+        above = np.where(cols[None, :], yy < top[None, :] + 2, yy < mid)
+        old_lash = paste & above & ~M.dilate(opening | (dark & ~lashlike(rcol)), 2)
+        wz = MB.smoothstep(0, 6, MB.distance_from(~old_lash, shape, 7)) * old_lash     # 6 px: the skins differ a little
         st.over('skin', sheet_skin, alpha * np.maximum(wz, old_lash & M.dilate(opening, 2)))
         lash_c = np.clip((c2 - (1 - share2[..., None]) * skin_ref) / np.maximum(share2[..., None], .05), 0, 255)
         st.over('fixed', lash_c, alpha * share2 * new_lash)
     out = st.layers()
-    probe(head, view, out, layers, keep, (core & (w_lash > .999)) if view != 'back' and new_lash is None else None, lash,
-          new_lash, ref if view != 'back' else None)
     for k, img in layers.items():
         if k.startswith('blink'):
-            out[k] = img
+            out[k] = img.copy()
+    if new_lash is not None:
+        # the closed eye's covers reach over the new lash too (the reference's locks hid its lash ends, the bald head
+        # shows the new corner lashes): the base's own skin, drawn through the same tone filter
+        # (the whole open eye: the new lash, the opening and the iris's dark top the old lash used to hide)
+        # (all of the reference's eye paint: anything off its skin round the eye, the whites' grey-blue shading too)
+        sk = layers['skin'][..., :3][(layers['skin'][..., 3] > 250) & paste]
+        off = (np.abs(rcol - (np.median(sk, axis=0) if len(sk) else rcol)).max(2) > 30) & (ra > .3) & paste
+        eye = new_lash if 'shortcover' in NEG else new_lash | (M.dilate(opening, 2) & paste) | dark | off
+        ext = MB.smoothstep(0, 1.5, 2.5 - MB.distance_from(eye, shape, 4))
+        sides = {'blink': np.ones(shape, bool)} if view == 'profile' else {
+            'blink-leftfull': U < 16, 'blink-rightfull': U >= 16}
+        for k, side in sides.items():
+            if k not in out:
+                continue
+            img = out[k]
+            a0, add = img[..., 3] / 255., ext * side * keep
+            a1 = a0 + add * (1 - a0)
+            img[..., :3] = np.where(a1[..., None] > 1e-6, (img[..., :3] * a0[..., None] + sheet_skin * (add * (1 - a0))[..., None]) / np.maximum(a1, 1e-6)[..., None], img[..., :3])
+            img[..., 3] = a1 * 255
+    probe(head, view, out, layers, keep, (core & (w_lash > .999)) if view != 'back' and new_lash is None else None, lash,
+          new_lash, M.dilate(new_lash | (M.dilate(opening, 2) & paste) | dark | off, 1) if new_lash is not None else None)
     return out, keep
 
 
@@ -319,7 +340,7 @@ def composite(layers, hair_mask=None):
     return rgb, a
 
 
-def probe(head, view, out, layers, keep, core, lash, new_lash=None, ref_eye=None):
+def probe(head, view, out, layers, keep, core, lash, new_lash=None, open_eye=None):
     """What this build fixed, counted so it cannot come back unseen (PROBE_LIMITS):
     interior  head pixels 5 px inside the cut that are see-through (the crown's highlight read as the ground);
     paleRim   light grey (luminance > 170, chroma < 15) at alpha > .25 within 2 px of the transparent outside
@@ -339,12 +360,29 @@ def probe(head, view, out, layers, keep, core, lash, new_lash=None, ref_eye=None
         ok = full & (ra > .98)
         n_eye = int((ok & (np.abs(rgb - rr).max(2) > 8)).sum())
     PROBES[head['sex'] + '-' + view] = {'interior': n_int, 'paleRim': n_rim, 'eyeCore': n_eye}
-    if new_lash is not None:    # a new lash past the blink covers stays drawn while the eye is closed: never
-        cover = np.zeros(keep.shape, bool)       # farther out than the reference's own eye ink already is
-        for k, img in layers.items():
+    if new_lash is not None:    # a new lash past the closed eye's covers stays drawn while the eye is closed
+        cover = np.zeros(keep.shape, bool)
+        for k, img in out.items():
             if k.startswith('blink') and not k.endswith('half'):
-                cover |= img[..., 3] > 25
-        PROBES[head['sex'] + '-' + view]['lashOutsideBlink'] = int((new_lash & ~M.dilate(cover | ref_eye, 2)).sum())
+                cover |= img[..., 3] > 200
+        PROBES[head['sex'] + '-' + view]['lashOutsideBlink'] = int((new_lash & ~cover).sum())
+        # the closed eye as drawn (the head, then its full covers over it; the runtime's closing stroke aside): round
+        # the eye nothing darker than the skin by 40 or bluish may show (an iris's top showed as a blue arc)
+        rc, ra = composite(out)
+        rgb, a, cov = rc.copy(), ra.copy(), np.zeros(ra.shape)
+        for k, img in out.items():
+            if k.startswith('blink') and not k.endswith('half'):
+                ca = img[..., 3:4] / 255.
+                rgb = rgb * (1 - ca) + img[..., :3] * ca
+                a = a * (1 - ca[..., 0]) + ca[..., 0]
+                cov = np.maximum(cov, ca[..., 0])
+        col = rgb / np.maximum(a, 1e-6)[..., None]
+        # what belongs to the open eye (the new lash, the opening, the reference's eye paint) and still shows; the
+        # covers' own paint (the reference's closed lid has a soft crease shadow) is meant to show
+        near = open_eye & (a > .9) & keep
+        skin_l = np.median(HL.lum_skin(col[near & (cov > .99)])) if (near & (cov > .99)).any() else 0
+        shows = near & (cov < .99) & ((HL.lum_skin(col) < skin_l - 40) | (col[..., 2] > col[..., 0] + 10))
+        PROBES[head['sex'] + '-' + view]['eyeOutsideBlink'] = int(shows.sum())
 
 
 def trim(img):
@@ -445,7 +483,7 @@ def main(argv):
         found = sorted(glob.glob(os.path.join(TPL, 'sources', '민머리-눈-%s-*.png' % name)))
         if '--lash-test' in argv:       # the bald sheet itself in the lash sheet's place: the path works before art comes
             found = [os.path.join(TPL, SOURCES[sex])]
-        if found:
+        if found and not NEG & {'nolash'}:      # nolash is the reference eye path's control
             lash_files[sex] = found[-1]
     for sex in ('f', 'm'):
         maps = sheet_maps(sex)
