@@ -309,7 +309,7 @@ async function openRuntime(browser,base,report,viewport,dpr=1){
   await page.goto(new URL('index.html?demo=1&avatar=foundation',base).href);
   await page.waitForFunction(()=>window.QPGame&&window.QPAvatarFoundation&&window.QPFoundationGarments,null,{timeout:90000});
   await page.evaluate(()=>{QPGame.go('login');return window.QPFoundationGarments.loadStarter();});
-  await page.waitForFunction(()=>{const ok=m=>!m||m.atlas?.ready||Boolean(m.atlas?.error);return ok(window.QPFoundationSkin)&&window.QPAvatar?.atlas.ready&&window.QPAvatarDirection?.atlas.ready&&window.QPAvatarDirection.atlas.backReady&&QPFoundationGarments.settled('starter','m')&&QPFoundationGarments.settled('starter','f');},null,{timeout:120000,polling:100});
+  await page.waitForFunction(()=>{const ok=m=>!m||m.atlas?.ready||Boolean(m.atlas?.error);return ok(window.QPFoundationSkin)&&window.QPAvatar?.atlas.ready&&window.QPAvatarDirection?.atlas.ready&&window.QPAvatarDirection.atlas.backReady&&ok(window.QPFoundationHead)&&QPFoundationGarments.settled('starter','m')&&QPFoundationGarments.settled('starter','f');},null,{timeout:120000,polling:100});
   const errors=await page.evaluate(()=>[window.QPFoundationSkin?.atlas?.error].filter(Boolean));
   if(errors.length)throw Error('foundation art failed to load: '+errors.join('; '));
   return{context,page};

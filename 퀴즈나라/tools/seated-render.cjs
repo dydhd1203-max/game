@@ -7,7 +7,7 @@ const Q=require('node:path').resolve(__dirname,'..'),H=require('./verify-harness
 try{
  await page.goto(server.base+'index.html?demo=1&session=foundation-studio');await page.waitForFunction(()=>window.QPGame&&window.QPAvatarFoundation,null,{timeout:90000});
  await page.evaluate(()=>{QPGame.go('login');QPFoundationSkin.load();QPFoundationOutfit.load();});
- await page.waitForFunction(()=>QPFoundationSkin.atlas.ready&&QPFoundationOutfit.atlas.ready&&QPAvatar?.atlas.ready&&QPAvatarDirection?.atlas.ready&&QPAvatarDirection.atlas.backReady,null,{timeout:120000});
+ await page.waitForFunction(()=>QPFoundationSkin.atlas.ready&&QPFoundationOutfit.atlas.ready&&QPAvatar?.atlas.ready&&QPAvatarDirection?.atlas.ready&&QPAvatarDirection.atlas.backReady&&(!window.QPFoundationHead||window.QPFoundationHead.atlas.ready||window.QPFoundationHead.atlas.error),null,{timeout:120000});
  const ctm=await page.evaluate(({av,dir})=>{const api=QPAvatarFoundation,d=document.createElement('div');d.id='seated-render';d.style.cssText='position:fixed;left:0;top:0;z-index:99999;background:#fff';document.body.append(d);d.innerHTML=api.render(av,640);const svg=d.firstElementChild;
   api.apply(svg,{action:'floor-sit',seatMode:'floor',direction:dir,time:0,reducedMotion:true});const m=svg.querySelector('[data-foundation-part="near-leg"]').getCTM();return[m.a,m.b,m.c,m.d,m.e,m.f];},{av:{...M.referenceAvatar(sex,0),...(items?JSON.parse(items):{})},dir});
  // The game applies a pose every frame: shoot after a later frame, not the

@@ -1,0 +1,61 @@
+{
+ "about": "Zone hints of the H2 head conversion (tools/hair/build-heads.py build), in head-native units (front: eye midpoint x 16, chin y 28; profile ear zones: after moving the face onto the reference style; neck and stub zones: where today's renderer places each painting, its neck on the body's neck; back: as today). Polygons only; no PNG is edited. ear: where ears may show (skin there is taken back from the hair dye); nape: the back view's neck (skin allowed there); stub: where the old neck stub is erased (front: everything but hair hanging from the mass; profile, back: the neck skin and its rim). The profile ones follow today's hand-traced cuts (f bob, m short) on both sides: the chin's underside in front of the body's neck and the painted nape above the body's straight back edge stay (behind the top notch the old neck over the body goes too, build-heads.py decide). The back ones follow today's m short cut at the top (wider, the nape's sides covered the body's straight neck edge) and widen only at the old neck's bottom ring (f: 0.6 lower). stubSides (front): below the face jaw line + .35 in these columns is stub too; neckColumn: the body neck column (head-frame.json corridor with a margin); today's jaw channel cut is kept inside it only; under the jaw only the stub skin, outlines and hair not hanging from the hair mass go. stubble: per style and view, a generous zone where the shaved scalp lies; there pinkish grey-brown paint (b/g .78-.84 and up) is split between skin and short hair. skinZones: per style and view, more places where skin may be (the back of a fade).",
+ "reference": {
+  "m": "short",
+  "f": "bob"
+ },
+ "zones": {
+  "f": {
+   "front": {
+    "ear": [[[5.0, 19.5], [9.8, 19.5], [9.8, 26.4], [5.0, 26.4]], [[22.2, 19.5], [27.0, 19.5], [27.0, 26.4], [22.2, 26.4]]]
+   },
+   "profile": {
+    "ear": [[[11.8, 18.8], [18.4, 18.8], [18.4, 26.8], [11.8, 26.8]]]
+   },
+   "back": {
+    "ear": [[[2.5, 19.0], [10.5, 19.0], [10.5, 27.5], [2.5, 27.5]], [[21.5, 19.0], [29.5, 19.0], [29.5, 27.5], [21.5, 27.5]]],
+    "nape": [[[11.5, 26.2], [20.5, 26.2], [20.5, 31.0], [11.5, 31.0]]]
+   }
+  },
+  "m": {
+   "front": {
+    "ear": [[[2.3, 17.0], [9.4, 17.0], [9.4, 27.2], [2.3, 27.2]], [[22.6, 17.0], [29.7, 17.0], [29.7, 27.2], [22.6, 27.2]]]
+   },
+   "profile": {
+    "ear": [[[12.2, 18.6], [18.8, 18.6], [18.8, 26.9], [12.2, 26.9]]]
+   },
+   "back": {
+    "ear": [[[4.0, 19.0], [10.5, 19.0], [10.5, 26.8], [4.0, 26.8]], [[21.5, 19.0], [28.0, 19.0], [28.0, 26.8], [21.5, 26.8]]],
+    "nape": [[[11.5, 26.0], [20.5, 26.0], [20.5, 30.0], [11.5, 30.0]]]
+   }
+  }
+ },
+ "stub": {
+  "f": {
+   "front": [[[12.4, 28.6], [20.1, 28.6], [20.1, 31.0], [12.4, 31.0]]],
+   "back": [[[14.35, 27.35], [15.31, 27.17], [16.1, 27.22], [16.9, 27.15], [17.5, 27.33], [17.85, 28.1], [18.5, 28.75], [19.6, 30.2], [12.4, 30.2], [12.7, 28.65], [13.71, 27.98]]],
+   "profile": [[[12.0, 28.05], [12.65, 27.85], [14.44, 27.29], [15.4, 26.8], [15.76, 26.19], [15.85, 25.55], [16.3, 25.85], [17.12, 26.02], [16.98, 26.5], [17.0, 26.9], [17.25, 27.45], [17.7, 27.85], [18.3, 28.05], [18.45, 29.4], [18.5, 32.0], [12.0, 32.0]]]
+  },
+  "m": {
+   "front": [[[12.0, 28.6], [20.3, 28.6], [20.3, 31.0], [12.0, 31.0]]],
+   "back": [[[14.35, 26.75], [15.31, 26.57], [16.1, 26.62], [16.9, 26.55], [17.5, 26.73], [17.85, 27.5], [18.5, 28.15], [19.6, 29.6], [12.4, 29.6], [12.7, 28.05], [13.71, 27.38]]],
+   "profile": [[[12.0, 28.1], [12.55, 28.0], [13.3, 27.46], [13.75, 26.65], [14.25, 25.7], [15.6, 26.15], [16.9, 26.5], [18.55, 26.67], [18.3, 27.2], [18.25, 27.7], [18.5, 28.3], [18.7, 29.4], [18.75, 32.0], [12.0, 32.0]]]
+  }
+ },
+ "stubSides": {
+  "f": [[[12.0, 25.8], [20.4, 25.8], [20.4, 31.5], [12.0, 31.5]]],
+  "m": [[[11.5, 25.6], [20.8, 25.6], [20.8, 31.5], [11.5, 31.5]]]
+ },
+ "neckColumn": {
+  "f": [[[13.95, 25.8], [18.5, 25.8], [18.5, 31.5], [13.95, 31.5]]],
+  "m": [[[13.08, 25.6], [19.2, 25.6], [19.2, 31.5], [13.08, 31.5]]]
+ },
+ "stubble": {
+  "m:fade": {"front": [[[3.0, 11.0], [10.0, 11.0], [10.0, 21.0], [3.0, 21.0]], [[22.0, 11.0], [29.5, 11.0], [29.5, 21.0], [22.0, 21.0]]],
+             "profile": [[[3.5, 9.5], [17.5, 9.5], [17.5, 24.5], [3.5, 24.5]]]},
+  "m:undercut": {"front": [[[21.0, 11.0], [30.0, 11.0], [30.0, 21.0], [21.0, 21.0]]]}
+ },
+ "skinZones": {
+  "m:fade": {"back": [[[8.5, 20.5], [23.5, 20.5], [23.5, 27.5], [8.5, 27.5]]]}
+ }
+}

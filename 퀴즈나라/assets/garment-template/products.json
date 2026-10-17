@@ -18,6 +18,7 @@
  "products": {
   "top:shirt": {
    "class": "top/short-sleeve",
+   "base": "dark",
    "status": "pilot (stage 4 trial item; first real ChatGPT sheet: assets/garment-sources/top-shirt-10-chatgpt-2026-10-09.webp)",
    "sexes": [
     "m",

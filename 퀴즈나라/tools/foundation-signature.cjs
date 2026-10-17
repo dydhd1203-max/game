@@ -58,7 +58,7 @@ const BG='#dfe6ee';
 // Injected once; everything it measures stays in the page except hashes.
 function pageLib(cfg){
   const api=window.QPAvatarFoundation,garment=cfg.mode==='garment',ignore=new Set(cfg.ignore);
-  const HEAD_DEF=/-head-front$|-hair-behind$|-head-only-|-bow-(crown|face)$/;
+  const HEAD_DEF=/-head-front$|-hair-behind$|-head-only-|-bow-(crown|face)$|-hair-dye$|-head-tone$|-iris$/;   // the hair layers' filters too (H3)
   const headNode=el=>el.matches('[data-foundation-head],[data-foundation-back-hair]')||el.parentElement?.tagName==='defs'&&HEAD_DEF.test(el.id||'')||(cfg.hide&&el.matches(cfg.hide));
   // cyrb53 twice (two seeds): 106 bits.
   const cyrb=(s,seed)=>{let h1=0xdeadbeef^seed,h2=0x41c6ce57^seed;for(let i=0;i<s.length;i++){const c=s.charCodeAt(i);h1=Math.imul(h1^c,2654435761);h2=Math.imul(h2^c,1597334677);}h1=Math.imul(h1^(h1>>>16),2246822507)^Math.imul(h2^(h2>>>13),3266489909);h2=Math.imul(h2^(h2>>>16),2246822507)^Math.imul(h1^(h1>>>13),3266489909);return(4294967296*(2097151&h2)+(h1>>>0)).toString(36);};
@@ -156,7 +156,7 @@ async function openRuntime(browser,base,report){
   await page.goto(new URL('index.html?demo=1&session=foundation-studio',base).href);
   await page.waitForFunction(()=>window.QPGame&&window.QPAvatarFoundation,null,{timeout:90000});
   await page.evaluate(()=>{QPGame.go('login');window.QPFoundationSkin?.load();window.QPFoundationOutfit?.load();});
-  await page.waitForFunction(()=>{const ok=m=>!m||m.atlas?.ready||Boolean(m.atlas?.error);return ok(window.QPFoundationSkin)&&ok(window.QPFoundationOutfit)&&window.QPAvatar?.atlas.ready&&window.QPClothes?.atlas.ready&&window.QPShoes?.atlas.ready&&window.QPAvatarDirection?.atlas.ready&&window.QPAvatarDirection.atlas.backReady;},null,{timeout:120000,polling:100});
+  await page.waitForFunction(()=>{const ok=m=>!m||m.atlas?.ready||Boolean(m.atlas?.error);return ok(window.QPFoundationSkin)&&ok(window.QPFoundationOutfit)&&window.QPAvatar?.atlas.ready&&window.QPClothes?.atlas.ready&&window.QPShoes?.atlas.ready&&window.QPAvatarDirection?.atlas.ready&&window.QPAvatarDirection.atlas.backReady&&ok(window.QPFoundationHead);},null,{timeout:120000,polling:100});
   const errors=await page.evaluate(()=>[window.QPFoundationSkin?.atlas?.error,window.QPFoundationOutfit?.atlas?.error].filter(Boolean));
   if(errors.length)throw Error('foundation art failed to load: '+errors.join('; '));
   return{context,page,version:browser.version()};

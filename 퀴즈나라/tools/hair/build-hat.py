@@ -229,8 +229,13 @@ def trim_head(hat, u, t, head, px=1.0):
     if own.sum() < SEED_MIN:
         return hat
     hat_cols = kmeans(Ul[own][::3], 6, seed=1)
-    # a hat the hair's own brown (a cowboy hat) cannot be told from the hair by colour: kept whole
-    dist = float(np.median(nearest(hat_cols[None], head_cols)))
+    # a hat the hair's own brown (a cowboy hat) cannot be told from the hair by colour: kept whole. Judged against
+    # the hair's colours only: a straw hat's light tan lay near the face's skin and was kept whole with the hair
+    # redrawn under it (the narrow straw hat, 2026-10-16)
+    r_, g_, b_ = (t[..., i].astype(int) for i in range(3))
+    hair = head & ~((r_ > 200) & (g_ > 160) & (r_ > g_) & (g_ >= b_) & (r_ - b_ > 20))
+    hair_cols = kmeans(Tl[hair].reshape(-1, 3)[::7], 10) if hair.sum() > SEED_MIN else head_cols
+    dist = float(np.median(nearest(hat_cols[None], hair_cols)))
     if dist < BROWN_HAT:
         return brown_hat(hat, u, t, px)
     headlike = hat & (nearest(Ul, head_cols) < nearest(Ul, hat_cols))
@@ -673,6 +678,41 @@ def page_like(u):
     return (u.min(-1) >= PAGE_MIN) & (u.max(-1) - u.min(-1) <= PAGE_SPREAD)
 
 
+HAIR_THICK = 2     # px (template scale) eroded away: the hat's own outline over the hair; thicker hair-coloured runs stay
+HAIR_NEAR = 12.0   # Lab to the kit's hair colours under which a cut pixel is the hair redrawn
+HAIR_PIECE = 30    # px (template scale, squared) of a hair-coloured piece dropped from a hat drawn on the under-hat kit
+
+
+def drop_redrawn_hair(f, u, t, head, x0, y0, box, px=1.0):
+    """A hat drawn on the under-hat kit (make-hat-hair-base.cjs --under-hat) with the hair beside the face redrawn
+    under its brim (the narrow straw hat's curls, 2026-10-16): pieces of the cut in the hair's own colours and
+    thicker than an outline are hair, not the hat (left in, they stayed brown on a blond head). The hat's outline
+    is thin and stays."""
+    hat = f['mask']
+    Ul, Tl = R.lab(u), R.lab(t)
+    r_, g_, b_ = (t[..., i].astype(int) for i in range(3))
+    hair = head & ~((r_ > 200) & (g_ > 160) & (r_ > g_) & (g_ >= b_) & (r_ - b_ > 20))
+    if hair.sum() < SEED_MIN or (hat & ~hair).sum() < SEED_MIN:
+        return f
+    hair_cols = kmeans(Tl[hair].reshape(-1, 3)[::7], 10)
+    hat_cols = kmeans(Ul[hat & ~hair][::3], 6, seed=1)
+    # the hair's own colours (within HAIR_NEAR), wherever the sheet redrew them (the curls lay beside the kit's hair):
+    # a gold buckle is nearer the hair's brown than the purple hat's but far from either (it was cut as hair)
+    dh = nearest(Ul, hair_cols)
+    like = hat & (dh < HAIR_NEAR) & (dh < nearest(Ul, hat_cols))
+    r = max(1, int(round(HAIR_THICK * px)))
+    core = M.dilate(M.erode(like, r), r) & like
+    lab_, comps = M.components(core)
+    drop = M.dilate(np.isin(lab_, [c['label'] for c in comps if c['size'] >= HAIR_PIECE * px * px]), 1) & like
+    if not drop.any():
+        return f
+    out = drop_wisps(hat & ~drop, px)
+    lab_, comps = M.components(out)  # what is left hanging alone
+    big = max((c['size'] for c in comps), default=0)
+    out = np.isin(lab_, [c['label'] for c in comps if c['size'] >= .05 * big])
+    return pack(u, out, np.zeros_like(out), x0, y0, box, px)  # a hat on the under-hat kit has no opening of its own (a brim)
+
+
 def zone_edge(mask, hx, side, low, px=1.0):
     """Where a cut hat lies straight along its zone's edge (HAT_AT_ZONE_EDGE): a side column (its brim ran past
     ZONE_SIDE: a witch's brim tips) or the last row (a brim drooping below ZONE: a straw hat's tips beside the
@@ -779,6 +819,8 @@ def build_base(sheet, base_dir, out, pid=None, kind=None, out_assets=None):
             f, low, side, edge = first
         elif side_px != ZONE_SIDE:
             report.setdefault('wideZone', []).append(k)
+        if f is not None and meta.get('underHat'):
+            f = drop_redrawn_hair(f, u, tt, head, x0, y0, [x0, y0, x1, neck], px)
         report['figures'][k] = None if f is None else dict(box=f['box'], px=f['px'], shift=[dx, dy], legsError=round(err, 2),
                                                            face=face_in_hat(f['mask'], u, tt, head))
         if f is not None and report['figures'][k]['face'] > MAX_FACE:

@@ -11,7 +11,7 @@ const H=require('./verify-harness.cjs'),M=require('./foundation-matrix.cjs'),L=r
 const base=process.env.QUIZ_PREVIEW_URL||'http://127.0.0.1:4173/',out=process.env.QUIZ_VERIFICATION_OUTPUT||path.resolve(__dirname,'../검증/기준몸');
 fs.mkdirSync(out,{recursive:true});const report={errors:[],checks:[],screenshots:[],productionFirebase:false};let browser;
 const wait=ms=>new Promise(r=>setTimeout(r,ms));
-// Expected node counts per class signature and sex (the male reference head short:1 adds its 6 neck-cut clip nodes).
+// Expected node counts per class signature and sex (equal for every hair style since the hair layers, H3).
 const NODES=Object.fromEntries(Object.entries(M.NODE_TABLE).map(([k,v])=>[k,v.total]));
 (async()=>{
  browser=await chromium.launch({headless:true,executablePath:process.env.QUIZ_BROWSER_EXECUTABLE||'/usr/bin/chromium'});
@@ -24,6 +24,8 @@ const NODES=Object.fromEntries(Object.entries(M.NODE_TABLE).map(([k,v])=>[k,v.to
  await p.exposeFunction('__qpShot',async clip=>(await p.screenshot({clip,animations:'disabled',caret:'hide'})).toString('base64'));
  await p.exposeFunction('__qpDiff',(a,b)=>{const A=H.png.decode(Buffer.from(a,'base64')),B=H.png.decode(Buffer.from(b,'base64'));let n=0;for(let i=0;i<A.data.length;i+=4)if(Math.max(...[0,1,2,3].map(k=>Math.abs(A.data[i+k]-B.data[i+k])))>12)n++;return n;});
  await p.goto(new URL('avatar-standard.html',base).href);await p.waitForFunction(()=>window.QPFoundationStudio,null,{timeout:60000});
+ // The converted hair layers (H3) before the first render, where the runtime has them.
+ await p.waitForFunction(()=>{const w=document.getElementById('runtime')?.contentWindow;return w&&(!w.QPFoundationHead||w.QPFoundationHead.atlas.ready||w.QPFoundationHead.atlas.error);},null,{timeout:60000});
  report.render=await p.evaluate(NODES=>{
   const api=QPFoundationStudio.api,host=document.createElement('div');document.body.append(host);let samples=0;
   const check=(v,message)=>{if(!v)throw Error(message);};

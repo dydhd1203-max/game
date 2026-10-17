@@ -41,7 +41,7 @@ async function run(browser,{report,check,out}){
   const context=await browser.newContext({viewport:{width:1280,height:800}}),seen=[];await fileRoute(context,seen,report);
   const page=await context.newPage();page.on('pageerror',e=>report.errors.push('file: '+e.message));await page.addInitScript(BUNDLE_LOG);
   await page.goto(pathToFileURL(path.join(ROOT,'index.html')).href+'?demo=1&avatar=foundation&session=wp7-file');
-  await page.waitForFunction(()=>window.QPGame?.getMe()&&window.QPFoundationGarments?.ready('starter')&&window.QPFoundationSkin?.atlas.ready&&window.QPAvatarDirection?.atlas.backReady,null,{timeout:120000});
+  await page.waitForFunction(()=>window.QPGame?.getMe()&&window.QPFoundationGarments?.ready('starter')&&window.QPFoundationSkin?.atlas.ready&&window.QPAvatarDirection?.atlas.backReady&&window.QPFoundationHead?.atlas.ready,null,{timeout:120000});
   const r=await page.evaluate(async()=>{const host=document.createElement('div');host.style.cssText='position:absolute;left:0;top:0;z-index:2147483647;background:#eef1f5;display:flex;flex-wrap:wrap;gap:8px;padding:8px;width:1260px';document.body.append(host);const res={},api=QPAvatarFoundation,G=QPFoundationGarments;
     const add=html=>{const d=document.createElement('div');d.innerHTML=html;host.append(d);return d.firstElementChild;};
     const frame=()=>new Promise(r=>requestAnimationFrame(()=>r()));

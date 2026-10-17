@@ -1360,7 +1360,17 @@ def build_figure(ctx, key, seg):
         # the sleeve's own. Prints are judged on both sleeves together (their
         # cloth median), as the body build did.
         both = sum(p['a'] for n, p in parts.items() if n.startswith('sleeve'))
-        if np.any(both > 0):
+        if np.any(both > 0) and info['frozenLines'][2]:
+            # The drawing keeps the basic sleeve's lines: the frozen sleeve's
+            # own alpha (its seam fade, with its prints crisp) fades it. The
+            # print search below misses a print recoloured with its cloth
+            # (a green flower on a green sleeve) and faded the cloth beside
+            # the seam away (WP8 hue tops, girl front sleeve IoU .93-.94).
+            dsl = fz.drawn['sleeves'][y0:y1, x0:x1, 3].astype(np.float32) / 255
+            for n, p in parts.items():
+                if n.startswith('sleeve'):
+                    p['a'] = np.where(dsl > 0, np.minimum(p['a'], dsl), p['a']).astype(np.float32)
+        elif np.any(both > 0):
             pr, _ = garment_prints(rgb, np.clip(both, 0, 1), np.zeros(both.shape, bool))
             for ah in g['armholes']:
                 name = 'sleeve%d' % (0 if ah['side'] < 0 else 1)

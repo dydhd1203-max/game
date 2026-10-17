@@ -18,7 +18,7 @@ const cases=[];for(const sex of ['m','f'])for(const look of [null,...items.filte
 try{
  await page.goto(server.base+'index.html?demo=1&session=foundation-studio');await page.waitForFunction(()=>window.QPGame&&window.QPAvatarFoundation,null,{timeout:90000});
  await page.evaluate(()=>{QPGame.go('login');QPFoundationSkin.load();QPFoundationOutfit.load();});
- await page.waitForFunction(()=>QPFoundationSkin.atlas.ready&&QPFoundationOutfit.atlas.ready&&QPAvatar?.atlas.ready&&QPAvatarDirection?.atlas.ready&&QPAvatarDirection.atlas.backReady,null,{timeout:120000});
+ await page.waitForFunction(()=>QPFoundationSkin.atlas.ready&&QPFoundationOutfit.atlas.ready&&QPAvatar?.atlas.ready&&QPAvatarDirection?.atlas.ready&&QPAvatarDirection.atlas.backReady&&(!window.QPFoundationHead||window.QPFoundationHead.atlas.ready||window.QPFoundationHead.atlas.error),null,{timeout:120000});
  for(const c of cases){
   const r=await page.evaluate(async({av,dir})=>{const api=QPAvatarFoundation,d=document.createElement('div');document.body.append(d);d.innerHTML=api.render(av,280);const svg=d.firstElementChild;
    const state=t=>({action:'floor-sit',seatMode:'floor',direction:dir,time:t,reducedMotion:false});api.apply(svg,state(0));

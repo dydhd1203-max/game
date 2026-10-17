@@ -431,6 +431,7 @@ input,textarea,select{font-family:inherit;font-size:inherit;color:#123}
 <script src="./avatar-foundation-outfit.js"></script>
 <script src="./avatar-hat-art.js"></script>
 <script src="./avatar-face-art.js"></script>
+<script src="./avatar-foundation-head.js"></script>
 <script src="./avatar-foundation.js"></script>
 <link rel="stylesheet" href="./avatar-foundation.css">
 <script src="./avatar-motion.js"></script>
@@ -1952,7 +1953,7 @@ function avKey(a){
    lod 2 = 크게 + 정지 (패션왕처럼 21명이 한꺼번에 뜨는 곳)
    lod 1 = 작게 (명단·OX). 배경·등장식·펫을 아예 안 그린다 */
 function avatarSVG(av, size, lod){
-  if(window.QPDemo && new URLSearchParams(location.search).get('avatar')==='foundation' && window.QPAvatarFoundation && window.QPFoundationGarments?.ready('starter') && window.QPAvatarDirection?.atlas.ready && window.QPAvatarDirection?.atlas.backReady && window.QPClothes?.atlas.ready && window.QPShoes?.atlas.ready) return QPAvatarFoundation.render(avatarForSex(av||newAvatar()),size);
+  if(window.QPDemo && new URLSearchParams(location.search).get('avatar')==='foundation' && window.QPAvatarFoundation && window.QPFoundationGarments?.ready('starter') && window.QPFoundationHead?.atlas.ready && window.QPClothes?.atlas.ready && window.QPShoes?.atlas.ready) return QPAvatarFoundation.render(avatarForSex(av||newAvatar()),size);
   av=avatarForSex(av||newAvatar());
   if(window.QPAvatar && window.QPAvatar.render) return window.QPAvatar.render(av||newAvatar(), size, lod==null?2:lod);
   av = av || newAvatar(); lod = lod==null?2:lod;
