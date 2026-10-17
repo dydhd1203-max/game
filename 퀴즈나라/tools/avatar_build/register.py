@@ -271,7 +271,8 @@ def make_spec(kind, template, template_fg, cells, layout, fit, anchors, canvas, 
     Optional: 'checks' (callable(res, reg_rgb, reg_a, spec, Tlab)) for the
     pipeline's own checks after registration; 'toneLimit' ((gain_lo, gain_hi),
     (dL, da, db)) holds each figure's tone map (clamp_tone); 'sharedTone' gives
-    every figure the first figure's map (fit_figures)."""
+    every figure the first figure's map (fit_figures); 'squashSheetOnly' raises
+    SQUASH only when two figures or more show it."""
     spec = dict(kind=kind, slot=slot, sexes=tuple(sexes), template=template, templateFg=template_fg, cells=cells,
                 layout=layout, fit=fit, anchors={k: np.asarray(v, np.float64) for k, v in anchors.items()},
                 canvas=tuple(canvas), offset=tuple(float(v) for v in offset))
@@ -1082,6 +1083,12 @@ def register(path, spec=None, slot='top', sexes=('m', 'f'), keep_images=True, mi
                                      detail='%.1f px from the other figures\' common placement' % off))
     # Collapse per-figure SQUASH into one sheet-level code when several figures agree.
     sq = [c for c in res['codes'] if c['code'] == 'SQUASH' and 'figure' in c]
+    if spec.get('squashSheetOnly') and len(sq) == 1:
+        # a figure whose stable mask is mostly covered (long hair over the back) gives a loose affine; a squashed
+        # sheet squashes every figure: one alone is recorded, not raised
+        res['codes'].remove(sq[0])
+        res['figures'][sq[0]['figure']]['squashAlone'] = sq[0]['value']
+        sq = []
     if len(sq) >= 2:
         res['codes'] = [c for c in res['codes'] if not (c['code'] == 'SQUASH' and 'figure' in c)]
         res['codes'].append(dict(code='SQUASH', figures=[c['figure'] for c in sq], detail='; '.join(

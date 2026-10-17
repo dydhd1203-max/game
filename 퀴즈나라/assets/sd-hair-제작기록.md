@@ -11,9 +11,13 @@ python3 -B tools/hair/build-base-head.py   # 기준 민머리 sd-hair-base-<m|f>
 python3 -B tools/hair/build-base-head.py --lash-test   # 속눈썹 원화 자리에 지금 원화를 넣어 받는 길 시험 (assets에 안 씀)
 node tools/hair/make-hair-template.cjs --style base     # 게임이 그린 민머리 그림틀(그림틀과 같은 자리), 눈 둘레 다시 요청의 첫 그림
 node tools/hair/board-heads.cjs            # 게임이 그린 민머리 280px 판·840px 목 이음·닫힌 구멍 (약 20초)
+python3 -B tools/hair/build-hairstyle.py 원화 --sex f --shape 이름 --install   # 받은 새 머리 원화 → sd-hair-<sex>-<모양>.webp·sd-hair-sheet.json (H5)
+python3 -B tools/hair/verify-hairstyle-pipeline.py   # 새 머리 파이프라인 시험 T1~T10 (약 10분, 저장소에 안 씀)
 ```
 
 기준 민머리(`sd-hair-base-<m|f>.webp`, 'm:base'·'f:base')는 `assets/hair-template/sources/민머리-*.png` 원화에서 만든다. `build-heads.py build`는 `sd-hair-base.json`의 항목을 `sd-hair-data.js`에 다시 합친다(민머리를 지우지 않음). 체험 화면은 민머리 아틀라스를 미리 풀지 않는다(상점 머리가 아님, `e.base`). 탐침 `interior`·`paleRim`·`eyeCore`·`edgePaint`(층 사각형 둘레 칠)·`lashOutsideBlink`·`eyeOutsideBlink`(속눈썹 원화가 있을 때, 감은 눈 덮개 밖)가 한도를 넘으면 실패하고, `--negative translucent|halo|nolash|noborder|shortcover`(옛 방식)는 실패해야 한다. `sources/민머리-눈-<남자|여자>-*.png`가 있으면 앞·옆 눈 둘레의 속눈썹만 그 그림에서 가져온다. 규칙은 `아바타-제작기준.md` '기준 민머리(H5-1)'.
+
+새 머리 모양(origin 'sheet', base '<sex>:base')은 받은 원화에서 `build-hairstyle.py --install`이 만든다: 기준 민머리 층에 머리카락 층을 얹은 아틀라스와 항목(`sd-hair-sheet.json`, `build-heads.py build`가 다시 합침). 머리 층은 다른 머리와 같은 염색 규칙(R=B=밝기, G=광택)이다. 규칙은 `아바타-제작기준.md` '새 머리 모양 파이프라인'.
 
 ## 무엇을 담았나
 
