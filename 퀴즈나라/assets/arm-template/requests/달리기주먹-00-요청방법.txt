@@ -1,0 +1,47 @@
+달리기 앞모습 주먹 팔 원화 2장 요청 (2026-10-17, 검수실 motion5 ①)
+==================================================================
+
+[꼭 지킬 것 - 모든 결과에 공통]
+- 모든 결과 그림은 이 압축파일의 그림틀('B1-주먹그림틀-남자.png' 또는 'B1-주먹그림틀-여자.png', 빨간 원이 없는 그림)에서 새로 그립니다. 앞에서 만든 그림 위에 덧그리지 않습니다. 빨간 원이 있는 'B2-주먹참고-...png'는 고칠 자리를 보여 주는 참고 그림이고, 그 위에 그리지 않습니다.
+- 결과는 그린 원본 그대로 줍니다. 크기 조정, 자르기, 색·위치 보정을 하지 않습니다(붙이는 도구가 해상도 차이를 자동으로 맞춥니다).
+- 결과는 그림틀과 같은 가로 그림 한 장(세 칸: 달리는 세 장면)입니다.
+- 피부색은 그림틀 그대로(밝은 피부)입니다. 게임이 피부색을 따로 물들이므로 다른 피부색은 그릴 필요가 없습니다.
+
+[왜 받나]
+달리기 앞모습에서 앞으로 흔든 팔은 아래팔과 주먹이 보는 사람 쪽으로 나옵니다. 지금 게임은 곧게 내린 팔 그림을 눌러 이 모양을 만들어서 외곽선 없이 흐린 살색 덩어리로 보입니다(사용자 지적 2026-10-16 "달릴때 소매, 팔쪽 부자연스러움"). 원래 그림에 없는 모양이라 원화로 받습니다. 게임은 받은 그림에서 빨간 원 안의 아래팔·주먹만 가져와 달리는 동안 이 팔에 붙이고, 반대쪽 팔에는 좌우를 뒤집어 씁니다.
+
+[보낼 것 2장]
+1) 첨부: B1-주먹그림틀-남자.png (+ 참고로 B2-주먹참고-남자.png)
+   결과 파일 이름: 달리기주먹-남자.png
+2) 첨부: B1-주먹그림틀-여자.png (+ 참고로 B2-주먹참고-여자.png)
+   결과 파일 이름: 달리기주먹-여자.png
+두 장 모두 아래 같은 요청 문장을 씁니다.
+
+----------------------------------------------------------------
+요청 문장 (그대로 붙여 넣기)
+----------------------------------------------------------------
+첫 번째 첨부 그림(달리는 아이의 앞모습 세 장면)에서 두 번째 첨부 그림의 빨간 원 안에 있는 팔만 다시 그려 주세요. 그림은 빨간 원이 없는 첫 번째 그림에서 그립니다.
+- 이 팔은 달리면서 앞으로 흔든 팔입니다. 팔꿈치를 굽혀 아래팔과 주먹이 보는 사람 쪽(화면 앞)으로 나와 있습니다. 그래서 아래팔은 짧게 줄어 보이고, 주먹은 손가락 마디가 보는 사람 쪽을 향한 둥글고 작은 주먹입니다.
+- 아래팔은 반팔 소매 끝동 아래에서 나오고, 주먹은 가슴 옆(소매 앞)에 있습니다. 세 장면마다 주먹의 위치와 크기는 지금 그림의 자리 그대로 둡니다.
+- 지금의 흐린 살색 덩어리 대신, 그림 속 다른 팔·손과 같은 굵기의 갈색 외곽선, 같은 피부색과 부드러운 명암으로 또렷하게 그립니다. 손가락은 4개의 마디가 보이고 엄지는 주먹 앞쪽에 감겨 있습니다.
+- 그 밖의 모든 것(얼굴, 머리, 몸, 옷, 소매, 다른 팔, 다리, 배경, 위치, 크기)은 그림틀과 완전히 같게 둡니다.
+- 흰 바탕에 그림자와 글자 없이, 각 칸(세로 3등분) 안에만, 그림틀과 같은 가로 그림 한 장으로 줍니다.
+
+English (same request):
+In the first attached image (three moments of a child running, front view), redraw ONLY the arm inside the red circle of the second attached image; draw on the first image (without the circle). This is the arm swung forward while running: the elbow is bent and the forearm and fist come toward the viewer, so the forearm looks short (foreshortened) and the fist is a small round fist with its knuckles facing the viewer. The forearm comes out below the short sleeve's cuff and the fist sits beside the chest, in front of the sleeve; keep the fist where and as large as it is now in each of the three moments. Instead of the blurry skin-coloured blob, draw it clearly with the same brown outline weight, skin colour and soft shading as the other arm and hand; four finger knuckles show and the thumb wraps over the front of the fist. Keep everything else exactly as in the image (face, hair, body, clothes, sleeves, the other arm, legs, background, position, size). White background, no shadow or text, each moment inside its third, one landscape image like the original, returned as drawn (no resizing or cropping).
+
+----------------------------------------------------------------
+결과가 이러면 다시 요청 (그대로 붙여 넣기)
+----------------------------------------------------------------
+- 팔의 자리나 각도가 크게 바뀌었거나 주먹이 다른 곳으로 옮겨졌을 때:
+  "주먹과 아래팔의 위치·크기는 첫 번째 그림의 세 장면 그대로 두고, 모양만 또렷하게 다시 그려 주세요."
+- 주먹이 너무 크거나 작을 때, 손가락이 5개 넘게 보일 때:
+  "주먹은 다른 손과 같은 크기의 작고 둥근 주먹으로, 손가락 마디 4개와 앞쪽에 감긴 엄지로 다시 그려 주세요."
+- 아래팔이 길게 펴졌거나 팔꿈치가 보이지 않게 앞으로 나오지 않았을 때:
+  "팔꿈치를 굽혀 아래팔과 주먹이 보는 사람 쪽으로 나온, 짧게 줄어 보이는 아래팔로 다시 그려 주세요."
+- 소매·옷·얼굴·다른 팔이 바뀌었을 때:
+  "빨간 원 안의 아래팔과 주먹 말고는 그림틀과 완전히 같아야 합니다. 그 팔만 바꿔 다시 그려 주세요."
+- 외곽선이 없거나 흐릴 때:
+  "다른 팔과 같은 굵기의 갈색 외곽선으로 또렷하게 다시 그려 주세요."
+- 그림자·글자·배경이 생겼거나 빨간 원이 그려졌을 때:
+  "흰 바탕에 그림자, 글자, 빨간 원 없이 다시 그려 주세요."

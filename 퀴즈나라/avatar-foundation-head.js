@@ -31,10 +31,11 @@
   const r=v=>Math.round(v*1e4)/1e4;
   function script(url){return new Promise((resolve,reject)=>{const s=document.createElement('script');s.src=url;s.onload=()=>{s.remove();resolve();};s.onerror=()=>{s.remove();reject(new Error('머리 자료를 불러오지 못했어요: '+url));};document.head.appendChild(s);});}
   function image(url){return new Promise(resolve=>{const im=new Image();im.onload=im.onerror=()=>resolve(im);im.src=url;});}
-  // The data, then every atlas decoded once, so a head never pops in after its avatar shows.
+  // The data, then every atlas decoded once, so a head never pops in after its avatar shows (the H5 base heads,
+  // e.base: the bald heads new styles are drawn on, no shop style, load only when drawn).
   function load(){
     return loading||(loading=(data()?Promise.resolve():script(new URL(DATA,base).href))
-      .then(()=>Promise.all(Object.values(data().styles).map(e=>image(new URL(e.file,base).href))))
+      .then(()=>Promise.all(Object.values(data().styles).filter(e=>!e.base).map(e=>image(new URL(e.file,base).href))))
       .then(()=>{atlas.ready=true;return atlas;})
       .catch(e=>{atlas.error=e.message;console.error(e);return atlas;}));
   }
