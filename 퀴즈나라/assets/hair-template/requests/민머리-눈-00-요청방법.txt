@@ -1,0 +1,73 @@
+민머리 속눈썹 다시 그리기 요청 (H5-1, 2026-10-17)
+=================================================
+
+[꼭 지킬 것 - 모든 결과에 공통]
+- 모든 결과 그림은 이 압축파일의 '1-민머리-그림틀-...png'에서 새로 그립니다. 앞에서 만든 그림 위에 덧그리지 않습니다.
+- 그림마다 속눈썹만 바뀝니다. 나머지(눈동자·흰자·눈 크기와 위치·눈썹·얼굴·귀·피부·목·몸·옷·배경·인물 위치와 크기)는 그림틀과 같아야 합니다.
+- 결과는 그린 원본 그대로 줍니다. 크기 조정, 자르기, 색·위치 보정을 하지 않습니다(붙이는 도구가 해상도 차이를 자동으로 맞춥니다).
+- 결과는 가로로 긴 그림 한 장에 앞·옆·뒤 세 모습입니다(그림틀과 같은 배치).
+- '2-고칠곳-참고-...png'는 고칠 곳을 3배로 키워 빨간 원으로 표시한 참고 그림입니다. 같이 첨부하되 따라 그리지 않습니다. 결과에 빨간 원이 들어가면 안 됩니다.
+- 게임은 받은 그림에서 앞·옆모습 눈 둘레의 속눈썹만 씁니다. 그래도 눈의 위치·크기가 그림틀과 같아야 맞춰 붙일 수 있습니다.
+
+[왜 받나]
+기준 민머리는 지난번 원화(두피·이마·눈썹·귀·뒤통수·목덜미)에 게임의 지금 눈을 얹어 만들었습니다.
+지금 눈은 원래 머리카락과 붙어 그려진 그림이라, 머리카락을 빼니 속눈썹이 잘리거나 덩어리로 남았습니다.
+- 남자 옆모습: 위 속눈썹이 검은 네모처럼 보이고 위쪽이 톱니 모양입니다.
+- 남자 앞모습: 오른쪽 눈(그림에서 오른쪽) 바깥 끝에 검은 조각이 있습니다.
+- 여자 앞모습: 두 눈 바깥 눈꼬리의 속눈썹이 잘리고 뾰족하게 흩어져 있습니다.
+- 여자 옆모습: 위 속눈썹 가장자리가 톱니 모양이고 붉은 점이 있습니다.
+속눈썹만 깔끔한 선으로 다시 받으면, 눈동자·흰자·깜빡임·표정은 지금 그대로 두고 속눈썹만 바꿔 넣습니다.
+
+[보낼 것 2장]
+1) 첨부: 1-민머리-그림틀-남자.png 와 2-고칠곳-참고-남자.png
+   요청 문장: 아래 '공통 요청 문장' + '남자 덧붙임'
+   결과 파일 이름: 민머리-눈-남자.png
+2) 첨부: 1-민머리-그림틀-여자.png 와 2-고칠곳-참고-여자.png
+   요청 문장: 아래 '공통 요청 문장' + '여자 덧붙임'
+   결과 파일 이름: 민머리-눈-여자.png
+
+----------------------------------------------------------------
+공통 요청 문장 (그대로 붙여 넣기)
+----------------------------------------------------------------
+첫 번째 그림(아이의 앞·옆(오른쪽을 봄)·뒤 세 모습, 민머리)에서 눈의 속눈썹만 깔끔하게 다시 그려 주세요. 두 번째 그림은 고칠 곳을 확대해 빨간 원으로 표시한 참고 그림입니다. 따라 그리지 말고, 결과에 빨간 원을 넣지 마세요.
+- 앞모습 두 눈과 옆모습 눈의 위 속눈썹은 눈 모양을 따라 휘어지는 매끈한 진한 선 하나로 그립니다. 바깥 끝은 가늘게 빠집니다.
+- 톱니 모양, 네모 덩어리, 잘린 자국, 붉은 얼룩, 흩어진 점이 없어야 합니다.
+- 속눈썹의 두께·길이·위치는 지금과 비슷하게 합니다. 눈 밖으로 길게 뻗은 뾰족한 속눈썹을 새로 그리지 않습니다.
+- 눈동자, 흰자, 눈의 크기와 위치, 눈썹, 코, 입, 볼, 귀, 얼굴, 피부색, 목, 옷, 배경, 인물의 위치와 크기는 첫 번째 그림과 완전히 같게 둡니다.
+- 머리카락은 그리지 않습니다(민머리 그대로). 뒷모습은 그대로 둡니다.
+- 흰 바탕에 그림자와 글자 없이, 첫 번째 그림과 같은 크기의 가로 그림 한 장으로 줍니다. 크기를 바꾸거나 자르지 않습니다.
+
+English (same request):
+In the first image (a bald child in three views: front, side facing right, back), redraw ONLY the eyelashes, neatly. The second image is a 3x close-up with red circles marking what to fix; it is a reference only: do not copy it and do not put red circles in the result. In the front view (both eyes) and the side view, draw each upper lash as one smooth dark line following the eye's curve, tapering at the outer end: no jagged edges, no square blocks, no cut-off pieces, no red smudges or stray dots. Keep the lashes about as thick and long as now; do not add long spiky lashes reaching out past the eye. Keep the irises, eye whites, eye size and position, brows, nose, mouth, cheeks, ears, face, skin colour, neck, clothes, background and the figure's position and size exactly as in the first image. No hair (stay bald). Leave the back view as it is. White background, no shadow or text, one landscape image the same size as the first image, no resizing or cropping.
+
+----------------------------------------------------------------
+남자 덧붙임 (남자 그림에 공통 문장 다음에 붙여 넣기)
+----------------------------------------------------------------
+- 옆모습의 위 속눈썹이 지금 검은 네모처럼 보입니다. 앞모습 위 속눈썹처럼 눈 위를 따라 휘어지는 짧고 단정한 선으로 그려 주세요. 눈 뒤쪽(귀 쪽) 흰자 옆의 회색 네모도 피부와 흰자로 자연스럽게 정리해 주세요.
+- 앞모습 오른쪽 눈(그림에서 오른쪽) 바깥 끝의 검은 조각을 없애고 왼쪽 눈처럼 깔끔하게 끝내 주세요.
+English: In the side view the upper lash looks like a black block; draw it as a short neat line curving over the eye, like the front view's upper lash, and tidy the grey square beside the eye white (toward the ear) into skin and eye white. In the front view, remove the black piece at the outer end of the right-hand eye and finish it as neatly as the left eye.
+
+----------------------------------------------------------------
+여자 덧붙임 (여자 그림에 공통 문장 다음에 붙여 넣기)
+----------------------------------------------------------------
+- 앞모습 두 눈의 바깥 눈꼬리 속눈썹이 잘리고 뾰족하게 흩어져 있습니다. 눈 안쪽 속눈썹에서 이어지는 매끈한 선으로 끝내고, 눈꼬리에 짧은 속눈썹 2~3가닥까지만 그려 주세요. 두 눈이 좌우 대칭으로 같은 모양이 되게 합니다.
+- 옆모습 위 속눈썹 가장자리의 톱니 모양과 붉은 점을 없애고, 한 줄로 이어진 선에 짧은 속눈썹 2~3가닥으로 정리해 주세요.
+English: In the front view the lashes at the outer corners of both eyes are cut off and scattered in spikes; finish each as a smooth line continuing from the inner lash, with at most two or three short lashes at the outer corner, the two eyes mirror images of each other. In the side view, remove the jagged edge and red dots of the upper lash: one continuous line with two or three short lashes.
+
+----------------------------------------------------------------
+결과가 이러면 다시 요청 (그대로 붙여 넣기)
+----------------------------------------------------------------
+- 속눈썹이 여전히 톱니·네모·잘린 모양일 때:
+  "속눈썹이 아직 깔끔하지 않습니다. 같은 첫 번째 그림에서 다시, 앞모습 두 눈과 옆모습 눈의 위 속눈썹을 눈 모양을 따라 휘어지는 매끈한 선 하나로, 끝은 가늘게 그려 주세요."
+- 속눈썹이 너무 길거나 굵거나 눈 밖으로 뻗었을 때:
+  "속눈썹이 너무 깁니다(굵습니다). 지금 첫 번째 그림과 비슷한 두께·길이로, 눈 밖으로 길게 뻗지 않게 다시 그려 주세요."
+- 눈동자·흰자·눈 크기나 위치, 눈썹이 바뀌었을 때:
+  "속눈썹 말고는 첫 번째 그림과 완전히 같아야 합니다. 눈동자·흰자·눈의 크기와 위치·눈썹을 바꾸지 말고 같은 그림에서 다시 그려 주세요."
+- 머리카락이 생겼을 때:
+  "민머리 그대로 두어야 합니다. 머리카락 없이 속눈썹만 고쳐 다시 그려 주세요."
+- 얼굴·피부색·몸·옷·위치·크기가 바뀌었거나 인물이 움직였을 때:
+  "속눈썹 말고는 첫 번째 그림과 같아야 합니다. 얼굴·피부색·옷·위치·크기를 바꾸지 말고 같은 그림에서 다시 그려 주세요."
+- 빨간 원, 확대 그림, 그림자·글자·배경이 들어갔을 때:
+  "두 번째 그림은 참고용입니다. 빨간 원이나 확대 그림 없이, 흰 바탕에 그림자와 글자 없이 첫 번째 그림과 같은 가로 그림 한 장으로 다시 그려 주세요."
+- 결과가 세로 그림이거나 크기가 다를 때:
+  "첫 번째 그림과 같은 가로 그림 한 장(앞·옆·뒤 세 모습)으로, 크기를 바꾸거나 자르지 말고 다시 주세요."

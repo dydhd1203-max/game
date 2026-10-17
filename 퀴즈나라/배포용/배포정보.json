@@ -1,7 +1,7 @@
 {
   "project": "퀴즈나라",
   "format": 1,
-  "builtAt": "2026-10-17T08:49:58.221Z",
+  "builtAt": "2026-10-17T09:13:26.329Z",
   "instructions": "Cloudflare Pages 또는 Netlify 수동 배포에는 이 배포용 폴더 전체를 올리세요. index.html만 올리지 마세요.",
   "files": [
     {
@@ -3501,13 +3501,13 @@
     },
     {
       "path": "assets/sd-hair-data.js",
-      "bytes": 81807,
-      "sha256": "8b78795b08888e0d9dc05c48e116283428828256bfca01615347f6fcadae147f"
+      "bytes": 81810,
+      "sha256": "b1cbb5cb548ac21cecdaab6280d4511ed384109824c705c215a7309da3b6c34b"
     },
     {
       "path": "assets/sd-hair-base-f.webp",
-      "bytes": 108948,
-      "sha256": "90162efddcd6efa2e0be6fe9666e3c1257e1bedd81b030cfcf2f88eb0ed83e93"
+      "bytes": 108582,
+      "sha256": "9da674a76b90fe423b79f3807f7cf394d4b65bbec540fe8e230fe53d3666321f"
     },
     {
       "path": "assets/sd-hair-f-bob.webp",
@@ -3571,8 +3571,8 @@
     },
     {
       "path": "assets/sd-hair-base-m.webp",
-      "bytes": 165478,
-      "sha256": "6d09b90e73b369bd33401ae720da3037e7f4ffcdd5fa012c4d24226ac9b76be1"
+      "bytes": 166106,
+      "sha256": "a862060fdb34be96362a409f074bd7cb70a494d270ab6502d95032a591e9ca77"
     },
     {
       "path": "assets/sd-hair-m-bowl.webp",
