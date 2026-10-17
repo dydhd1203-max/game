@@ -269,7 +269,9 @@ def make_spec(kind, template, template_fg, cells, layout, fit, anchors, canvas, 
       canvas       (width, height) of the template image given to ChatGPT
       offset       (x, y) of the sheet inside that canvas
     Optional: 'checks' (callable(res, reg_rgb, reg_a, spec, Tlab)) for the
-    pipeline's own checks after registration."""
+    pipeline's own checks after registration; 'toneLimit' ((gain_lo, gain_hi),
+    (dL, da, db)) holds each figure's tone map (clamp_tone); 'sharedTone' gives
+    every figure the first figure's map (fit_figures)."""
     spec = dict(kind=kind, slot=slot, sexes=tuple(sexes), template=template, templateFg=template_fg, cells=cells,
                 layout=layout, fit=fit, anchors={k: np.asarray(v, np.float64) for k, v in anchors.items()},
                 canvas=tuple(canvas), offset=tuple(float(v) for v in offset))
@@ -524,6 +526,7 @@ class Figure:
         self.centre = self.P.mean(0)
         self.radius = float(np.sqrt(((self.P - self.centre) ** 2).sum(1).mean()))
         self.tone = (np.ones(3, np.float32), np.zeros(3, np.float32))
+        self.tone_limit = spec.get('toneLimit')
         x0, y0, x1, y1 = spec['cells'][key]
         self.cell = (x0, y0, x1, y1)
         # Quarter-resolution blocks for the coarse search.
@@ -552,6 +555,8 @@ class Figure:
     def fit_tone(self, s, bx, by):
         u = sample(self.U, self.H, self.W, s * self.P[:, 0] + bx, s * self.P[:, 1] + by)
         self.tone = robust_tone(u, self.T, self.w)
+        if self.tone_limit:
+            self.tone = clamp_tone(self.tone, self.tone_limit)
         return self.tone
 
     def coarse(self, s0, b0, scale_range, scale_step, shift):
@@ -678,8 +683,9 @@ def _box_init(spec, key, box):
     th = ref[3] - ref[1]
     uh = box[3] - box[1]
     s = uh / th
-    if spec.get('slot') == 'hat' and spec.get('nominalS'):
-        # a hat raises the head top: the scale is the sheet's own, the soles fix y
+    if spec.get('slot') in ('hat', 'hair') and spec.get('nominalS'):
+        # a hat or a new hairstyle raises the head top: the scale is the sheet's own, the soles (the hair
+        # template's cut line) fix y
         s = spec['nominalS']
         by = box[3] - s * ref[3]
         bx = (box[0] + box[2]) / 2 - s * (ref[0] + ref[2]) / 2
@@ -722,9 +728,15 @@ def fit_figures(U_rgb, fg, boxes, spec, timing):
     s_med = float(np.median([v[0] for v in inits.values()]))
     figs = {}
     out = {}
-    for k in boxes:
+    # 'sharedTone': the first figure's tone map for every figure (a sheet's colour drift is the whole image's;
+    # long hair covers most of the back's stable mask, where a figure's own map follows the hair)
+    order = sorted(boxes, key=lambda k: k != spec['layout'][0][0]) if spec.get('sharedTone') else list(boxes)
+    shared = None
+    for k in order:
         tk = time.time()
         F = Figure(k, spec, Tlab, Tgrad, U_flat, (H, W), Ub_flat)
+        if shared is not None:
+            F.fit_tone = lambda s, bx, by, F=F: setattr(F, 'tone', shared) or F.tone
         cands = []
         s, bx, by = inits[k]
         cands += F.coarse(s, (bx, by), T['coarseScale'], T['coarseScaleStep'], T['coarseShift'])[:3]
@@ -746,6 +758,8 @@ def fit_figures(U_rgb, fg, boxes, spec, timing):
         e = F.evaluate(s, bx, by)
         aff = F.affine(s, bx, by, sub=4)
         figs[k] = F
+        if spec.get('sharedTone') and shared is None:
+            shared = F.tone
         out[k] = dict(s=s, b=(bx, by), error=e, tone=[F.tone[0].tolist(), F.tone[1].tolist()], affine=aff,
                       init=dict(box=list(boxes[k]), s=inits[k][0], b=list(inits[k][1:])),
                       seconds=round(time.time() - tk, 2))
@@ -833,7 +847,7 @@ def figure_alphas(alpha, boxes, fits, spec):
 def resample(U_rgb, alpha, fits, spec):
     """One Lanczos resample per cell into sheet space. `alpha` is the matte
     alpha, or {figure: alpha} (figure_alphas)."""
-    H, W = SHEET['height'], SHEET['width']
+    H, W = spec['template'].shape[:2]      # the garment sheet's 1448 x 1086; the hair template's own grid
     rgb = np.full((H, W, 3), 255.0, np.float32)
     a = np.zeros((H, W), np.float32)
     img = Image.fromarray(np.clip(np.rint(U_rgb), 0, 255).astype(np.uint8))
@@ -850,7 +864,7 @@ def resample(U_rgb, alpha, fits, spec):
 
 def map_mask(mask, fits, spec, threshold=.5):
     """A boolean upload mask resampled into sheet space (bilinear)."""
-    H, W = SHEET['height'], SHEET['width']
+    H, W = spec['template'].shape[:2]
     out = np.zeros((H, W), bool)
     img = Image.fromarray(mask.astype(np.float32), 'F')
     for k, f in fits.items():
@@ -958,6 +972,19 @@ def robust_tone(u, t, w=None, iters=6):
     return g.astype(np.float32), o.astype(np.float32)
 
 
+def clamp_tone(tone, limit):
+    """A tone map held to a sheet's plausible drift (limit = (gain_lo, gain_hi), (dL, da, db)): where the
+    change covers most of a figure's stable mask (long hair over the back), the robust map otherwise follows
+    the change (it mapped the brown hair onto the green shirt and the fit then aligned the hair's edges with
+    the shirt's: the back view 29 px off)."""
+    (lo, hi), off = limit
+    g, o = tone
+    g = g.copy(); o = o.copy()
+    g[0] = np.clip(g[0], lo, hi)
+    o = np.clip(o, -np.asarray(off, np.float32), np.asarray(off, np.float32))
+    return g, o
+
+
 def tone_fit_sheet(Ulab_s, Tlab, mask):
     """Per-sheet linear tone map (per Lab channel, robust) on stable pixels."""
     u = Ulab_s[mask]; t = Tlab[mask]
@@ -1008,12 +1035,12 @@ def register(path, spec=None, slot='top', sexes=('m', 'f'), keep_images=True, mi
     mt = M.matte(rgb, alpha, page)
     timing['matte'] = round(time.time() - t0, 2)
     t0 = time.time()
-    if spec['slot'] == 'hat':
-        # hats change the head region the layout check compares (order, aspect)
+    if spec['slot'] in ('hat', 'hair'):
+        # hats and hairstyles change the head region the layout check compares (order, aspect)
         # and the figure height the box scale comes from: the sheet scale instead
         spec = dict(spec, nominalS=nominal_transform(spec, rec['size'])[0])
     boxes, lcodes, linfo = find_layout(rgb, mt['fg'], spec)
-    if spec['slot'] == 'hat':
+    if spec['slot'] in ('hat', 'hair'):
         lcodes = [c for c in lcodes if c['code'] not in ('LAYOUT_ORDER', 'SQUASH')]
     timing['layout'] = round(time.time() - t0, 2)
     linfo.pop('figureLabels', None)

@@ -3,7 +3,7 @@
 // right and back, head, neck, the basic tee's collar and shoulders down to mid-chest, on white, as the first
 // picture of a hairstyle art request (and of the bald base head request). Drawn by the runtime (?demo=1,
 // nothing saved): idle, skin tone 0, hair colour 1 (갈색), bright face, basic outfit.
-//   node tools/hair/make-hair-template.cjs [OUTDIR] [--style base]     (default assets/hair-template, about 30 s)
+//   node tools/hair/make-hair-template.cjs [OUTDIR] [--style base|f:long,m:wolf] [--no-hair]     (default assets/hair-template, about 30 s)
 // writes OUTDIR/머리-그림틀-<m|f>.png (1536 x 1024, three 512 x 1024 cells: front | right | back, no marks or text),
 // OUTDIR/머리-그림틀-몸-<m|f>.png (the same with the head hidden: what a returned sheet's body must match)
 // and OUTDIR/머리-그림틀.json: per sex and view the head painting's transform from head-native units to template
@@ -15,7 +15,12 @@ const L=require(ROOT+'/tools/foundation-garment-lib.cjs'),H=L.H;
 const REF={m:'short',f:'bob'},VIEWS=['front','right','back'];
 // --style base: the H5 base heads (bald, 'm:base'/'f:base') at the template's own place (its ctm in 머리-그림틀.json,
 // so a returned sheet maps back the same way): 머리-그림틀-민머리-<m|f>.png, for requests that redraw a part of them
+// --style f:long,m:wolf: those styles at the template's place (머리-그림틀-<shape>-<sex>.png), the hair pipeline's
+// synthetic sheets (tools/hair/verify-hairstyle-pipeline.py); --no-hair: the same with the hair layer hidden
+// (머리-그림틀-<shape>-<sex>-민.png: where the hair is, a sheet's difference to it)
 const STYLE=(i=>i>0?process.argv[i+1]:null)(process.argv.indexOf('--style'));
+const STYLES=STYLE?Object.fromEntries(STYLE.split(',').map(s=>s.includes(':')?s.split(':'):[null,s]).flatMap(([x,sh])=>x?[[x,sh]]:[['m',sh],['f',sh]])):null;
+const NO_HAIR=process.argv.includes('--no-hair');
 // front head at 14 px per head unit (head-frame.json m/f front pxPerUnit280 4.6759 at 280 px; the widest view, the
 // f bob's back, then just fits a cell); every cell uses the same figure size, so the body, neck and collar match
 const SIZE=Math.round(14*280/4.6759),CELL_W=512,CELL_H=1024,SHEET_W=1536,SHEET_H=1024;
@@ -31,7 +36,9 @@ function headCtm(){return [...document.querySelectorAll('#fg-host .fg-cell')].ma
     const {page}=await L.openRuntime(browser,server.base,rep,{viewport:{width:SHEET_W+40,height:CELL_H+400}});await L.install(page,{});
     const known=STYLE?JSON.parse(fs.readFileSync(path.join(ROOT,'assets','hair-template','머리-그림틀.json'),'utf8')):null;
     for(const sex of ['m','f']){
-      const cells=VIEWS.map(direction=>({av:{sex,sk:0,hair:(STYLE||REF[sex])+':1',expression:'bright:0'},state:{action:'idle',direction,time:0,reducedMotion:true},size:SIZE}));
+      if(STYLES&&!STYLES[sex])continue;
+      const shape=STYLES?STYLES[sex]:REF[sex];
+      const cells=VIEWS.map(direction=>({av:{sex,sk:0,hair:shape+':1',expression:'bright:0'},state:{action:'idle',direction,time:0,reducedMotion:true},size:SIZE}));
       // first draw: where the paint starts and the cut lies; second: that span centred in the cell (--style: moved
       // so the front head lands where the template's does)
       let top=0,g,ctm,img,cutY;
@@ -44,16 +51,20 @@ function headCtm(){return [...document.querySelectorAll('#fg-host .fg-cell')].ma
         img=await L.capture(page,g);cutY=Math.round(ctm[0][3]*CUT+ctm[0][5]);
         let first=0;find:for(;first<cutY;first++)for(let x=0;x<Math.min(SHEET_W,img.width);x++){const i=(first*img.width+x)*4;if(img.data[i]<245||img.data[i+1]<245||img.data[i+2]<245)break find;}
         const edge=[...Array(cutY).keys()].some(y=>[0,CELL_W-1,CELL_W,2*CELL_W-1,2*CELL_W,3*CELL_W-1].some(x=>{const i=(y*img.width+x)*4;return img.data[i]<245;}));
-        if(edge)throw Error(sex+': the figure touches a cell edge; lower SIZE');
+        if(edge&&!STYLES)throw Error(sex+': the figure touches a cell edge; lower SIZE');
+        if(edge&&pass===1)console.log(sex+': '+shape+' touches a cell edge (a sheet like this fails HAIR_CROSSES_CELL)');
         if(pass===0&&!STYLE)top=Math.round(top+(CELL_H-(cutY-first))/2-first);
       }
       if(STYLE){     // the same place as the template, or a returned sheet would not map back
         const want=known.sexes[sex].views,off=VIEWS.map((v,i)=>Math.max(...ctm[i].map((x,k)=>Math.abs(x-want[v==='right'?'profile':v].ctm[k]))));
         if(Math.max(...off)>.6)throw Error(sex+': '+STYLE+' is not at the template\'s place: '+off.map(x=>x.toFixed(2)).join(', '));
-        const png={width:SHEET_W,height:SHEET_H,data:Buffer.alloc(SHEET_W*SHEET_H*4,255)};
-        for(let y=0;y<Math.min(SHEET_H,cutY,img.height);y++)img.data.copy(png.data,y*SHEET_W*4,y*img.width*4,y*img.width*4+Math.min(SHEET_W,img.width)*4);
-        fs.writeFileSync(path.join(OUT,'머리-그림틀-민머리-'+sex+'.png'),H.png.encode(png));
-        console.log('머리-그림틀-민머리-'+sex+'.png: at the template\'s place (ctm off at most '+Math.max(...off).toFixed(3)+' px)');
+        const sheet=src=>{const png={width:SHEET_W,height:SHEET_H,data:Buffer.alloc(SHEET_W*SHEET_H*4,255)};
+          for(let y=0;y<Math.min(SHEET_H,cutY,src.height);y++)src.data.copy(png.data,y*SHEET_W*4,y*src.width*4,y*src.width*4+Math.min(SHEET_W,src.width)*4);return H.png.encode(png);};
+        const name='머리-그림틀-'+(shape==='base'?'민머리':shape)+'-'+sex;
+        fs.writeFileSync(path.join(OUT,name+'.png'),sheet(img));
+        if(NO_HAIR){const style=await page.addStyleTag({content:'[data-foundation-hair-layers]>g:first-child{display:none!important}'});
+          fs.writeFileSync(path.join(OUT,name+'-민.png'),sheet(await L.capture(page,g)));await style.evaluate(n=>n.remove());}
+        console.log(name+'.png: at the template\'s place (ctm off at most '+Math.max(...off).toFixed(3)+' px)');
         continue;
       }
       // the same figures with the head hidden: the body (neck, collar, shirt) a returned sheet keeps, to tell its head from it
