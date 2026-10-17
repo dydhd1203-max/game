@@ -323,9 +323,10 @@ def feature_core(head, shape):
     return out
 
 
-def refine(head, src, cls_rgba, spec, reg):
+def refine(head, src, cls_rgba, spec, reg, cover=None):
     """H2 classes from today's decisions: ears and the crown highlights taken back,
-    ear rims and face rims fixed, specks and the old neck stub erased.
+    ear rims and face rims fixed, specks and the old neck stub erased (cover: where the body is
+    painted behind, body_cover(); in profile the old neck over it goes behind the stub zone's top too).
     Returns (classes uint8, erase bool, report)."""
     from avatar_build import matte as M
     view, sex = head['view'], head['sex']
@@ -393,6 +394,13 @@ def refine(head, src, cls_rgba, spec, reg):
     stub_polys = spec['stub'][sex].get(view)
     if stub_polys:      # the neck belongs to the body: its zones stay where today's renderer puts the painting
         region = poly_mask(stub_polys, head, shape)
+        if view == 'profile' and cover is not None:
+            # behind the zone's top (the notch under the ear) the old neck goes too, ears aside: over the body it
+            # half covered the body's collar line along the zone's edge, past it its outline hung from the hair tips
+            # (thicker old necks than the reference's); what would leave a hole or a seam comes back (keep_holes)
+            U, V = units_of(head, shape)
+            un, vn = min((p for poly in stub_polys for p in poly), key=lambda p: p[1])
+            region |= (U < un) & (V > vn) & ~ear
         if view == 'front':     # from just under this face's jaw line (the old neck's side outlines hook up to it)
             U, V = units_of(head, shape, reg)
             face = (c == SKIN) & ((bits & 1) > 0)
@@ -406,8 +414,10 @@ def refine(head, src, cls_rgba, spec, reg):
             # the rim is the old neck's dark outline; lighter hair strands crossing the neck (a braid's front lock) stay
             # (its antialiased edge reads as mid brown 'hair': only paint on or beside a broad strand is hair)
             rim = M.dilate(stubskin, 4) & region & (a > 0) & ~solid
-            # (a stroke of it crossing a strand, between broad hair, stays: it would cut the strand)
-            erase |= stubskin | (rim & ~M.dilate(solid, 2) & ((c == FIXED) | (c == HAIR)))
+            # (a stroke of it crossing a strand over the body's neck, between broad hair, stays: it would cut the
+            # strand; past the body's edge it is the old neck's outline left floating by the hair tips: it goes)
+            loose = (~M.dilate(solid, 2) & ((c == FIXED) | (c == HAIR))) | ((c == FIXED) & (np.ones(shape, bool) if cover is None else ~cover))
+            erase |= stubskin | (rim & loose)
             region = np.zeros(shape, bool)
         # hair stays only when it hangs from the hair mass outside through broad hair (long hair); the old
         # neck (dyed as hair on male fronts) touches the hair only through the thin jaw outline
@@ -450,6 +460,73 @@ def refine(head, src, cls_rgba, spec, reg):
     c[erase] = 0
     rep['changed'] = int((c != before).sum())
     return c, erase, rep, stubble, pre
+
+
+def body_cover(head, shape):
+    """Source-pixel mask of where the reference body (no garments, idle) is painted behind this head view
+    (OLDDIR/body-<sex>-<view>.png of tools/hair/export-body-cover.cjs, beside the exported decisions)."""
+    f = os.path.join(os.path.dirname(head['srcFile']), 'body-%s-%s.png' % (head['sex'], head['view']))
+    if not os.path.exists(f):
+        raise SystemExit('missing %s: run node tools/hair/export-body-cover.cjs first' % f)
+    m = np.asarray(Image.open(f).convert('RGBA'))[..., 3] > 128
+    U, V = units_of(head, shape)
+    fr = head['frame']
+    X, Y = np.floor((U - fr['x']) * PX).astype(int), np.floor((V - fr['y']) * PX).astype(int)
+    ok = (X >= 0) & (Y >= 0) & (X < m.shape[1]) & (Y < m.shape[0])
+    out = np.zeros(shape, bool)
+    out[ok] = m[Y[ok], X[ok]]
+    return out
+
+
+def gaps(paint, cover):
+    """Background enclosed by the head's paint and the body: 4-connected components of what neither
+    paints that do not reach the image edge."""
+    from avatar_build import matte as M
+    lab, comps = M.components(~(paint | cover))
+    h, w = paint.shape
+    out = np.zeros(paint.shape, bool)
+    for k in comps:
+        x0, y0, x1, y1 = k['bbox']
+        if x0 > 0 and y0 > 0 and x1 < w and y1 < h:
+            out[y0:y1, x0:x1] |= lab[y0:y1, x0:x1] == k['label']
+    return out
+
+
+def keep_holes(src, erase, cover, guard=True):
+    """Erased old-neck paint that the body's neck does not stand in for stays: where removing it leaves
+    background enclosed by the hair and the body's neck, and where the head's paint kept outside the body
+    would end right on the body's edge (both antialiased edges and the body's outline showed there as a
+    thin dark seam: the old neck now overlaps the body's edge by 2 px, inside it). Returns the pixels taken back."""
+    from avatar_build import matte as M
+    kept = np.zeros(erase.shape, bool)
+    if not guard:
+        return kept
+    solid = M.erode(cover, 1)      # the body's antialiased edge does not count as cover
+    edge = cover & ~M.erode(cover, 2)      # inside the body's edge only: kept paint never sticks out past the body
+    for _ in range(4):
+        left = (src[..., 3] > 96) & ~(erase & ~kept)
+        hole = gaps(left, solid)
+        more = erase & ~kept & ((M.dilate(hole, 1) & ~solid) | (edge & M.dilate(left & ~cover, 2)))
+        if not more.any():
+            break
+        kept |= more
+    return kept
+
+
+def fade_edge(src, erase, pre, cover, n=3):
+    """Over the body (cover), erased old-neck skin next to skin that stays fades out over n px instead of
+    ending on a straight edge (the chin's shadow cut by the stub zone showed as a seam across the neck).
+    Returns the alpha factor (0 elsewhere)."""
+    from avatar_build import matte as M
+    solid = M.erode(cover, 1)
+    gone = erase & (pre == SKIN) & solid
+    near = (pre == SKIN) & ~erase & (src[..., 3] > 128)
+    out = np.zeros(erase.shape)
+    for k in range(1, n + 1):
+        ring = M.dilate(near, 1) & gone & (out == 0)
+        out[ring] = 1 - k / (n + 1.)
+        near = near | ring
+    return out
 
 
 def box_mean(rgb, w, r):

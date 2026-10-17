@@ -6,7 +6,12 @@ foundation draws itself (3단계-계획.txt 'hair', H2).
       writes assets/sd-hair-<sex>-<shape>.webp (lossless; one atlas of trimmed layers per
       style, hair as its brush luminance and shine),
       assets/sd-hair-data.js and assets/sd-hair-제작기록.md; --check DIR also writes
-      the recomposition numbers and review boards (검증/, not committed)
+      the recomposition numbers and review boards (검증/, not committed);
+      needs OLDDIR/body-<sex>-<view>.png too (node tools/hair/export-body-cover.cjs, the body behind the
+      head: erased neck paint never leaves a hole there); --no-hole-guard: without that rule (the
+      negative control of the 'hole' probe)
+  python3 -B tools/hair/build-heads.py debug f-bob-profile [m-short-back ...] [--old DIR] [--out 검증/머리/디버그]
+      one head's decisions around the neck at 6x (painting | classes, erased, kept, stub zone, body edge)
 
 `build` starts from today's decisions (avatar-pixel.js / avatar-direction.js, read
 by export-old-heads.cjs), so every key shows the painting students see, and then:
@@ -313,12 +318,28 @@ def trim(img, at=(0, 0)):
     return img[y0:y1, x0:x1], (at[0] + int(x0), at[1] + int(y0))
 
 
-def convert_head(job):
-    """One head view: classes, layers (straight RGBA uint8 at the source resolution) and its record."""
-    head, spec, reg = job
+def decide(head, spec, reg, guard=True):
+    """refine() and the guards against the body behind (body-<sex>-<view>.png): old neck paint whose erasing
+    would leave background enclosed by the hair and the body's neck, or end the paint kept outside the body right
+    on its edge, stays; over the body the erased neck skin fades out beside the skin that stays."""
     src = HL.read_rgba(head['srcFile'])
     clsr = HL.read_rgba(head['clsFile'])
-    c, erase, rep, stubble, pre = HL.refine(head, src, clsr, spec, reg)
+    cover = HL.body_cover(head, clsr.shape[:2])
+    c, erase, rep, stubble, pre = HL.refine(head, src, clsr, spec, reg, cover if guard else None)
+    kept = HL.keep_holes(src, erase, cover, guard)
+    erase = erase & ~kept
+    fade = HL.fade_edge(src, erase, pre, cover) if guard and head['view'] != 'front' else np.zeros(erase.shape)
+    erase = erase & ~(fade > 0)
+    c[kept | (fade > 0)] = pre[kept | (fade > 0)]
+    rep['holeKept'] = int(kept.sum())
+    rep['faded'] = int((fade > 0).sum())
+    return src, clsr, c, erase, rep, stubble, pre, kept, fade
+
+
+def convert_head(job):
+    """One head view: classes, layers (straight RGBA uint8 at the source resolution) and its record."""
+    head, spec, reg = job[:3]
+    src, clsr, c, erase, rep, stubble, pre, kept, fade = decide(head, spec, reg, guard=job[3] if len(job) > 3 else True)
     keep = src[..., 3].copy()
     if head['view'] == 'front':      # today's jaw channel (the neck skin runs into the chin), inside the neck column only
         s, ox, oy = HL.placement(head)
@@ -327,6 +348,7 @@ def convert_head(job):
         jawcut = HL.fill_mask(polys, (src.shape[1], src.shape[0]), fx)
         keep *= 1 - jawcut * HL.poly_mask(spec['neckColumn'][head['sex']], head, c.shape)
     keep[erase] = 0
+    keep = np.where(fade > 0, keep * fade, keep)
     # split against the classes before the stub was erased (a strand's edge mixed with the old neck keeps only
     # its hair share), then drop the skin share beside erased paint (it would be a rim of the old neck)
     share, hrgb, srgb, band = HL.unmix(src, pre, HL.feature_core(head, c.shape), stubble=stubble)
@@ -335,7 +357,7 @@ def convert_head(job):
     near_erased = M_.dilate(erase, 2) & ~erase
     rep['unmixed'] = int(band.sum())
     old_c = clsr[..., 0].astype(np.uint8)
-    changed = ((c != old_c) & (c != HL.IRIS)) | erase | band
+    changed = ((c != old_c) & (c != HL.IRIS)) | erase | band | (fade > 0)
     if head['view'] == 'front':
         changed |= jawcut > 0       # today's wider cut: what it erased beside the neck is back
     layers = {}
@@ -364,7 +386,7 @@ def convert_head(job):
         t = trim(np.clip(np.round(img), 0, 255).astype(np.uint8))
         if t:
             out[k] = t
-    rep['probes'] = probes(head, src, clsr, c, keep, spec, reg, share)
+    rep['probes'] = probes(head, src, clsr, c, keep, spec, reg, share, kept | (fade > 0))
     if head['view'] == 'front':      # the face's lower edge (jaw, chin) in head units, for the front split
         U, V = HL.units_of(head, c.shape)
         face = (c == HL.SKIN) & ((clsr[..., 1].astype(int) & 1) > 0)
@@ -386,10 +408,13 @@ def convert_head(job):
 #             broad strand included: they showed as a dotted neck outline): the old neck stub
 #   paleRim   light paint (L >= 150) on the face edge, outside the eyes and mouth, that keeps its paint or
 #             takes the dye whole: a pale dotted rim on a dark skin or a dyed hair
-PROBE_LIMITS = {'earDyed': 12, 'crownSkin': 0, 'stub': 0, 'paleRim': 40}   # earDyed: a few hair-tip specks may match
+#   hole      paint today that is background enclosed by the hair and the body's neck (body-<sex>-<view>.png):
+#             erased old neck paint where the body's neck does not reach (behind the ear in profile, the nape's
+#             sides in back); today's count is today's own cut (m short, f bob)
+PROBE_LIMITS = {'earDyed': 12, 'crownSkin': 0, 'stub': 0, 'paleRim': 40, 'hole': 0}   # earDyed: a few hair-tip specks may match
 
 
-def probes(head, src, clsr, c, keep, spec, reg, share):
+def probes(head, src, clsr, c, keep, spec, reg, share, kept):
     from avatar_build import matte as M
     view, sex = head['view'], head['sex']
     rgb, a = src[..., :3], src[..., 3]
@@ -422,7 +447,7 @@ def probes(head, src, clsr, c, keep, spec, reg, share):
         if head.get('neckCut'):
             oldkeep[HL.poly_mask(HL.path_polygons(head['neckCut']), head, shape)] = 0
     if view == 'front':
-        out['stub'] = [int((zone & (oldkeep > 128) & (old != HL.HAIR)).sum()), int((zone & (keep > 128) & (c != HL.HAIR)).sum())]
+        out['stub'] = [int((zone & (oldkeep > 128) & (old != HL.HAIR)).sum()), int((zone & (keep > 128) & (c != HL.HAIR) & ~kept).sum())]
     else:       # the neck's skin and the rim within 4 px of it (hair strokes hanging there are hair's)
         neck = zone & (old == HL.SKIN) & (a > 0)
         rim = zone & M.dilate(neck, 4)
@@ -430,7 +455,10 @@ def probes(head, src, clsr, c, keep, spec, reg, share):
         loose = (c == HL.SKIN) | (((c == HL.FIXED) | (c == HL.HAIR)) & ~M.dilate(solid, 2))
         old_loose = (old == HL.SKIN) | (((old == HL.FIXED) | (old == HL.HAIR)) & ~M.dilate(HL.opening(old == HL.HAIR, 3), 2))
         out['stub'] = [int((rim & (oldkeep > 8) & old_loose).sum()),
-                       int((rim & (keep > 8) & loose).sum())]
+                       int((rim & (keep > 8) & loose & ~kept).sum())]
+    # paint today that became background enclosed by the hair and the body's neck (the guard keeps it)
+    cover = M.erode(HL.body_cover(head, shape), 1)
+    out['hole'] = [int((HL.gaps(oldkeep > 96, cover) & (a > 96)).sum()), int((HL.gaps(keep > 96, cover) & (oldkeep > 96)).sum())]
     if view != 'back':
         near = M.dilate((bits & 1) > 0, 2) & ~HL.feature_core(head, shape)
         light = (a > 128) & (L >= 150)
@@ -481,7 +509,59 @@ def pack(layers, width=1024):
     return pos, (W, y + row + 2 * GAP)
 
 
-def build(old_dir, out_dir, check_dir=None, only=None):
+def registrations(heads, spec):
+    """Profile landmarks and the shift of each profile face onto the reference face (f bob, m short)."""
+    lms = {}
+    for h in heads:
+        if h['view'] == 'profile':
+            lms[h['base']] = HL.profile_landmarks(h, HL.read_rgba(h['clsFile']))
+    regs = {}
+    for h in heads:
+        if h['view'] == 'profile':
+            ref = lms['%s-%s-profile' % (h['sex'], spec['reference'][h['sex']])]
+            regs[h['base']] = HL.registration(lms[h['base']], ref)
+        else:
+            regs[h['base']] = (0., 0.)
+    return lms, regs
+
+
+def debug(bases, old_dir, out_dir, guard=True):
+    """One head's decisions around the neck at 6x source pixels: the painting on blue | the classes (hair
+    brown, skin peach, fixed black, iris teal; erased red, kept by the hole guard green) with the stub zone
+    (yellow) and the body's edge behind it (cyan) | what is left over the body (flat skin) on blue."""
+    meta = HL.load_old(old_dir)
+    spec = json.load(open(SPEC))
+    _, regs = registrations(meta['heads'], spec)
+    os.makedirs(out_dir, exist_ok=True)
+    for base in bases:
+        head = next(h for h in meta['heads'] if h['base'] == base)
+        src, clsr, c, erase, rep, stubble, pre, kept, fade = decide(head, spec, regs[base], guard)
+        U, V = HL.units_of(head, c.shape)
+        ys, xs = np.nonzero((U >= 10) & (U <= 22) & (V >= 22) & (V <= 31))
+        y0, y1, x0, x1 = ys.min(), ys.max() + 1, xs.min(), xs.max() + 1
+        a = src[..., 3:4] / 255.
+        paint = src[..., :3] * a + np.array([30., 40., 90.]) * (1 - a)
+        cl = np.zeros(paint.shape) + [30., 40., 90.]
+        for k, col in ((HL.HAIR, (150, 90, 50)), (HL.SKIN, (250, 205, 180)), (HL.FIXED, (20, 20, 20)), (HL.IRIS, (40, 140, 150))):
+            cl[(c == k) & (src[..., 3] > 0)] = col
+        cl[erase] = (230, 40, 40)
+        cl[kept] = (40, 200, 60)
+        cl[fade > 0] = (230, 40, 40) * (1 - fade[fade > 0, None]) + np.array([250., 205., 180.]) * fade[fade > 0, None]
+        cover = HL.body_cover(head, c.shape)
+        zone = HL.poly_mask(spec['stub'][head['sex']].get(head['view'], []), head, c.shape)
+        cl[cover & ~M.erode(cover, 1)] = (0, 230, 230)
+        cl[zone & ~M.erode(zone, 1)] = (240, 220, 0)
+        keep = (src[..., 3:4] / 255.) * np.where(fade > 0, fade, ~erase)[..., None]
+        result = np.where(cover[..., None], np.array([232., 199., 178.]), np.array([30., 40., 90.]))
+        result = src[..., :3] * keep + result * (1 - keep)
+        tiles = [np.repeat(np.repeat(im[y0:y1, x0:x1], 6, 0), 6, 1) for im in (paint, cl, result)]
+        gap = np.full((tiles[0].shape[0], 12, 3), 255.)
+        f = os.path.join(out_dir, base + '.png')
+        Image.fromarray(np.clip(np.concatenate([tiles[0], gap, tiles[1], gap, tiles[2]], 1), 0, 255).astype(np.uint8)).save(f)
+        print(f, {k: rep[k] for k in ('stub', 'holeKept', 'faded') if k in rep})
+
+
+def build(old_dir, out_dir, check_dir=None, only=None, guard=True):
     meta = HL.load_old(old_dir)
     spec = json.load(open(SPEC))
     heads = meta['heads']
@@ -494,20 +574,9 @@ def build(old_dir, out_dir, check_dir=None, only=None):
         f = os.path.join(old_dir, h['base'] + '-patchSrc.png')
         if os.path.exists(f):
             h['patchSrcFile'] = f
-    # profile registration onto the reference face
-    lms = {}
-    for h in heads:
-        if h['view'] == 'profile':
-            lms[h['base']] = HL.profile_landmarks(h, HL.read_rgba(h['clsFile']))
-    regs = {}
-    for h in heads:
-        if h['view'] == 'profile':
-            ref = lms['%s-%s-profile' % (h['sex'], spec['reference'][h['sex']])]
-            regs[h['base']] = HL.registration(lms[h['base']], ref)
-        else:
-            regs[h['base']] = (0., 0.)
+    lms, regs = registrations(meta['heads'], spec)
     with Pool(4) as pool:
-        res = pool.map(convert_head, [(h, spec, regs[h['base']]) for h in heads])
+        res = pool.map(convert_head, [(h, spec, regs[h['base']], guard) for h in heads])
     results = {base: (c, layers, rep) for base, c, layers, rep in res}
     shifts = skin_shift(results, heads, body_skin_bins())
     worst, fails = {}, []
@@ -722,10 +791,15 @@ def main(argv):
     if cmd == 'tops':
         tops(sexes, out)
         return 0
+    opt = lambda k, d: argv[argv.index(k) + 1] if k in argv else d
+    old_dir = opt('--old', os.path.join(ROOT, '검증', '머리', '옛머리'))
     if cmd == 'build':
-        opt = lambda k, d: argv[argv.index(k) + 1] if k in argv else d
-        build(opt('--old', os.path.join(ROOT, '검증', '머리', '옛머리')), opt('--out', ASSETS), opt('--check', None),
-              opt('--only', '').split(',') if '--only' in argv else None)
+        build(old_dir, opt('--out', ASSETS), opt('--check', None),
+              opt('--only', '').split(',') if '--only' in argv else None, '--no-hole-guard' not in argv)
+        return 0
+    if cmd == 'debug':
+        debug([b for b in argv[1:] if not b.startswith('--') and b not in (opt('--old', None), opt('--out', None))], old_dir,
+              opt('--out', os.path.join(ROOT, '검증', '머리', '디버그')), '--no-hole-guard' not in argv)
         return 0
     if cmd == 'skull':
         skull(sexes, out)
