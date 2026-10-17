@@ -64,6 +64,8 @@ module.exports=[
   // Hat art (tools/hair/build-hat.py): the data file and its pictures and hair-hide masks.
   ...require('./hat-art-files.cjs'),
   ...require('./face-art-files.cjs'),
+  // Hair layers of the reference body (stage 3 H2/H3; generated list: tools/hair-files.cjs).
+  ...require('./hair-files.cjs'),
   // Garment records (stage 3; generated list: tools/garment-files.cjs).
   ...require('./garment-files.cjs')
 ];

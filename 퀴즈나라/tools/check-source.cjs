@@ -45,6 +45,10 @@ for(const file of fs.readdirSync(root).filter(f=>/^avatar-foundation[^/]*\.(css|
 for(const file of files){
   assert(fs.statSync(path.join(root,file)).isFile(),'Required quiz file is missing: '+file);
 }
+// Hair layers (stage 3 H2): every atlas is the one tools/hair/build-heads.py recorded in assets/sd-hair-data.js.
+{const crypto=require('node:crypto'),hair=require('./hair-files.cjs').hairData();let n=0;
+  for(const [key,e] of Object.entries(hair.styles)){const buf=fs.readFileSync(path.join(root,e.file));assert.equal(crypto.createHash('sha256').update(buf).digest('hex'),e.sha256,'assets/sd-hair-data.js '+key+': '+e.file+' differs from its sha256 (run python3 -B tools/hair/build-heads.py build)');n++;}
+  console.log('Hair layers: '+n+' atlases match assets/sd-hair-data.js');}
 // A stylesheet can load correctly while its local artwork is absent from the
 // release folder. Include every concrete local url() dependency in the list.
 const runtimeFiles=new Set(files.map(file=>file.split(path.sep).join('/')));

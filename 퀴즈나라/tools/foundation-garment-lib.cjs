@@ -383,7 +383,7 @@ async function openRuntime(browser,base,report,{query='demo=1&session=foundation
   await page.goto(new URL('index.html?'+query,base).href);
   await page.waitForFunction(()=>window.QPGame&&window.QPAvatarFoundation,null,{timeout:90000});
   await page.evaluate(()=>{QPGame.go('login');window.QPFoundationSkin?.load();window.QPFoundationOutfit?.load();});
-  if(waitStarter)await page.waitForFunction(()=>window.QPFoundationOutfit?.atlas.ready&&window.QPFoundationSkin?.atlas.ready&&window.QPAvatar?.atlas.ready&&window.QPAvatarDirection?.atlas.backReady,null,{timeout:120000,polling:100});
+  if(waitStarter)await page.waitForFunction(()=>window.QPFoundationOutfit?.atlas.ready&&window.QPFoundationSkin?.atlas.ready&&window.QPAvatar?.atlas.ready&&window.QPAvatarDirection?.atlas.backReady&&(!window.QPFoundationHead||window.QPFoundationHead.atlas.ready||window.QPFoundationHead.atlas.error),null,{timeout:120000,polling:100});
   return{context,page};
 }
 async function install(page,cfg={}){await page.evaluate(pageLib,cfg);}

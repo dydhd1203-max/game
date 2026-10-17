@@ -401,6 +401,11 @@ def refine(head, src, cls_rgba, spec, reg):
             under = poly_mask(spec['stubSides'][sex], head, shape, reg) & (V > jawv[None, :] + .35)
             erase |= under & (c != HAIR) & (a > 0)      # the stub's skin and outline (long hair kept)
             region |= under
+        if view != 'front':     # profile, back: the neck's skin and the rim around it; hair (braids, long hair) stays
+            stubskin = region & (c == SKIN) & (a > 0)
+            # the rim is the old neck's dark outline; lighter hair strands crossing the neck (a braid's front lock) stay
+            erase |= stubskin | (M.dilate(stubskin, 4) & region & (a > 0) & ~solid & ((c == FIXED) | ((c == HAIR) & (L < 80))))
+            region = np.zeros(shape, bool)
         # hair stays only when it hangs from the hair mass outside through broad hair (long hair); the old
         # neck (dyed as hair on male fronts) touches the hair only through the thin jaw outline
         lab, comps = M.components(solid & (a > 0))

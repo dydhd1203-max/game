@@ -4,7 +4,7 @@ foundation draws itself (3단계-계획.txt 'hair', H2).
   node tools/hair/export-old-heads.cjs 검증/머리/옛머리        today's per-pixel decisions
   python3 -B tools/hair/build-heads.py build [--old DIR] [--out assets] [--check DIR] [--only f:twin,m:crop]
       writes assets/sd-hair-<sex>-<shape>.webp (lossless; one atlas of trimmed layers per
-      style, hair as its brush luminance),
+      style, hair as its brush luminance and shine),
       assets/sd-hair-data.js and assets/sd-hair-제작기록.md; --check DIR also writes
       the recomposition numbers and review boards (검증/, not committed)
 
@@ -376,8 +376,8 @@ def convert_head(job):
 # catch today's defects and read 0 on the result; 아바타-제작기준.md '머리 층 변환'):
 #   earDyed   skin-coloured paint (g/r >= .68, b/g >= .80, L >= 150) in an ear zone taking the hair dye
 #   crownSkin back view: skin outside the ear/nape (and skinZones) places, i.e. hair highlights tinted as skin
-#   stub      paint left under the jaw in the body's neck column (front) or in the stub zone (profile,
-#             back) that is not hair: the old neck stub and its rim
+#   stub      paint left under the jaw in the body's neck column (front, not hair) or the neck's skin and
+#             its rim in the stub zone (profile, back): the old neck stub
 #   paleRim   light paint (L >= 150) on the face edge, outside the eyes and mouth, that keeps its paint or
 #             takes the dye whole: a pale dotted rim on a dark skin or a dyed hair
 PROBE_LIMITS = {'earDyed': 12, 'crownSkin': 0, 'stub': 0, 'paleRim': 40}   # earDyed: a few hair-tip specks may match
@@ -415,7 +415,13 @@ def probes(head, src, clsr, c, keep, spec, reg, share):
         oldkeep = a.copy()
         if head.get('neckCut'):
             oldkeep[HL.poly_mask(HL.path_polygons(head['neckCut']), head, shape)] = 0
-    out['stub'] = [int((zone & (oldkeep > 128) & (old != HL.HAIR)).sum()), int((zone & (keep > 128) & (c != HL.HAIR)).sum())]
+    if view == 'front':
+        out['stub'] = [int((zone & (oldkeep > 128) & (old != HL.HAIR)).sum()), int((zone & (keep > 128) & (c != HL.HAIR)).sum())]
+    else:       # the neck's skin and the rim within 4 px of it (hair strokes hanging there are hair's)
+        neck = zone & (old == HL.SKIN) & (a > 0)
+        rim = zone & M.dilate(neck, 4)
+        out['stub'] = [int((rim & (oldkeep > 128) & ((old == HL.SKIN) | (old == HL.FIXED))).sum()),
+                       int((rim & (keep > 128) & ((c == HL.SKIN) | (c == HL.FIXED))).sum())]
     if view != 'back':
         near = M.dilate((bits & 1) > 0, 2) & ~HL.feature_core(head, shape)
         light = (a > 128) & (L >= 150)
@@ -530,10 +536,12 @@ def build(old_dir, out_dir, check_dir=None, only=None):
             for k, (img, at) in results[h['base']][1].items():
                 if k == 'skin' or k.startswith('blink'):
                     img = shift_skin(img, shifts.get((sex, h['view']), np.zeros(3)))
-                if k == 'hair':     # the dye reads only the brush luminance (avatar-pixel.js tonal)
+                if k == 'hair':     # the dye reads only the brush luminance (avatar-pixel.js tonal): R = B = L, G = its shine
                     img = img.copy()
                     rgb = img[..., :3].astype(np.float64)
-                    img[..., :3] = np.clip(np.round(rgb[..., 0] * .25 + rgb[..., 1] * .59 + rgb[..., 2] * .16), 0, 255).astype(np.uint8)[..., None]
+                    lum = np.clip(np.round(rgb[..., 0] * .25 + rgb[..., 1] * .59 + rgb[..., 2] * .16), 0, 255)
+                    img[..., 0] = img[..., 2] = lum.astype(np.uint8)
+                    img[..., 1] = np.round(np.maximum(0, lum - 160) * .38).astype(np.uint8)
                 flat[(h['view'], k)] = (img, at)
         pos, (W, H) = pack({k: v[0] for k, v in flat.items()})
         atlas = np.zeros((H, W, 4), np.uint8)
@@ -560,6 +568,13 @@ def build(old_dir, out_dir, check_dir=None, only=None):
                 x, y = pos[(view, lk)]
                 hh, ww = img.shape[:2]
                 v['layers'][lk] = [x, y, ww, hh, round(ux0 + at[0] * k_, 4), round(uy0 + at[1] * k_, 4), round(ww * k_, 4), round(hh * k_, 4)]
+            if 'skin' in v['layers']:   # the face's own light skin paint (expression patches are filled with it)
+                ax, ay, w, hh = v['layers']['skin'][:4]
+                px = atlas[ay:ay + hh, ax:ax + w].reshape(-1, 4)
+                px = px[px[:, 3] > 250][:, :3].astype(np.float64)
+                px = px[HL.lum_skin(px) >= 200]
+                if len(px):
+                    v['faceTone'] = '#%02x%02x%02x' % tuple(int(round(c_)) for c_ in np.median(px, axis=0))
             if h['view'] == 'front':
                 v['eyes'] = [[round((e['x'] * h['geometry']['scale'] + h['geometry']['x']) / HL.PX, 3), round((e['y'] * h['geometry']['scale'] + h['geometry']['y']) / HL.PX, 3)] for e in h['eyes']]
             if h['view'] == 'profile':
@@ -607,8 +622,8 @@ def render_view(atlas, head, v, hair, skin, mode='old', layers=LAYERS):
         ax, ay, w, h, ux, uy, uw, uh = v['layers'][lk]
         img = atlas[ay:ay + h, ax:ax + w].astype(np.float64)
         rgb = img[..., :3].reshape(-1, 3)
-        if lk == 'hair':
-            rgb = HL.tonal(rgb[:, 0] * .25 + rgb[:, 1] * .59 + rgb[:, 2] * .16, HL.hexrgb(hair))
+        if lk == 'hair':      # R: brush luminance, G: its shine (the runtime filter: dye x R / 102 + G)
+            rgb = np.clip(np.round(HL.hexrgb(hair)[None, :] * rgb[:, :1] / 102. + rgb[:, 1:2]), 0, 255)
         elif lk == 'skin' or lk.startswith('blink'):
             rgb = HL.skin_tint(rgb, HL.hexrgb(skin)) if mode == 'old' else np.clip(rgb @ tone_matrix(skin).T, 0, 255)
         img[..., :3] = rgb.reshape(h, w, 3)
