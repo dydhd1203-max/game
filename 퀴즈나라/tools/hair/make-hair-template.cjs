@@ -4,7 +4,8 @@
 // picture of a hairstyle art request (and of the bald base head request). Drawn by the runtime (?demo=1,
 // nothing saved): idle, skin tone 0, hair colour 1 (갈색), bright face, basic outfit.
 //   node tools/hair/make-hair-template.cjs [OUTDIR]      (default assets/hair-template, about 30 s)
-// writes OUTDIR/머리-그림틀-<m|f>.png (1536 x 1024, three 512 x 1024 cells: front | right | back, no marks or text)
+// writes OUTDIR/머리-그림틀-<m|f>.png (1536 x 1024, three 512 x 1024 cells: front | right | back, no marks or text),
+// OUTDIR/머리-그림틀-몸-<m|f>.png (the same with the head hidden: what a returned sheet's body must match)
 // and OUTDIR/머리-그림틀.json: per sex and view the head painting's transform from head-native units to template
 // pixels ([a, b, c, d, e, f]: x = a u + c v + e, y = b u + d v + f), the figure size and the cut line, so a
 // returned sheet maps back onto the head layers.
@@ -37,9 +38,14 @@ function headCtm(){return [...document.querySelectorAll('#fg-host .fg-cell')].ma
         if(edge)throw Error(sex+': the figure touches a cell edge; lower SIZE');
         if(pass===0)top=Math.round(top+(CELL_H-(cutY-first))/2-first);
       }
-      const png={width:SHEET_W,height:SHEET_H,data:Buffer.alloc(SHEET_W*SHEET_H*4,255)};
-      for(let y=0;y<Math.min(SHEET_H,cutY,img.height);y++)img.data.copy(png.data,y*SHEET_W*4,y*img.width*4,y*img.width*4+Math.min(SHEET_W,img.width)*4);
-      fs.writeFileSync(path.join(OUT,'머리-그림틀-'+sex+'.png'),H.png.encode(png));
+      // the same figures with the head hidden: the body (neck, collar, shirt) a returned sheet keeps, to tell its head from it
+      const style=await page.addStyleTag({content:'[data-foundation-head-paint],[data-foundation-back-hair],[data-foundation-head-view]{display:none!important}'});
+      const body=await L.capture(page,g);await style.evaluate(n=>n.remove());
+      for(const [name,src] of [['머리-그림틀-'+sex+'.png',img],['머리-그림틀-몸-'+sex+'.png',body]]){
+        const png={width:SHEET_W,height:SHEET_H,data:Buffer.alloc(SHEET_W*SHEET_H*4,255)};
+        for(let y=0;y<Math.min(SHEET_H,cutY,src.height);y++)src.data.copy(png.data,y*SHEET_W*4,y*src.width*4,y*src.width*4+Math.min(SHEET_W,src.width)*4);
+        fs.writeFileSync(path.join(OUT,name),H.png.encode(png));
+      }
       meta.sexes[sex]={style:REF[sex]+':1',cutY,views:Object.fromEntries(VIEWS.map((v,i)=>[v==='right'?'profile':v,{cell:g.rects[i],ctm:ctm[i].map(x=>+x.toFixed(4))}]))};
       console.log('머리-그림틀-'+sex+'.png: figure '+SIZE+' px, cut at y '+cutY);
     }
